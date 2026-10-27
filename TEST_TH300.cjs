@@ -1317,3 +1317,20 @@ test('per-dungeon combat settings switch mode, distance and interval without lea
 // [VI dòng gốc 648] Duyệt từng giá trị trong [[{},'THIEN_QUAN'],[{tower:true},'LINH_LUNG'],[{rune:true},'PHU_VAN'],[{trutien:true},'TRU_TIEN']] bằng const [scope,kind]. | Khai báo biến không gán lại bằng const: [scope,kind] (chưa gán giá trị) | gọi test('switch live scoped basic to mixed and back '+kind, ()=>{const q=harness({...scope,fastReady:true});let mode='basic8001'…) | Khai báo biến không gán lại bằng const: q = gọi harness({...scope,fastReady:true})
 for(const [scope,kind] of [[{},'THIEN_QUAN'],[{tower:true},'LINH_LUNG'],[{rune:true},'PHU_VAN'],[{trutien:true},'TRU_TIEN']])test('switch live scoped basic to mixed and back '+kind,()=>{const q=harness({...scope,fastReady:true});let mode='basic8001';q.W.KVPV_FAR_SCOPE={status:()=>({kind}),inside:()=>true,eligible:()=>true};q.W.KVPV_DESKTOP_CONTROL={scopeProfile:()=>({mode,distance:302,intervalMs:0})};q.mod.setBasicHitQuota(null);q.mod.setBasicOnly(true);q.mod.start('SCAN');q.pump();assert.equal(q.calls.at(-1),8001);q.elapse(1000);const n=q.calls.length;q.c.combat(1001);assert.equal(q.calls.length,n);mode='mixed';q.c.combat(1001);assert.equal(q.calls.at(-1),1001);q.elapse(1000);mode='basic8001';const m=q.calls.length;q.c.combat(1001);assert.equal(q.calls.length,m);q.c.combat(8001);assert.equal(q.calls.at(-1),8001);q.mod.stop();});
 // [VI dòng gốc 649] Dòng trống để tách các phần, không có lệnh thực thi.
+
+
+test('TQ fixed distance continues at low HP and yields on death',()=>{
+ const q=harness({defaultDistance:true,newDefault:true,startX:190,fastReady:true});
+ q.W.KVPV_FAR_SCOPE={inside:()=>true,status:()=>({kind:'THIEN_QUAN',inside:true}),eligible:()=>true};
+ q.W.KVPV_TQ_POSITION_ONLY={enabled:true,distance:310,heal:false};
+ q.W.KVPV_HITRUN1.status=()=>({running:false,phase:'RETREAT',hpPct:10,leavePct:35});
+ q.hp(10);q.mod.start('SCAN');q.pump();
+ const first=q.mod.status(false);
+ assert.equal(first.goalDistance,310);assert.equal(first.recoveryEnabled,false);
+ assert.equal(first.distanceOnly310,true);assert.equal(q.actor.coords.x,310);
+ const count=first.castAttempts;q.hp(1);q.advance(150);
+ assert(q.mod.status(false).castAttempts>count);
+ q.hp(0);const deadCount=q.mod.status(false).castAttempts;q.advance(150);
+ assert.equal(q.mod.status(false).castAttempts,deadCount);
+ q.mod.stop();
+});
