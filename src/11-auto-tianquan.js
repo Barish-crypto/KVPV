@@ -19,7 +19,7 @@
 // [VI dòng gốc 11] gọi W.KVPV_TH300?.setBasicPace(0) để đặt khoảng chờ thêm phía client cho đòn tay; 0 nghĩa là không thêm thời gian chờ (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     W.KVPV_TH300?.setBasicPace?.(0);
 // [VI dòng gốc 12] gọi W.KVPV_TH300?.setClientPace(0) để đặt khoảng chờ thêm chung giữa các lần thử tung chiêu phía client (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
-    W.KVPV_TH300?.setClientPace?.(100);
+    W.KVPV_TH300?.setClientPace?.(1);
     W.KVPV_FAR_SCOPE?.setAllBosses?.(false);
     W.KVPV_TQ115?.stop?.();
 // [VI dòng gốc 13] gọi W.KVPV_TH300?.setInterleaved(true, 302) để bật/tắt bộ chọn xen đòn thường và đặt khoảng cách mục tiêu (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
