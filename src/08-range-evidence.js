@@ -27,7 +27,7 @@
 // [VI dòng gốc 18] Chú thích gốc của tác giả; không được thực thi. Nội dung: Mặc định 302 đơn vị Boss → nhân vật, sai số 5; dải thử còn yêu cầu lớn hơn 300.
   // Mặc định 302 đơn vị Boss → nhân vật, sai số 5; dải thử còn yêu cầu lớn hơn 300.
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: CFG = tạo đối tượng gồm min, max, goal, tolerance, scanMs, basicOnly, basicAnimationSpeed, clientPaceMs, afterTHWaitMs, moveWaitMs, castTtlMs, minCastConfirmations, paceMs
-  const CFG={min:300,max:312,goal:302,tolerance:5,scanMs:8,basicOnly:false,basicAnimationSpeed:1,clientPaceMs:null,afterTHWaitMs:0,moveWaitMs:150,castTtlMs:3500,minCastConfirmations:2,paceMs:75};
+  const CFG={min:300,max:312,goal:302,tolerance:5,scanMs:4,basicOnly:false,basicAnimationSpeed:1,clientPaceMs:null,afterTHWaitMs:0,moveWaitMs:150,castTtlMs:3500,minCastConfirmations:2,paceMs:75};
 // [VI dòng gốc 20] Khai báo biến không gán lại bằng const: scopedCombat = tạo hàm với tham số (không có); mỗi lần gọi trả về W.KVPV_DESKTOP_CONTROL?.scopeProfile?.(W.KVPV_FAR_SCOPE?.status?.()?.kind) hoặc dùng vế phải khi vế trái là null/undefined: null
   const scopedCombat=()=>W.KVPV_DESKTOP_CONTROL?.scopeProfile?.(W.KVPV_FAR_SCOPE?.status?.()?.kind)??null;
 // [VI dòng gốc 21] Duyệt từng giá trị trong ['goal','min','max','basicOnly'] bằng const key. | Khai báo biến không gán lại bằng const: key (chưa gán giá trị) | Khai báo biến có thể gán lại bằng let: base = đọc CFG[key] | gọi Object.defineProperty(CFG, key, {enumerable:true,configurable:true,get(){const p=scopedCombat();if(!p)return base;if(key==='basicOnly')return …)
@@ -1442,7 +1442,7 @@
 // [VI dòng gốc 695] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 696] Định nghĩa hàm setBasicOnly; tham số: enabled=true. Mục đích: bật/tắt chế độ nhân vật chỉ dùng đòn tay 8001 trong Thiên Quan, Linh Lung, Phù Văn và Tru Tiên | gán CFG.basicOnly bằng !!enabled | gán CFG.scanMs bằng enabled?1:8
-  function setBasicOnly(enabled=true){CFG.basicOnly=!!enabled;CFG.scanMs=enabled?1:8;
+  function setBasicOnly(enabled=true){CFG.basicOnly=!!enabled;CFG.scanMs=enabled?1:4;
 // [VI dòng gốc 697] Kiểm tra enabled: đúng thì chạy nhánh sau if. | gán mixed.enabled bằng true | gán mixed.primary bằng true | gán mixed.rotation bằng [8001]
     if(enabled){mixed.enabled=true;mixed.primary=true;mixed.rotation=[8001];mixed.rotationCursor=0;mixed.wantBasic=true;mixed.basicPaceMs=0;mixed.ready.clear();burst.enabled=false;basicProbe.enabled=false;CFG.clientPaceMs=0;}
 // [VI dòng gốc 698] Kiểm tra ST.timer!==null: đúng thì chạy nhánh sau if. | gọi W.KVPV_V1?.timers?.clearInterval??W.clearInterval(ST.timer) | gán ST.timer bằng (W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,CFG.scanMs)
