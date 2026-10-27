@@ -21,7 +21,8 @@
 // [VI dòng gốc 11] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function tick(){try{
 // [VI dòng gốc 12] Kiểm tra !S.enabled: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Kiểm tra !owned(): đúng thì chạy nhánh sau if. | gọi stop() để dừng bộ điều khiển và dọn tài nguyên
-    if(!S.enabled)return;if(!owned()){stop();return;}
+    if(!S.enabled)return;if(W.KVPV_MATERIAL_RESERVE?.active===true){S.reason='materials_reserved_for_so_tai';return;}
+    if(!owned()){stop();return;}
 // [VI dòng gốc 13] Khai báo biến không gán lại bằng const: cfg = đọc W.KVPV_UPGRADES?.config nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kiểm tra !cfg: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     const cfg=W.KVPV_UPGRADES?.config;if(!cfg)return;
 // [VI dòng gốc 14] Kiểm tra S.saved===undefined: đúng thì chạy nhánh sau if. | gán S.saved bằng cfg.daHon===true | gán cfg.daHon bằng false
