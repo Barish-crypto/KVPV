@@ -55,6 +55,7 @@ cooldown=false;manual=true;W.__KVPV_USER_UI_UNTIL=now+500;
 assert.equal(road.planNativeSelection(rows,[],1),null,'user input keeps native selection');
 manual=false;W.__KVPV_USER_UI_UNTIL=0;
 W.KVPV_ROAD_CADENCE.setBasicPriority(false);
+now+=80; // clear the legitimate native duplicate-call guard before testing fallback
 assert.equal(road.planNativeSelection(rows,[],1),null,'explicit disable preserves native behavior');
 assert.equal(selector.selectSkill(),1008,'disabled priority gives native first ready skill');
 road.setBasicPriority(true);
