@@ -44,5 +44,7 @@ api.stop();
 const far=fs.readFileSync(__dirname+'/src/08-range-evidence.js','utf8');
 assert(far.includes('scanMs:4,basicOnly:false'),'far boss scan is 4ms when not in 1ms Tian Quan profile');
 assert(far.includes('CFG.scanMs=enabled?1:4;'),'1ms trial remains available and restore returns to 4ms');
+const startup=fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8');
+assert(startup.includes('setClientPace?.(1)'), 'fallback client pace must not be 100ms');
 function calls(){return casts.length;}
 console.log('PASS faster skill polling: 4ms active, 16ms idle, 50ms background, cooldown/scene safety, 1ms Tu Vuot preserved');
