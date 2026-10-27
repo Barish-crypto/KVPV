@@ -50,6 +50,7 @@ const liveModules = [
   "00-daily-clock.js",
 // [VI dòng gốc 26] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-manual-entry-policy.js",
   "00-manual-entry-policy.js",
+  "00-material-reserve.js",
 // [VI dòng gốc 27] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-spending-policy.js",
   "00-spending-policy.js",
 // [VI dòng gốc 28] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-account-policy.js",
