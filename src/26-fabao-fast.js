@@ -72,7 +72,8 @@
 // [VI dòng gốc 38] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function tick(){try{
 // [VI dòng gốc 39] Kiểm tra !S.enabled: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Kiểm tra !owned(): đúng thì chạy nhánh sau if. | gọi stop() để dừng bộ điều khiển và dọn tài nguyên
-    if(!S.enabled)return;if(!owned()){stop();return;}
+    if(!S.enabled)return;if(W.KVPV_MATERIAL_RESERVE?.active===true){S.reason='materials_reserved_for_so_tai';return;}
+    if(!owned()){stop();return;}
 // [VI dòng gốc 40] Kiểm tra W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'priority_popup' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true){S.reason='priority_popup';return;}
 // [VI dòng gốc 41] Khai báo biến không gán lại bằng const: list = gọi items(); signature = gọi JSON.stringify(list.map(x=>[x.id,x.level,x.total])) để chuyển giá trị thành chuỗi JSON
