@@ -20,6 +20,7 @@
   const owned=()=>actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 // [VI dòng gốc 12] Khai báo biến không gán lại bằng const: rewardSources = tạo đối tượng bằng Set(['dailyExpedition','limitedExpedition','expeditionMilestone'])
   const rewardSources=new Set(['dailyExpedition','limitedExpedition','expeditionMilestone']);
+  const reserve=()=>W.KVPV_MATERIAL_RESERVE?.active===true;
 // [VI dòng gốc 13] Định nghĩa hàm rewardPolicy; tham số: d | Kiểm tra rewardSources.has(d.id)&&d.kind==='claim'&&d.spend==='none'&&d.verified===true: đúng thì chạy nhánh sau if.
   function rewardPolicy(d){if(rewardSources.has(d.id)&&d.kind==='claim'&&d.spend==='none'&&d.verified===true){
 // [VI dòng gốc 14] gán d.background bằng true | gán d.directDuringPve bằng true | Kiểm tra d.id!=='expeditionMilestone': đúng thì chạy nhánh sau if. | gán d.claimGroup bằng 'expedition_task'
@@ -185,7 +186,8 @@
 // [VI dòng gốc 94] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán p.reason bằng 'probe_error_no_retry' | gán p.error bằng String(e)
   }catch(e){p.reason='probe_error_no_retry';p.error=String(e);}}}
 // [VI dòng gốc 95] Định nghĩa hàm dispatch; tham số: d | Kiểm tra !d.enabled||S.pending.has(d.id)||!context(d): đúng thì chạy nhánh sau if. | gọi recordRed(d, null) | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-  function dispatch(d){if(!d.enabled||S.pending.has(d.id)||!context(d)){recordRed(d,null);return;}
+  function dispatch(d){if(reserve()&&d.spend==='materials')return;
+    if(!d.enabled||S.pending.has(d.id)||!context(d)){recordRed(d,null);return;}
 // [VI dòng gốc 96] Kiểm tra d.claimGroup&&[...S.pending].some(([id,p])=>(p.claimGroup??S.definitions.get(id)?.claimGroup)===d.claimGroup): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(d.claimGroup&&[...S.pending].some(([id,p])=>(p.claimGroup??S.definitions.get(id)?.claimGroup)===d.claimGroup))return;
 // [VI dòng gốc 97] Khai báo biến không gán lại bằng const: state = gọi d.probe() | gọi recordRed(d, state) | Kiểm tra state?.ready!==true||state.signature==null: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
@@ -203,13 +205,13 @@
 // [VI dòng gốc 103] Định nghĩa hàm legacy; tham số: không có | Khai báo biến không gán lại bằng const: v = đọc S.v8 | Kiểm tra S.legacyBlocked||!v?.provide||!v.report: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
   function legacy(){const v=S.v8;if(S.legacyBlocked||!v?.provide||!v.report)return;
 // [VI dòng gốc 104] Duyệt từng giá trị trong ['claim','work'] bằng const mode. | Khai báo biến không gán lại bằng const: mode (chưa gán giá trị) | Lặp for: khởi tạo let i=0; tiếp tục khi i<64; sau mỗi vòng i++. | Khai báo biến có thể gán lại bằng let: i = 0
-    for(const mode of ['claim','work'])for(let i=0;i<64;i++){
+    for(const mode of (reserve()?['claim']:['claim','work']))for(let i=0;i<64;i++){
 // [VI dòng gốc 105] Khai báo biến không gán lại bằng const: action = gọi v.provide.call(v.object, mode) | Kiểm tra !action: đúng thì chạy nhánh sau if. | Thoát vòng lặp/switch hiện tại.
       const action=v.provide.call(v.object,mode);if(!action)break;
 // [VI dòng gốc 106] Khai báo biến không gán lại bằng const: matches = gọi (v.report.call(v.object).plugins??[]).filter(p=>'V8 '+p.name===action.what) để giữ phần tử thỏa điều kiện
       const matches=(v.report.call(v.object).plugins??[]).filter(p=>'V8 '+p.name===action.what);
 // [VI dòng gốc 107] Kiểm tra matches.length!==1: đúng thì chạy nhánh sau if. | Thoát vòng lặp/switch hiện tại. | Khai báo biến không gán lại bằng const: d = đọc matches[0] | Kiểm tra d.verified!==true||d.spend==='premium': đúng thì chạy nhánh sau if.
-      if(matches.length!==1)break;const d=matches[0];if(d.verified!==true||d.spend==='premium')break;if(S.definitions.has(d.id)||S.pending.has(d.id))break;
+      if(matches.length!==1)break;const d=matches[0];if(d.verified!==true||d.spend==='premium'||reserve()&&d.spend==='materials')break;if(S.definitions.has(d.id)||S.pending.has(d.id))break;
 // [VI dòng gốc 108] Khai báo biến không gán lại bằng const: p = tạo đối tượng gồm legacy, restoreEnabled, before, at, reason, probe, done
       const p={legacy:true,restoreEnabled:d.enabled,before:String(action.before),at:Date.now(),reason:'waiting_server',probe:action.probe,done:action.done};
 // [VI dòng gốc 109] gọi S.pending.set(d.id, p) | gọi v.toggle.call(v.object, d.id, false) | tăng S.sent một đơn vị sau khi lấy giá trị
@@ -231,11 +233,11 @@
 // [VI dòng gốc 117] Khai báo biến không gán lại bằng const: u = đọc W.KVPV_UPGRADES?.config nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     const u=W.KVPV_UPGRADES?.config;
 // [VI dòng gốc 118] Kiểm tra u: đúng thì chạy nhánh sau if. | gán u.checkMs bằng 50 | gán u.backgroundGapMs bằng 50 | gán u.noActivityNearEvents bằng false
-    if(u){u.checkMs=50;u.backgroundGapMs=50;u.noActivityNearEvents=false;
+    if(u&&!reserve()){u.checkMs=50;u.backgroundGapMs=50;u.noActivityNearEvents=false;
 // [VI dòng gốc 119] Kiểm tra u.maxRequestsPerHour: đúng thì chạy nhánh sau if. | Duyệt từng giá trị trong Object.keys(u.maxRequestsPerHour) bằng const k. | Khai báo biến không gán lại bằng const: k (chưa gán giá trị) | gán u.maxRequestsPerHour[k] bằng 3600
       if(u.maxRequestsPerHour)for(const k of Object.keys(u.maxRequestsPerHour))u.maxRequestsPerHour[k]=3600;}
 // [VI dòng gốc 120] Khai báo biến không gán lại bằng const: resources = đọc W.KVPV_BG_RESOURCES?.config nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kiểm tra resources: đúng thì chạy nhánh sau if. | gán resources.minBetweenMs bằng 0
-    const resources=W.KVPV_BG_RESOURCES?.config;if(resources)resources.minBetweenMs=0;
+    const resources=W.KVPV_BG_RESOURCES?.config;if(resources&&!reserve())resources.minBetweenMs=0;
 // [VI dòng gốc 121] gọi observe()
     observe();
 // [VI dòng gốc 122] gọi inspectRed() | Duyệt từng giá trị trong redAudit bằng const row. | Khai báo biến không gán lại bằng const: row (chưa gán giá trị) | gán row.handlers bằng []
@@ -261,7 +263,8 @@
 // [VI dòng gốc 132] Kiểm tra S.legacyBlocked&&S.v8.object.provide!==S.v8.isolatedProvide: đúng thì chạy nhánh sau if. | gán khi giá trị hiện tại là null/undefined S.v8.isolatedProvide bằng ()=>null | gán S.v8.object.provide bằng S.v8.isolatedProvide
     if(S.legacyBlocked&&S.v8.object.provide!==S.v8.isolatedProvide){S.v8.isolatedProvide??=()=>null;S.v8.object.provide=S.v8.isolatedProvide;}
 // [VI dòng gốc 133] gọi W.KVPV_UPGRADES?.run() (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gọi W.KVPV_BG_RESOURCES?.tick() để xử lý một nhịp kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gán S.reason bằng 'independent_functions'
-    W.KVPV_UPGRADES?.run?.();W.KVPV_BG_RESOURCES?.tick?.();S.reason='independent_functions';
+    if(!reserve()){W.KVPV_UPGRADES?.run?.();W.KVPV_BG_RESOURCES?.tick?.();}
+    S.reason=reserve()?'materials_reserved_for_so_tai':'independent_functions';
 // [VI dòng gốc 134] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán S.lastError bằng String(e?.stack??e) | gán S.reason bằng 'error' | gán S.busy bằng false
   }catch(e){S.lastError=String(e?.stack??e);S.reason='error';}finally{S.busy=false;}}
 // [VI dòng gốc 135] Định nghĩa hàm stop; tham số: không có. Mục đích: dừng bộ điều khiển và dọn tài nguyên | gán S.enabled bằng false | Kiểm tra S.timer!==null: đúng thì chạy nhánh sau if. | gọi W.KVPV_V1?.timers?.clearInterval??W.clearInterval(S.timer)
