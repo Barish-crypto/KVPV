@@ -6,6 +6,9 @@
   'use strict';
 // [VI dòng gốc 4] Khai báo biến không gán lại bằng const: W = window; actor = gọi String(W.__KVPV_OWN_ACTOR_ID||'') để chuyển sang chuỗi; old = đọc W.KVPV_TRANSFORM10; carry = gọi old?._handoff(); chức năng nội bộ chưa xác minh từ tên hàm (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gọi old?.stop() để dừng bộ điều khiển và dọn tài nguyên (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Khai báo biến có thể gán lại bằng let: activation = nếu carry?.actor===actor thì lấy carry.activation, ngược lại lấy null; activationReason = "waiting_native_combat"
   const W=window,actor=String(W.__KVPV_OWN_ACTOR_ID||''),old=W.KVPV_TRANSFORM10,carry=old?._handoff?.();old?.stop?.();let activation=carry?.actor===actor?carry.activation:null,activationReason='waiting_native_combat';
+  let chargedConsumed=carry?.actor===actor&&carry?.chargedConsumed===true,
+    lastRequestAt=carry?.actor===actor?(carry?.lastRequestAt??-Infinity):-Infinity,
+    nativeRequests=carry?.actor===actor?(carry?.nativeRequests||0):0;
 // [VI dòng gốc 5] Khai báo biến không gán lại bằng const: kits = gọi Object.freeze({ 'U Tuyền Huyết Ma':['Huyết Ma Đại Pháp','Huyết Ngục Quỷ Thủ','Huyết Khế Tổ Chú','Huyết Ma Hình Phạt'], 'Minh Hà Long V…) để khóa thay đổi trực tiếp các thuộc tính của đối tượng ở mức ngoài cùng
   const kits=Object.freeze({
 // [VI dòng gốc 6] Thuộc tính "U Tuyền Huyết Ma": tạo mảng gồm 4 vị trí: ['Huyết Ma Đại Pháp','Huyết Ngục Quỷ Thủ','Huyết Khế Tổ Chú','Huyết Ma Hình Phạt']
@@ -81,13 +84,25 @@
 // [VI dòng gốc 41] Kiểm tra ['THIEN_QUAN','LINH_LUNG','PHU_VAN'].includes(W.KVPV_FAR_SCOPE?.status?.()?.kind)||(W.KVPV_FAR_SCOPE?.inside?.()===true&&W.KVPV_TH300?.isBasicOnly?.()===true): đúng thì chạy nhánh sau if. | gán activationReason bằng 'player_basic8001_only' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       if(['THIEN_QUAN','LINH_LUNG','PHU_VAN'].includes(W.KVPV_FAR_SCOPE?.status?.()?.kind)||(W.KVPV_FAR_SCOPE?.inside?.()===true&&W.KVPV_TH300?.isBasicOnly?.()===true)){activationReason='player_basic8001_only';return;}
 // [VI dòng gốc 42] Khai báo biến không gán lại bằng const: m = đọc W._Ba?._s3?._ZJ?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kiểm tra transformed(): đúng thì chạy nhánh sau if. | gán activation bằng null | gán activationReason bằng 'native_form_active'
-      const m=W._Ba?._s3?._ZJ?.ins;if(transformed()){activation=null;activationReason='native_form_active';return;}
+      const m=W._Ba?._s3?._ZJ?.ins;if(transformed()||m?.isTransforming?.()===true){activation=null;chargedConsumed=true;activationReason='native_form_active';return;}
 // [VI dòng gốc 43] Kiểm tra activation: đúng thì chạy nhánh sau if. | gán activationReason bằng 'waiting_transform_ack_no_retry' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-      if(activation){activationReason='waiting_transform_ack_no_retry';return;}
+      const energyNeed=Number(W._ft?._gY?.ins?.getCfgById?.(92001)?.[2]?.[0]);
+      const energyNow=Number(m?.curStrength);
+      if(Number.isFinite(energyNeed)&&energyNeed>0&&Number.isFinite(energyNow)&&energyNow<energyNeed){
+        // A new charge cycle unlocks the next native attempt.
+        activation=null;chargedConsumed=false;
+      }
+      if(activation){
+        if(Date.now()-activation.at>15000){activationReason='native_ack_timeout_no_retry_until_recharge';return;}
+        activationReason=m?.sendTrans===true?'waiting_native_ack_no_retry':'native_ack_settling_no_retry';return;
+      }
+      if(chargedConsumed){activationReason='already_requested_this_charge';return;}
 // [VI dòng gốc 44] Khai báo biến không gán lại bằng const: who = đọc W._Ba?._rJ?._O$?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); role = gọi W._C?._Ba?.instance?.getRole(Number(actor)) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); combat = gọi role?.getComponent(W._d?._Yct?._Het) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); id = gọi Number(W._C?._Mn?._Cn?.currentID) để chuyển sang số; type = gọi Number(W._ft?._po?.ins?.…
       const who=W._Ba?._rJ?._O$?.ins,role=W._C?._Ba?.instance?.getRole?.(Number(actor)),combat=role?.getComponent?.(W._d?._Yct?._Het),id=Number(W._C?._Mn?._Cn?.currentID),type=Number(W._ft?._po?.ins?.getCfgById?.(id)?.[7]);
 // [VI dòng gốc 45] Kiểm tra [69].includes(type)||([14,71].includes(type)&&Number(W._Ba?._$a?._yo?.ins?.intoSce?.[3])===9)||who?.isDead!==false||combat?.isValidTarget?.()!==true||combat?.isCooldown?.()!==false…: đúng thì chạy nhánh sau if. | gán activationReason bằng 'waiting_native_combat' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-      if([69].includes(type)||([14,71].includes(type)&&Number(W._Ba?._$a?._yo?.ins?.intoSce?.[3])===9)||who?.isDead!==false||combat?.isValidTarget?.()!==true||combat?.isCooldown?.()!==false||W.KVPV_DAILY?.quickState?.()?.running!==true||Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){activationReason='waiting_native_combat';return;}
+      const roadBoss=type===41&&W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true&&
+        Number(combat?.target?.property?.get?.('type'))===1&&combat?.isValidRange?.()===true;
+      if([69].includes(type)||([14,71].includes(type)&&Number(W._Ba?._$a?._yo?.ins?.intoSce?.[3])===9)||who?.isDead!==false||combat?.isValidTarget?.()!==true||combat?.isCooldown?.()!==false||(!roadBoss&&W.KVPV_DAILY?.quickState?.()?.running!==true)||Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){activationReason='waiting_native_combat';return;}
 // [VI dòng gốc 46] Kiểm tra W._d?._Yct?._uft?.isFlying===true||role?.getComponent?.(W._d?._Yct?._oft)?.running?.()===true: đúng thì chạy nhánh sau if. | gán activationReason bằng 'waiting_native_movement' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       if(W._d?._Yct?._uft?.isFlying===true||role?.getComponent?.(W._d?._Yct?._oft)?.running?.()===true){activationReason='waiting_native_movement';return;}
 // [VI dòng gốc 47] Khai báo biến không gán lại bằng const: need = gọi Number(W._ft?._gY?.ins?.getCfgById?.(92001)?.[2]?.[0]) để chuyển sang số; strength = gọi Number(m?.curStrength) để chuyển sang số; form = gọi Number(m?.curFightShowId) để chuyển sang số
@@ -97,7 +112,20 @@
 // [VI dòng gốc 49] Khai báo biến không gán lại bằng const: rpc = đọc W._Ba?._s3?._Kyt?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kiểm tra typeof rpc?.Transforming!=='function': đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       const rpc=W._Ba?._s3?._Kyt?.ins;if(typeof rpc?.Transforming!=='function')return;
 // [VI dòng gốc 50] gán activation bằng {at:Date.now(),form,strength} | gán activationReason bằng 'native_transform_requested' | gọi rpc.Transforming()
-      activation={at:Date.now(),form,strength};activationReason='native_transform_requested';rpc.Transforming();
+      if(Date.now()-lastRequestAt<3000){activationReason='local_native_retry_guard';return;}
+      lastRequestAt=Date.now();nativeRequests++;
+      // Only call the original FREE-strength native button, never buy strength or use KNB.
+      try{
+        rpc.Transforming();
+        if(m?.sendTrans===true){
+          activation={at:lastRequestAt,form,strength};chargedConsumed=true;
+          activationReason='native_transform_requested';
+        }else activationReason='native_locally_blocked_retry_after_3s';
+      }catch(e){
+        // The RPC may have dispatched before throwing: do not resend on the same charge.
+        chargedConsumed=true;activation={at:lastRequestAt,form,strength};
+        lastError=String(e?.message||e);activationReason='native_error_no_retry';
+      }
 // [VI dòng gốc 51] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán lastError bằng String(e.message||e) | gán activationReason bằng 'error_no_retry'
     }catch(e){lastError=String(e.message||e);activationReason='error_no_retry';}}
 // [VI dòng gốc 52] Định nghĩa hàm schedule; tham số: không có | Khai báo biến không gán lại bằng const: every = W.KVPV_V1?.timers?.setInterval hoặc dùng vế phải khi vế trái là null/undefined: W.setInterval
@@ -115,9 +143,9 @@
 // [VI dòng gốc 58] gán W.KVPV_TRANSFORM10 bằng Object.freeze({has,skills:()=>skills().map(({id,name})=>({id,name})),select,transformed, _handoff:()=>({actor,activation}),start(){enabled=true;schedule();return this.status();},st…
   W.KVPV_TRANSFORM10=Object.freeze({has,skills:()=>skills().map(({id,name})=>({id,name})),select,transformed,
 // [VI dòng gốc 59] gán enabled bằng true | gọi schedule() | Kết thúc hàm hiện tại và trả về: gọi this.status() để trả trạng thái để kiểm tra. | gán enabled bằng false
-    _handoff:()=>({actor,activation}),start(){enabled=true;schedule();return this.status();},stop(){enabled=false;ready.clear();if(timer!=null){(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(timer);timer=null;}return this.status();},
+    _handoff:()=>({actor,activation,chargedConsumed,lastRequestAt,nativeRequests}),start(){enabled=true;schedule();return this.status();},stop(){enabled=false;ready.clear();if(timer!=null){(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(timer);timer=null;}return this.status();},
 // [VI dòng gốc 60] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm enabled, activation, activationReason, nativeKitOnly, transformed, clientCooldownMs, selections, skillSource, matchedSkills, lastError, note.
-    status(){return {enabled,activation,activationReason,nativeKitOnly:true,transformed:transformed(),clientCooldownMs:10,selections,skillSource:'current_native_model',matchedSkills:this.skills(),lastError,
+    status(){return {enabled,activation,activationReason,chargedConsumed,nativeRequests,lastRequestAt,nativeKitOnly:true,transformed:transformed(),clientCooldownMs:10,selections,skillSource:'current_native_model',matchedSkills:this.skills(),lastError,
 // [VI dòng gốc 61] Thuộc tính note: "Current native transformation kit only; free strength activation, no purchases. Client cooldown trial; server acceptance unverified. Missing/passive skills are not invented."
       note:'Current native transformation kit only; free strength activation, no purchases. Client cooldown trial; server acceptance unverified. Missing/passive skills are not invented.'};}});
 // [VI dòng gốc 62] gọi schedule()
