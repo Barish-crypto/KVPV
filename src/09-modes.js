@@ -352,6 +352,7 @@
 // [VI dòng gốc 174] Thuộc tính combatOwner: z.long?.combatOwner hoặc dùng vế phải khi vế trái là null/undefined: 'HITRUN' | Thuộc tính combatRunning: nếu z.long?.running thì lấy z.long?.combatRunning===true, ngược lại lấy z.boss?.running===true | Thuộc tính combatPhase: nếu z.long?.running thì lấy z.long?.combatPhase, ngược lại lấy z.boss?.phase
       combatOwner:z.long?.combatOwner??'HITRUN',combatRunning:z.long?.running?z.long?.combatRunning===true:z.boss?.running===true,combatPhase:z.long?.running?z.long?.combatPhase:z.boss?.phase,
 // [VI dòng gốc 175] Thuộc tính bossRunning: tính biểu thức z.boss?.running===true | Thuộc tính bossPhase: z.boss?.phase hoặc dùng vế phải khi vế trái là null/undefined: null
+      distanceOnly310:tqNoHeal(),healingEnabled:!tqNoHeal(),
       bossRunning:z.boss?.running===true,bossPhase:z.boss?.phase??null,
 // [VI dòng gốc 176] Thuộc tính bossAutoEnabled: tính biểu thức z.auto?.enabled===true | Thuộc tính stand281Enabled: false
       bossAutoEnabled:z.auto?.enabled===true,stand281Enabled:false,
