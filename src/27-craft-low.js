@@ -65,7 +65,8 @@
 // [VI dòng gốc 35] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function tick(){try{
 // [VI dòng gốc 36] Kiểm tra !S.enabled: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Kiểm tra !valid(): đúng thì chạy nhánh sau if. | gọi stop() để dừng bộ điều khiển và dọn tài nguyên
-    if(!S.enabled)return;if(!valid()){stop();S.reason='actor_changed';return;}
+    if(!S.enabled)return;if(W.KVPV_MATERIAL_RESERVE?.active===true){stop();S.reason='materials_reserved_for_so_tai';return;}
+    if(!valid()){stop();S.reason='actor_changed';return;}
 // [VI dòng gốc 37] Kiểm tra W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'priority_popup' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true){S.reason='priority_popup';return;}
 // [VI dòng gốc 38] Khai báo biến không gán lại bằng const: api = gọi worker(); state = gọi api?.status() để trả trạng thái để kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); cfg = đọc api?.config?.gearCraft nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
