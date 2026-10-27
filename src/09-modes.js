@@ -28,6 +28,7 @@
   let scopedMode=null,mapTimer=null,towerAttempt=null,lastScopeKey=null,lastMaintenanceAt=-Infinity,lastTianQuanKey=null,lastTruAcquire=-Infinity;
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: inFarMap = tạo hàm với tham số (không có); mỗi lần gọi trả về tính biểu thức (W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false
   const inFarMap=()=>(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false;
+  const tqNoHeal=()=>W.KVPV_TQ_POSITION_ONLY?.enabled===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
 // [VI dòng gốc 20] Khai báo biến có thể gán lại bằng let: entryMoveHook = null
   let entryMoveHook=null;
 // [VI dòng gốc 21] Định nghĩa hàm releaseEntryMove; tham số: không có | Khai báo biến không gán lại bằng const: h = entryMoveHook | Kiểm tra h&&h.m.moveTo===h.fn: đúng thì chạy nhánh sau if. | Kiểm tra h.own: đúng thì chạy nhánh sau if, sai thì chạy nhánh else.
@@ -49,11 +50,12 @@
 // [VI dòng gốc 29] Khai báo biến không gán lại bằng const: target = đọc me?.getComponent?.(W._d?._Yct?._Het)?.target nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); hp = gọi me?.property?.get('hp') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
       const target=me?.getComponent?.(W._d?._Yct?._Het)?.target,hp=me?.property?.get?.('hp');
 // [VI dòng gốc 30] Khai báo biến không gán lại bằng const: a = gọi me?.property?.get('position') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); b = gọi target?.property?.get('position') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); entryGoal = W.KVPV_DESKTOP_CONTROL?.distance?.() hoặc dùng vế phải khi vế trái là null/undefined: 302
-      const a=me?.property?.get?.('position'),b=target?.property?.get?.('position'),entryGoal=W.KVPV_DESKTOP_CONTROL?.distance?.()??310;
+      const a=me?.property?.get?.('position'),b=target?.property?.get?.('position'),entryGoal=tqNoHeal()?310:(W.KVPV_DESKTOP_CONTROL?.distance?.()??310);
 // [VI dòng gốc 31] Kiểm tra scopedMode&&valid()&&scope?.inside&&scope.kind==='THIEN_QUAN'&& (!hr?.running||hr.phase==='FIGHT')&&Array.isArray(hp)&&Number(hp[1])>0&&Number(hp[0])/Number(hp[1])*100>35&& W.KVPV_…: đúng thì chạy nhánh sau if.
       if(scopedMode&&valid()&&scope?.inside&&scope.kind==='THIEN_QUAN'&&W.KVPV_TH300?.basicRangeProbeGoal?.()==null&&
 // [VI dòng gốc 32] gọi Array.isArray(hp) | gọi Number(hp[1]) để chuyển sang số | gọi Number(hp[0]) để chuyển sang số
-        (!hr?.running||hr.phase==='FIGHT')&&Array.isArray(hp)&&Number(hp[1])>0&&Number(hp[0])/Number(hp[1])*100>35&&
+        Array.isArray(hp)&&Number(hp[1])>0&&Number(hp[0])>0&&
+        (tqNoHeal()||(!hr?.running||hr.phase==='FIGHT')&&Number(hp[0])/Number(hp[1])*100>35)&&
 // [VI dòng gốc 33] gọi W.KVPV_FAR_SCOPE?.eligible(target) | gọi Number.isFinite(x) | gọi Number.isFinite(y) | gọi Math.hypot(x-b.x, y-b.y)
         W.KVPV_FAR_SCOPE?.eligible?.(target)&&a&&b&&Number.isFinite(x)&&Number.isFinite(y)&&Math.hypot(x-b.x,y-b.y)<Math.max(280,entryGoal-2)){
 // [VI dòng gốc 34] Khai báo biến không gán lại bằng const: d = gọi Math.hypot(a.x-b.x, a.y-b.y)
@@ -149,7 +151,7 @@
 // [VI dòng gốc 78] Khai báo biến không gán lại bằng const: hr = gọi W.KVPV_HITRUN1?.status(false) để trả trạng thái để kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     const hr=W.KVPV_HITRUN1?.status?.(false);
 // [VI dòng gốc 79] Kiểm tra lastTianQuanKey===null&&hr?.running&&String(hr.bossId)===id: đúng thì chạy nhánh sau if. | gán lastTianQuanKey bằng key | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-    if(lastTianQuanKey===null&&hr?.running&&String(hr.bossId)===id){lastTianQuanKey=key;return;}
+    if(!tqNoHeal()&&lastTianQuanKey===null&&hr?.running&&String(hr.bossId)===id){lastTianQuanKey=key;return;}
 // [VI dòng gốc 80] gán lastTianQuanKey bằng key
     lastTianQuanKey=key;
 // [VI dòng gốc 81] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
@@ -163,13 +165,14 @@
 // [VI dòng gốc 85] gọi W.KVPV_TH300.start('SCAN') để khởi động bộ điều khiển | gán S.mode bằng MODE.BOSS_TH300_SCAN | gán scopedMode bằng MODE.BOSS_TH300_SCAN
       W.KVPV_TH300.start('SCAN');S.mode=MODE.BOSS_TH300_SCAN;scopedMode=MODE.BOSS_TH300_SCAN;
 // [VI dòng gốc 86] Kiểm tra W.KVPV?.combat?.config: đúng thì chạy nhánh sau if. | gán W.KVPV.combat.config.autoArm bằng true
-      if(W.KVPV?.combat?.config)W.KVPV.combat.config.autoArm=true;
+      if(W.KVPV?.combat?.config)W.KVPV.combat.config.autoArm=!tqNoHeal();
 // [VI dòng gốc 87] gọi W.KVPV_HITRUN_AUTO.rearm()
-      W.KVPV_HITRUN_AUTO.rearm();
+      if(tqNoHeal())stopTqHealing('TQ 310 distance only');
+      else W.KVPV_HITRUN_AUTO.rearm();
 // [VI dòng gốc 88] Chú thích gốc của tác giả; không được thực thi. Nội dung: Quái tầng đã đối chiếu cấu hình có thể không được native isBoss()/regex tên của auto cũ nhận ra.
       // Quái tầng đã đối chiếu cấu hình có thể không được native isBoss()/regex tên của auto cũ nhận ra.
 // [VI dòng gốc 89] Kiểm tra W.KVPV_HITRUN1.status(false)?.running!==true: đúng thì chạy nhánh sau if. | gọi W.KVPV_HITRUN1.start() để khởi động bộ điều khiển
-      if(W.KVPV_HITRUN1.status(false)?.running!==true)W.KVPV_HITRUN1.start();
+      if(!tqNoHeal()&&W.KVPV_HITRUN1.status(false)?.running!==true)W.KVPV_HITRUN1.start();
 // [VI dòng gốc 90] gọi W.KVPV_TH300.sync() (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gán S.lastError bằng '' | tăng S.switches một đơn vị sau khi lấy giá trị | gán S.lastChangedAt bằng new Date().toISOString()
       W.KVPV_TH300.sync?.();S.lastError='';S.switches++;S.lastChangedAt=new Date().toISOString();log('TQ-BOSS-HANDOFF',key);
 // [VI dòng gốc 91] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán S.lastError bằng String(e?.message||e) | gọi log('TQ-HANDOFF-BLOCKED', S.lastError)
@@ -193,7 +196,7 @@
 // [VI dòng gốc 100] Kiểm tra lastScopeKey!==null&&lastScopeKey!==key: đúng thì chạy nhánh sau if. | gọi stopOwners('Đổi phạm vi/map/tầng') | gán S.mode bằng MODE.OFF | gán towerAttempt bằng null
       if(lastScopeKey!==null&&lastScopeKey!==key){stopOwners('Đổi phạm vi/map/tầng');S.mode=MODE.OFF;towerAttempt=null;lastTianQuanKey=null;}
 // [VI dòng gốc 101] Kiểm tra lastScopeKey!==key&&scope.kind==='THIEN_QUAN'&&scope.inside: đúng thì chạy nhánh sau if. | gọi W.KVPV_TH300?.setDistance(W.KVPV_DESKTOP_CONTROL?.distance?.()??310) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
-      if(lastScopeKey!==key&&scope.kind==='THIEN_QUAN'&&scope.inside)W.KVPV_TH300?.setDistance?.(W.KVPV_DESKTOP_CONTROL?.distance?.()??310);
+      if(lastScopeKey!==key&&scope.kind==='THIEN_QUAN'&&scope.inside)W.KVPV_TH300?.setDistance?.(tqNoHeal()?310:(W.KVPV_DESKTOP_CONTROL?.distance?.()??310));
 // [VI dòng gốc 102] gán lastScopeKey bằng key
       lastScopeKey=key;}
 // [VI dòng gốc 103] Kiểm tra !inFarMap(): đúng thì chạy nhánh sau if.
@@ -207,6 +210,7 @@
 // [VI dòng gốc 107] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
     }
 // [VI dòng gốc 108] Chú thích gốc của tác giả; không được thực thi. Nội dung: Giữ trạng thái ARMED qua chết/hồi sinh. MODE.stop() xóa scopedMode nên không bị tự bật lại.
+    if(tqNoHeal())stopTqHealing('Thiên Quan giữ 310, không hồi máu');
     // Giữ trạng thái ARMED qua chết/hồi sinh. MODE.stop() xóa scopedMode nên không bị tự bật lại.
 // [VI dòng gốc 109] Khai báo biến không gán lại bằng const: me = gọi W._C?._Ba?.instance?.getRole(Number(initialActor)) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     const me=W._C?._Ba?.instance?.getRole?.(Number(initialActor));
@@ -291,6 +295,13 @@
 // [VI dòng gốc 149] Chú thích gốc của tác giả; không được thực thi. Nội dung: Dừng HitRun trước bộ kỹ năng để gỡ các lớp hook theo thứ tự sở hữu.
   // Dừng HitRun trước bộ kỹ năng để gỡ các lớp hook theo thứ tự sở hữu.
 // [VI dòng gốc 150] Định nghĩa hàm stopOwners; tham số: reason
+  function stopTqHealing(reason){
+    if(!tqNoHeal())return;
+    // Stop only the HP-retreat owner; the far-range controller remains running.
+    try{if(W.KVPV_HITRUN_AUTO?.status?.(false)?.enabled===true)W.KVPV_HITRUN_AUTO.stop(true);}catch(e){log('tq-auto-stop-error',String(e));}
+    try{if(W.KVPV_HITRUN1?.status?.(false)?.running===true)W.KVPV_HITRUN1.stop(reason);}catch(e){log('tq-hitrun-stop-error',String(e));}
+    try{if(W.KVPV?.combat?.config)W.KVPV.combat.config.autoArm=false;}catch(e){log('tq-autoarm-error',String(e));}
+  }
   function stopOwners(reason){
 // [VI dòng gốc 151] Chú thích gốc của tác giả; không được thực thi. Nội dung: Release temporary HitRun wrappers before removing the skill hook beneath.
     // Release temporary HitRun wrappers before removing the skill hook beneath.
@@ -465,7 +476,7 @@
 // [VI dòng gốc 236] gọi [MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(target) để kiểm tra dữ liệu có chứa giá trị
         ([MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(target)&&z.long?.running===true)) &&
 // [VI dòng gốc 237] Kết thúc hàm hiện tại và trả về: gọi status(false) để trả trạng thái để kiểm tra.
-       (z.auto?.enabled||z.boss?.running))return status(false);
+       (z.auto?.enabled||z.boss?.running||tqNoHeal()&&z.long?.running===true))return status(false);
 // [VI dòng gốc 238] gọi stopOwners('Chuyển combat mode '+previous+' → '+target)
     stopOwners('Chuyển combat mode '+previous+' → '+target);
 // [VI dòng gốc 239] gán S.mode bằng MODE.OFF
@@ -491,10 +502,11 @@
 // [VI dòng gốc 249] Kiểm tra target===MODE.BOSS_TH300: đúng thì chạy nhánh sau if. | gọi W.KVPV_TH300.start('STRICT') để khởi động bộ điều khiển
         if(target===MODE.BOSS_TH300)W.KVPV_TH300.start('STRICT');
 // [VI dòng gốc 250] Kiểm tra W.KVPV?.combat?.config: đúng thì chạy nhánh sau if. | gán W.KVPV.combat.config.autoArm bằng true
-        if(W.KVPV?.combat?.config)W.KVPV.combat.config.autoArm=true;
+        if(W.KVPV?.combat?.config)W.KVPV.combat.config.autoArm=!tqNoHeal();
 // [VI dòng gốc 251] Kiểm tra ['LINH_LUNG','PHU_VAN','TRU_TIEN'].includes(W.KVPV_FAR_SCOPE?.status?.().kind): đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gọi syncTowerBoss()
         if(['LINH_LUNG','PHU_VAN','TRU_TIEN'].includes(W.KVPV_FAR_SCOPE?.status?.().kind)){syncTowerBoss();}
 // [VI dòng gốc 252] gọi W.KVPV_HITRUN_AUTO.rearm() | Khai báo biến không gán lại bằng const: ar = gọi W.KVPV_HITRUN_AUTO.status(false) để trả trạng thái để kiểm tra
+        else if(tqNoHeal())stopTqHealing('TQ 310 distance only');
         else{W.KVPV_HITRUN_AUTO.rearm();const ar=W.KVPV_HITRUN_AUTO.status(false);
 // [VI dòng gốc 253] Kiểm tra ar?.enabled!==true: đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Boss auto-arm chưa bật')
           if(ar?.enabled!==true)throw Error('Boss auto-arm chưa bật');}
