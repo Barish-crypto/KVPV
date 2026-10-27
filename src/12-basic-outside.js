@@ -52,7 +52,12 @@
 // [VI dòng gốc 23] Kiểm tra descriptor?.configurable===false: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(descriptor?.configurable===false)return;
 // [VI dòng gốc 24] Khai báo biến không gán lại bằng const: fn = tạo hàm với tham số active, common, mode, ...rest | Kiểm tra !road()||!owner()||W.KVPV_ROAD_CADENCE?.enabled===false: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: gọi native.call(this, active, common, mode, ...rest). | Kiểm tra roadWait()>0&&Date.now()-lastRoadCast<roadWait(): đúng thì chạy nhánh sau if.
-    const fn=function(active,common,mode,...rest){if(!road()||!owner()||W.KVPV_ROAD_CADENCE?.enabled===false)return native.call(this,active,common,mode,...rest);if(roadWait()>0&&Date.now()-lastRoadCast<roadWait())return -1;if(W.KVPV_ROAD_CADENCE?.combatMode!=='basic8001')return native.call(this,active,common,mode,...rest);if(mode!==1)return -1;return native.call(this,(active??[]).filter(r=>Number(r?.[0])===8001),(common??[]).filter(r=>Number(r?.[0])===8001),mode,...rest);};
+    const fn=function(active,common,mode,...rest){if(!road()||!owner()||W.KVPV_ROAD_CADENCE?.enabled===false)return native.call(this,active,common,mode,...rest);if(roadWait()>0&&Date.now()-lastRoadCast<roadWait())return -1;if(W.KVPV_ROAD_CADENCE?.combatMode!=='basic8001'){
+      const plan=W.KVPV_ROAD_CADENCE?.planNativeSelection?.(active,common,mode);
+      if(plan?.rows?.length){const picked=Number(native.call(this,plan.rows,[],mode,...rest));
+        if(Number.isSafeInteger(picked)&&picked>0)return picked;}
+      return native.call(this,active,common,mode,...rest);
+    }if(mode!==1)return -1;return native.call(this,(active??[]).filter(r=>Number(r?.[0])===8001),(common??[]).filter(r=>Number(r?.[0])===8001),mode,...rest);};
 // [VI dòng gốc 25] gọi Object.defineProperty(selector, '_f7t', {value:fn,writable:true,configurable:true}) | gán roadSelector bằng {obj:selector,fn,descriptor}
     Object.defineProperty(selector,'_f7t',{value:fn,writable:true,configurable:true});roadSelector={obj:selector,fn,descriptor};
 // [VI dòng gốc 26] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
