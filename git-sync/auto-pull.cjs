@@ -12,6 +12,7 @@ const maintenance=path.join(stateDir,'maintenance.lock');
 const statusFile=path.join(stateDir,'git-auto-sync-status.json');
 const logFile=path.join(stateDir,'git-auto-sync.log');
 const intervalMs=Number(process.env.KVPV_GIT_SYNC_MS)||60000;
+const {blockingTrackedChanges}=require('./generated-changes.cjs');
 fs.mkdirSync(stateDir,{recursive:true});
 function writeStatus(status,detail=''){
  const data={at:new Date().toISOString(),status,detail:String(detail).slice(0,1000)};
@@ -24,10 +25,11 @@ function writeStatus(status,detail=''){
  console.log(data.at,status,data.detail);
 }
 function git(args,options={}){
- return execFileSync('git',['-C',root,...args],{
+ const output=execFileSync('git',['-C',root,...args],{
    encoding:'utf8',timeout:options.timeout??30000,maxBuffer:2*1024*1024,
    stdio:['ignore','pipe','pipe']
- }).trim();
+ });
+ return options.raw?output:output.trim();
 }
 function node(args,timeout=180000){return execFileSync(process.execPath,args,{cwd:root,encoding:'utf8',timeout,maxBuffer:2*1024*1024,stdio:['ignore','pipe','pipe']}).trim();}
 function pidAlive(pid){if(!Number.isSafeInteger(pid)||pid<1)return false;try{process.kill(pid,0);return true;}catch(e){return e.code==='EPERM';}}
@@ -53,8 +55,9 @@ function check(){
   const upstream=git(['rev-parse','--abbrev-ref','--symbolic-full-name','@{u}']);
   if(!upstream.startsWith('origin/'))throw Error('Nhánh cần track origin/*');
   // Existing local edits must always win over updates. No automatic discard/reset.
-  const dirty=git(['status','--porcelain','--untracked-files=no']);
-  if(dirty){writeStatus('local_changes','Chưa cập nhật vì có thay đổi file được Git theo dõi. Hãy commit hoặc xử lý thủ công.');return;}
+  // Ignore ONLY unstaged changes to exact generated outputs. All source/staged/deleted changes still block sync.
+  const dirty=blockingTrackedChanges(git(['status','--porcelain=v1','-z','--untracked-files=no'],{raw:true}));
+  if(dirty.length){writeStatus('local_changes','Chưa cập nhật vì có thay đổi file mã nguồn hoặc index Git: '+dirty.slice(0,5).map(s=>s.slice(3)).join(', '));return;}
   git(['fetch','--quiet','--no-tags','origin'],{timeout:45000});
   const head=git(['rev-parse','HEAD']);
   const remote=git(['rev-parse','@{u}']);
