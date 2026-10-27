@@ -13,7 +13,8 @@
 // [VI dòng gốc 7] Khai báo biến có thể gán lại bằng let: minCastIntervalMs = nếu carry?.actor===actor&&Number.isSafeInteger(carry.minCastIntervalMs)&&carry.minCastIntervalMs>=0&&carry.minCastIntervalMs<=5000 thì lấy carry.minCastIntervalMs, ngược lại lấy 0
  let minCastIntervalMs=carry?.actor===actor&&Number.isSafeInteger(carry.minCastIntervalMs)&&carry.minCastIntervalMs>=0&&carry.minCastIntervalMs<=5000?carry.minCastIntervalMs:0;
 // [VI dòng gốc 8] Khai báo biến không gán lại bằng const: scopedCombat = tạo hàm với tham số (không có); mỗi lần gọi trả về W.KVPV_DESKTOP_CONTROL?.scopeProfile?.('ROAD_TRIAL') hoặc dùng vế phải khi vế trái là null/undefined: null
- const effectiveWait=()=>Math.max(100,scopedCombat()?.intervalMs??minCastIntervalMs);
+ // This only gates client duplicate requests; native cooldown and animation are untouched.
+ const effectiveWait=()=>Math.max(80,scopedCombat()?.intervalMs??minCastIntervalMs);
  const scopedCombat=()=>W.KVPV_DESKTOP_CONTROL?.scopeProfile?.('ROAD_TRIAL')??null;
 // [VI dòng gốc 9] Chú thích gốc của tác giả; không được thực thi. Nội dung: Backfill the same conservative recovery bound for samples carried from the first observer version.
  // Backfill the same conservative recovery bound for samples carried from the first observer version.
@@ -94,7 +95,7 @@
 // [VI dòng gốc 47] Thuộc tính preferredBasic: nếu candidates.length>=2 thì lấy candidates[0].id, ngược lại lấy null | Thuộc tính reason: nếu !enabled thì lấy 'disabled', ngược lại lấy !scope()?'waiting_road_scene':candidates.length>=2?'measured_basic_preferred':'collecting_8_hits_and_cycles_per_basic' | Thuộc tính rows: dùng biến cùng tên | Thuộc tính rejected: đọc S.rejected
    preferredBasic:candidates.length>=2?candidates[0].id:null,reason:!enabled?'disabled':!scope()?'waiting_road_scene':candidates.length>=2?'measured_basic_preferred':'collecting_8_hits_and_cycles_per_basic',rows,rejected:S.rejected,lastError:S.error,
 // [VI dòng gốc 48] Kết thúc hàm hiện tại và trả về: đọc S.cache.
-   note:'One direct damage confirmation per cast; Recovery uses native-ready polling or next native cast as an upper bound, not a server throughput limit. Native skill selection; 100ms minimum cast spacing; original skill rows remain unchanged. Server cooldown is not modified.'};return S.cache;
+   note:'One direct damage confirmation per cast; Recovery uses native-ready polling or next native cast as an upper bound, not a server throughput limit. Native skill selection; 80ms minimum client cast spacing unless a longer scoped interval is configured; original skill rows remain unchanged. Server cooldown is not modified.'};return S.cache;
 // [VI dòng gốc 49] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
  }
 // [VI dòng gốc 50] Định nghĩa hàm start; tham số: không có. Mục đích: khởi động bộ điều khiển | gán enabled bằng true | gán S.cacheAt bằng -Infinity | Kết thúc hàm hiện tại và trả về: gọi report().
