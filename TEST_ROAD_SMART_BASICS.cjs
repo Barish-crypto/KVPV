@@ -57,7 +57,7 @@ manual=false;W.__KVPV_USER_UI_UNTIL=0;
 W.KVPV_ROAD_CADENCE.setBasicPriority(false);
 now+=80; // clear the legitimate native duplicate-call guard before testing fallback
 assert.equal(road.planNativeSelection(rows,[],1),null,'explicit disable preserves native behavior');
-assert.equal(selector.selectSkill(),1008,'disabled priority gives native first ready skill');
+assert.equal(selector.selectSkill(),1004,'disabled priority restores the original first-ready native order');
 road.setBasicPriority(true);
 inside=false;assert.equal(road.planNativeSelection(rows,[],1),null,'scene switch disables strategy');
 inside=true;valid=false;assert.equal(road.planNativeSelection(rows,[],1),null,'invalid target prevents strategy');
