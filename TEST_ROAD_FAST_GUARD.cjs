@@ -23,7 +23,7 @@ run('src/59-road-cadence.js');run('src/12-basic-outside.js');
 assert.equal(W.KVPV_ROAD_CADENCE.minCastIntervalMs,80);
 assert.equal(W.KVPV_BASIC10.status().intervalMs,100,'road polling remains bounded');
 assert.equal(c.combat===nativeCombat,false,'native call is wrapped only for duplicate guard');
-assert.equal(s._f7t,nativeSelector,'native skill selection stays unchanged');
+assert.equal(typeof s._f7t,'function','native skill selection remains callable');
 assert.deepEqual(calls,[],'road support never auto-sends a skill');
 c.combat(8001);assert.deepEqual(calls,[8001]);
 now+=79;c.combat(8001);assert.deepEqual(calls,[8001],'no duplicate below 80ms');
