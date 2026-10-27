@@ -537,7 +537,7 @@ test('1ms basic client trial preserves native rows, matches real hits and respec
 // [VI dòng gốc 264] gọi q.events[1012]('10228867268946', 80010000, 10, 1, 'boss1') | Khai báo biến không gán lại bằng const: n = đọc q.calls.length | gọi q.advance(2) | gọi assert.equal(q.calls.length, n+1) để kiểm tra hai giá trị bằng nhau
  q.events[1012]('10228867268946',80010000,10,1,'boss1');const n=q.calls.length;q.advance(2);assert.equal(q.calls.length,n+1);assert.equal(q.calls.at(-1),8001);
 // [VI dòng gốc 265] gọi assert.equal(q.mod.report().interleaved.basicClientWaitMs, 1) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.mod.report().interleaved.scanMs, 8) để kiểm tra hai giá trị bằng nhau
- assert.equal(q.mod.report().interleaved.basicClientWaitMs,1);assert.equal(q.mod.report().interleaved.scanMs,8);
+ assert.equal(q.mod.report().interleaved.basicClientWaitMs,1);assert.equal(q.mod.report().interleaved.scanMs,4);
 // [VI dòng gốc 266] gọi q.cooldown(true) | gọi q.advance(20) | gọi assert.equal(q.calls.length, n+1) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(JSON.stringify(q.s._rtt[0]), original) để kiểm tra hai giá trị bằng nhau
  q.cooldown(true);q.advance(20);assert.equal(q.calls.length,n+1);assert.equal(JSON.stringify(q.s._rtt[0]),original);
 // [VI dòng gốc 267] gọi assert.throws(()=>q.mod.setBasicPace(-1)) để kiểm tra đoạn mã có ném lỗi như dự kiến | gọi q.mod.setBasicPace(null) để đặt khoảng chờ thêm phía client cho đòn tay; 0 nghĩa là không thêm thời gian chờ | gọi assert.equal(q.mod.report().interleaved.basicClientWaitMs, null) để kiểm tra hai giá trị bằng nhau
@@ -839,7 +839,7 @@ test('1ms client pacing and matched-hit tail cutting work across all three dunge
 // [VI dòng gốc 409] gọi q.phase('FIGHT') | gọi q.advance(2) | gọi assert.equal(stopped, 2, 'Tuyet Hoc animation cannot use an earlier basic hit') để kiểm tra hai giá trị bằng nhau
   q.phase('FIGHT');q.advance(2);assert.equal(stopped,2,'Tuyet Hoc animation cannot use an earlier basic hit');
 // [VI dòng gốc 410] gọi assert.equal(q.s._rtt[1][2], 100, 'Tuyet Hoc native skill cooldown is preserved') để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.mod.report().paceMs, 1) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.mod.report().interleaved.scanMs, 8) để kiểm tra hai giá trị bằng nhau | gọi q.mod.stop() để dừng bộ điều khiển và dọn tài nguyên
-  assert.equal(q.s._rtt[1][2],100,'Tuyet Hoc native skill cooldown is preserved');assert.equal(q.mod.report().paceMs,1);assert.equal(q.mod.report().interleaved.scanMs,8);q.mod.stop();
+  assert.equal(q.s._rtt[1][2],100,'Tuyet Hoc native skill cooldown is preserved');assert.equal(q.mod.report().paceMs,1);assert.equal(q.mod.report().interleaved.scanMs,4);q.mod.stop();
 // [VI dòng gốc 411] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
  }
 // [VI dòng gốc 412] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
