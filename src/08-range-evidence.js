@@ -30,8 +30,9 @@
   const CFG={min:300,max:312,goal:302,tolerance:5,scanMs:4,basicOnly:false,basicAnimationSpeed:1,clientPaceMs:null,afterTHWaitMs:0,moveWaitMs:150,castTtlMs:3500,minCastConfirmations:2,paceMs:75};
 // [VI dòng gốc 20] Khai báo biến không gán lại bằng const: scopedCombat = tạo hàm với tham số (không có); mỗi lần gọi trả về W.KVPV_DESKTOP_CONTROL?.scopeProfile?.(W.KVPV_FAR_SCOPE?.status?.()?.kind) hoặc dùng vế phải khi vế trái là null/undefined: null
   const scopedCombat=()=>W.KVPV_DESKTOP_CONTROL?.scopeProfile?.(W.KVPV_FAR_SCOPE?.status?.()?.kind)??null;
+  const tqDistanceOnly=()=>W.KVPV_TQ_POSITION_ONLY?.enabled===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
 // [VI dòng gốc 21] Duyệt từng giá trị trong ['goal','min','max','basicOnly'] bằng const key. | Khai báo biến không gán lại bằng const: key (chưa gán giá trị) | Khai báo biến có thể gán lại bằng let: base = đọc CFG[key] | gọi Object.defineProperty(CFG, key, {enumerable:true,configurable:true,get(){const p=scopedCombat();if(!p)return base;if(key==='basicOnly')return …)
-  for(const key of ['goal','min','max','basicOnly']){let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){const p=scopedCombat();if(!p)return base;if(key==='basicOnly')return p.mode==='basic8001';if(key==='goal')return p.distance;if(key==='max')return p.distance+10;return p.distance===300?295:p.distance>300?300:280;},set(value){base=value;}});}
+  for(const key of ['goal','min','max','basicOnly']){let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){if(tqDistanceOnly()){if(key==='goal')return 310;if(key==='min')return 300;if(key==='max')return 320;}const p=scopedCombat();if(!p)return base;if(key==='basicOnly')return p.mode==='basic8001';if(key==='goal')return p.distance;if(key==='max')return p.distance+10;return p.distance===300?295:p.distance>300?300:280;},set(value){base=value;}});}
 // [VI dòng gốc 22] Khai báo biến không gán lại bằng const: metrics = W.KVPV_COMBAT_METRICS?.create?.() hoặc dùng vế phải khi vế trái là null/undefined: null
   const metrics=W.KVPV_COMBAT_METRICS?.create?.()??null;
 // [VI dòng gốc 23] Khai báo biến không gán lại bằng const: pacer = W.KVPV_SKILL_PACING?.create?.() hoặc dùng vế phải khi vế trái là null/undefined: null
@@ -358,7 +359,8 @@
 // [VI dòng gốc 174] Định nghĩa hàm combatOwner; tham số: không có
   function combatOwner(){
 // [VI dòng gốc 175] Kết thúc hàm hiện tại và trả về: gọi W.KVPV_HITRUN1?.status(false) để trả trạng thái để kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại).
-    return W.KVPV_HITRUN1?.status?.(false);
+    return tqDistanceOnly()?{running:true,phase:'FIGHT',owner:'TQ_DISTANCE_ONLY',leavePct:0}:
+      W.KVPV_HITRUN1?.status?.(false);
 // [VI dòng gốc 176] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 177] Chú thích gốc của tác giả; không được thực thi. Nội dung: Linh Lung và Phù Văn áp sát khi Boss còn tối đa 2%; vẫn nhường pha hồi máu.
@@ -1293,7 +1295,7 @@
 // [VI dòng gốc 634] Thuộc tính combatRunning: ST.running và chỉ đánh giá vế phải khi vế trái truthy: combatOwner()?.running===true | Thuộc tính combatPhase: nếu ST.running thì lấy combatOwner()?.phase, ngược lại lấy 'OFF'
       combatRunning:ST.running&&combatOwner()?.running===true,combatPhase:ST.running?combatOwner()?.phase:'OFF',
 // [VI dòng gốc 635] Thuộc tính recoveryEnabled: true | Thuộc tính finishBossHpPct: nếu ['LINH_LUNG','PHU_VAN','TRU_TIEN'].includes(W.KVPV_FAR_SCOPE?.status?.().kind) thì lấy 2, ngược lại lấy null | Thuộc tính combatOwner: combatOwner()?.owner hoặc dùng vế phải khi vế trái là null/undefined: 'HITRUN'
-      recoveryEnabled:true,finishBossHpPct:['LINH_LUNG','PHU_VAN','TRU_TIEN'].includes(W.KVPV_FAR_SCOPE?.status?.().kind)?2:null,combatOwner:combatOwner()?.owner??'HITRUN',
+      recoveryEnabled:!tqDistanceOnly(),distanceOnly310:tqDistanceOnly(),finishBossHpPct:['LINH_LUNG','PHU_VAN','TRU_TIEN'].includes(W.KVPV_FAR_SCOPE?.status?.().kind)?2:null,combatOwner:combatOwner()?.owner??'HITRUN',
 // [VI dòng gốc 636] Thuộc tính positionTolerance: đọc CFG.tolerance | Thuộc tính positionRetries: đọc ST.positionRetries | Thuộc tính positionWaypointExtra: đọc ST.positionOffset | Thuộc tính nativeArrivalSnap: đọc ST.arrivalSnap
       positionTolerance:CFG.tolerance,positionRetries:ST.positionRetries,positionWaypointExtra:ST.positionOffset,nativeArrivalSnap:ST.arrivalSnap,nativeArrivalExtraTolerance:ST.arrivalSnap?1:0,movementCommands:ST.moves,recoveryResumes:ST.resumes,hitrunPhase:ST.lastOwnerPhase,
 // [VI dòng gốc 637] Thuộc tính positioning: đọc ST.positioning | Thuộc tính paceMs: gọi currentPace() | Thuộc tính adaptivePacing: pacer?.status() hoặc dùng vế phải khi vế trái là null/undefined: null | Thuộc tính fastCasts: đọc ST.fastCasts
@@ -1369,7 +1371,7 @@
 // [VI dòng gốc 672] Chú thích gốc của tác giả; không được thực thi. Nội dung: Cập nhật khoảng cách tính từ tâm Boss, xóa đích di chuyển cũ rồi kiểm tra lại ngay.
   // Cập nhật khoảng cách tính từ tâm Boss, xóa đích di chuyển cũ rồi kiểm tra lại ngay.
 // [VI dòng gốc 673] Định nghĩa hàm setDistance; tham số: value | Khai báo biến không gán lại bằng const: d = gọi Number(value) để chuyển sang số | Kiểm tra !Number.isFinite(d)||d<=280||d>600: đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Distance must be in (280,600]')
-  function setDistance(value){const d=Number(value);if(!Number.isFinite(d)||d<=280||d>600)throw Error('Distance must be in (280,600]');
+  function setDistance(value){const d=tqDistanceOnly()?310:Number(value);if(!Number.isFinite(d)||d<=280||d>600)throw Error('Distance must be in (280,600]');
 // [VI dòng gốc 674] gọi W.KVPV_RANGE281?.setTrialRange(d+10) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gán CFG.goal bằng d | gán CFG.min bằng d===300?295:d>300?300:280 | gán CFG.max bằng d+10
     W.KVPV_RANGE281?.setTrialRange?.(d+10);CFG.goal=d;CFG.min=d===300?295:d>300?300:280;CFG.max=d+10;
 // [VI dòng gốc 675] gán ST.lastMove bằng -Infinity | gán ST.moveGoal bằng null | gán ST.positioning bằng true | Kiểm tra ST.running: đúng thì chạy nhánh sau if.
