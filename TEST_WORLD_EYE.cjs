@@ -1,0 +1,37 @@
+// [VI dòng gốc 1] Khai báo biến không gán lại bằng const: vm = gọi require('vm') để nạp module Node.js; fs = gọi require('fs') để nạp module Node.js; assert = gọi require('node:assert/strict') để nạp module Node.js | Khai báo biến có thể gán lại bằng let: now = 1000; actor = "12345"; map = 1; task = tạo mảng gồm 2 vị trí: ['q',0]; wake = 0; mode = 0 | Khai báo biến không gán lại bằng const: timers = tạo đối tượng bằng Set(); events = tạo đối tượng bằng Map()
+const vm=require('vm'),fs=require('fs'),assert=require('node:assert/strict');let now=1000,actor='12345',map=1,task=['q',0],wake=0,mode=0;const timers=new Set(),events=new Map();
+// [VI dòng gốc 2] Khai báo biến không gán lại bằng const: W = tạo đối tượng gồm __KVPV_OWN_ACTOR_ID, _Ba, _C, _Sa, KVPV_MODE, KVPV_QUEST_PRIORITY, KVPV_APPEARANCE_AUTO, setInterval, clearInterval | Kết thúc hàm hiện tại và trả về: actor (ID nhân vật sở hữu phiên này). | Kết thúc hàm hiện tại và trả về: task. | Kết thúc hàm hiện tại và trả về: map (biến đổi từng phần tử).
+const W={__KVPV_OWN_ACTOR_ID:actor,_Ba:{_rJ:{_O$:{ins:{get actorId(){return actor;}}}},_zIt:{_FIt:{ins:{get taskInfo(){return task;}}}}},_C:{_Mn:{_Cn:{get currentID(){return map;}}}},_Sa:{notify:{on:(id,o,fn)=>events.set(id,fn),off:id=>events.delete(id)}},KVPV_MODE:{syncMap:()=>mode++},KVPV_QUEST_PRIORITY:{sync:()=>wake++},KVPV_APPEARANCE_AUTO:{sync:()=>wake++,status:()=>({enabled:true})},setInterval:(f,ms)=>{assert.equal(ms,100);timers.add(f);return f;},clearInterval:f=>timers.delete(f)};
+// [VI dòng gốc 3] Khai báo biến không gán lại bằng const: load = tạo hàm với tham số (không có); mỗi lần gọi trả về gọi vm.runInNewContext(fs.readFileSync('src/42-world-eye.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''), {window:W,Date:{now:()=>…) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử | gọi load() | gọi assert.equal(mode, 1) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(wake, 1) để kiểm tra hai giá trị bằng nhau
+const load=()=>vm.runInNewContext(fs.readFileSync('src/42-world-eye.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:W,Date:{now:()=>now}});load();assert.equal(mode,1);assert.equal(wake,1);
+// [VI dòng gốc 4] Lặp for: khởi tạo let i=0; tiếp tục khi i<10; sau mỗi vòng i++. | Khai báo biến có thể gán lại bằng let: i = 0 | gọi W.KVPV_WORLD_EYE.sync() | gọi assert.equal(mode, 1) để kiểm tra hai giá trị bằng nhau
+for(let i=0;i<10;i++)W.KVPV_WORLD_EYE.sync();assert.equal(mode,1);assert.equal(wake,1,'unchanged map/task does not dispatch again');
+// [VI dòng gốc 5] gán W.__KVPV_USER_UI_UNTIL bằng now+5000 | gán task bằng ['q2',0] | gọi events.get(5074)() | gọi W.KVPV_WORLD_EYE.sync()
+W.__KVPV_USER_UI_UNTIL=now+5000;task=['q2',0];events.get(5074)();W.KVPV_WORLD_EYE.sync();assert.equal(wake,1);
+// [VI dòng gốc 6] cập nhật bằng toán tử += now bằng 5001 | gọi W.KVPV_WORLD_EYE.sync() | gọi assert.equal(wake, 3, 'deferred task and bag change processed once after UI is released') để kiểm tra hai giá trị bằng nhau
+now+=5001;W.KVPV_WORLD_EYE.sync();assert.equal(wake,3,'deferred task and bag change processed once after UI is released');
+// [VI dòng gốc 7] gọi events.get(5079)() | cập nhật bằng toán tử += now bằng 10 | gọi W.KVPV_WORLD_EYE.sync() | gọi assert.equal(wake, 3, 'bag events coalesced') để kiểm tra hai giá trị bằng nhau
+events.get(5079)();now+=10;W.KVPV_WORLD_EYE.sync();assert.equal(wake,3,'bag events coalesced');now+=500;W.KVPV_WORLD_EYE.sync();assert.equal(wake,4);
+// [VI dòng gốc 8] gán map bằng 2 | gọi W.KVPV_WORLD_EYE.sync() | gọi assert.equal(mode, 2) để kiểm tra hai giá trị bằng nhau | gọi load()
+map=2;W.KVPV_WORLD_EYE.sync();assert.equal(mode,2);load();assert.equal(timers.size,1);assert.equal(events.size,2,'reload removes old listeners');
+// [VI dòng gốc 9] Khai báo biến không gán lại bằng const: buttons = tạo đối tượng gồm parent, visible, claimBtn, smeltBtn, buyBtn, upBtn, hiddenBtn
+const buttons={parent:true,visible:true,claimBtn:{label:'Nhận',visible:true},smeltBtn:{label:'Dung luyện',visible:true},buyBtn:{label:'Mua',visible:true},upBtn:{label:'Tăng cấp',gray:true},hiddenBtn:{label:'Nhận',visible:false}};
+// [VI dòng gốc 10] gán W._ft bằng {_Y4n:{ins:{openTable:{99:true},isOpened:()=>true,getPanelById:()=>buttons}}} | cập nhật bằng toán tử += now bằng 2001 | gọi W.KVPV_WORLD_EYE.sync()
+W._ft={_Y4n:{ins:{openTable:{99:true},isOpened:()=>true,getPanelById:()=>buttons}}};now+=2001;W.KVPV_WORLD_EYE.sync();
+// [VI dòng gốc 11] Khai báo biến không gán lại bằng const: actions = đọc W.KVPV_WORLD_EYE.status().actions | gọi assert.equal(actions.length, 4) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(actions.find(a=>a.key==='smeltBtn').kind, 'smelt') để kiểm tra hai giá trị bằng nhau | gọi assert.equal(actions.find(a=>a.key==='buyBtn').decision, 'blocked_currency') để kiểm tra hai giá trị bằng nhau
+const actions=W.KVPV_WORLD_EYE.status().actions;assert.equal(actions.length,4);assert.equal(actions.find(a=>a.key==='smeltBtn').kind,'smelt');assert.equal(actions.find(a=>a.key==='buyBtn').decision,'blocked_currency');assert.equal(actions.find(a=>a.key==='upBtn').ready,false);assert.equal(actions.find(a=>a.key==='claimBtn').decision,'needs_verified_handler','label recognition alone never invokes unknown callbacks');
+// [VI dòng gốc 12] Khai báo biến không gán lại bằng const: child = tạo đối tượng gồm claimBtn; hidden = tạo đối tượng gồm visible, claimBtn
+const child={claimBtn:{label:'Nhận thưởng',visible:true}},hidden={visible:false,claimBtn:{label:'Nhận ẩn'}};
+// [VI dòng gốc 13] gán buttons.listBox bằng {visible:true,_children:[child,hidden]} | gán child.loopPanel bằng buttons | gán buttons.cancelBtn bằng {label:'Hủy vượt'}
+buttons.listBox={visible:true,_children:[child,hidden]};child.loopPanel=buttons;buttons.cancelBtn={label:'Hủy vượt'};
+// [VI dòng gốc 14] cập nhật bằng toán tử += now bằng 2001 | gọi W.KVPV_WORLD_EYE.sync() | Khai báo biến không gán lại bằng const: nested = đọc W.KVPV_WORLD_EYE.status().actions
+now+=2001;W.KVPV_WORLD_EYE.sync();const nested=W.KVPV_WORLD_EYE.status().actions;
+// [VI dòng gốc 15] gọi assert(nested.some(a=>a.label==='Nhận thưởng')) để kiểm tra điều kiện của bài test | gọi assert(!nested.some(a=>a.label==='Nhận ẩn'), 'hidden ancestors block child candidates') để kiểm tra điều kiện của bài test
+assert(nested.some(a=>a.label==='Nhận thưởng'));assert(!nested.some(a=>a.label==='Nhận ẩn'),'hidden ancestors block child candidates');
+// [VI dòng gốc 16] gọi assert.equal(nested.find(a=>a.key==='cancelBtn').decision, 'manual_only') để kiểm tra hai giá trị bằng nhau | gọi assert(nested.length<80, 'cycles and duplicate aliases remain bounded') để kiểm tra điều kiện của bài test
+assert.equal(nested.find(a=>a.key==='cancelBtn').decision,'manual_only');assert(nested.length<80,'cycles and duplicate aliases remain bounded');
+// [VI dòng gốc 17] gán actor bằng 'other' | gọi W.KVPV_WORLD_EYE.sync() | gọi assert.equal(timers.size, 0) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(events.size, 0) để kiểm tra hai giá trị bằng nhau
+actor='other';W.KVPV_WORLD_EYE.sync();assert.equal(timers.size,0);assert.equal(events.size,0);
+// [VI dòng gốc 18] gọi console.log('PASS world eye: bounded map/model polling, change-only wakeups, inventory coalescing, manual UI deferral, reload/identi…)
+console.log('PASS world eye: bounded map/model polling, change-only wakeups, inventory coalescing, manual UI deferral, reload/identity cleanup');
+// [VI dòng gốc 19] Dòng trống để tách các phần, không có lệnh thực thi.

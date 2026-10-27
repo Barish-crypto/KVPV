@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "KVPV — Đồng bộ tab game",
+  "version": "1.0.0",
+  "minimum_chrome_version": "125",
+  "description": "Đồng bộ FULL từ dự án trên máy vào tab Kiếm Vũ Phong Vân đang mở.",
+  "permissions": [
+    "activeTab",
+    "debugger",
+    "nativeMessaging"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "KVPV đồng bộ",
+    "default_popup": "popup.html"
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxmLQLktTpfMev+mK2LHjZOKmo8XGJlFfY84/j9N2Zuma4W7Symltx3Uv2VnQXUBgdWIC9zEIzTJd2CKPSiXExJOCgjXWqJ8Yp1b1lB3IiB38i5EXT7vyX6DOBty0XSeTjxdM9xOFpE/yRQ/wZn4tNX6bPRQGd/SiwDDYIS9QsBPpvof+yUXK2NqepcnqWmaaFWfPb/gVSC6vLsXFaY3CFIeiAzUUuZGBm9ZcAWtC0HKuz/7SSAbcEFglioo9JBVlgSVGQz+Ez3a3ipeu9Ae9BnFUmI0BioxnDLDLYAZd7k5LxE3dSXKepnnj7mcXWpBMV6scfg00KrRMm0h4VFBgzwIDAQAB"
+}

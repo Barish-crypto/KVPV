@@ -1,0 +1,14 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync('src/08-range-evidence.js','utf8');
+const body=source.slice(source.indexOf('  function bossInfo('),source.indexOf('  function dps('));
+let values={id:'b1',occ:123,type:1,name:'Boss one',hp:[50,100]};
+const rows=[[6001,1]],Combat={},Skill={};
+const boss={property:{get:k=>values[k]},getComponent:c=>c===Combat?{_mvt:()=>[6001,1,'Skill'],_jh:{isPlaying:false}}:{_rtt:rows}};
+let cast={bossId:'other',trained:[{skillId:9999,castToImpactMs:[500]}]};
+const ctx={W:{_ft:{_tY:{ins:{isBoss:()=>true,getCfgById:()=>[123,1,1,280]}}},KVPV_TQ113:{status:()=>cast},KVPV_TQ112:{status:()=>({selectedBoss:'other'})}},role:()=>({a:{},c:{target:boss}}),identity:o=>String(o?.property?.get('id')??''),prop:(o,k)=>o?.property?.get(k),radius:()=>302,scene:()=> '1001',actorId:'actor',Combat,Skill,console};
+vm.createContext(ctx);vm.runInContext(body+'globalThis.getBoss=bossInfo;',ctx);
+const first=ctx.getBoss(false);assert.equal(first.hpPct,50);assert.equal(first.nativeBossRange,280);assert.equal(first.skills.length,1);assert.equal(first.existingCastModel,null);assert.equal(first.existingImpactModel,null);
+cast={bossId:'b1',trained:[{skillId:6002,castToImpactMs:[500]}]};const second=ctx.getBoss(false);assert.equal(second.skills.length,2);cast.trained[0].castToImpactMs[0]=900;assert.equal(second.skills[1].observedCastToDamageMs[0],500);
+values.id='b2';values.name='Boss two';values.hp[0]=1;assert.equal(first.name,'Boss one');assert.equal(first.hp[0],50);assert.equal(ctx.getBoss(false).existingCastModel,null);assert.equal(rows.length,1);
+values.type=0;assert.equal(ctx.getBoss(false).available,false);
+assert(!/setInterval|setTimeout|\.combat\s*\(/.test(body));console.log('Boss info tests passed');

@@ -1,0 +1,11 @@
+# Local browser / account state - NEVER publish
+.kvpv-live/
+node_modules/
+.env
+.env.*
+*.log
+*.bak
+*.tmp
+*.pid
+__pycache__/
+*.pyc

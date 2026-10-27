@@ -1,0 +1,15 @@
+CHỈ JAVASCRIPT — PHÓ BẢN VÀ BOSS HẰNG NGÀY
+
+1. Đăng nhập game, chọn đúng game-frame trong Console/Snippet.
+2. Nạp toàn bộ KVPV_PB_BOSS_DAILY.js một lần.
+3. Giữ máy và tab game hoạt động. Không cần Manager. F5/đăng nhập lại thì nạp lại.
+
+Xem: KVPV_PB_BOSS_DAILY.status()
+Dừng: KVPV_PB_BOSS_DAILY.stop()
+Tiếp tục: KVPV_PB_BOSS_DAILY.start()
+
+Dùng các bộ PB/boss đã có: Thí Luyện Ngày, Tiên Duyên, Thần Thú, Triệu Hồi, Phù Văn, boss theo lịch và bộ tổ đội hiện có. Chỉ vào nội dung đã mở, còn lượt/vé; tổ đội phải đủ điều kiện. Không mua lượt và không tự tiêu KNB.
+
+Reset ngày theo đồng hồ game hiện có (05:00 giờ Việt Nam). Không hứa chạy khi máy ngủ, mạng đứt hoặc game đăng xuất.
+
+Tạo lại sau khi sửa nguồn: node build.cjs rồi node scripts/build-daily-pb-boss.cjs

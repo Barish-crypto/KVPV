@@ -1,0 +1,49 @@
+/* Native Tầm Tiên Vấn Đạo: exact answer memory; never guess or send chat. */
+(() => {
+'use strict';const W=window,old=W.KVPV_QUIZ_AUTO,carry=old?._handoff?.();old?.stop?.();
+const actor=String(W.__KVPV_OWN_ACTOR_ID||''),key='kvpv.quiz.answers.v1';
+const norm=x=>String(x??'').replace(/<[^>]*>/g,' ').normalize('NFC').toLocaleLowerCase('vi').replace(/\s+/g,' ').trim();
+let db={};try{const x=JSON.parse(W.localStorage?.getItem(key)||'{}');if(x&&typeof x==='object'&&!Array.isArray(x))for(const [q,a] of Object.entries(x).slice(-2000))if(typeof a==='string'&&q.length<1000&&a.length<500)db[q]=a;}catch(_){}
+if(carry?.db)Object.assign(db,carry.db);
+// Curated seed for the question shown by the user. Only exact question text matches, with either A/B order.
+for(const q of ['"Trứng muối" làm từ trứng nào?','Trứng muối làm từ trứng nào?'])if(!db[norm(q)])db[norm(q)]=norm('Trứng vịt');
+const same=carry?.actor===actor,S={enabled:true,timer:null,reason:'waiting_event',error:'',selected:same?carry.selected:null,answered:same?carry.answered:0,learned:same?carry.learned:0,chatRequested:same?carry.chatRequested:null,question:null,joinKey:same?carry.joinKey:null};
+const model=()=>W._Ba?._vlt?._llt?.ins;
+const own=()=>actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
+const inside=()=>Number(W._ft?._po?.ins?.getCfgById?.(Number(W._C?._Mn?._Cn?.currentID))?.[7])===69;
+function save(){try{const rows=Object.entries(db).slice(-2000);db=Object.fromEntries(rows);W.localStorage?.setItem(key,JSON.stringify(db));}catch(e){S.error='answer_storage: '+String(e.message||e);}}
+function autoJoin(){
+const daily=W.KVPV_DAILY,q=daily?.quickState?.();
+if(daily?.config?.enableQuizAuto===false||q?.running===false||W.KVPV?.events?.config?.enabled===false){S.reason='auto_join_disabled';return;}
+const st=W._Ba?._sst?._ist?.inst?.getCpSceneStateByType?.(69);
+if(Number(st?.[2])!==2){S.reason='waiting_event_open';return;}
+const cfg=W._ft?._po?.ins?.getCfgById?.(6901),api=W._Ba?._sst?._Cht?.inst;
+if(Number(cfg?.[7])!==69||W._Ba?._$a?.SceneUtil?.isCommonScene!==true||q?.job&&!['rảnh','ranh','idle'].includes(String(q.job))){S.reason='waiting_common_idle';return;}
+if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)||typeof api?.rqEtScene!=='function'||api.checkEnterScene?.(6901,false)!==true){S.reason='waiting_native_entry';return;}
+const day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh'}).format(new Date()),joinKey=day+'/6901';
+if(S.joinKey===joinKey){S.reason='entry_requested_wait_server';return;}
+const gate=W.KVPV?.core?.scene;if(gate?.acquire&&gate.acquire('daily','quiz-auto-entry')!==true){S.reason='scene_lease_denied';return;}
+S.joinKey=joinKey;try{api.rqEtScene(6901);S.reason='entry_requested';}finally{gate?.release?.('daily');}
+}
+function tick(){try{
+if(!S.enabled||!own())return;if(!inside()){autoJoin();return;}
+const m=model(),r=m?.getCopyInfo?.();if(!Array.isArray(r)||typeof r[2]!=='string'||!Array.isArray(r[3])||r[3].length!==2||!r[3].every(x=>typeof x==='string')){S.reason='waiting_question';return;}
+const q=norm(r[2]),opts=r[3].map(norm),signature=JSON.stringify([r[2],r[3],r[5]]);S.question={text:r[2].slice(0,500),options:r[3].map(x=>x.slice(0,300)),phase:r[0]};
+// Native UI displays r[4] as the correct A/B only in result phase 3.
+if(r[0]===3&&[0,1].includes(r[4])){const answer=opts[r[4]];if(q&&answer&&db[q]!==answer){db[q]=answer;S.learned++;save();}S.reason='learned_server_result';return;}
+if(r[0]!==1){S.reason='waiting_answer_phase';return;}
+const time=Number(W._Sa?.svrTime);if(!Number.isFinite(time)||!Number.isFinite(r[1])||r[1]<=time){S.reason='expired_or_unknown_clock';return;}
+
+const indices=opts.map((x,i)=>x===db[q]?i:-1).filter(i=>i>=0);if(indices.length!==1){S.reason='unknown_answer_no_guess';return;}
+if(S.selected===signature){S.reason='selected_once_wait_native';return;}
+// Native RPC broadcasts answers when sync chat is on. Disable it and wait for server state first.
+if(m.getSyncChat?.()!==false){if(S.chatRequested!==signature&&typeof W._Ba?._vlt?._hcn?.ins?.setAnswerSyncChat==='function'){S.chatRequested=signature;W._Ba._vlt._hcn.ins.setAnswerSyncChat([false]);}S.reason='waiting_chat_disabled';return;}
+if(W._Ba?._rJ?._O$?.ins?.isDead!==false||typeof m.choiceAnswer!=='function'){S.reason='waiting_native_player';return;}
+S.selected=signature;S.answered++;m.choiceAnswer(indices[0],true);S.reason='selected_native_movement';
+}catch(e){S.error=String(e.message||e);S.reason='error_no_retry';}}
+function stop(){S.enabled=false;for(const id of [6513,6514])W._Sa?.notify?.off?.(id,S,onResult);if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(S.timer);S.timer=null;}
+W.KVPV_QUIZ_AUTO=Object.freeze({sync:tick,stop,status:()=>({enabled:S.enabled,inside:inside(),reason:S.reason,lastError:S.error,knownAnswers:Object.keys(db).length,selected:S.answered,learned:S.learned,question:S.question,autoJoin:true,continueAfterRewardLimit:true,resultEvents:typeof W._Sa?.notify?.on==='function',unknownPolicy:'wait_no_guess'}),_handoff:()=>({actor,db,joinKey:S.joinKey,selected:S.selected,answered:S.answered,learned:S.learned,chatRequested:S.chatRequested})});
+function onResult(){if(!S.enabled||!own())return;try{const r=model()?.getCopyInfo?.();if(r?.[0]===3)tick();}catch(e){S.error=String(e.message||e);}}
+for(const id of [6513,6514])W._Sa?.notify?.on?.(id,S,onResult);
+S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,500);tick();
+})();

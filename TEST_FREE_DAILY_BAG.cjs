@@ -1,0 +1,17 @@
+// [VI dòng gốc 1] "use strict" | Khai báo biến không gán lại bằng const: fs = gọi require('node:fs') để nạp module Node.js; vm = gọi require('node:vm') để nạp module Node.js; assert = gọi require('node:assert/strict') để nạp module Node.js | Khai báo biến có thể gán lại bằng let: used = 0; sends = 0; now = 0 | Khai báo biến không gán lại bằng const: r = gọi Array(25).fill(0)
+'use strict';const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');let used=0,sends=0,now=0;const r=Array(25).fill(0);r[0]=10;r[1]=20;r[8]=[1,0];r[9]=[1,1];
+// [VI dòng gốc 2] Khai báo biến không gán lại bằng const: W = tạo đối tượng gồm __KVPV_OWN_ACTOR_ID, _Ba, _ft, setInterval, clearInterval | gọi assert.equal(id, 10) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(n, 1) để kiểm tra hai giá trị bằng nhau | tăng sends một đơn vị sau khi lấy giá trị
+const W={__KVPV_OWN_ACTOR_ID:'12345',_Ba:{_rJ:{_O$:{ins:{actorId:'12345',isDead:false}}},_Iwt:{_Dwt:{instance:{getCurBuyNum:()=>used}},_rLt:{instance:{_uLt(id,n){assert.equal(id,10);assert.equal(n,1);sends++;}}}},_ke:{_Le:{instance:{curSvipLv:0}}},_$a:{SceneUtil:{isCommonScene:true},_yo:{ins:{isInMission:false}}}},_ft:{_AY:{ins:{_PY:{10:r},getCfgs:()=>[r]}},_mY:{ins:{getItemCfgById:()=>[20,'Túi Phúc Mệnh · Tuyệt']}}},setInterval:()=>1,clearInterval(){}};
+// [VI dòng gốc 3] Khai báo biến không gán lại bằng const: source = gọi fs.readFileSync(__dirname+'/src/57-free-daily-bag.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm, '') | Khai báo biến không gán lại bằng const: load = tạo hàm với tham số (không có); mỗi lần gọi trả về gọi vm.runInNewContext(source, {window:W,Date:{now:()=>now}}) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử
+const source=fs.readFileSync(__dirname+'/src/57-free-daily-bag.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'');const load=()=>vm.runInNewContext(source,{window:W,Date:{now:()=>now}});
+// [VI dòng gốc 4] gán r[8][1] bằng 1 | gọi load() | gọi assert.equal(sends, 0) để kiểm tra hai giá trị bằng nhau | gán r[8][1] bằng 0
+r[8][1]=1;load();assert.equal(sends,0);r[8][1]=0;r[9][0]=2;W.KVPV_FREE_DAILY_BAG.sync();assert.equal(sends,0);
+// [VI dòng gốc 5] gán r[9][0] bằng 1 | gán W.__KVPV_USER_UI_UNTIL bằng 100 | gọi W.KVPV_FREE_DAILY_BAG.sync() | gọi assert.equal(sends, 0) để kiểm tra hai giá trị bằng nhau
+r[9][0]=1;W.__KVPV_USER_UI_UNTIL=100;W.KVPV_FREE_DAILY_BAG.sync();assert.equal(sends,0);now=101;W.KVPV_FREE_DAILY_BAG.sync();assert.equal(sends,1);
+// [VI dòng gốc 6] gọi load() | gán now bằng 99999 | gọi W.KVPV_FREE_DAILY_BAG.sync() | gọi assert.equal(sends, 1) để kiểm tra hai giá trị bằng nhau
+load();now=99999;W.KVPV_FREE_DAILY_BAG.sync();assert.equal(sends,1);assert(W.KVPV_FREE_DAILY_BAG.status().pending);
+// [VI dòng gốc 7] gán used bằng 1 | gọi W.KVPV_FREE_DAILY_BAG.sync() | gọi assert.equal(W.KVPV_FREE_DAILY_BAG.status().confirmed, 1) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(sends, 1) để kiểm tra hai giá trị bằng nhau
+used=1;W.KVPV_FREE_DAILY_BAG.sync();assert.equal(W.KVPV_FREE_DAILY_BAG.status().confirmed,1);assert.equal(sends,1);
+// [VI dòng gốc 8] gọi console.log('PASS free daily bag: exact item, price zero, daily limit, UI guard, native amount one, ACK and reload/timeout no retry.…)
+console.log('PASS free daily bag: exact item, price zero, daily limit, UI guard, native amount one, ACK and reload/timeout no retry.');
+// [VI dòng gốc 9] Dòng trống để tách các phần, không có lệnh thực thi.

@@ -1,0 +1,10 @@
+Bản KVPV trọng tâm, có extension Edge/Chrome, tạo từ KVPV.rar
+- Đã loại .kvpv-live/browser-profile, cache, history backups, references lớn.
+- Số module FULL: 90
+- New: quiz v2 IndexedDB + file persistence, priority events yield Tu Vuot.
+- Restored: KVPV_THIEN_QUAN_CHI_DANH_TAY.js for existing regression test.
+- Build ID: 0741dfe8423c
+- node test.cjs: PASS (exit code 0)
+- node live/verify.cjs: CACHED 0741dfe8423c
+- NativeHost EXE chưa thể thực thi trên Linux; phải cài lại trên Windows.
+- Chưa xác minh hiệu quả thực chiến với server game.

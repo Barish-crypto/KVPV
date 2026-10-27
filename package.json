@@ -1,0 +1,11 @@
+{
+  "name": "kvpv-v1",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.cjs",
+    "test": "node test.cjs",
+    "live": "node live/watch.cjs",
+    "test:browser": "node TEST_LIVE_BROWSER.cjs"
+  }
+}

@@ -1,0 +1,21 @@
+// [VI dòng gốc 1] Chú thích gốc của tác giả; không được thực thi. Nội dung: Chạy build trước, sau đó chạy tuần tự các kiểm thử và dừng ngay khi một bước lỗi. Các kiểm thử mô phỏng không thay thế xác nhận trong game thật. [đóng chú thích]
+/* Chạy build trước, sau đó chạy tuần tự các kiểm thử và dừng ngay khi một bước lỗi. Các kiểm thử mô phỏng không thay thế xác nhận trong game thật. */
+// [VI dòng gốc 2] "use strict"
+'use strict';
+// [VI dòng gốc 3] Khai báo biến không gán lại bằng const: {spawnSync} = gọi require('node:child_process') để nạp module Node.js
+const {spawnSync}=require('node:child_process');
+// [VI dòng gốc 4] Khai báo biến không gán lại bằng const: verification = gọi require('./live/verified.cjs') để nạp module Node.js; sourceDigest = gọi verification.sourceDigest(__dirname)
+const verification=require('./live/verified.cjs'),sourceDigest=verification.sourceDigest(__dirname);
+// [VI dòng gốc 5] Duyệt từng giá trị trong ['build.cjs','TEST_V1.cjs','TEST_DAILY_PB_BOSS.cjs','TEST_COMBO_DEFAULT.cjs','TEST_RECOVERY.cjs','TEST_BOSS_LOG.cjs','TEST_TH300.cjs','TEST_RANGE_TRIAL.cjs','TEST_TH_OLD_1296.cjs','TEST_MODES_1296.cjs','TE… bằng const file. | Khai báo biến không gán lại bằng const: file (chưa gán giá trị)
+for(const file of ['build.cjs','TEST_V1.cjs','TEST_COMBO_DEFAULT.cjs','TEST_RECOVERY.cjs','TEST_BOSS_LOG.cjs','TEST_TH300.cjs','TEST_RANGE_TRIAL.cjs','TEST_TH_OLD_1296.cjs','TEST_MODES_1296.cjs','TEST_BOOST.cjs','TEST_SCOPE.cjs','TEST_ALL_BOSS.cjs','TEST_TERRITORY_LOOT.cjs','TEST_TQ_FIVE_BASICS.cjs','TEST_COMBAT_DPS.cjs','TEST_SKILL1008_TRIAL.cjs','TEST_TRU_TIEN.cjs','TEST_BASIC10.cjs','TEST_TRANSFORM10.cjs','TEST_EIGHT_FLOOR.cjs','TEST_HONOR_TARGET.cjs','TEST_STRONGEST_TEAM.cjs','TEST_SKILL_PACING.cjs','TEST_LINHLUNG_TH.cjs','TEST_SUPERVISORS.cjs','TEST_ACCOUNTS.cjs','TEST_TQ_HANDOFF.cjs','TEST_TQ_STAGE_LEASE.cjs','TEST_DAILY_TRIAL.cjs','TEST_QUICK_USE.cjs','TEST_CONFIRM_POPUPS.cjs','TEST_BEAST_ISLAND.cjs','TEST_SUMMON_BOSS.cjs','TEST_RUNE_BOSS.cjs','TEST_FABAO_FAST.cjs','TEST_CRAFT_LOW.cjs','TEST_APPEARANCE_AUTO.cjs','TEST_QUEST_GOALS.cjs','TEST_TIENVI_GOALS.cjs','TEST_QUEST_PRIORITY.cjs','TEST_SKILL_REWARDS.cjs','TEST_PROGRESS_PLANNER.cjs','TEST_FABAO_TREASURE.cjs','TEST_EQUIPMENT_TREASURE.cjs','TEST_PARALLEL_ACTIONS.cjs','TEST_REBORN_GOALS.cjs','TEST_REBORN_EXECUTORS.cjs','TEST_EXECUTOR_REPORT.cjs','TEST_FAST_STONE_SEASON.cjs','TEST_WORLD_EYE.cjs','TEST_CONTEXT_BRAIN.cjs','TEST_RED_NAVIGATOR.cjs','TEST_MONSTER_PLATE.cjs','TEST_TEAM_COORDINATOR.cjs','TEST_PARTY_RELAY.cjs','TEST_BOSS_TEAM.cjs','TEST_GUILD_BOSS.cjs','TEST_DAILY_CLOCK.cjs','TEST_TIEN_TON_AUTO.cjs','TEST_ACTIVITY_PRIORITY.cjs','TEST_EVENT_PRIORITY_HANDOFF.cjs','TEST_MANUAL_ENTRY.cjs','TEST_ITEM_TRACE.cjs','TEST_CRYSTAL_CAPTURE.cjs','TEST_FREE_TREASURE.cjs','TEST_FREE_DAILY_BAG.cjs','TEST_IDLE_DAILY.cjs','TEST_ROAD_CADENCE.cjs','TEST_QUIZ_AUTO.cjs','TEST_PEAK_CHEST.cjs','TEST_PEAK_COMPLETION.cjs','TEST_EIGHT_CHEST.cjs','TEST_MARRY_ARENA.cjs','TEST_PET_TRAVEL.cjs','TEST_LOGIN_STREAK.cjs','TEST_FESTIVAL_FREE.cjs','TEST_MARRY_REWARDS.cjs','TEST_FOUR_WORSHIP.cjs','TEST_KIEM_KHIEU.cjs','TEST_DESKTOP_CONTROL.cjs','TEST_ADVENTURE.cjs','TEST_COMPANION_COMBAT.cjs','TEST_DEMON_KING_RECOVERY.cjs','TEST_LIVE.cjs','TEST_EDGE_ADDON.cjs','TEST_EDGE_ATTACH_ALL.cjs','TEST_EDGE_INPUT.cjs','TEST_PROJECT.cjs','TEST_SYNC.cjs','TEST_ANDROID.cjs']){
+// [VI dòng gốc 6] Khai báo biến không gán lại bằng const: result = gọi spawnSync(process.execPath, [require('node:path').join(__dirname,file)], {stdio:'inherit'})
+  const result=spawnSync(process.execPath,[require('node:path').join(__dirname,file)],{stdio:'inherit'});
+// [VI dòng gốc 7] Kiểm tra result.status!==0: đúng thì chạy nhánh sau if. | gọi process.exit(result.status||1)
+  if(result.status!==0)process.exit(result.status||1);
+// [VI dòng gốc 8] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+}
+// [VI dòng gốc 9] Dòng trống để tách các phần, không có lệnh thực thi.
+
+// [VI dòng gốc 10] gọi verification.record(__dirname, sourceDigest)
+verification.record(__dirname,sourceDigest);
+// [VI dòng gốc 11] Dòng trống để tách các phần, không có lệnh thực thi.

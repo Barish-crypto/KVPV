@@ -1,0 +1,15 @@
+// [VI dòng gốc 1] "use strict"
+'use strict';
+// [VI dòng gốc 2] Khai báo biến không gán lại bằng const: fs = gọi require('fs') để nạp module Node.js; vm = gọi require('vm') để nạp module Node.js; assert = gọi require('assert/strict') để nạp module Node.js | Khai báo biến không gán lại bằng const: W = tạo đối tượng gồm | gọi vm.runInNewContext(fs.readFileSync('src/00-daily-clock.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''), {window:W}) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử | Khai báo biến không gán lại bằng const: c = đọc W.KVPV_DAILY_CLOCK
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');const W={};vm.runInNewContext(fs.readFileSync('src/00-daily-clock.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:W});const c=W.KVPV_DAILY_CLOCK;
+// [VI dòng gốc 3] Duyệt từng giá trị trong [['2026-10-22T23:59:59+07:00','2026-10-22'],['2026-10-23T00:00:00+07:00','2026-10-22'],['2026-10-23T04:59:59.999+07:00','2026-10-22'],['2026-10-23T05:00:00+07:00','2026-10-23'],['2… bằng const [iso,day]. | Khai báo biến không gán lại bằng const: [iso,day] (chưa gán giá trị) | gọi assert.equal(c.key(Date.parse(iso)), day) để kiểm tra hai giá trị bằng nhau
+for(const [iso,day] of [['2026-10-22T23:59:59+07:00','2026-10-22'],['2026-10-23T00:00:00+07:00','2026-10-22'],['2026-10-23T04:59:59.999+07:00','2026-10-22'],['2026-10-23T05:00:00+07:00','2026-10-23'],['2027-01-01T04:59:59+07:00','2026-12-31'],['2027-01-01T05:00:00+07:00','2027-01-01']])assert.equal(c.key(Date.parse(iso)),day);
+// [VI dòng gốc 4] gọi assert.equal(c.nextResetAt(Date.parse('2026-10-23T04:59:59+07:00')), Date.parse('2026-10-23T05:00:00+07:00')) để kiểm tra hai giá trị bằng nhau
+assert.equal(c.nextResetAt(Date.parse('2026-10-23T04:59:59+07:00')),Date.parse('2026-10-23T05:00:00+07:00'));
+// [VI dòng gốc 5] gọi assert.equal(c.nextResetAt(Date.parse('2026-10-23T05:00:00+07:00')), Date.parse('2026-10-24T05:00:00+07:00')) để kiểm tra hai giá trị bằng nhau
+assert.equal(c.nextResetAt(Date.parse('2026-10-23T05:00:00+07:00')),Date.parse('2026-10-24T05:00:00+07:00'));
+// [VI dòng gốc 6] Duyệt từng giá trị trong ['04-engine.js','16-strongest-team.js','20-daily-trial.js','46-team-coordinator.js'] bằng const file. | Khai báo biến không gán lại bằng const: file (chưa gán giá trị) | gọi assert(fs.readFileSync('src/'+file,'utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'').includes('KVPV_DAILY_CLOCK')) để kiểm tra điều kiện của bài test
+for(const file of ['04-engine.js','16-strongest-team.js','20-daily-trial.js','46-team-coordinator.js'])assert(fs.readFileSync('src/'+file,'utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'').includes('KVPV_DAILY_CLOCK'));
+// [VI dòng gốc 7] gọi console.log('PASS 05:00 activity day: midnight does not reset; exact 05:00 boundary, next reset and year rollover')
+console.log('PASS 05:00 activity day: midnight does not reset; exact 05:00 boundary, next reset and year rollover');
+// [VI dòng gốc 8] Dòng trống để tách các phần, không có lệnh thực thi.

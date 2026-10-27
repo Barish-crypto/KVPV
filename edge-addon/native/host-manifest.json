@@ -1,0 +1,9 @@
+{
+    "path":  "C:\\Users\\admin\\Downloads\\KVPV_V12_9_6_LONG_RANGE_300_WINDOWS (1)\\edge-addon\\native\\KvpvNativeHost.exe",
+    "description":  "KVPV local file watcher",
+    "name":  "com.kvpv.localwatch",
+    "allowed_origins":  [
+                            "chrome-extension://oijpfibnbgjiegokmkncaeaoablehnbp/"
+                        ],
+    "type":  "stdio"
+}

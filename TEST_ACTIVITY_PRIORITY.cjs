@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),W={};
+vm.runInNewContext(fs.readFileSync('src/03-timeline.js','utf8'),{window:W,Intl,Date});
+const p=W.KVPV.timeline,opts={atMs:Date.parse('2026-10-27T19:40:00+07:00'),flags:{},forTask:'stage'};
+p.setSchedule([{key:'tien_ton',action:'auto',slots:['19:30-19:45']},{key:'vinh_du',action:'auto',slots:['19:45-20:00']}]);
+p.setReadiness(()=>true);assert.equal(p.reservation(opts).key,'tien_ton');
+p.setReadiness(k=>k!=='tien_ton');assert.equal(p.reservation(opts).key,'vinh_du');
+p.setReadiness(()=>false);assert.equal(p.reservation(opts),null);
+p.setReadiness(()=>true);assert.equal(p.reservation({...opts,atMs:Date.parse('2026-10-27T20:01:00+07:00')}),null);
+console.log('PASS activity priority: active event retained after 90 seconds, before upcoming event; exhausted/unavailable released; expired window released.');

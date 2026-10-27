@@ -1,0 +1,25 @@
+THỬ THIÊN QUAN V1 VÀ THU LOG
+
+1. F5 game, đợi tải nhân vật, chọn game-frame trong DevTools.
+2. Nạp KVPV_V1_FULL.js (dùng COPY_FULL_WINDOWS.bat để chép).
+3. Kiểm tra:
+   KVPV_CHECK()
+   Chỉ thử khi ready: true. Nếu false, xem checks có ok: false.
+   Nếu nạp bị lỗi giữa chừng, KVPV_CHECK vẫn có thể liệt kê các module còn thiếu.
+4. Chọn Boss Thiên Quan trong game, bật ghi log rồi bật Boss:
+   KVPV_BOSS_LOG.start()
+   KVPV_MODE.start('BOSS')
+5. Theo dõi ít nhất 3 chu kỳ 35% -> chạy vòng -> 100% -> đánh tiếp:
+   KVPV_HITRUN1.status(true)
+   KVPV_BOSS_LOG.report().summary
+6. Sau trận, dừng ghi log (không làm dừng combat):
+   KVPV_BOSS_LOG.stop()
+7. Chép JSON để lưu/gửi lại phân tích (copy là tiện ích của DevTools):
+   copy(KVPV_BOSS_LOG.export())
+
+Dừng combat thủ công: KVPV_MODE.stop()
+Log không được tự gửi đi hay ghi vào clipboard. Lệnh copy ở bước 7 do bạn chạy.
+Log giữ tối đa 7200 mẫu, 600 sự kiện; có báo số mục đã bỏ khi đầy.
+Khoảng cách client chưa xác nhận tầm tất cả kỹ năng/AoE phía server.
+Truoc khi thu: KVPV_V1.build.id phai khop buildId trong MANIFEST.json. Ma ban hien tai xem trong MANIFEST.json.
+

@@ -1,0 +1,24 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+let now=0;class Clock extends Date{static now(){return now;}}
+const W={};vm.runInNewContext(fs.readFileSync(__dirname+'/src/00-combat-metrics.js','utf8'),{window:W,Date:Clock});const m=W.KVPV_COMBAT_METRICS.create();
+m.open({key:'boss1/map1',bossId:'boss1',bossName:'First Boss',scene:'map1'});assert.equal(m.report().current.summary.matchedDps,null);
+m.state('casting_native_skill','FIGHT',10);m.cast(1,8001,10);m.cast(2,1001,10);now=1000;m.result(1,true,100);m.result(2,true,300);m.result(2,true,999999);
+let p=m.report().current;assert.equal(p.summary.matchedDamage,400);assert.equal(p.summary.matchedDps,400);assert.equal(p.summary.attackWindowContributionDps,400);assert.equal(p.groups.basic.matchedDps,100);assert.equal(p.groups.tuyetHoc.matchedDps,300);assert.equal(p.skills.find(r=>r.id===1001).averageMatchedDamage,300);
+m.state('retreat','RETREAT',10);now=2000;p=m.report().current;assert.equal(p.summary.matchedDps,200);assert.equal(p.summary.attackWindowContributionDps,400);assert.equal(p.attackWindowMs,1000);assert.equal(p.timeMs.recovery,1000);
+m.state('positioning_far','FIGHT',10);now=3000;assert.equal(m.report().current.attackWindowMs,1000);m.state('waiting_native_cooldown','FIGHT',10);now=4000;assert.equal(m.report().current.attackWindowMs,2000);
+m.cast(3,8002,10);m.result(3,false);assert.equal(m.report().current.summary.matchedDamage,400);m.cast(4,8003,10);m.result(4,false,0,true);assert.equal(m.report().current.skills.find(r=>r.id===8003).interrupted,1);
+now=12000;p=m.report().current;assert.equal(p.summary.rolling10sMatchedDps,0);assert.equal(p.summary.matchedDamage,400);
+p.groups.basic.matchedDamage=12345;assert.equal(m.report().current.groups.basic.matchedDamage,100);m.close('Boss changed');const frozen=m.report().completed[0].summary.matchedDps;now=20000;assert.equal(m.report().completed[0].summary.matchedDps,frozen);
+m.open({key:'boss2/map2',bossId:'boss2',bossName:'Second Boss',scene:'map2'});assert.equal(m.report().current.summary.matchedDamage,0);assert.equal(m.report().completed[0].bossName,'First Boss');m.state('holding_far','FIGHT',10);
+for(let i=0;i<1100;i++){m.cast(i,8001,10);m.result(i,true,1);}now+=1000;assert.equal(m.report().current.summary.matchedDamage,1100);assert.equal(m.report().current.summary.rollingBufferTruncated,true);assert.equal(m.report().limits.rollingDamageEvents,1024);
+console.log('PASS matched DPS: basic/TH contributions, elapsed vs attack window, recovery/position/cooldown timing, duplicate/unconfirmed/interrupted samples, rolling expiry/cap and isolated Boss snapshots.');
+m.close();now=30000;m.open({key:'animation',bossId:'a'});
+m.state('waiting_native_animation','FIGHT',10);now+=100;assert.equal(m.report().current.skills.length,0);
+m.cast(1,8005,10);m.state('waiting_native_animation','FIGHT',10);now+=400;
+let animation=m.report().current.skills[0];assert.equal(animation.animationWaitMs,400);assert.equal(animation.animationWaitEpisodes,0);assert.equal(animation.animationWaitOngoingMs,400);
+m.state('waiting_native_animation','FIGHT',10);now+=100;m.state('holding_far','FIGHT',10);
+animation=m.report().current.skills[0];assert.equal(animation.animationWaitMs,500);assert.equal(animation.animationWaitEpisodes,1);assert.equal(animation.animationWaitAverageMs,500);assert.equal(animation.animationWaitMaxMs,500);
+m.state('waiting_native_animation','RETREAT',10);now+=1000;assert.equal(m.report().current.skills[0].animationWaitMs,500);
+m.cast(2,1008,10);m.state('waiting_native_animation','FIGHT',10);now+=200;m.close();const done=m.report().completed.at(-1);assert.equal(done.skills.find(r=>r.id===1008).animationWaitMs,200);assert.equal(done.animationCensored,1);now+=1000;assert.equal(m.report().completed.at(-1).skills.find(r=>r.id===1008).animationWaitMs,200);
+console.log('PASS animation attribution: ongoing snapshots, repeated polls, per-skill episodes, retreat exclusion and frozen censored close.');

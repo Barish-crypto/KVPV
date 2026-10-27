@@ -1,0 +1,40 @@
+ĐO KỸ NĂNG ĐÁNH XA — KHÔNG TÍNH ĐÒN THƯỜNG
+
+Lần đầu: nạp KVPV_V1_FULL.js và chọn Boss Thiên Quan.
+Phiên đã chạy V1: dán KVPV_SCAN_LIVE_PATCH.js, không F5; bản vá tự bật SCAN.
+Mặc định đứng đánh ở khoảng 302; không tự nâng ra xa hơn:
+  KVPV_MODE.start('BOSS_TH300_SCAN')
+
+Mode sẽ giành quyền định vị trước, chặn lệnh dừng/đuổi của AI trong lúc ra vị trí,
+rồi mới cho tung kỹ năng. HP >35% vẫn định vị, không còn dừng ở mức 48%.
+Nhịp kiểm tra/ra chiêu nhanh: 75ms, chỉ khi combat native đã hết hồi chiêu/hoạt ảnh.
+Không sửa timestamp hồi chiêu, không bỏ qua isCooldown và không tăng tốc hoạt ảnh.
+Report có positioning, paceMs, fastCasts và blockedNativeSteering để đối chiếu thực tế.
+
+Sau khi quan sát được vài lần tung kỹ năng:
+  KVPV_TH300.report()
+  copy(KVPV_TH300.export())
+
+skills: từng kỹ năng native ngoài 8001..8009:
+  attempts = số lời gọi combat phía client; chưa khẳng định đã tung thành công.
+  hits = số cặp lời gọi + sát thương trực tiếp khớp đúng Boss và kỹ năng.
+  damage = sát thương trong các cặp đã xác nhận.
+  unconfirmed = hết cửa sổ chờ mà không ghép được hit; không chứng minh server từ chối vì tầm.
+  verifiedDistance = khoảng cách có ít nhất 2 cặp xác nhận hỗ trợ.
+
+Chỉ dùng kỹ năng đã xác minh, trong khoảng cách có bằng chứng:
+  KVPV_MODE.start('BOSS_TH300')
+Không có bằng chứng thì đứng chờ. Không chuyển sang đánh thường.
+
+Muốn thử xa hơn sau khi đã đo được khoảng đầu:
+  KVPV_TH300.setDistance(350)
+  KVPV_MODE.start('BOSS_TH300_SCAN')
+Cho phép mục tiêu >280, tối đa 600.
+STRICT vẫn tự đứng trong khoảng đã xác minh, không giả định 350 dùng được từ bằng chứng 302.
+
+Dừng: KVPV_MODE.stop()
+Quay lại Boss combo gốc: KVPV_MODE.start('BOSS')
+Không tăng tốc đánh, không sửa hồi chiêu, không thêm RPC.
+Nới chốt tầm phía client chỉ mở đường thử; hit nhận được mới là bằng chứng kỹ năng trúng.
+
+

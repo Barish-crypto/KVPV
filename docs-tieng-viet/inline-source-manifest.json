@@ -1,0 +1,1325 @@
+{
+  "createdAt": "2026-10-25T20:51:12.429Z",
+  "mode": "inline-original-source",
+  "files": 188,
+  "originalLines": 33240,
+  "backup": "C:\\Users\\admin\\Downloads\\KVPV_V12_9_6_LONG_RANGE_300_WINDOWS (1)\\.kvpv-live\\maintenance-backups\\inline-vietnamese-2026-10-25T20-51-12-074Z",
+  "records": [
+    {
+      "file": "TEST_ACCOUNTS.cjs",
+      "originalLines": 34,
+      "before": "28953a9c9c9a52bd10518621402bd80cc8fb065015f5ffaea138b0a2d8d250ad",
+      "after": "28953a9c9c9a52bd10518621402bd80cc8fb065015f5ffaea138b0a2d8d250ad",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_ADVENTURE.cjs",
+      "originalLines": 52,
+      "before": "54d454afbf532e17c25fcd23ab694e25239c4e22cfc5531d4126af6cf258d5fc",
+      "after": "54d454afbf532e17c25fcd23ab694e25239c4e22cfc5531d4126af6cf258d5fc",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_ANDROID.cjs",
+      "originalLines": 74,
+      "before": "c5b5bba94e13fa966cb5d88ab315909a01c4fce0c691e1e29734b39b13f26ed8",
+      "after": "c5b5bba94e13fa966cb5d88ab315909a01c4fce0c691e1e29734b39b13f26ed8",
+      "verification": "AST và token JavaScript tương đương nguồn (đã thay chỗ giữ BUILD_ID bằng giá trị mẫu khi kiểm tra)"
+    },
+    {
+      "file": "TEST_APPEARANCE_AUTO.cjs",
+      "originalLines": 263,
+      "before": "e89b4f56e469a528308fc246b2addbd345ca769555df94205c64966d8a468f90",
+      "after": "e89b4f56e469a528308fc246b2addbd345ca769555df94205c64966d8a468f90",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_BASIC10.cjs",
+      "originalLines": 68,
+      "before": "4a30c348000fe45646fc13dab1be169e7b7a8690ce332428164bc4065dce6469",
+      "after": "4a30c348000fe45646fc13dab1be169e7b7a8690ce332428164bc4065dce6469",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_BEAST_ISLAND.cjs",
+      "originalLines": 69,
+      "before": "9e84627040f0f097c46be4a13a077056ab12c4b9129e31a223a178f79e5a3b6c",
+      "after": "9e84627040f0f097c46be4a13a077056ab12c4b9129e31a223a178f79e5a3b6c",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_BOOST.cjs",
+      "originalLines": 26,
+      "before": "f3fbf2990fd5398327bd599ed706773c9baee0e56dce129568f11321a729fcf4",
+      "after": "f3fbf2990fd5398327bd599ed706773c9baee0e56dce129568f11321a729fcf4",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_BOSS_LOG.cjs",
+      "originalLines": 54,
+      "before": "fda22dc0521c08d1913b7f93c1b6f7a4d0552f6a244dd53d0be850d7a5f55582",
+      "after": "fda22dc0521c08d1913b7f93c1b6f7a4d0552f6a244dd53d0be850d7a5f55582",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_BOSS_TEAM.cjs",
+      "originalLines": 39,
+      "before": "eb443abad463e24e7120754baab0839af3267776aec9212ce550817bb6d6f6db",
+      "after": "eb443abad463e24e7120754baab0839af3267776aec9212ce550817bb6d6f6db",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_COMBO_DEFAULT.cjs",
+      "originalLines": 32,
+      "before": "4cec379ff7ffa07c1f356aeb2a6d0b675b2f981976c1ecf50fb6b1da69f4493a",
+      "after": "4cec379ff7ffa07c1f356aeb2a6d0b675b2f981976c1ecf50fb6b1da69f4493a",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_COMPANION_COMBAT.cjs",
+      "originalLines": 35,
+      "before": "cd19baea0def9c14086cc9cd04fb0c9a4299dfe3689392b20fc3086cf1bbd31e",
+      "after": "cd19baea0def9c14086cc9cd04fb0c9a4299dfe3689392b20fc3086cf1bbd31e",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_CONFIRM_POPUPS.cjs",
+      "originalLines": 147,
+      "before": "c4e43dcefff188345b0933250e8bdaf9a4c99ccc768b67c5efe6b9356ceff6a3",
+      "after": "c4e43dcefff188345b0933250e8bdaf9a4c99ccc768b67c5efe6b9356ceff6a3",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_CONTEXT_BRAIN.cjs",
+      "originalLines": 12,
+      "before": "cc4e5b79b8bf909b658d986eb9f9d92f3a8d8f1df93cf7286f7bd917931cffb7",
+      "after": "cc4e5b79b8bf909b658d986eb9f9d92f3a8d8f1df93cf7286f7bd917931cffb7",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_CRAFT_LOW.cjs",
+      "originalLines": 38,
+      "before": "8e2c689eaf4888da299e797c4899ea366475d40c33aea95370139830408b6c82",
+      "after": "8e2c689eaf4888da299e797c4899ea366475d40c33aea95370139830408b6c82",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_CRYSTAL_CAPTURE.cjs",
+      "originalLines": 13,
+      "before": "b554b3ee23237a673c72578d9dd260deebfabeefeebbb8f53f80e2f2ecee4900",
+      "after": "b554b3ee23237a673c72578d9dd260deebfabeefeebbb8f53f80e2f2ecee4900",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_DAILY_CLOCK.cjs",
+      "originalLines": 8,
+      "before": "815ba3b4b17c59d8bb9a06d150fa7f8a5148f553930cfeb06d8b989bbaff3b41",
+      "after": "815ba3b4b17c59d8bb9a06d150fa7f8a5148f553930cfeb06d8b989bbaff3b41",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_DAILY_TRIAL.cjs",
+      "originalLines": 173,
+      "before": "5f939f4333d89ba4cf80128a151c3620d90e2a74bbcf54261c35425c23ed00ca",
+      "after": "5f939f4333d89ba4cf80128a151c3620d90e2a74bbcf54261c35425c23ed00ca",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_DEMON_KING_RECOVERY.cjs",
+      "originalLines": 13,
+      "before": "1d4c27a7ba1316e470a487eb6266a5db663368e498b6b66482d8c3a3ad19e9db",
+      "after": "1d4c27a7ba1316e470a487eb6266a5db663368e498b6b66482d8c3a3ad19e9db",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_DESKTOP_CONTROL.cjs",
+      "originalLines": 39,
+      "before": "8c8dff4b29511e22b3d3d0c91e313d398b2559ccd02fe99f7a9fdb5a7ec6b04d",
+      "after": "59cf6f5592f127e850c6343ee7f10166fcff81ac24e8f2886d31ae21d3e8c746",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_EDGE_ADDON.cjs",
+      "originalLines": 36,
+      "before": "f0b72c7a886988ea5b8168582d0569e47581537a37a760d61620ce7b6ceb50a5",
+      "after": "f0b72c7a886988ea5b8168582d0569e47581537a37a760d61620ce7b6ceb50a5",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_EDGE_ATTACH_ALL.cjs",
+      "originalLines": 16,
+      "before": "178dd8313e24597ad17ee10b712b74451be7386162893181778d82117e3809eb",
+      "after": "178dd8313e24597ad17ee10b712b74451be7386162893181778d82117e3809eb",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_EDGE_BROWSER.cjs",
+      "originalLines": 36,
+      "before": "3c4802ad824e4d497746c5493dac00987ade0d41906c8b87df71da9aeb33d67f",
+      "after": "3c4802ad824e4d497746c5493dac00987ade0d41906c8b87df71da9aeb33d67f",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_EDGE_NATIVE.cjs",
+      "originalLines": 16,
+      "before": "a52d4469bebbd406fbaad264a737d1fd8c915a90eb6b905753e1e9f1169a5d34",
+      "after": "a52d4469bebbd406fbaad264a737d1fd8c915a90eb6b905753e1e9f1169a5d34",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_EIGHT_CHEST.cjs",
+      "originalLines": 8,
+      "before": "a4d4a4660b0238877d8ab94e209607c332b65b95e10ee11097dc285fa5ecb068",
+      "after": "a4d4a4660b0238877d8ab94e209607c332b65b95e10ee11097dc285fa5ecb068",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_EIGHT_FLOOR.cjs",
+      "originalLines": 27,
+      "before": "8a3948f7ff7a8851b04acebcca7c722c1d0e6c9fe7267bed91b655f3b33faa42",
+      "after": "8a3948f7ff7a8851b04acebcca7c722c1d0e6c9fe7267bed91b655f3b33faa42",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_EQUIPMENT_TREASURE.cjs",
+      "originalLines": 43,
+      "before": "4112eea105887f5daed12bc0c409c881f804ed0f7e246df133b66671c5868990",
+      "after": "4112eea105887f5daed12bc0c409c881f804ed0f7e246df133b66671c5868990",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_EXECUTOR_REPORT.cjs",
+      "originalLines": 28,
+      "before": "56c040f29e5a5cd23699e4d65406414e030c88956cbd6551d7cfd25e15179cca",
+      "after": "56c040f29e5a5cd23699e4d65406414e030c88956cbd6551d7cfd25e15179cca",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_FABAO_FAST.cjs",
+      "originalLines": 44,
+      "before": "760fa7b3901559bcfc5efff7d5b5f851f540c8d5a8eb2f8b442c8dd3e4e90f93",
+      "after": "760fa7b3901559bcfc5efff7d5b5f851f540c8d5a8eb2f8b442c8dd3e4e90f93",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_FABAO_TREASURE.cjs",
+      "originalLines": 33,
+      "before": "e153c190938507b69a85e2b9b63a1415d91c9bbc9a56ad0df8b823fcecda617d",
+      "after": "e153c190938507b69a85e2b9b63a1415d91c9bbc9a56ad0df8b823fcecda617d",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_FAST_STONE_SEASON.cjs",
+      "originalLines": 36,
+      "before": "2d8f8b8ec72c5f006927ab502bebea6823e6f1723d850faa25b4b43801650cf4",
+      "after": "2d8f8b8ec72c5f006927ab502bebea6823e6f1723d850faa25b4b43801650cf4",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_FESTIVAL_FREE.cjs",
+      "originalLines": 4,
+      "before": "5734aafb83d099300acc23faf5ae7fa77bc114a3ae85d9563c9271822bef4ade",
+      "after": "5734aafb83d099300acc23faf5ae7fa77bc114a3ae85d9563c9271822bef4ade",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_FOUR_WORSHIP.cjs",
+      "originalLines": 2,
+      "before": "841857060fff46f8d9eb017727a8fdefad2bacec893abcd64702bf1888844645",
+      "after": "841857060fff46f8d9eb017727a8fdefad2bacec893abcd64702bf1888844645",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_FREE_DAILY_BAG.cjs",
+      "originalLines": 9,
+      "before": "c516a2593a7e14d50330ce73b2425e7ce8e75ace177ff3e5730d62732364fb64",
+      "after": "c516a2593a7e14d50330ce73b2425e7ce8e75ace177ff3e5730d62732364fb64",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_FREE_TREASURE.cjs",
+      "originalLines": 15,
+      "before": "c4f7fdcac3f96748a7527b6753ff88510497ae76043272ac79a428a584618439",
+      "after": "c4f7fdcac3f96748a7527b6753ff88510497ae76043272ac79a428a584618439",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_GUILD_BOSS.cjs",
+      "originalLines": 26,
+      "before": "2c2810963b2ebe6b70a7cd88715d7dad58050d60391b57f909aec2999ae10232",
+      "after": "2c2810963b2ebe6b70a7cd88715d7dad58050d60391b57f909aec2999ae10232",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_HONOR_TARGET.cjs",
+      "originalLines": 26,
+      "before": "60b1a991d350589118ed955b251702bb87f15883ab5b62468076e3414954f6d7",
+      "after": "60b1a991d350589118ed955b251702bb87f15883ab5b62468076e3414954f6d7",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_IDLE_DAILY.cjs",
+      "originalLines": 6,
+      "before": "ba6e6670e9ef37e67b629e15f4726f96cc9738177366b3733f5649aa9aca54c3",
+      "after": "ba6e6670e9ef37e67b629e15f4726f96cc9738177366b3733f5649aa9aca54c3",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_ITEM_TRACE.cjs",
+      "originalLines": 14,
+      "before": "0cf99a05d9360f9ec099e269ed3fbcafc139199a4c764e90ff012e3f757659a8",
+      "after": "0cf99a05d9360f9ec099e269ed3fbcafc139199a4c764e90ff012e3f757659a8",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_KIEM_KHIEU.cjs",
+      "originalLines": 27,
+      "before": "21befcf4278a60c8c35b2e4cedd9ac957b0828e23feb05e0766f64c9247e0b39",
+      "after": "21befcf4278a60c8c35b2e4cedd9ac957b0828e23feb05e0766f64c9247e0b39",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_LINHLUNG_TH.cjs",
+      "originalLines": 51,
+      "before": "d5d492a0016e1a70b0d2802d6bb128ec97160635b5ad8f2095632a4c34c761c0",
+      "after": "d5d492a0016e1a70b0d2802d6bb128ec97160635b5ad8f2095632a4c34c761c0",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_LIVE.cjs",
+      "originalLines": 45,
+      "before": "e24945230c22b8c8747d1adc9a6af21c9173cdbfa0d7325a6f18ec41b116f423",
+      "after": "e24945230c22b8c8747d1adc9a6af21c9173cdbfa0d7325a6f18ec41b116f423",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_LIVE_BROWSER.cjs",
+      "originalLines": 37,
+      "before": "dcdba7afa0e018ec59854fa491391431f9f116e206d6280c23fe3de852d08749",
+      "after": "dcdba7afa0e018ec59854fa491391431f9f116e206d6280c23fe3de852d08749",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_LOGIN_STREAK.cjs",
+      "originalLines": 2,
+      "before": "85527b1cee11ca68a4b1ba4a21b5e195fa9044e733f435bff06073851375a7b6",
+      "after": "85527b1cee11ca68a4b1ba4a21b5e195fa9044e733f435bff06073851375a7b6",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_MANUAL_ENTRY.cjs",
+      "originalLines": 30,
+      "before": "6db163a6223302236cf4e8ffff15d0faa221655f32ea1a0a0ba07ed7fdff2dab",
+      "after": "6db163a6223302236cf4e8ffff15d0faa221655f32ea1a0a0ba07ed7fdff2dab",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_MARRY_ARENA.cjs",
+      "originalLines": 4,
+      "before": "ac6eafdcf81f06a160adcdb0b3a9cb1a9ce0e8a4397b286474045fbd7ab9a519",
+      "after": "ac6eafdcf81f06a160adcdb0b3a9cb1a9ce0e8a4397b286474045fbd7ab9a519",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_MARRY_REWARDS.cjs",
+      "originalLines": 2,
+      "before": "0ead3d537caf5bf685b4ba0529295cc60f8fc9d948ad0b18ac6d473df750a7ef",
+      "after": "0ead3d537caf5bf685b4ba0529295cc60f8fc9d948ad0b18ac6d473df750a7ef",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_MODES_1296.cjs",
+      "originalLines": 160,
+      "before": "9a02ae48d404b4a979ad4f934ceb8c146917c55b6846af611d44f7bb5907615a",
+      "after": "9a02ae48d404b4a979ad4f934ceb8c146917c55b6846af611d44f7bb5907615a",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_MONSTER_PLATE.cjs",
+      "originalLines": 10,
+      "before": "f09024fcd3a968de24e7c7c81f83959939d72032a39974086da1a1f7d9830c0a",
+      "after": "f09024fcd3a968de24e7c7c81f83959939d72032a39974086da1a1f7d9830c0a",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_PARALLEL_ACTIONS.cjs",
+      "originalLines": 64,
+      "before": "eff52cdcdad0af756a37cd777fd5fe52f169dbc8de7cc1f286c40c03067a1038",
+      "after": "eff52cdcdad0af756a37cd777fd5fe52f169dbc8de7cc1f286c40c03067a1038",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_PARTY_RELAY.cjs",
+      "originalLines": 12,
+      "before": "0312c1c7250b68d9603c98dc0b22adffb2d499cf3fc09d29633313595971b12e",
+      "after": "0312c1c7250b68d9603c98dc0b22adffb2d499cf3fc09d29633313595971b12e",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_PEAK_CHEST.cjs",
+      "originalLines": 8,
+      "before": "94689b07084719c4bb968f5e36d785594beae4d886388b08f39e3992e45114fb",
+      "after": "94689b07084719c4bb968f5e36d785594beae4d886388b08f39e3992e45114fb",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_PEAK_COMPLETION.cjs",
+      "originalLines": 4,
+      "before": "d409c3942d0672711110c73d2ea5546ee44b834ea67c5f5f220f9fa4abf7e13c",
+      "after": "d409c3942d0672711110c73d2ea5546ee44b834ea67c5f5f220f9fa4abf7e13c",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_PET_TRAVEL.cjs",
+      "originalLines": 4,
+      "before": "3ce63b060a3830e6d010ec239595c467fea0547c4786922946c6e90eeec20a0d",
+      "after": "3ce63b060a3830e6d010ec239595c467fea0547c4786922946c6e90eeec20a0d",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_PROGRESS_PLANNER.cjs",
+      "originalLines": 53,
+      "before": "08ddb5a5cf85d3e5c8b7a9f72e186c1d51d78c318b622f49896044342f4e5013",
+      "after": "08ddb5a5cf85d3e5c8b7a9f72e186c1d51d78c318b622f49896044342f4e5013",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_PROJECT.cjs",
+      "originalLines": 29,
+      "before": "79758c13d34e6d7defc602dfa8aaf34bbe24be877440340f6b25998cbc94b024",
+      "after": "79758c13d34e6d7defc602dfa8aaf34bbe24be877440340f6b25998cbc94b024",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_QUEST_GOALS.cjs",
+      "originalLines": 70,
+      "before": "9dc0064fc9dcfc0ef37bdc2c77d3123deb59a9b1890fcc4661cd7be70483e481",
+      "after": "9dc0064fc9dcfc0ef37bdc2c77d3123deb59a9b1890fcc4661cd7be70483e481",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_QUEST_PRIORITY.cjs",
+      "originalLines": 36,
+      "before": "70d1ae054fab97c76ebf4bcc81a8dba103056ae7dc41a3bf597b7d03cbaf534d",
+      "after": "70d1ae054fab97c76ebf4bcc81a8dba103056ae7dc41a3bf597b7d03cbaf534d",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_QUICK_USE.cjs",
+      "originalLines": 53,
+      "before": "57bab4c4b6457a4d41ccf17a8cff022a99939edffad75f8d18e355b592b784e3",
+      "after": "57bab4c4b6457a4d41ccf17a8cff022a99939edffad75f8d18e355b592b784e3",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_QUIZ_AUTO.cjs",
+      "originalLines": 18,
+      "before": "acff4e8e39a09987fce994019374f03e0499468a78deb94ea33f466ecd00cf0f",
+      "after": "acff4e8e39a09987fce994019374f03e0499468a78deb94ea33f466ecd00cf0f",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_RANGE_TRIAL.cjs",
+      "originalLines": 52,
+      "before": "85fa8a262c3c11a3696aed67b0ac0238d857629209e357d2aece064aacc7bc85",
+      "after": "85fa8a262c3c11a3696aed67b0ac0238d857629209e357d2aece064aacc7bc85",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_REBORN_EXECUTORS.cjs",
+      "originalLines": 55,
+      "before": "fc8e8e81422ac7af573bf640e59b346922bb8c68934c42ebf79663be9b404c60",
+      "after": "fc8e8e81422ac7af573bf640e59b346922bb8c68934c42ebf79663be9b404c60",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_REBORN_GOALS.cjs",
+      "originalLines": 68,
+      "before": "148e73faedf0388a3098d753266a863c4e3d847796fe6d0665a375a75c001cef",
+      "after": "148e73faedf0388a3098d753266a863c4e3d847796fe6d0665a375a75c001cef",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_RECOVERY.cjs",
+      "originalLines": 117,
+      "before": "8dee2182e26c78d12cfdeba707df0eeed45dc5df3cac12e068a7f2e191617bcb",
+      "after": "8dee2182e26c78d12cfdeba707df0eeed45dc5df3cac12e068a7f2e191617bcb",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_RED_NAVIGATOR.cjs",
+      "originalLines": 36,
+      "before": "c6bf10b38a6d0cec146028364eea72a735626def41152324ce2ac653deb2d884",
+      "after": "c6bf10b38a6d0cec146028364eea72a735626def41152324ce2ac653deb2d884",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_ROAD_CADENCE.cjs",
+      "originalLines": 21,
+      "before": "6db8dea5a731048f768068d9308c4d7253f0eb119f2fd569c0ec846d829b4531",
+      "after": "6db8dea5a731048f768068d9308c4d7253f0eb119f2fd569c0ec846d829b4531",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_RUNE_BOSS.cjs",
+      "originalLines": 49,
+      "before": "f7a8a70e28dd7ed7dff1c98bfd5a9f5ddb60a3790daa0ed20d8f9b33ecd84700",
+      "after": "f7a8a70e28dd7ed7dff1c98bfd5a9f5ddb60a3790daa0ed20d8f9b33ecd84700",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_SCOPE.cjs",
+      "originalLines": 36,
+      "before": "a0f227f1e0dc6bb4c31f82e6da5b8061f28a463089899fa76807d38b239e0793",
+      "after": "a0f227f1e0dc6bb4c31f82e6da5b8061f28a463089899fa76807d38b239e0793",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_SKILL_PACING.cjs",
+      "originalLines": 13,
+      "before": "895ed9048f8cede3701d9177d842bb7b54c394b17108bf4691d9174c0628758b",
+      "after": "895ed9048f8cede3701d9177d842bb7b54c394b17108bf4691d9174c0628758b",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_SKILL_REWARDS.cjs",
+      "originalLines": 25,
+      "before": "a658c2ae7a6f72ce0c625572c3f0ba67b1eee2f3466d241f1167f0888c0aad59",
+      "after": "a658c2ae7a6f72ce0c625572c3f0ba67b1eee2f3466d241f1167f0888c0aad59",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_STRONGEST_TEAM.cjs",
+      "originalLines": 30,
+      "before": "a575ecfd666ba9dcd712550055b02484ca9be716bb3715dd06f2aecc705d0ad3",
+      "after": "a575ecfd666ba9dcd712550055b02484ca9be716bb3715dd06f2aecc705d0ad3",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_SUMMON_BOSS.cjs",
+      "originalLines": 52,
+      "before": "20ad50cd5131532744005cab1346c30968b7c5a73b68e5a96047af791fa1eb1d",
+      "after": "20ad50cd5131532744005cab1346c30968b7c5a73b68e5a96047af791fa1eb1d",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_SUPERVISORS.cjs",
+      "originalLines": 26,
+      "before": "bc4efb40ecfe566275228b20e64be9bb27bf37a08e80284b5e4ac5d3365f4cc6",
+      "after": "bc4efb40ecfe566275228b20e64be9bb27bf37a08e80284b5e4ac5d3365f4cc6",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_SYNC.cjs",
+      "originalLines": 44,
+      "before": "ce7e0374145cc7373e4bd7d91ba8ac3c694812638bc9cafd297756e0bfd9252b",
+      "after": "ce7e0374145cc7373e4bd7d91ba8ac3c694812638bc9cafd297756e0bfd9252b",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_TEAM_COORDINATOR.cjs",
+      "originalLines": 63,
+      "before": "ff163cd1eb33bea2e762c1654372602f257ded86818d7deb7490d8ecfbab8736",
+      "after": "ff163cd1eb33bea2e762c1654372602f257ded86818d7deb7490d8ecfbab8736",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_TH300.cjs",
+      "originalLines": 649,
+      "before": "cd5ed58e49cac349347b12b47ac933c75cc8ba1912b26ca04f2b9d2a56a2059b",
+      "after": "cd5ed58e49cac349347b12b47ac933c75cc8ba1912b26ca04f2b9d2a56a2059b",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_TH_OLD_1296.cjs",
+      "originalLines": 91,
+      "before": "6e21a7f201ffb02acd742826edfbd96adf46d4099299cbd863bd64128b7f79b8",
+      "after": "6e21a7f201ffb02acd742826edfbd96adf46d4099299cbd863bd64128b7f79b8",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_TIENVI_GOALS.cjs",
+      "originalLines": 26,
+      "before": "e243989be81aab49ab402b7c094e112059ce6c1adc5de5a63cdf25f565cb6476",
+      "after": "e243989be81aab49ab402b7c094e112059ce6c1adc5de5a63cdf25f565cb6476",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_TQ_HANDOFF.cjs",
+      "originalLines": 40,
+      "before": "d417ef5a1c0b9e9b025608d662c9c85c8de686140b9846da647f1c548a636172",
+      "after": "d417ef5a1c0b9e9b025608d662c9c85c8de686140b9846da647f1c548a636172",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_TQ_STAGE_LEASE.cjs",
+      "originalLines": 23,
+      "before": "9545477699fd9a23eab88c4afc7c88d7c8dec59d375528b18193bd9cccf15eb4",
+      "after": "9545477699fd9a23eab88c4afc7c88d7c8dec59d375528b18193bd9cccf15eb4",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_TRANSFORM10.cjs",
+      "originalLines": 34,
+      "before": "4fc1f6b8515bc409aa4c9e241e593a684559138b6a007ed2f7f351f4844b86ef",
+      "after": "4fc1f6b8515bc409aa4c9e241e593a684559138b6a007ed2f7f351f4844b86ef",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_TRU_TIEN.cjs",
+      "originalLines": 41,
+      "before": "6058f60ad75dae6e7338b3433b1e87d4f168d75ac9ae7fb233c2ec96a6ea3cd2",
+      "after": "6058f60ad75dae6e7338b3433b1e87d4f168d75ac9ae7fb233c2ec96a6ea3cd2",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_V1.cjs",
+      "originalLines": 113,
+      "before": "88df27882ea407e53d11a762cdc99342d0d06e4662dc0c6620dada9464269e8f",
+      "after": "88df27882ea407e53d11a762cdc99342d0d06e4662dc0c6620dada9464269e8f",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "TEST_WORLD_EYE.cjs",
+      "originalLines": 19,
+      "before": "6524d6addc7b27c6e7aa8809d775cb1e0d9e28fc49c04478c8353a2b02cd510b",
+      "after": "6524d6addc7b27c6e7aa8809d775cb1e0d9e28fc49c04478c8353a2b02cd510b",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "android/loader.js",
+      "originalLines": 76,
+      "before": "5118fbc0b98a081038266c426a9c37541e8a785bdd5f9997232bb323c04055b5",
+      "after": "5118fbc0b98a081038266c426a9c37541e8a785bdd5f9997232bb323c04055b5",
+      "verification": "AST và token JavaScript tương đương nguồn (đã thay chỗ giữ BUILD_ID bằng giá trị mẫu khi kiểm tra)"
+    },
+    {
+      "file": "build-android.cjs",
+      "originalLines": 37,
+      "before": "f54f72af5bee1000f04f55fc012c65d6c6a96ad362e0d86cdbdd2c69c74d9e7a",
+      "after": "f54f72af5bee1000f04f55fc012c65d6c6a96ad362e0d86cdbdd2c69c74d9e7a",
+      "verification": "AST và token JavaScript tương đương nguồn (đã thay chỗ giữ BUILD_ID bằng giá trị mẫu khi kiểm tra)"
+    },
+    {
+      "file": "build-edge-addon.cjs",
+      "originalLines": 10,
+      "before": "d6a16c50023f81f5908d8c05599c1b050da3d4ab4aca4964779dfca5d7e52989",
+      "after": "d6a16c50023f81f5908d8c05599c1b050da3d4ab4aca4964779dfca5d7e52989",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "build.cjs",
+      "originalLines": 120,
+      "before": "21fc311c00c76b779c53ad2a78195038e8e6532ba13d654667989fc77d712153",
+      "after": "21fc311c00c76b779c53ad2a78195038e8e6532ba13d654667989fc77d712153",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "edge-addon/background.js",
+      "originalLines": 105,
+      "before": "5b8840aaaed8925c0a3d5a4fa1dea4651debb3f69979076fffe65b71cd05186f",
+      "after": "5b8840aaaed8925c0a3d5a4fa1dea4651debb3f69979076fffe65b71cd05186f",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "edge-addon/native/host.cjs",
+      "originalLines": 27,
+      "before": "2412e0ec2036fdd46226013bc6e21d3b5a2a103e1db9221c4dba48c94218ac81",
+      "after": "2412e0ec2036fdd46226013bc6e21d3b5a2a103e1db9221c4dba48c94218ac81",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "edge-addon/native/protocol.cjs",
+      "originalLines": 9,
+      "before": "c0ce7947678dbeaddf6c2951f5a3cbccf6a0150dff67c9fbe58eacbbed75aa76",
+      "after": "c0ce7947678dbeaddf6c2951f5a3cbccf6a0150dff67c9fbe58eacbbed75aa76",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "edge-addon/popup.js",
+      "originalLines": 8,
+      "before": "880382344152fd3d51414d13ec37c16fb8c62f5ec7f16cab0edb5310b493da15",
+      "after": "880382344152fd3d51414d13ec37c16fb8c62f5ec7f16cab0edb5310b493da15",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "live/combat-profiles.cjs",
+      "originalLines": 5,
+      "before": "ac9dbba3df89331c1acbca2b9faf247acbfa2c708d8455cabcb1c4db655f4e70",
+      "after": "ac9dbba3df89331c1acbca2b9faf247acbfa2c708d8455cabcb1c4db655f4e70",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "live/core.cjs",
+      "originalLines": 93,
+      "before": "3e4015a4d363a79e6ee8985f75e24424f6326a1838d894cf918ad3d6ebfe479b",
+      "after": "3e4015a4d363a79e6ee8985f75e24424f6326a1838d894cf918ad3d6ebfe479b",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "live/desktop-controls.cjs",
+      "originalLines": 21,
+      "before": "e2fe5b7c0395a28897bb82442837b49c90f3905bbc6f379e62a55c947c530d2b",
+      "after": "1f0b3dd01d93af4ef0e8e4c06dd4e30e934ca8782653e796c87d971c96f6e551",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "live/diagnostics.cjs",
+      "originalLines": 15,
+      "before": "c645d25f84b567226834f2aa40ab3855d23fe9657c3fa22576bb5fd02e91f90a",
+      "after": "c645d25f84b567226834f2aa40ab3855d23fe9657c3fa22576bb5fd02e91f90a",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "live/party-relay.cjs",
+      "originalLines": 18,
+      "before": "d6a575d22fa0907b61628da99b50fed0b4db38954d24eafca42f6a0b6834a207",
+      "after": "d6a575d22fa0907b61628da99b50fed0b4db38954d24eafca42f6a0b6834a207",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "live/project.cjs",
+      "originalLines": 39,
+      "before": "c89acd2e9791fec56868f4d1613e11047fb38346532ee32f8f39cfe5a521b97c",
+      "after": "c89acd2e9791fec56868f4d1613e11047fb38346532ee32f8f39cfe5a521b97c",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "live/verified.cjs",
+      "originalLines": 32,
+      "before": "07e63112c8f1bb2f0a8ff94b3094b6d2f5dc557aef6e931f67483733065723a9",
+      "after": "07e63112c8f1bb2f0a8ff94b3094b6d2f5dc557aef6e931f67483733065723a9",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "live/verify.cjs",
+      "originalLines": 32,
+      "before": "11ba20c3bbca97c82e6ef595563f069ba5fdd9b33599df616ba2407cece9a22a",
+      "after": "11ba20c3bbca97c82e6ef595563f069ba5fdd9b33599df616ba2407cece9a22a",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "live/watch.cjs",
+      "originalLines": 51,
+      "before": "ea2e628e293f4633312e0d406afc0a0ba383946867a5364f26565f3fe9a9b106",
+      "after": "ea2e628e293f4633312e0d406afc0a0ba383946867a5364f26565f3fe9a9b106",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "runtime-v1.js",
+      "originalLines": 62,
+      "before": "439333b5c1547ed6f39ada790b838b1708e58eebeb7e5c4834847b27a1d46c97",
+      "after": "439333b5c1547ed6f39ada790b838b1708e58eebeb7e5c4834847b27a1d46c97",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "scripts/mac-lan-once.js",
+      "originalLines": 26,
+      "before": "963dc4843bd6e6530110fe9cc9d461a95eca3e121484893b85d55be582c82326",
+      "after": "963dc4843bd6e6530110fe9cc9d461a95eca3e121484893b85d55be582c82326",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "scripts/test-mac-lan-once.cjs",
+      "originalLines": 8,
+      "before": "8d4e73234211e0298f193c6825b0551fe3bb2951cf7a5beb0f3c4a4d3973d3b0",
+      "after": "8d4e73234211e0298f193c6825b0551fe3bb2951cf7a5beb0f3c4a4d3973d3b0",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-account-policy.js",
+      "originalLines": 20,
+      "before": "a7fa5b16a4007ae3295638d25fa074d8c892037ace0598cae3ba5b86dc86c571",
+      "after": "a7fa5b16a4007ae3295638d25fa074d8c892037ace0598cae3ba5b86dc86c571",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-boss-recovery.js",
+      "originalLines": 21,
+      "before": "b0c286ecd3321c1d21027fdd9deccfaeabef3fa177412c71cd14636f39619800",
+      "after": "b0c286ecd3321c1d21027fdd9deccfaeabef3fa177412c71cd14636f39619800",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-boss-session.js",
+      "originalLines": 58,
+      "before": "708e64bb6f80fa65044050e123e499206cd12722929c7cb8c13346d820ba372b",
+      "after": "708e64bb6f80fa65044050e123e499206cd12722929c7cb8c13346d820ba372b",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-combat-metrics.js",
+      "originalLines": 41,
+      "before": "83250195106dfb1e74a564a9d5091b5e68437c5236723a85c23eb6886f3e8c6b",
+      "after": "83250195106dfb1e74a564a9d5091b5e68437c5236723a85c23eb6886f3e8c6b",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-daily-clock.js",
+      "originalLines": 9,
+      "before": "f0510fec3c16b397bc4cda69a120bb1e25966b65fc2578a7ae3eb95489ef20ad",
+      "after": "f0510fec3c16b397bc4cda69a120bb1e25966b65fc2578a7ae3eb95489ef20ad",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-far-scope.js",
+      "originalLines": 54,
+      "before": "5bd920b74a090719d61a1aa63547a179c9a958a4de06d24da27d9235c7dd38d0",
+      "after": "5bd920b74a090719d61a1aa63547a179c9a958a4de06d24da27d9235c7dd38d0",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-manual-entry-policy.js",
+      "originalLines": 3,
+      "before": "0ea95d2f373a10e6d5014f376bc8c31b5d8aaa9d70d683f4d44c5070fbebaede",
+      "after": "0ea95d2f373a10e6d5014f376bc8c31b5d8aaa9d70d683f4d44c5070fbebaede",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-preflight.js",
+      "originalLines": 22,
+      "before": "f8cd627d8d126174f0daa54c74d4534e6131a33d7cc0aa29ba93e6f00be58ace",
+      "after": "f8cd627d8d126174f0daa54c74d4534e6131a33d7cc0aa29ba93e6f00be58ace",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-skill-pacing.js",
+      "originalLines": 28,
+      "before": "a56b6c9e7949ec492075fbbf0558015625151632a2d8ee85c0b116d365156242",
+      "after": "a56b6c9e7949ec492075fbbf0558015625151632a2d8ee85c0b116d365156242",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-spending-policy.js",
+      "originalLines": 10,
+      "before": "9335cd4f7e1c7f7bf0a12da78e5c4580e68ece204a5e250579503800ca65f905",
+      "after": "9335cd4f7e1c7f7bf0a12da78e5c4580e68ece204a5e250579503800ca65f905",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/00-thienquan-scope.js",
+      "originalLines": 46,
+      "before": "a5c0f4911ae7e0afbb1fbe5c8d6cf53b56d05c797c37ead3cdf1feb1f03c7e38",
+      "after": "a5c0f4911ae7e0afbb1fbe5c8d6cf53b56d05c797c37ead3cdf1feb1f03c7e38",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/01-identity.js",
+      "originalLines": 20,
+      "before": "e6dbeef0bc9aa99e8ba1e62b18498bfdb1b274c9d5c01700be513c17506c6f98",
+      "after": "e6dbeef0bc9aa99e8ba1e62b18498bfdb1b274c9d5c01700be513c17506c6f98",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/01-parallel-actions.js",
+      "originalLines": 146,
+      "before": "63d652928e3426f53505b092b9531760d5d1f85dd1a0983a0d476ff3b6ed93d4",
+      "after": "63d652928e3426f53505b092b9531760d5d1f85dd1a0983a0d476ff3b6ed93d4",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/01-quest-priority.js",
+      "originalLines": 79,
+      "before": "f37cd2a5ec6e10482df2ab37f9add3e07662206c40a6f546135155c6d2429e8d",
+      "after": "f37cd2a5ec6e10482df2ab37f9add3e07662206c40a6f546135155c6d2429e8d",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/02-scene.js",
+      "originalLines": 113,
+      "before": "e837298b547d8bfbd79b7bbd93de9d064daa4cc110d235ea3760356c40c6ec7c",
+      "after": "e837298b547d8bfbd79b7bbd93de9d064daa4cc110d235ea3760356c40c6ec7c",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/03-timeline.js",
+      "originalLines": 134,
+      "before": "78a49d471e7c980d52b93d7d94aee40105d2847c7b0b2d1ba14bdc8f52c567e7",
+      "after": "78a49d471e7c980d52b93d7d94aee40105d2847c7b0b2d1ba14bdc8f52c567e7",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/04-engine.js",
+      "originalLines": 20446,
+      "before": "2aba721131ded0ab7b7a0244c0d25dc9bdc8362529018c93c82ca24fc228c793",
+      "after": "2aba721131ded0ab7b7a0244c0d25dc9bdc8362529018c93c82ca24fc228c793",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/06-range.js",
+      "originalLines": 136,
+      "before": "ba0290d909466e207aa1f9dedb3b5e87809a0cbc3277d9f689bd5904fea5b6be",
+      "after": "ba0290d909466e207aa1f9dedb3b5e87809a0cbc3277d9f689bd5904fea5b6be",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/07-tuyet-hoc.js",
+      "originalLines": 194,
+      "before": "db492fe6ad6de26def62c0dc0cd253d33c54bc9bd5ab57605ee5c01e180f653e",
+      "after": "db492fe6ad6de26def62c0dc0cd253d33c54bc9bd5ab57605ee5c01e180f653e",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/08-range-evidence.js",
+      "originalLines": 705,
+      "before": "b4e2a033a0f64cce827752f902b0a3288a0768dd24b81b3cec1dcee6dcb15732",
+      "after": "b4e2a033a0f64cce827752f902b0a3288a0768dd24b81b3cec1dcee6dcb15732",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/09-modes.js",
+      "originalLines": 275,
+      "before": "59dfde63de8892545241f3cc98af02d54f6142e42cb406803c06b2fe2db8227f",
+      "after": "59dfde63de8892545241f3cc98af02d54f6142e42cb406803c06b2fe2db8227f",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/10-experimental-boost.js",
+      "originalLines": 76,
+      "before": "d4b5faf6a2e977c11ad2f003a82d5a27e6825b10bf63045a14fe96e73dae3533",
+      "after": "d4b5faf6a2e977c11ad2f003a82d5a27e6825b10bf63045a14fe96e73dae3533",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/11-auto-tianquan.js",
+      "originalLines": 26,
+      "before": "ecb0c010d965df65d8659e2571af01d3667ee7829f58d26520c9d4202c8727a7",
+      "after": "ecb0c010d965df65d8659e2571af01d3667ee7829f58d26520c9d4202c8727a7",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/12-basic-outside.js",
+      "originalLines": 151,
+      "before": "7ed5c1160b5645ee3f20126844d4a7b53b7f3c5f6f9f7426967759a5e2aeb273",
+      "after": "7ed5c1160b5645ee3f20126844d4a7b53b7f3c5f6f9f7426967759a5e2aeb273",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/13-transform-skills.js",
+      "originalLines": 64,
+      "before": "54ae5651cbc85a105f88c43a6966311bccd3ad52360d787c7e00eb4713310631",
+      "after": "54ae5651cbc85a105f88c43a6966311bccd3ad52360d787c7e00eb4713310631",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/14-eight-floor.js",
+      "originalLines": 103,
+      "before": "f7ab80e5015284f904d9e2112aab15a43c8d61c7eea0873e041dbdf258bef655",
+      "after": "f7ab80e5015284f904d9e2112aab15a43c8d61c7eea0873e041dbdf258bef655",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/15-honor-targets.js",
+      "originalLines": 78,
+      "before": "3cfa9f9d8897acf2c11071ca415504c316f722ccc6f720088ffbccf479037ab2",
+      "after": "3cfa9f9d8897acf2c11071ca415504c316f722ccc6f720088ffbccf479037ab2",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/16-strongest-team.js",
+      "originalLines": 119,
+      "before": "6e4ea1704f3d87a06e6d146f15cca21b13a8808bd77436a80812969d79b6ff89",
+      "after": "6e4ea1704f3d87a06e6d146f15cca21b13a8808bd77436a80812969d79b6ff89",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/17-linh-lung-th.js",
+      "originalLines": 16,
+      "before": "6eeea12c398f6958d0e3aa3b29af5b269c4cdc8271814cae608d4de66c435964",
+      "after": "6eeea12c398f6958d0e3aa3b29af5b269c4cdc8271814cae608d4de66c435964",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/18-supervisors.js",
+      "originalLines": 341,
+      "before": "615e8a336d19702c427f6c45b71e3e33298eac9b23533ffb797663f7b784431a",
+      "after": "615e8a336d19702c427f6c45b71e3e33298eac9b23533ffb797663f7b784431a",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/19-account-features.js",
+      "originalLines": 1411,
+      "before": "41476f2a180db85a710e9283b85064fb3c1ab95a03c6f9a3eb73a0617d77aa8a",
+      "after": "41476f2a180db85a710e9283b85064fb3c1ab95a03c6f9a3eb73a0617d77aa8a",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/20-daily-trial.js",
+      "originalLines": 199,
+      "before": "a607221ea3e8fba406a7cc61ea77046541b8b4fee42b7d9a1b36b89a4c06344c",
+      "after": "a607221ea3e8fba406a7cc61ea77046541b8b4fee42b7d9a1b36b89a4c06344c",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/21-quick-use.js",
+      "originalLines": 68,
+      "before": "ffbe56ab4c01737b60916ee0e9ec32744c687792586a3798b10b7f9a7365f3d6",
+      "after": "ffbe56ab4c01737b60916ee0e9ec32744c687792586a3798b10b7f9a7365f3d6",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/22-confirm-popups.js",
+      "originalLines": 108,
+      "before": "aeb84e7c17330eee4102f0e6ad48e552b5403ec9ab67a8a5bd1248442baf71f2",
+      "after": "aeb84e7c17330eee4102f0e6ad48e552b5403ec9ab67a8a5bd1248442baf71f2",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/23-beast-island.js",
+      "originalLines": 178,
+      "before": "a8f178dab5515c07b936dee15e9c1152a4bcb280439210a69951773d5f3346f7",
+      "after": "a8f178dab5515c07b936dee15e9c1152a4bcb280439210a69951773d5f3346f7",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/24-summon-boss.js",
+      "originalLines": 103,
+      "before": "17c983c5942ce90787267affc1f88400e7f0b5ccb7a9b223ed26ecf376c46cad",
+      "after": "17c983c5942ce90787267affc1f88400e7f0b5ccb7a9b223ed26ecf376c46cad",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/25-rune-boss.js",
+      "originalLines": 68,
+      "before": "775aa80c24109668a0c5e06461ef9768c3fe3af757dfa35f6af634124c2ec6d0",
+      "after": "775aa80c24109668a0c5e06461ef9768c3fe3af757dfa35f6af634124c2ec6d0",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/26-fabao-fast.js",
+      "originalLines": 82,
+      "before": "2f02d4a1714cdbf2e3590ea17428497c5adf488df133fb97a7bdc9badf9ec1ab",
+      "after": "2f02d4a1714cdbf2e3590ea17428497c5adf488df133fb97a7bdc9badf9ec1ab",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/27-craft-low.js",
+      "originalLines": 59,
+      "before": "57eee36e89a55cc0d14147748419e1cca5dcf8005e6225ba34d096ded7a3faaf",
+      "after": "57eee36e89a55cc0d14147748419e1cca5dcf8005e6225ba34d096ded7a3faaf",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/28-appearance-auto.js",
+      "originalLines": 230,
+      "before": "fb304d47cac5958498bdf87b4e5c78afd84c0f0672827adf0ca5f0588cceda13",
+      "after": "fb304d47cac5958498bdf87b4e5c78afd84c0f0672827adf0ca5f0588cceda13",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/29-quest-goals.js",
+      "originalLines": 127,
+      "before": "ed45b1b09d9c7c9f0d8117b2117bdb73382ff64eb8dc72ab28d59df05b4281a5",
+      "after": "ed45b1b09d9c7c9f0d8117b2117bdb73382ff64eb8dc72ab28d59df05b4281a5",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/30-tienvi-goals.js",
+      "originalLines": 51,
+      "before": "d069ae5c962112d0ee7b20ed7071835bb19f952543c358a0dfe599545e0d55a6",
+      "after": "d069ae5c962112d0ee7b20ed7071835bb19f952543c358a0dfe599545e0d55a6",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/31-skill-rewards.js",
+      "originalLines": 50,
+      "before": "7e0ffea73bf57f31ca0ed4d7b977026ad5ca0753205c02fcc56d81b94e911803",
+      "after": "7e0ffea73bf57f31ca0ed4d7b977026ad5ca0753205c02fcc56d81b94e911803",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/33-progress-planner.js",
+      "originalLines": 116,
+      "before": "42739270057648fed4c8d7a2fbaa4f6d0252be1cf89c6fe9f6de54744e4ee157",
+      "after": "42739270057648fed4c8d7a2fbaa4f6d0252be1cf89c6fe9f6de54744e4ee157",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/34-fabao-treasure.js",
+      "originalLines": 100,
+      "before": "6dc66fa1053866ee3e73180ef6ba003f08ab34fa372fdebd943c0aaaa94abdb6",
+      "after": "6dc66fa1053866ee3e73180ef6ba003f08ab34fa372fdebd943c0aaaa94abdb6",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/35-equipment-treasure.js",
+      "originalLines": 63,
+      "before": "0e5c108d82da31c84b7f724f49385934a6156ce0c912a89efa2fb7864a40ee04",
+      "after": "0e5c108d82da31c84b7f724f49385934a6156ce0c912a89efa2fb7864a40ee04",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/36-fast-actions.js",
+      "originalLines": 3,
+      "before": "92ba9b53c949e549e5807bca7305104c44fceb71593f061c817659c6c06f96e8",
+      "after": "92ba9b53c949e549e5807bca7305104c44fceb71593f061c817659c6c06f96e8",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/37-reborn-goals.js",
+      "originalLines": 72,
+      "before": "97afa2bcfddf697c6171424eef1323a2a271e30725ad908bf2e646ac726bd0a0",
+      "after": "97afa2bcfddf697c6171424eef1323a2a271e30725ad908bf2e646ac726bd0a0",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/38-reborn-executors.js",
+      "originalLines": 130,
+      "before": "800cd3f11570f1c5dd9943cb82925e6241994f103c5bbf83dc2fc6d927084771",
+      "after": "800cd3f11570f1c5dd9943cb82925e6241994f103c5bbf83dc2fc6d927084771",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/39-executor-report.js",
+      "originalLines": 110,
+      "before": "7ed5b29396ee7c3418ea70e93e84d860da7e043f542f78458428dfe775f80f03",
+      "after": "7ed5b29396ee7c3418ea70e93e84d860da7e043f542f78458428dfe775f80f03",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/40-soul-stone-fast.js",
+      "originalLines": 65,
+      "before": "33ef2b39989e5e07953ea44cda39eb3a8b20e99c65fb00c166c25ec296172e6f",
+      "after": "33ef2b39989e5e07953ea44cda39eb3a8b20e99c65fb00c166c25ec296172e6f",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/41-season-rewards.js",
+      "originalLines": 37,
+      "before": "05dca78e04535088ef91e8fa72ae39ebf9b442ddf7c7f2a33de6ccf17ee30727",
+      "after": "05dca78e04535088ef91e8fa72ae39ebf9b442ddf7c7f2a33de6ccf17ee30727",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/42-world-eye.js",
+      "originalLines": 64,
+      "before": "12165c2e922e988fb771b75d056b74858d85f55b395cfb5baeca599cae91e52b",
+      "after": "12165c2e922e988fb771b75d056b74858d85f55b395cfb5baeca599cae91e52b",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/43-context-brain.js",
+      "originalLines": 27,
+      "before": "e05cf7e72a5ab642730d6f7c4f4126818544931e749b3b1880cc8c9717e319c6",
+      "after": "e05cf7e72a5ab642730d6f7c4f4126818544931e749b3b1880cc8c9717e319c6",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/44-red-navigator.js",
+      "originalLines": 98,
+      "before": "d6265519948462ff147f503f71f403a2637de5cc3388fce4ca41e219de2a605f",
+      "after": "d6265519948462ff147f503f71f403a2637de5cc3388fce4ca41e219de2a605f",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/45-monster-plate.js",
+      "originalLines": 33,
+      "before": "b3d85a7397a37b78bfd06677bc81015e475498a4d7f7bd16211a930aa0a7a69e",
+      "after": "b3d85a7397a37b78bfd06677bc81015e475498a4d7f7bd16211a930aa0a7a69e",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/46-team-coordinator.js",
+      "originalLines": 93,
+      "before": "49cc624c43bbf16b4ef00ab9ec0ada32921177978749a7ff6eb72e618363ec77",
+      "after": "49cc624c43bbf16b4ef00ab9ec0ada32921177978749a7ff6eb72e618363ec77",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/47-boss-team.js",
+      "originalLines": 74,
+      "before": "920989b20c8f5401d72477ea0bde924193f8a69e385f6f6a7377351e1e64ed9d",
+      "after": "920989b20c8f5401d72477ea0bde924193f8a69e385f6f6a7377351e1e64ed9d",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/48-guild-boss.js",
+      "originalLines": 65,
+      "before": "4c1c115902806646549227159927b559690b9cdff0201cdf16bb68e199638c82",
+      "after": "4c1c115902806646549227159927b559690b9cdff0201cdf16bb68e199638c82",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/49-adventure.js",
+      "originalLines": 73,
+      "before": "13fc02478558e141cd53699c8ee6b64d2929d8c0d44ea752d0f2a3532410ca80",
+      "after": "13fc02478558e141cd53699c8ee6b64d2929d8c0d44ea752d0f2a3532410ca80",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/50-companion-combat.js",
+      "originalLines": 72,
+      "before": "3515873876b388fede774031bbc9c5db58a72d03450549064ebcf847fe35ad08",
+      "after": "3515873876b388fede774031bbc9c5db58a72d03450549064ebcf847fe35ad08",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/51-demon-king-recovery.js",
+      "originalLines": 37,
+      "before": "34fd0c3145ed388a1a9a2e6f1b816ba9ab7a1297e4ba83a7d866b14aae391365",
+      "after": "34fd0c3145ed388a1a9a2e6f1b816ba9ab7a1297e4ba83a7d866b14aae391365",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/52-item-trace.js",
+      "originalLines": 28,
+      "before": "85c9a5c91f658836fb695e77196a01364eaad59fc495b4abd34389242e6ee68b",
+      "after": "85c9a5c91f658836fb695e77196a01364eaad59fc495b4abd34389242e6ee68b",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/55-crystal-capture.js",
+      "originalLines": 39,
+      "before": "e74b64c6f5c5d81c3ac52692dda1080c4bd457cf797a045e5ab2d9c938253c3f",
+      "after": "e74b64c6f5c5d81c3ac52692dda1080c4bd457cf797a045e5ab2d9c938253c3f",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/56-free-treasure.js",
+      "originalLines": 44,
+      "before": "028c12ca0c48888d9fb76d07a1e967cf16296398a2ae4c5120e0c6b91b0de7e8",
+      "after": "028c12ca0c48888d9fb76d07a1e967cf16296398a2ae4c5120e0c6b91b0de7e8",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/57-free-daily-bag.js",
+      "originalLines": 43,
+      "before": "b38c8b24635256237e3ba8e24012845fb296f5cb9c3c9b25e28432532ebf9495",
+      "after": "b38c8b24635256237e3ba8e24012845fb296f5cb9c3c9b25e28432532ebf9495",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/58-idle-daily.js",
+      "originalLines": 19,
+      "before": "195e915beb25de7550e116d3ed815bb7e1d56a4ef77978754ac4e0472aeeb3bf",
+      "after": "195e915beb25de7550e116d3ed815bb7e1d56a4ef77978754ac4e0472aeeb3bf",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/59-road-cadence.js",
+      "originalLines": 56,
+      "before": "20f2e1168d32716a8f4aa03a946f70026d03af7809cefc6b1e704245a1e2bff6",
+      "after": "20f2e1168d32716a8f4aa03a946f70026d03af7809cefc6b1e704245a1e2bff6",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/60-quiz-auto.js",
+      "originalLines": 36,
+      "before": "4f9f7bff928cc85dd37c41872323f36bf5638669ba96a335a9097c542064931a",
+      "after": "4f9f7bff928cc85dd37c41872323f36bf5638669ba96a335a9097c542064931a",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/61-peak-chest.js",
+      "originalLines": 34,
+      "before": "0ae2c3296cd9b231d240277c477610ebf92602bd8814281f582aed193e722ab8",
+      "after": "0ae2c3296cd9b231d240277c477610ebf92602bd8814281f582aed193e722ab8",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/62-resume-stage.js",
+      "originalLines": 9,
+      "before": "97343b803448dba42c58186531c103080d803622617f051285ed774bb8c92084",
+      "after": "97343b803448dba42c58186531c103080d803622617f051285ed774bb8c92084",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/63-peak-completion.js",
+      "originalLines": 27,
+      "before": "6547cb3cc4bbabd39430df63074f9fbeebb53d361f9317a9bcfa0b4e4bcc6d87",
+      "after": "6547cb3cc4bbabd39430df63074f9fbeebb53d361f9317a9bcfa0b4e4bcc6d87",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/64-eight-chest.js",
+      "originalLines": 35,
+      "before": "c98a4b213c155ffd658bb7dd889e3929c34970cf8bd02c0485a773c27c725ee9",
+      "after": "c98a4b213c155ffd658bb7dd889e3929c34970cf8bd02c0485a773c27c725ee9",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/65-marry-arena.js",
+      "originalLines": 36,
+      "before": "7c43a543887973fc699ee4cebe354788bb9fb5f31ac181569762fa278aed4bdf",
+      "after": "7c43a543887973fc699ee4cebe354788bb9fb5f31ac181569762fa278aed4bdf",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/66-pet-travel.js",
+      "originalLines": 30,
+      "before": "1d6404962f6ecc75b1b20c23091bfdec1ddd9c6d6bd90ab0846d6ba7e8ac8cf5",
+      "after": "1d6404962f6ecc75b1b20c23091bfdec1ddd9c6d6bd90ab0846d6ba7e8ac8cf5",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/67-login-streak.js",
+      "originalLines": 24,
+      "before": "866e738172b713eebdab147eac7c609017e35ca20318bc1707e1cc968aa01026",
+      "after": "866e738172b713eebdab147eac7c609017e35ca20318bc1707e1cc968aa01026",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/68-festival-free.js",
+      "originalLines": 43,
+      "before": "ca953954413fcf10abe0d91a76637350ed8844afe49fe717a0432b82fc917449",
+      "after": "ca953954413fcf10abe0d91a76637350ed8844afe49fe717a0432b82fc917449",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/69-marry-rewards.js",
+      "originalLines": 24,
+      "before": "87a44a76d79e9aad26273c0170395c7270b3649b8028ed048102ca15102d2ed3",
+      "after": "87a44a76d79e9aad26273c0170395c7270b3649b8028ed048102ca15102d2ed3",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/70-four-worship.js",
+      "originalLines": 20,
+      "before": "63f247bb6aa7d2f5aef6dfda5001041e050dc8e4364293349b1e232932dd76e6",
+      "after": "63f247bb6aa7d2f5aef6dfda5001041e050dc8e4364293349b1e232932dd76e6",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/71-kiem-khieu.js",
+      "originalLines": 55,
+      "before": "e77f8339af3d56210d9360e9322defd4504eeec2f72412e870670b77b7e36d24",
+      "after": "e77f8339af3d56210d9360e9322defd4504eeec2f72412e870670b77b7e36d24",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/72-bag-open-session.js",
+      "originalLines": 51,
+      "before": "470b54e1d5c0e6c5b5c1df5a84ec6cedba4749813f12af1fa2bad26616e52efe",
+      "after": "470b54e1d5c0e6c5b5c1df5a84ec6cedba4749813f12af1fa2bad26616e52efe",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/72-desktop-control.js",
+      "originalLines": 49,
+      "before": "f937e7138c969358f4fc02b1ded2cbba793a10e3508830dd584980c833e467b5",
+      "after": "f937e7138c969358f4fc02b1ded2cbba793a10e3508830dd584980c833e467b5",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/99-manual-entry.js",
+      "originalLines": 41,
+      "before": "b7640715f7d91c2b3dfd004846926a1e85c4574034368f2ca37158c9031fc5bd",
+      "after": "b7640715f7d91c2b3dfd004846926a1e85c4574034368f2ca37158c9031fc5bd",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "src/family-progression-draft.js",
+      "originalLines": 36,
+      "before": "3b7ba7d573d737bb610d3f2aff4dc896e4f8a972478ddd95496eccdb2c7b6138",
+      "after": "3b7ba7d573d737bb610d3f2aff4dc896e4f8a972478ddd95496eccdb2c7b6138",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    },
+    {
+      "file": "test.cjs",
+      "originalLines": 11,
+      "before": "61e4b4a6b216ca837a3263f81f2e77f2469c3d46d16883c4f8fbf7a6bb0b515d",
+      "after": "61e4b4a6b216ca837a3263f81f2e77f2469c3d46d16883c4f8fbf7a6bb0b515d",
+      "verification": "AST và token JavaScript tương đương nguồn"
+    }
+  ]
+}

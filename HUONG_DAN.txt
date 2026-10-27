@@ -1,0 +1,41 @@
+KVPV V1 — HƯỚNG DẪN HIỆN TẠI
+
+CÁCH DÙNG KHUYẾN NGHỊ: TAB EDGE ĐÃ ĐĂNG NHẬP
+- Cài một lần bằng CAI_DONG_BO_EDGE.bat.
+- Tải thư mục edge-addon tại edge://extensions.
+- Chọn tab game rồi bấm tiện ích → Bật đồng bộ tab này.
+- Lưu nguồn src/ → tự build + kiểm thử + cập nhật; không F5 hoặc Snippet.
+- Acc chính và clone bật riêng từng tab. Xem DONG_BO_TAB_EDGE.md.
+
+CHIẾN ĐẤU
+- Thiên Quan: khoảng 302 tính từ Boss; Tuyệt Học từng chiêu xen đánh thường.
+- HP <=35%: rút ra chạy vòng; chỉ đánh lại sau 100% ổn định.
+- Linh Lung Tháp: combo 302 liên tục, không áp dụng chu kỳ hồi máu 35–100.
+- Ngoài hai map trên: đánh thường xen Tuyệt Học, kiểm tra nhịp client 1ms.
+- Linh thú/Phúc Oa: nhịp chọn chiêu client 1ms; di chuyển client x99.
+- Nhịp client không bảo đảm server nhận hoặc tăng sát thương tương ứng.
+
+THẦN THÚ ĐẢO
+- Tầng 2: tối đa 20 Phượng Huyết + 2 Long Phách theo số server.
+- Acc chính: Boss 750 ở tầng 2, tối đa 3 lượt lợi ích.
+- Clone: Boss 500 ở tầng 1; lấy đủ vật phẩm tầng 2 rồi thoát và chuyển tầng.
+- Cấu hình clone 600 cũ tự chuyển sang 500. Lựa chọn lưu riêng từng account.
+
+ƯU TIÊN VÀ POPUP
+- Popup Đồng ý miễn phí đã nhận diện được xử lý trước tác vụ mới.
+- Túi đầy: xác nhận đúng hàm dung luyện native.
+- Tự đóng Quà Nạp Lần Đầu và Mua Nhanh TKP.
+- Thí Luyện Ngày được ưu tiên nhận việc trước các hoạt động mới khác.
+- Không tự tiêu KNB; popup chưa xác minh chi phí giữ thủ công.
+
+THƯ MỤC
+- src/: mã nguồn game. Sửa tại đây, không sửa trực tiếp FULL sinh tự động.
+- live/: đồng bộ và xác thực artifact dùng chung.
+- edge-addon/: tiện ích Edge và bộ nối cục bộ.
+- archive/: mã/tài liệu cũ và lệnh chẩn đoán, không nạp vào game.
+- .kvpv-live/: trạng thái/profile riêng; không xóa nếu còn dùng.
+
+NẠP THỦ CÔNG DỰ PHÒNG
+- FULL: KVPV_V1_FULL.js; cập nhật phiên V1: KVPV_SCAN_LIVE_PATCH.js.
+- Không cần cách này khi đã bật tiện ích đồng bộ.
+- API và kiểm thử chi tiết xem README.md.

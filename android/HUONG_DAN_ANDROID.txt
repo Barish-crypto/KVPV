@@ -1,0 +1,30 @@
+KVPV FULL cho Firefox Android + Tampermonkey
+
+1. Chuyển KVPV_ANDROID.zip sang điện thoại (USB, Drive hoặc công cụ gửi file bạn dùng).
+2. Mở Firefox > menu > Tiện ích mở rộng > Tampermonkey > Bảng điều khiển/Dashboard.
+3. Chọn Tiện ích/Utilities > Import from file/Nhập từ tệp, chọn KVPV_ANDROID.zip.
+4. Chọn script KVPV FULL Android > Import/Cài đặt, bật script.
+5. Mở https://play.choingay.vn/1046 trong Firefox, đăng nhập và chờ nhân vật vào map.
+   Với tab game đã mở, tải lại một lần sau khi cài để Tampermonkey nạp script.
+   Các lần vào sau tự chạy, không cần Console hoặc Snippet.
+
+Nếu trình chọn file không thấy ZIP, chọn Tất cả tệp. Có thể dùng bản .user.js
+trong ZIP để nhập qua trình soạn script Tampermonkey nếu phiên bản không cho nhập ZIP.
+
+Bản này chứa FULL hiện tại, gồm Triệu Hồi Boss; không tự đồng bộ từ PC.
+Khi code thay đổi, build sinh lại ZIP; nhập bản mới vào Tampermonkey để cập nhật.
+Không có updateURL trên mạng, không cần bật máy tính để chạy bản đã cài.
+
+Script cần được phép chạy trong frame game khác miền. Metadata vì vậy match HTTP/HTTPS;
+loader chỉ tiếp tục nếu URL/referrer/ancestor là trang 1046, hoặc frame có referrer
+chỉ gồm origin play.choingay.vn do chính sách trình duyệt, rồi kiểm tra model,
+nhân vật sống và các component. Không nhận lệnh từ website và không tải mã ngoài.
+Loader 1.0.1 chuyển phạm vi dò model từ trang game xuống iframe con trực tiếp,
+rồi qua các iframe lồng khác miền. Thông điệp không chứa code hay lệnh game.
+Sau khi cài, tải lại tab game một lần. Góc trên trái phải có ô KVPV.
+Bấm ô để xem: Chờ game/frame, Đã chạy hoặc Lỗi nạp và nội dung lỗi.
+Nếu không có ô KVPV trên trang play.choingay.vn/1046, kiểm tra quyền chạy script
+trên website trong Tampermonkey; gửi ảnh trang và menu script để chẩn đoán tiếp.
+
+Bản FULL hiện được kiểm thử mô phỏng trên PC; chưa kiểm chứng trên thiết bị Android thật.
+Mốc 1ms là nhịp yêu cầu phía client; điện thoại/game có thể chạy chậm hơn, đặc biệt khi tắt màn hình.
