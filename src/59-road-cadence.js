@@ -8,6 +8,7 @@
  const actor=String(W.__KVPV_OWN_ACTOR_ID||''),samples=carry?.actor===actor?carry.samples:[];
 // [VI dòng gốc 5] Khai báo biến có thể gán lại bằng let: enabled = nếu carry?.actor===actor thì lấy carry.enabled!==false, ngược lại lấy true
  let enabled=carry?.actor===actor?carry.enabled!==false:true;
+ let basicPriority=carry?.actor===actor?carry.basicPriority!==false:true;
 // [VI dòng gốc 6] Khai báo biến có thể gán lại bằng let: combatMode = nếu carry?.actor===actor&&carry.combatMode==='basic8001' thì lấy 'basic8001', ngược lại lấy 'native'
  let combatMode=carry?.actor===actor&&carry.combatMode==='basic8001'?'basic8001':'native';
 // [VI dòng gốc 7] Khai báo biến có thể gán lại bằng let: minCastIntervalMs = nếu carry?.actor===actor&&Number.isSafeInteger(carry.minCastIntervalMs)&&carry.minCastIntervalMs>=0&&carry.minCastIntervalMs<=5000 thì lấy carry.minCastIntervalMs, ngược lại lấy 0
@@ -21,7 +22,8 @@
 // [VI dòng gốc 10] Lặp for: khởi tạo let i=0; tiếp tục khi i<samples.length-1; sau mỗi vòng i++. | Khai báo biến có thể gán lại bằng let: i = 0 | Khai báo biến không gán lại bằng const: a = đọc samples[i]; b = đọc samples[i+1] | Kiểm tra a.readyAt===null&&a.targetId===b.targetId&&a.map===b.map&&b.at>a.at: đúng thì chạy nhánh sau if.
  for(let i=0;i<samples.length-1;i++){const a=samples[i],b=samples[i+1];if(a.readyAt===null&&a.targetId===b.targetId&&a.map===b.map&&b.at>a.at){a.readyAt=b.at;a.recoverySource='next_native_cast_upper_bound';}}
 // [VI dòng gốc 11] Khai báo biến không gán lại bằng const: owner = tạo đối tượng gồm ; S = tạo đối tượng gồm role, combat, target, rejected, error, cache, cacheAt
- const owner={},S={role:null,combat:null,target:null,rejected:0,error:'',cache:null,cacheAt:-Infinity};
+ const owner={},S={role:null,combat:null,target:null,rejected:0,error:'',cache:null,cacheAt:-Infinity,
+  basicStreak:0,plannedBasic:0,plannedTH:0,unprovenFallbacks:0};
 // [VI dòng gốc 12] Khai báo biến không gán lại bằng const: prop = tạo hàm với tham số o, k; mỗi lần gọi trả về gọi o?.property?.get(k) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); id = tạo hàm với tham số o; mỗi lần gọi trả về gọi String(prop(o,'id')??o?.id??'') để chuyển sang chuỗi
  const prop=(o,k)=>o?.property?.get?.(k),id=o=>String(prop(o,'id')??o?.id??'');
 // [VI dòng gốc 13] Khai báo biến không gán lại bằng const: own = tạo hàm với tham số (không có); mỗi lần gọi trả về actor&&String(W._Ba?._rJ?._O$?.ins?.actorId)===actor và chỉ đánh giá vế phải khi vế trái truthy: !W.__KVPV_UNIVERSAL_HALTED
@@ -31,7 +33,7 @@
 // [VI dòng gốc 15] Kết thúc hàm hiện tại và trả về: own()&&Number(W._ft?._po?.ins?.getCfgById?.(map)?.[7])===41 và chỉ đánh giá vế phải khi vế trái truthy: W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true.
   return own()&&Number(W._ft?._po?.ins?.getCfgById?.(map)?.[7])===41&&W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true;}
 // [VI dòng gốc 16] Định nghĩa hàm target; tham số: t | Kiểm tra S.target===t: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Kiểm tra S.target: đúng thì chạy nhánh sau if.
- function target(t){if(S.target===t)return;if(S.target)S.target.off?.(1012,owner,hit);S.target=null;
+ function target(t){if(S.target===t)return;S.basicStreak=0;if(S.target)S.target.off?.(1012,owner,hit);S.target=null;
 // [VI dòng gốc 17] Kiểm tra t&&typeof t.on==='function'&&typeof t.off==='function': đúng thì chạy nhánh sau if. | gán S.target bằng t | gọi t.on(1012, owner, hit)
   if(t&&typeof t.on==='function'&&typeof t.off==='function'){S.target=t;t.on(1012,owner,hit);}}
 // [VI dòng gốc 18] Định nghĩa hàm cast; tham số: targetId, skillId | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
@@ -41,7 +43,10 @@
 // [VI dòng gốc 20] Khai báo biến không gán lại bằng const: skill = gọi Number(skillId) để chuyển sang số | Kiểm tra !((skill>=8001&&skill<=8009)||(skill>=1001&&skill<=1008)): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
   const skill=Number(skillId);if(!((skill>=8001&&skill<=8009)||(skill>=1001&&skill<=1008)))return;
 // [VI dòng gốc 21] gọi target(S.combat.target) | Khai báo biến không gán lại bằng const: previous = gọi samples.at(-1) | Kiểm tra previous&&previous.readyAt===null&&previous.targetId===String(targetId)&&Date.now()>previous.at: đúng thì chạy nhánh sau if. | gán previous.readyAt bằng Date.now()
-  target(S.combat.target);const previous=samples.at(-1);if(previous&&previous.readyAt===null&&previous.targetId===String(targetId)&&Date.now()>previous.at){previous.readyAt=Date.now();previous.recoverySource='next_native_cast_upper_bound';}samples.push({at:Date.now(),id:skill,targetId:String(targetId),occ:Number(prop(S.target,'occ')),map:Number(W._C?._Mn?._Cn?.currentID),hitAt:null,readyAt:null,damage:0});
+  target(S.combat.target);
+  if(skill>=8001&&skill<=8005)S.basicStreak=Math.min(2,S.basicStreak+1);
+  else if(skill>=1001&&skill<=1008)S.basicStreak=0;
+  const previous=samples.at(-1);if(previous&&previous.readyAt===null&&previous.targetId===String(targetId)&&Date.now()>previous.at){previous.readyAt=Date.now();previous.recoverySource='next_native_cast_upper_bound';}samples.push({at:Date.now(),id:skill,targetId:String(targetId),occ:Number(prop(S.target,'occ')),map:Number(W._C?._Mn?._Cn?.currentID),hitAt:null,readyAt:null,damage:0});
 // [VI dòng gốc 22] Kiểm tra samples.length>240: đúng thì chạy nhánh sau if. | gọi samples.splice(0, samples.length-240) | gán S.cacheAt bằng -Infinity
   if(samples.length>240)samples.splice(0,samples.length-240);S.cacheAt=-Infinity;
 // [VI dòng gốc 23] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán S.error bằng String(e)
@@ -91,7 +96,8 @@
 // [VI dòng gốc 45] gọi candidates.sort((a,b)=>b.damagePerCycleMs-a.damagePerCycleMs) để sắp xếp mảng tại chỗ
   candidates.sort((a,b)=>b.damagePerCycleMs-a.damagePerCycleMs);
 // [VI dòng gốc 46] gán S.cache bằng {enabled,combatMode:scopedCombat()?.mode??combatMode,minCastIntervalMs:effectiveWait(),approachDistance:scopedCombat()?.distance??80,nativeCombat:true…
-  S.cache={enabled,combatMode:scopedCombat()?.mode??combatMode,minCastIntervalMs:effectiveWait(),approachDistance:scopedCombat()?.distance??80,nativeCombat:true,clientSkillWaitMs:null,pollIntervalMs:100,inside:scope(),active:enabled&&scope()&&!!S.role,casts:samples.length,matchedHits:samples.filter(r=>r.hitAt!==null).length,
+  S.cache={enabled,basicPriority,basicStreak:S.basicStreak,plannedBasic:S.plannedBasic,plannedTH:S.plannedTH,
+   unprovenFallbacks:S.unprovenFallbacks,combatMode:scopedCombat()?.mode??combatMode,minCastIntervalMs:effectiveWait(),approachDistance:scopedCombat()?.distance??80,nativeCombat:true,clientSkillWaitMs:null,pollIntervalMs:100,inside:scope(),active:enabled&&scope()&&!!S.role,casts:samples.length,matchedHits:samples.filter(r=>r.hitAt!==null).length,
 // [VI dòng gốc 47] Thuộc tính preferredBasic: nếu candidates.length>=2 thì lấy candidates[0].id, ngược lại lấy null | Thuộc tính reason: nếu !enabled thì lấy 'disabled', ngược lại lấy !scope()?'waiting_road_scene':candidates.length>=2?'measured_basic_preferred':'collecting_8_hits_and_cycles_per_basic' | Thuộc tính rows: dùng biến cùng tên | Thuộc tính rejected: đọc S.rejected
    preferredBasic:candidates.length>=2?candidates[0].id:null,reason:!enabled?'disabled':!scope()?'waiting_road_scene':candidates.length>=2?'measured_basic_preferred':'collecting_8_hits_and_cycles_per_basic',rows,rejected:S.rejected,lastError:S.error,
 // [VI dòng gốc 48] Kết thúc hàm hiện tại và trả về: đọc S.cache.
@@ -99,6 +105,31 @@
 // [VI dòng gốc 49] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
  }
 // [VI dòng gốc 50] Định nghĩa hàm start; tham số: không có. Mục đích: khởi động bộ điều khiển | gán enabled bằng true | gán S.cacheAt bằng -Infinity | Kết thúc hàm hiện tại và trả về: gọi report().
+ // Supply a native selector with a ready-skill subset. Never touch cooldown rows,
+ // send combat RPCs, or fabricate skill readiness. Unverified targets use native order.
+ function planNativeSelection(active,common,mode){
+  if(!enabled||!basicPriority||!scope()||Number(mode)!==1||((scopedCombat()?.mode??combatMode)!=='native'))return null;
+  if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)||W.KVPV_BOSS_TEAM?.priority?.()===true||
+     W._Ba?._rJ?._O$?.ins?.isDead===true||W.document?.hidden===true)return null;
+  const combat=S.combat,tar=combat?.target;
+  if(!combat||!tar||S.target!==tar||combat.isValidTarget?.()!==true||
+     combat.isValidRange?.()!==true||combat.isCooldown?.()!==false||
+     combat?._jh?.isPlaying===true)return null;
+  const occ=Number(prop(tar,'occ'));
+  const measured=report().rows.filter(r=>r.occ===occ&&r.id>=8001&&r.id<=8005&&r.hits>=8&&
+     r.measuredCycles>=8&&r.casts>0&&r.hits/r.casts>=.8&&Number.isFinite(r.damagePerCycleMs));
+  if(measured.length<2){S.unprovenFallbacks++;return null;}
+  const quality=new Map(measured.map(r=>[r.id,r.damagePerCycleMs]));
+  const ready=[...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].filter(row=>
+    Array.isArray(row)&&Number.isFinite(Number(row[1]))&&Number(row[1])<Date.now());
+  const basics=ready.filter(row=>quality.has(Number(row[0]))).sort((a,b)=>
+    quality.get(Number(b[0]))-quality.get(Number(a[0])));
+  const th=ready.filter(row=>Number(row[0])>=1001&&Number(row[0])<=1008);
+  if(S.basicStreak>=2&&th.length){S.plannedTH++;return {kind:'tuyet_hoc',rows:th};}
+  if(basics.length){S.plannedBasic++;return {kind:'proven_basic',rows:basics};}
+  return null;
+ }
+ function setBasicPriority(value=true){basicPriority=!!value;S.cacheAt=-Infinity;return report();}
  function selectSkill1ms(){return -1;}
  function start(){enabled=true;S.cacheAt=-Infinity;return report();}
 // [VI dòng gốc 51] Định nghĩa hàm stop; tham số: không có. Mục đích: dừng bộ điều khiển và dọn tài nguyên | gán enabled bằng false | gọi release() để nhả quyền điều khiển đang giữ | gán S.cacheAt bằng -Infinity
@@ -108,7 +139,7 @@
 // [VI dòng gốc 53] Định nghĩa hàm setMinCastInterval; tham số: ms | Kiểm tra !Number.isSafeInteger(ms)||ms<0||ms>5000: đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Road interval must be 0..5000ms') | gán minCastIntervalMs bằng ms
  function setMinCastInterval(ms){if(!Number.isSafeInteger(ms)||ms<0||ms>5000)throw Error('Road interval must be 0..5000ms');minCastIntervalMs=ms;S.cacheAt=-Infinity;return report();}
 // [VI dòng gốc 54] gán W.KVPV_ROAD_CADENCE bằng Object.freeze({get fast1ms(){return enabled&&(scopedCombat()?.mode??combatMode)==='native';},selectSkill1ms,get enabled(){return enabled;},get combatMode(){return scopedCombat()?.mode??combatMode;},get minCastIntervalMs(){return scopedCombat()?.intervalMs??minCastIntervalM… | Kết thúc hàm hiện tại và trả về: enabled. | Kết thúc hàm hiện tại và trả về: scopedCombat()?.mode hoặc dùng vế phải khi vế trái là null/undefined: combatMode. | Kết thúc hàm hiện tại và trả về: scopedCombat()?.intervalMs hoặc dùng vế phải khi vế trái là null/undefined: minCastIntervalMs.
- W.KVPV_ROAD_CADENCE=Object.freeze({fast1ms:false,selectSkill1ms,get enabled(){return enabled;},get combatMode(){return scopedCombat()?.mode??combatMode;},get minCastIntervalMs(){return effectiveWait();},get approachDistance(){return scopedCombat()?.distance??80;},setMinCastInterval,setCombatMode,start,observe,release,stop,status:report,preferredBasic:()=>enabled&&scope()?report().preferredBasic:null,_handoff:()=>({actor,samples,enabled,combatMode,minCastIntervalMs})});
+ W.KVPV_ROAD_CADENCE=Object.freeze({fast1ms:false,selectSkill1ms,planNativeSelection,setBasicPriority,get basicPriority(){return basicPriority;},get enabled(){return enabled;},get combatMode(){return scopedCombat()?.mode??combatMode;},get minCastIntervalMs(){return effectiveWait();},get approachDistance(){return scopedCombat()?.distance??80;},setMinCastInterval,setCombatMode,start,observe,release,stop,status:report,preferredBasic:()=>enabled&&scope()?report().preferredBasic:null,_handoff:()=>({actor,samples,enabled,combatMode,basicPriority,minCastIntervalMs})});
 // [VI dòng gốc 55] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
 })();
 // [VI dòng gốc 56] Dòng trống để tách các phần, không có lệnh thực thi.
