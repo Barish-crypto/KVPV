@@ -76,7 +76,7 @@
 // [VI dòng gốc 35] Khai báo biến không gán lại bằng const: last = gọi samples.at(-1); now = gọi Date.now()
   const last=samples.at(-1),now=Date.now();
 // [VI dòng gốc 36] Kiểm tra last&&last.readyAt===null&&now>last.at&&id(combat?.target)===last.targetId&&combat?.isCooldown?.()===false&&combat?._jh?.isPlaying!==true: đúng thì chạy nhánh sau if. | gán last.readyAt bằng now | gán last.recoverySource bằng 'polled_native_ready' | gán S.cacheAt bằng -Infinity
-  if(last&&last.readyAt===null&&now>last.at&&id(combat?.target)===last.targetId&&combat?.isCooldown?.()===false&&combat?._jh?.isPlaying!==true){last.readyAt=now;last.recoverySource='polled_native_ready';S.cacheAt=-Infinity;}
+  if(last&&last.readyAt===null&&now>last.at&&id(combat?.target)===last.targetId&&W.KVPV_BASIC10?.isForceActive?.()!==true&&combat?.isCooldown?.()===false&&combat?._jh?.isPlaying!==true){last.readyAt=now;last.recoverySource='polled_native_ready';S.cacheAt=-Infinity;}
 // [VI dòng gốc 37] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán S.error bằng String(e)
  }catch(e){S.error=String(e);}}
 // [VI dòng gốc 38] Định nghĩa hàm report; tham số: không có | Khai báo biến không gán lại bằng const: now = gọi Date.now() | Kiểm tra S.cache&&now-S.cacheAt<1000: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: đọc S.cache.
