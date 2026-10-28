@@ -1,5 +1,7 @@
 # La Phong PvP — né Tuyệt Học native (thử nghiệm)
 
+**Cập nhật Tru Tiên:** PR này bổ sung `KVPV_TRUTIEN_PVP.start({autoDodge:false|true})` để đánh Tuyệt Học 1001–1008 **chỉ** lên người chơi được chọn ở scene Tru Tiên native type 52. Role người chơi thực được nhận diện type **4** trong Tru Tiên; không mở rộng type này ra map thường. Xem `docs-tieng-viet/TRU_TIEN_PVP_LA_PHONG.md`. Khi mode mới bật, Boss watcher được nhả bằng `KVPV_MODE.stop()` để không tự giành lại mục tiêu quái. Bản này chưa live-test.
+
 ## Nguyên tắc
 Bộ này chỉ theo dõi đối thủ đang được chọn làm mục tiêu. Có thể đọc tín hiệu 1039 trên role của đối thủ nếu client thực sự phát tín hiệu này; chỉ coi ID 1001..1008 là Tuyệt Học ứng viên. Tín hiệu phải nhắm vào nhân vật của mình.
 
