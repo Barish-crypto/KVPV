@@ -16,6 +16,12 @@ function setup(){
    emit(k,...args){this.listeners.get(k)?.(...args);}
  }
  const me=new Emitter(actorId,4),enemy=new Emitter('other-player',4),enemy2=new Emitter('other-player-2',4),monster=new Emitter('monster',1);
+ const pet=new Emitter('pet',2),fuwa=new Emitter('fuwa',9),ride=new Emitter('ride',7);
+ const contexts={petContext:pet,fuwaContext:fuwa,rideContext:ride};
+ const meNativeGet=me.property.get;me.property.get=k=>contexts[k]??meNativeGet(k);
+ const companionCalls=[],companionCasts=[['pet',pet,8012],['fuwa',fuwa,5611],['ride',ride,3832]];
+ let companionPvPValid=true;
+ const companionMethods=new Map();
  const rows=[[8001,0,50],[1001,0,200],[1002,0,200],[8002,0,50],[8005,0,100]],calls=[],timers=new Map(),remote=[];
  selected=enemy;
  const moveCalls=[],movement={running:()=>false,moveTo(x,y){moveCalls.push({x,y});}};
@@ -28,10 +34,23 @@ function setup(){
    if(!row)return -1;row[1]=time+row[2];return row[0];}};
  function C(){}function S(){}function M(){}
  me.getComponent=k=>k===C?combat:k===S?selector:k===M?movement:null;
+ for(const [key,ctx,skill] of companionCasts){
+   let target=null,until=-Infinity;
+   const nativeComp={
+     get target(){return target;},isCooldown:()=>false,
+     setTarget(t,kind){target=t;},
+     isValidTarget:()=>companionPvPValid,
+     isValidRange:()=>true,
+     combat(id,v,kind){companionCalls.push({key,skill:id,kind,target:target?.id});}
+   };
+   const nativeSelector={selectSkill(){if(time<until)return -1;until=time+110;return skill;}};
+   ctx.getComponent=k=>k===C?nativeComp:k===S?nativeSelector:null;
+   companionMethods.set(key,nativeComp);
+ }
  const pvp={start(o){remote.push(['start',o.autoDodge]);return{enabled:true};},stop(){remote.push(['stop']);},sync(){},status:()=>({enabled:remote.some(x=>x[0]==='start')})};
- const W={__KVPV_OWN_ACTOR_ID:actorId,_Ba:{_rJ:{_O$:{ins:{actorId,get isDead(){return dead;}}}}},
+ const W={__KVPV_OWN_ACTOR_ID:actorId,_Ba:{_rJ:{_O$:{ins:{actorId,get isDead(){return dead;}}}},_Jtt:{_ant:{ins:{getCfgById:key=>{const v=new Array(16).fill(0);v[15]=key===5611*10000+1?1:0;return v;}}}}},
    _C:{_Ba:{instance:{getRole:()=>me}},_Mn:{_Cn:{get currentID(){return sc;}}}},
-   _d:{_Yct:{_Het:C,_Eet:S,_zet:M}},KVPV_FAR_SCOPE:{status:()=>({inside:kind==='TRU_TIEN',kind})},
+   _d:{_Yct:{_Het:C,_Eet:S,_zet:M}},_BaV1:null,KVPV_FAR_SCOPE:{status:()=>({inside:kind==='TRU_TIEN',kind})},
    KVPV_MODE:{status:()=>({mode}),stop(){mode='OFF';bossRunning=false;hitrun=false;}},
    KVPV_TH300:{status:()=>({running:bossRunning})},KVPV_HITRUN1:{status:()=>({running:hitrun})},
    KVPV_DAILY:{quickState:()=>({job})},
@@ -40,11 +59,11 @@ function setup(){
    setInterval(fn,ms){assert([10,120].includes(ms),'only known 10ms/120ms timers');const id=timers.size+1;timers.set(id,fn);return id;},
    clearInterval(id){timers.delete(id);}};
  vm.runInNewContext(script,{window:W,Date:Clock,console},{timeout:3000});
- return {W,api:W.KVPV_TRUTIEN_PVP,Clock,calls,rows,enemy,enemy2,monster,remote,timers,moveCalls,
+ return {W,api:W.KVPV_TRUTIEN_PVP,Clock,calls,rows,enemy,enemy2,monster,remote,timers,moveCalls,companionCalls,companionMethods,
    tick:()=>{time+=10;for(const fn of timers.values())fn();},advance:ms=>{time+=ms;for(const fn of timers.values())fn();},
    setKind:v=>kind=v,setScene:v=>sc=v,setTarget:v=>selected=v,
    setCd:v=>cooldown=v,setFocus:v=>focus=v,setRange:v=>range=v,setValid:v=>valid=v,
-   setJob:v=>job=v,setDead:v=>dead=v,setPlaying:v=>playing=v};
+   setJob:v=>job=v,setDead:v=>dead=v,setPlaying:v=>playing=v,setCompanionPvPValid:v=>companionPvPValid=v};
 }
 {
  const q=setup();
@@ -130,6 +149,37 @@ function setup(){
  const old=q.calls.length;
  q.tick();
  assert(q.calls.length>old,'optional unlocked mode permits user-directed target switching');
+ q.api.stop();
+}
+{
+ // Tian Quan's pet/fuwa/ride native skills are also tested in PvP,
+ // without changing the main character's cooldown or bypassing a rejected player target.
+ const q=setup();
+ q.api.start({autoDodge:false});
+ q.tick();
+ assert.deepEqual(q.api.status().tqSkillProfile.requested,[1001,1002,1003,1004,1005,1006,1007,1008,8001,8002,8003,8004,8005]);
+ assert.equal(q.companionCalls.length,3,'all three Tian Quan native companions dispatched once');
+ assert.deepEqual(q.api.status().companions.attempts,{pet:1,fuwa:1,ride:1});
+ assert(q.companionCalls.some(x=>x.key==='pet'&&x.skill===8012&&x.target===q.enemy.id));
+ assert(q.companionCalls.some(x=>x.key==='fuwa'&&x.skill===5611&&x.target===actorId),'native self buff targets player owner');
+ assert(q.companionCalls.some(x=>x.key==='ride'&&x.skill===3832&&x.target===q.enemy.id));
+ q.tick();assert.equal(q.companionCalls.length,3,'no more than once per native 50ms scanning interval');
+ q.setCd(true);q.advance(60);
+ assert.equal(q.api.status().companions.enabled,true);
+ assert.equal(q.companionCalls.length,3,'companion native per-skill selector still honors its cooldown rows');
+ q.advance(60);assert.equal(q.companionCalls.length,6,'companions continue independently while owner cooldown is active');
+ const before=q.companionCalls.length;
+ q.setCompanionPvPValid(false);q.advance(130);
+ assert.equal(q.companionCalls.length,before,'native rejection of PvP player stops companion dispatch');
+ assert(q.api.status().companions.blocked>=3,'native PvP rejection visible in diagnosis');
+ q.api.stop();
+}
+{
+ const q=setup();
+ q.api.start({autoDodge:false,companions:false});
+ q.tick();
+ assert.equal(q.companionCalls.length,0,'opt-out disables companions without blocking main skill rotation');
+ assert.equal(q.api.status().companions.enabled,false);
  q.api.stop();
 }
 console.log('PASS Tru Tien PvP: manual 10ms TH+five basics, focused one target, native cooldown/target/range, optional dodge, all-in, handoff and cleanup.');
