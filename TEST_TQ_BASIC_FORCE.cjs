@@ -47,7 +47,8 @@ function setup(){
  setKind('LINH_LUNG');
  assert.equal(q.c.isCooldown(),false,'cached predicate until next module tick');
  q.mod.sync();
- assert.equal(q.c.isCooldown(),native,'outside scope restores cooldown');
+ assert.equal(q.c.isCooldown,native,'outside scope restores cooldown');
+ assert.equal(q.c.isCooldown(),true,'outside scope returns native result');
  assert.equal(replacement.isPlaying,true,'outside scope restores tween');
  assert.equal(force.status().enabled,true,'scope pause does not turn off experiment');
  setKind('THIEN_QUAN');q.mod.sync();
