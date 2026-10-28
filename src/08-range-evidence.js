@@ -699,7 +699,13 @@
     if(typeof c?.isCooldown!=='function'||c.isCooldown()!==false||
        animationPlaying(c)||!castReady())return false;
     const row=[...(r.s?._rtt??[]),...(r.s?._wet??[])].find(x=>Number(x?.[0])===id);
-    if(!row||!Number.isFinite(Number(row[1]))||Number(row[1])>=now)return false;
+    // Native selector may advance row[1] before combat(id) executes. A one-shot
+    // selection token carries proof it chose this exact ID from a ready row.
+    const token=ST.tqSelectedNative;
+    const selectedNow=token?.id===id&&token.targetId===identity(c?.target)&&
+      token.scene===scene()&&now-token.at>=0&&now-token.at<=40;
+    if(!row||!Number.isFinite(Number(row[1]))||
+      (Number(row[1])>=now&&!selectedNow))return false;
     const duration=Number(row[2]);
     const minGap=Math.max(tqIdleFill.minRepeatMs,
       Number.isFinite(duration)&&duration>0?Math.min(1000,duration):0);
@@ -1068,7 +1074,7 @@
 // [VI dòng gốc 372] Chú thích gốc của tác giả; không được thực thi. Nội dung: Hủy theo dõi Boss cũ và bỏ các lần tung chiêu đang chờ để không ghép sang Boss mới.
   // Hủy theo dõi Boss cũ và bỏ các lần tung chiêu đang chờ để không ghép sang Boss mới.
 // [VI dòng gốc 373] Định nghĩa hàm unlisten; tham số: không có | gọi metrics?.close(ST.running?'target_changed':'stopped') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kiểm tra ST.target: đúng thì chạy nhánh sau if. | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
-  function unlisten(){resetThGap();cosmicReset();trial1008?.stop();metrics?.close(ST.running?'target_changed':'stopped');if(ST.target){try{ST.target.off?.(1012,ST.owner,onHit);}catch(_){window.KVPV_V1?.diagnostics?.record(_);}}ST.target=null;ST.targetOcc=null;ST.targetKey=null;ST.casts=[];}
+  function unlisten(){ST.tqSelectedNative=null;resetThGap();cosmicReset();trial1008?.stop();metrics?.close(ST.running?'target_changed':'stopped');if(ST.target){try{ST.target.off?.(1012,ST.owner,onHit);}catch(_){window.KVPV_V1?.diagnostics?.record(_);}}ST.target=null;ST.targetOcc=null;ST.targetKey=null;ST.casts=[];}
 // [VI dòng gốc 374] Chú thích gốc của tác giả; không được thực thi. Nội dung: Đổi đối tượng theo dõi theo ID, loại Boss và map, kể cả khi game tái sử dụng cùng object.
   // Đổi đối tượng theo dõi theo ID, loại Boss và map, kể cả khi game tái sử dụng cùng object.
 // [VI dòng gốc 375] Định nghĩa hàm listen; tham số: t | Khai báo biến không gán lại bằng const: targetKey = tính biểu thức identity(t)+'/'+String(prop(t,'occ'))+'/'+scene() | Kiểm tra t===ST.target&&targetKey===ST.targetKey: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
@@ -1140,7 +1146,14 @@
         const pickBasic=()=>selectBasic(native,this,all,mode,occ,d);
         if(basicSolo4100Active()||!tqFive.allowsTuyetHoc()||thGap.picking)return pickBasic();
         const roster=skillNames().map(x=>x.id).filter(id=>id>=1001&&id<=1008),offset=roster.length?ST.skillCursor%roster.length:0,order=roster.slice(offset).concat(roster.slice(0,offset));
-        const pickTH=()=>Number(native.call(this,cosmicRank(all.filter(row=>Number(row?.[0])>=1001&&Number(row?.[0])<=1008&&Number.isFinite(Number(row[1]))&&Number(row[1])<Date.now()&&allowed(Number(row[0]),occ,d)),'th',(a,b)=>order.indexOf(Number(a[0]))-order.indexOf(Number(b[0]))),[],mode));
+        const pickTH=()=>{
+          ST.tqSelectedNative=null;
+          const rows=cosmicRank(all.filter(row=>Number(row?.[0])>=1001&&Number(row?.[0])<=1008&&Number.isFinite(Number(row[1]))&&Number(row[1])<Date.now()&&allowed(Number(row[0]),occ,d)),'th',(a,b)=>order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])));
+          const id=Number(native.call(this,rows,[],mode));
+          if(rows.some(row=>Number(row?.[0])===id))
+            ST.tqSelectedNative={id,at:Date.now(),targetId:identity(r.c?.target),scene:scene()};
+          return id;
+        };
         if(pilot4100THOnly())return pickTH();
         const first=mixed.wantBasic?pickBasic:pickTH,second=mixed.wantBasic?pickTH:pickBasic,id=first();return isBasic(id)||id>=1001&&id<=1008?id:second();
       }
@@ -1276,7 +1289,7 @@
 // [VI dòng gốc 464] Kiểm tra animationPlaying(this)&&basicTailReady(): đúng thì chạy nhánh sau if. | tăng ST.basicTailReleases một đơn vị sau khi lấy giá trị
         if(animationPlaying(this)&&basicTailReady())ST.basicTailReleases++;
 // [VI dòng gốc 465] gán ST.lastInvocation bằng Date.now()
-        ST.lastInvocation=Date.now();
+        ST.lastInvocation=Date.now();ST.tqSelectedNative=null;
 // [VI dòng gốc 466] Khai báo biến không gán lại bằng const: roster = gọi skillNames().map(x=>x.id) để biến đổi từng phần tử | Kiểm tra !isBasic(id): đúng thì chạy nhánh sau if. | gán ST.skillCursor bằng Math.max(0,roster.indexOf(id)+1)
         const roster=skillNames().map(x=>x.id);if(!isBasic(id))ST.skillCursor=Math.max(0,roster.indexOf(id)+1);
 // [VI dòng gốc 467] Kiểm tra mixed.enabled: đúng thì chạy nhánh sau if. | Khai báo biến không gán lại bằng const: order = gọi basicRotation() | Kiểm tra order.includes(id): đúng thì chạy nhánh sau if. | gán mixed.rotationCursor bằng (order.indexOf(id)+1)%order.length
