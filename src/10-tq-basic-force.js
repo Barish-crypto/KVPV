@@ -71,7 +71,7 @@
   }
   function ensureTween(c){
     const obj=c?._jh;
-    if(S.tween?.obj===obj){
+    if(S.tween&&S.tween.obj===obj){
       const desc=Object.getOwnPropertyDescriptor(obj,'isPlaying');
       if(desc?.get===S.tween.get&&desc?.set===S.tween.set)return;
       S.error='Animation property externally replaced; not overwriting';
