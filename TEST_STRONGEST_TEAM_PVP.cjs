@@ -6,7 +6,7 @@ const build=fs.readFileSync(__dirname+'/build.cjs','utf8');
 assert(build.includes('"77-strongest-team-pvp.js"'),'event PK must be hot-reloadable');
 function harness(){
  const actor='10228867268946',enemyId='pvp-enemy-1';
- let now=200000,inside=true,open=true,phase='ACTIVE',enemyColor='red',manual=false,selected,hidden=false,skillRows=[[1001,0,50],[8001,0,50]];
+ let now=200000,inside=true,open=true,phase='ACTIVE',enemyColor='red',enemy2Color='red',manual=false,selected,hidden=false,skillRows=[[1001,0,50],[8001,0,50]];
  let cooldown=false,range=true,busy=false;
  const moves=[],casts=[],timers=new Map();
  class Clock extends Date{static now(){return now;}}
@@ -19,17 +19,17 @@ function harness(){
   getComponent(key){return key===Combat?combat:key===Skill?selector:key===Move?move:null;}
  }
  function Combat(){} function Skill(){} function Move(){}
- const player=new Role(actor,4,220),enemy=new Role(enemyId,4,0),ally=new Role('ally',4,0);
+ const player=new Role(actor,4,220),enemy=new Role(enemyId,4,0),enemy2=new Role('pvp-enemy-2',4,100),ally=new Role('ally',4,0);
  const combat={get target(){return selected;},combat(id){casts.push(id);return id;},
    isCooldown:()=>cooldown,isValidTarget:()=>true,isValidRange:()=>range};
  const selector={get _rtt(){return skillRows;},_wet:[],_f7t:rows=>rows[0]?.[0]};
  const move={_fut:0,running:()=>busy,moveTo(x,y){moves.push({x,y});}};
- const m={selectTagetId:enemyId,getNearPlayerRank:()=>[{objId:enemyId,color:enemyColor}],
+ const m={selectTagetId:enemyId,getNearPlayerRank:()=>[{objId:enemyId,color:enemyColor},{objId:enemy2.id,color:enemy2Color}],
    isMyTeam:color=>color==='blue'};
  const W={__KVPV_OWN_ACTOR_ID:actor,__KVPV_UNIVERSAL_HALTED:false,__KVPV_USER_UI_UNTIL:0,
    _Ba:{_rJ:{_O$:{ins:{actorId:actor,isDead:false}}},_T3:{_G_t:{instance:m}}},
    _d:{_Yct:{_Het:Combat,_Eet:Skill,_zet:Move}},
-   _C:{_Ba:{instance:{getRole:()=>player}},_Mn:{_Cn:{currentID:8201}}},
+   _C:{_Ba:{instance:{getRole:uid=>String(uid)===actor?player:String(uid)===enemyId?enemy:String(uid)===enemy2.id?enemy2:null}},_Mn:{_Cn:{currentID:8201}}},
    KVPV_STRONGEST_TEAM:{status:()=>({enabled:true,inside,phase,open})},
    KVPV_FAR_SCOPE:{status:()=>({inside:false,kind:'OUTSIDE'})},
    KVPV_ENTRY_POLICY:{get manual(){return manual;}},
@@ -38,9 +38,9 @@ function harness(){
    clearInterval:key=>timers.delete(key)};
  const ctx=vm.createContext({window:W,Date:Clock,console});
  vm.runInContext(observe,ctx);vm.runInContext(script,ctx);
- return {actor,enemy,ally,player,combat,m,W,moves,casts,timers,
+ return {actor,enemy,enemy2,ally,player,combat,m,W,moves,casts,timers,
   select:v=>selected=v,at:v=>now=v,advance:v=>now+=v,
-  setRows:v=>skillRows=v,setColor:v=>enemyColor=v,setInside:v=>inside=v,setOpen:v=>open=v,
+  setRows:v=>skillRows=v,setColor:v=>enemyColor=v,setEnemy2Color:v=>enemy2Color=v,setInside:v=>inside=v,setOpen:v=>open=v,
   setPhase:v=>phase=v,setManual:v=>manual=v,setHidden:v=>hidden=v,
   setCooldown:v=>cooldown=v,setRange:v=>range=v,setBusy:v=>busy=v,
   pk:()=>W.KVPV_STRONGEST_PVP,dodge:()=>W.KVPV_PVP_LUOFENG,
@@ -90,6 +90,40 @@ function harness(){
  assert.deepEqual(h.casts,[1001],'confirmed scene allows native cast');
  h.pk().config.nativeAttack=false;h.tick();
  assert.equal(h.casts.length,1,'dodge-only switch disables outgoing combat');
+ h.pk().stop();
+}
+{
+ const h=harness();h.select(h.enemy);h.tick();
+ assert.equal(h.dodge().status().nearbyMode,true,'event enables nearby enemy TH watch');
+ assert.deepEqual(Array.from(h.dodge().status().monitoredNearby),[h.enemy2.id],'verified second enemy watched');
+ assert.equal(h.enemy2.listeners.has(1039),true);
+ const before=h.casts.length;
+ h.enemy2.emit(1039,'another-actor',1006);
+ assert.equal(h.moves.length,0,'do not dodge TH aimed at another player');
+ h.enemy2.emit(1039,h.actor,8005);
+ assert.equal(h.moves.length,0,'do not dodge native basic');
+ h.enemy2.emit(1039,h.actor,1006);
+ assert.equal(h.moves.length,1,'native sideways dodge responds to another verified enemy');
+ assert.equal(h.pk().status().nearbyTH,1,'separate multi-threat telemetry');
+ h.tick();
+ assert.equal(h.casts.length,before,'do not cast during immediate dodge window');
+ h.advance(200);h.tick();
+ assert.equal(h.casts.length,before+1,'resume native attacks after safe movement window');
+ h.setEnemy2Color('blue');h.tick();
+ assert.equal(h.enemy2.listeners.has(1039),false,'immediately drop former enemy that is now teammate');
+ h.advance(1500);h.enemy2.emit(1039,h.actor,1007);
+ assert.equal(h.moves.length,1,'no stale teammate listener can move');
+ h.setEnemy2Color('red');h.tick();
+ assert.equal(h.enemy2.listeners.has(1039),true,'newly verified enemy reattached');
+ h.setInside(false);h.tick();
+ assert.equal(h.enemy2.listeners.has(1039),false,'event exit detaches extra observer');
+ h.pk().stop();
+}
+{
+ const h=harness();h.select(h.enemy);h.tick();
+ h.setOpen(false);h.tick();
+ assert.equal(h.enemy2.listeners.has(1039),false,'server-closed event detaches all extra TH listeners');
+ assert.equal(h.dodge().status().enabled,false,'server-closed event disarms dodge');
  h.pk().stop();
 }
 console.log('PASS Strongest Team PvP: verified enemy-only TH-first/native-basic, scoped remote TH dodge, no cooldown bypass, manual/team/scene guards and cleanup');
