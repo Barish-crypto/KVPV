@@ -58,7 +58,7 @@ test('diagnostics are bounded and snapshots do not mutate history',()=>{
 test('Boss auto module creates no timer and makes no scan on install',()=>{
 // [VI dòng gốc 30] Chú thích gốc của tác giả; không được thực thi. Nội dung: Bỏ riêng chú thích tự sinh khi tìm đoạn mã bằng chữ; nội dung chương trình vẫn được kiểm tra đầy đủ.
   // Bỏ riêng chú thích tự sinh khi tìm đoạn mã bằng chữ; nội dung chương trình vẫn được kiểm tra đầy đủ.
-// [VI dòng gốc 31] Khai báo biến không gán lại bằng const: engine = gọi fs.readFileSync(__dirname+'/src/04-engine.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm, '')
+// [VI dòng gốc 31] Khai báo biến không gán lại bằng const: engine = gọi fs.readFileSync(__dirname+'/src/04-engine.js','utf8').replace(/\r\n?/g,'\n').replace(/^\/\/ \[VI dòng gốc \d+\].*\n/gm, '')
   const engine=fs.readFileSync(__dirname+'/src/04-engine.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'');
 // [VI dòng gốc 32] Khai báo biến không gán lại bằng const: start = gọi engine.indexOf("(() => {\n 'use strict';\n const W=window,TAG='[HITRUN AUTO V12.0]'")
   const start=engine.indexOf("(() => {\n  'use strict';\n  const W=window,TAG='[HITRUN AUTO V12.0]'");
