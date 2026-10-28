@@ -80,4 +80,83 @@ for(const id of [1001,1002,1003,1004,1005,1006,1007,1008]){
  q.mod.stop();assert.equal(clip.timeScale,1,'stop restores last applied visual speed');
  assert.equal(avatar.getActionTween!==undefined,true);
 }
+// Regression: Tian Quan-only 9999x visual multiplier for both the native TH group and all five basics.
+for(const id of [1001,1002,1003,1004,1005,1006,1007,1008]){
+ const {q,visual,avatar,clip}=setup(id),original=avatar.getActionTween;
+ assert.equal(q.mod.setTianQuanVisualSpeed(9999).factor,9999);
+ q.mod.start('SCAN');q.pump();
+ assert.deepEqual(Array.from(q.calls),[id],'TQ native TH cast '+id);
+ assert.equal(visual[0].speed,9999,'TQ TH visible clip x9999 '+id);
+ assert.equal(visual[1].speed,1,'unrelated idle clip is not accelerated');
+ assert.equal(q.mod.status(false).tqTuyetHocVisualSpeed,9999);
+ assert.equal(q.mod.status(false).tqTuyetHocVisualScaled,1);
+ assert.equal(q.mod.status(false).tqBasicVisualScaled,0);
+ assert.equal(avatar.getActionTween,original,'TQ TH hook is transient '+id);
+ assert.equal(q.s._rtt[0][2],1000,'TQ TH native cooldown not modified');
+ q.mod.setTianQuanVisualSpeed(1);
+ assert.equal(clip.timeScale,1,'TH clip speed restored on user off');
+ q.mod.stop();
+}
+for(const id of [8001,8002,8003,8004,8005]){
+ const {q,visual,avatar,clip}=setup(id),original=avatar.getActionTween;
+ q.s._rtt=[[id,0,1000]];q.s._wet=[];
+ q.mod.setTianQuanVisualSpeed(9999);
+ q.mod.start('SCAN');q.pump();
+ assert.deepEqual(Array.from(q.calls),[id],'TQ native basic cast '+id);
+ assert.equal(visual[0].action,'action-'+id);
+ assert.equal(visual[0].speed,9999,'TQ five basic visual x9999 '+id);
+ assert.equal(visual[1].speed,1,'unrelated idle remains x1');
+ assert.equal(q.mod.status(false).tqBasicVisualSpeed,9999);
+ assert.equal(q.mod.status(false).tqBasicVisualCalls,1);
+ assert.equal(q.mod.status(false).tqBasicVisualScaled,1);
+ assert.equal(q.mod.status(false).tqTuyetHocVisualScaled,0);
+ assert.equal(avatar.getActionTween,original,'TQ basic hook restored '+id);
+ assert.equal(q.s._rtt[0][2],1000,'native basic cooldown unchanged '+id);
+ q.mod.setTianQuanVisualSpeed(1);
+ assert.equal(clip.timeScale,1,'basic visual clip restored on disabling '+id);
+ q.mod.stop();
+}
+{
+ const {q,visual}=setup(8005,'LINH_LUNG');
+ q.mod.setTianQuanVisualSpeed(9999);q.mod.start('SCAN');q.pump();
+ assert(visual.every(v=>v.speed===1),'TQ speed does not alter Linh Lung native animations');
+ assert.equal(q.mod.status(false).tqBasicVisualCalls,0);
+ assert.equal(q.mod.status(false).tqTuyetHocVisualCalls,0);
+ q.mod.stop();
+}
+{
+ const {q,visual}=setup(8003,'THIEN_QUAN',false);
+ q.s._rtt=[[8003,0,1000]];q.s._wet=[];
+ q.mod.setTianQuanVisualSpeed(9999);q.mod.start('SCAN');q.pump();
+ assert.equal(q.mod.status(false).tqBasicVisualUnavailable,1,'missing basic action refuses guessed attack animation');
+ assert.equal(q.mod.status(false).tqBasicVisualScaled,0);
+ assert.equal(visual[0].speed,1);
+ q.mod.stop();
+}
+{
+ const {q,visual,clip}=setup(8005),native=q.avatar?.getActionTween;
+ q.W.KVPV_TQ_POSITION_ONLY={enabled:true,distance:310,heal:false};
+ q.W._Ba._Co._Mo.ins.curLv=4100;
+ q.mod.setTianQuanCosmic(true);q.mod.setTianQuanLuoFeng(true);
+ q.mod.setTianQuan4100BasicSolo(true);
+ q.s._rtt=[[8005,0,1000],[1001,0,1000]];q.s._wet=[];
+ q.mod.setTianQuanVisualSpeed(9999);
+ q.mod.start('SCAN');q.pump();
+ assert.equal(q.mod.status(false).luoFeng.basicSolo4100.active,true,'4100 basic only remains active');
+ assert.deepEqual(Array.from(q.calls),[8005],'4100 never emits TH');
+ assert.equal(visual[0].speed,9999,'4100 native basic 8005 is visually sped up');
+ assert.equal(q.mod.status(false).tqTuyetHocVisualScaled,0);
+ q.mod.stop();assert.equal(clip.timeScale,1,'4100 clip restored on stop');
+}
+{
+ const {q}=setup(8001);
+ assert.throws(()=>q.mod.setTianQuanVisualSpeed(99999),/visual speed/);
+ assert.equal(q.mod.status(false).tqTuyetHocVisualSpeed,99,'invalid combined value does not mutate TH');
+ assert.equal(q.mod.status(false).tqBasicVisualSpeed,1,'invalid combined value does not mutate basic');
+ q.mod.stop();
+}
+const startup=fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8');
+assert(startup.includes('setTianQuanVisualSpeed?.(9999)'),'auto startup enables Tian Quan-only x9999 visual');
+assert(startup.includes('setTianQuan4100BasicSolo?.(true)'),'4100 basic-only startup preserved');
+console.log('PASS TQ visual 9999x: TH 1001-1008 and basics 8001-8005 incl 4100, native cooldown unchanged, no other scene, transient hooks, off restores visuals.');
 console.log('PASS TH visuals 99x: 1001-1008 native action only; user off, scoped map, unavailable action, restore, 310/1ms no heal');
