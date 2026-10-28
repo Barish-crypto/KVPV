@@ -43,6 +43,7 @@
     W.KVPV_TH300?.setTianQuanFiveBasics?.(true,1);
     W.KVPV_TH300?.setTianQuanTuyetHoc?.(true);
     W.KVPV_TH300?.setTianQuanTHGapBasics?.(true,1200);
+    W.KVPV_TH300?.setTianQuanCosmic?.(true);
 // [VI dòng gốc 20] gọi W.KVPV_MODE.armTianQuan() để đăng ký bộ theo dõi map để tự bật bộ combat khi vào phó bản phù hợp
     W.KVPV_MODE.armTianQuan();
 // [VI dòng gốc 21] Chú thích gốc của tác giả; không được thực thi. Nội dung: Khôi phục tốc độ hoạt ảnh gốc (1) theo yêu cầu; không tăng tốc hoạt ảnh 8001.
