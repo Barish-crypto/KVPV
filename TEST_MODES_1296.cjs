@@ -11,9 +11,12 @@ const code=fs.readFileSync(f,'utf8');
 // [VI dòng gốc 6] Khai báo biến không gán lại bằng const: marker = "[mở chú thích] ================================================================\n * KVPV V12.9.4 — MANUAL COMBAT MODES"
 const marker='/* ================================================================\n * KVPV V12.9.4 — MANUAL COMBAT MODES';
 // [VI dòng gốc 7] Khai báo biến không gán lại bằng const: index = gọi code.lastIndexOf(marker)
-const index=code.lastIndexOf(marker);
+// Windows Git may check out source files as CRLF, while this marker uses LF.
+const markerIndex=text=>String(text).replace(/\r\n/g,'\n').lastIndexOf(marker);
+const index=markerIndex(code);
 // [VI dòng gốc 8] gọi assert(index>0, 'mode manager included in full') để kiểm tra điều kiện của bài test
-assert(index>0,'mode manager included in full');
+assert(index>0,'mode manager included in full (LF or CRLF)');
+assert(markerIndex('prefix\r\n'+marker.replace(/\n/g,'\r\n'))>0,'CRLF marker detection regression');
 // [VI dòng gốc 9] Khai báo biến không gán lại bằng const: manager = gọi fs.readFileSync(__dirname+'/src/09-modes.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm, '')
 const manager=fs.readFileSync(__dirname+'/src/09-modes.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'');
 // [VI dòng gốc 10] Khai báo biến có thể gán lại bằng let: passed = 0
