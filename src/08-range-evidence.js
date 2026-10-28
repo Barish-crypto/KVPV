@@ -27,7 +27,7 @@
 // [VI dòng gốc 18] Chú thích gốc của tác giả; không được thực thi. Nội dung: Mặc định 302 đơn vị Boss → nhân vật, sai số 5; dải thử còn yêu cầu lớn hơn 300.
   // Mặc định 302 đơn vị Boss → nhân vật, sai số 5; dải thử còn yêu cầu lớn hơn 300.
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: CFG = tạo đối tượng gồm min, max, goal, tolerance, scanMs, basicOnly, basicAnimationSpeed, clientPaceMs, afterTHWaitMs, moveWaitMs, castTtlMs, minCastConfirmations, paceMs
-  const CFG={min:300,max:312,goal:302,tolerance:5,scanMs:4,basicOnly:false,basicAnimationSpeed:1,tqTuyetHocVisualSpeed:99,clientPaceMs:null,afterTHWaitMs:0,moveWaitMs:150,castTtlMs:3500,minCastConfirmations:2,paceMs:75};
+  const CFG={min:300,max:312,goal:302,tolerance:5,scanMs:4,basicOnly:false,basicAnimationSpeed:1,tqBasicVisualSpeed:1,tqTuyetHocVisualSpeed:99,clientPaceMs:null,afterTHWaitMs:0,moveWaitMs:150,castTtlMs:3500,minCastConfirmations:2,paceMs:75};
 // [VI dòng gốc 20] Khai báo biến không gán lại bằng const: scopedCombat = tạo hàm với tham số (không có); mỗi lần gọi trả về W.KVPV_DESKTOP_CONTROL?.scopeProfile?.(W.KVPV_FAR_SCOPE?.status?.()?.kind) hoặc dùng vế phải khi vế trái là null/undefined: null
   const scopedCombat=()=>W.KVPV_DESKTOP_CONTROL?.scopeProfile?.(W.KVPV_FAR_SCOPE?.status?.()?.kind)??null;
   const tqDistanceOnly=()=>W.KVPV_TQ_POSITION_ONLY?.enabled===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
@@ -365,6 +365,7 @@
 // [VI dòng gốc 80] Khai báo biến không gán lại bằng const: speedClips = tạo đối tượng bằng Map()
   const speedClips=new Map();
   let thVisualCalls=0,thVisualScaled=0,thVisualUnavailable=0,thVisualLastSkill=null;
+  let tqBasicVisualCalls=0,tqBasicVisualScaled=0,tqBasicVisualUnavailable=0,tqBasicVisualLastSkill=null;
 // [VI dòng gốc 81] Định nghĩa hàm restoreSpeedClips; tham số: không có | Duyệt từng giá trị trong speedClips bằng const [clip,s]. | Khai báo biến không gán lại bằng const: [clip,s] (chưa gán giá trị) | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function restoreSpeedClips(){for(const [clip,s]of speedClips)try{if(clip?._nt===s.applied||clip?.timeScale===s.applied)clip.timeScale=s.before;}catch(e){ST.lastError=String(e);}speedClips.clear();}
 // [VI dòng gốc 82] Định nghĩa hàm finishSpeedTrial; tham số: reason='complete'
@@ -430,24 +431,29 @@
 // [VI dòng gốc 112] Định nghĩa hàm animationTrialCall; tham số: native, self, args
   // Native getActionTween(action,reset,timeScale): shorten VISIBLE animation only.
   // No native cooldown, hit events or RPC behavior is rewritten.
+  // Speed up only the currently dispatched native action. The hook is transient;
+  // neither native skill rows, RPC, hit callbacks nor server cooldown are changed.
   function animationTrialCall(native,self,args){
     const id=Number(args[0]),t=speedTrial,avatar=self?._Qrt,
       trialActive=t?.state==='accelerated'&&Date.now()<t.deadline,
-      thVisual=id>=1001&&id<=1008&&CFG.tqTuyetHocVisualSpeed>1&&
-        W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&tqFive?.active()&&
-        tqFive.allowsTuyetHoc()===true,
+      inTQ=W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&tqFive?.active()&&ST.running,
+      thVisual=inTQ&&id>=1001&&id<=1008&&tqFive.allowsTuyetHoc()===true&&CFG.tqTuyetHocVisualSpeed>1,
+      tqBasicVisual=inTQ&&id>=8001&&id<=8005&&CFG.tqBasicVisualSpeed>1,
       basicVisual=id===8001&&CFG.basicOnly,
-      factor=thVisual?CFG.tqTuyetHocVisualSpeed:trialActive?t.multiplier:CFG.basicAnimationSpeed;
-    if(factor<=1||(!thVisual&&!basicVisual)||self.owner!==dispatch.actor||
+      factor=thVisual?CFG.tqTuyetHocVisualSpeed:tqBasicVisual?CFG.tqBasicVisualSpeed:trialActive?t.multiplier:CFG.basicAnimationSpeed;
+    if(factor<=1||(!thVisual&&!tqBasicVisual&&!basicVisual)||self.owner!==dispatch.actor||
        !canFight()||typeof avatar?.getActionTween!=='function')return native.apply(self,args);
-    // TH requires its native skill action, not a guessed generic "attack" animation.
     let action;try{action=self._mvt?.(id)?.[5];}catch(_){action=null;}
     if(thVisual){thVisualCalls++;thVisualLastSkill=id;}
-    if(thVisual&&(typeof action!=='string'||!action.trim())){
-      thVisualUnavailable++;return native.apply(self,args);
+    if(tqBasicVisual){tqBasicVisualCalls++;tqBasicVisualLastSkill=id;}
+    // For the Tian Quan 13-skill roster, never guess which action belongs to the skill.
+    if((thVisual||tqBasicVisual)&&(typeof action!=='string'||!action.trim())){
+      if(thVisual)thVisualUnavailable++;
+      if(tqBasicVisual)tqBasicVisualUnavailable++;
+      return native.apply(self,args);
     }
     const original=avatar.getActionTween,expectedAction=String(action||'attack');
-    if(trialActive&&!thVisual)t.nativeAction=expectedAction;
+    if(trialActive&&!thVisual&&!tqBasicVisual)t.nativeAction=expectedAction;
     const wrapped=function(...a){
       if(a[0]!==expectedAction)return original.apply(this,a);
       const before=Number(a[2]??1);if(!Number.isFinite(before)||before<=0)return original.apply(this,a);
@@ -455,11 +461,29 @@
       const tween=original.apply(this,a),clip=this.getCurAction;
       if(clip&&typeof clip==='object'&&speedClips.size<32)speedClips.set(clip,{before,applied:a[2]});
       if(thVisual)thVisualScaled++;
-      else{if(trialActive)t.scaledAnimations=(t.scaledAnimations??0)+1;ST.scaledBasicAnimations=(ST.scaledBasicAnimations??0)+1;}
+      else if(tqBasicVisual)tqBasicVisualScaled++;
+      else {if(trialActive)t.scaledAnimations=(t.scaledAnimations??0)+1;ST.scaledBasicAnimations=(ST.scaledBasicAnimations??0)+1;}
       return tween;
     };
-    avatar.getActionTween=wrapped;
-    try{return native.apply(self,args);}finally{if(avatar.getActionTween===wrapped)avatar.getActionTween=original;}
+    // Avoid overwriting unexpected non-writable instance hooks.
+    const own=Object.getOwnPropertyDescriptor(avatar,'getActionTween');
+    if(own&&own.writable===false&&own.configurable===false){
+      if(thVisual)thVisualUnavailable++;if(tqBasicVisual)tqBasicVisualUnavailable++;
+      return native.apply(self,args);
+    }
+    try{avatar.getActionTween=wrapped;}catch(_){
+      if(thVisual)thVisualUnavailable++;if(tqBasicVisual)tqBasicVisualUnavailable++;
+      return native.apply(self,args);
+    }
+    if(avatar.getActionTween!==wrapped){
+      if(thVisual)thVisualUnavailable++;if(tqBasicVisual)tqBasicVisualUnavailable++;
+      return native.apply(self,args);
+    }
+    try{return native.apply(self,args);}
+    finally{if(avatar.getActionTween===wrapped){
+      if(own)Object.defineProperty(avatar,'getActionTween',own);
+      else delete avatar.getActionTween;
+    }}
   }
   function onNativeCast(targetId,skillId){const p=dispatch.pending;if(p){if(p.events.length<4)p.events.push({targetId:String(targetId),id:Number(skillId)});if(String(targetId)===p.targetId&&Number(skillId)===p.id)p.signaled=true;}}
 // [VI dòng gốc 129] Định nghĩa hàm detachDispatch; tham số: không có | Kiểm tra dispatch.actor: đúng thì chạy nhánh sau if. | gọi dispatch.actor.off(1039, ST.owner, onNativeCast) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gán dispatch.actor bằng null
@@ -1527,6 +1551,7 @@
     const tqIds=tqFive?.active()?[...basicRotation(),...(!basicSolo4100Active()&&tqFive.allowsTuyetHoc()?ready.filter(x=>x.id>=1001&&x.id<=1008).map(x=>x.id):[])]:null;
     const ret={basicAnimationSpeed:CFG.basicAnimationSpeed,
        tqTuyetHocVisualSpeed:CFG.tqTuyetHocVisualSpeed,
+        tqBasicVisualSpeed:CFG.tqBasicVisualSpeed,tqBasicVisualCalls,tqBasicVisualScaled,tqBasicVisualUnavailable,tqBasicVisualLastSkill,
        tqTuyetHocVisualCalls:thVisualCalls,tqTuyetHocVisualScaled:thVisualScaled,
        tqTuyetHocVisualUnavailable:thVisualUnavailable,tqTuyetHocVisualLastSkill:thVisualLastSkill,
        scaledBasicAnimations:ST.scaledBasicAnimations??0,basicSpeedTrial:speedTrial??W[speedKey]??null,basicOnly:tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,playerSkillIds:tqFive?.active()?tqIds:CFG.basicOnly?[8001]:null,interleavedBasic:tqFive?.active()||mixed.enabled,basicProbeActive:ST.running&&probeActive(),version:'1.0.0',running:ST.running,operation:ST.mode,goalDistance:targetDistance()??CFG.goal,requestedDistance:CFG.goal,
@@ -1787,10 +1812,21 @@
     return {enabled:thGap.enabled,windowMs:thGap.windowMs,nativeReadyOnly:true,perTHLimit:1};
   }
   function setTianQuanTuyetHocVisualSpeed(factor=99){
-    if(![1,9,30,99].includes(factor))throw Error('TH visual speed must be 1, 9, 30 or 99');
+    if(![1,9,30,99,9999].includes(factor))throw Error('TH visual speed must be 1, 9, 30, 99 or 9999');
     CFG.tqTuyetHocVisualSpeed=factor;
     if(factor===1)restoreSpeedClips();
     return {factor,scope:'THIEN_QUAN',ids:[1001,1002,1003,1004,1005,1006,1007,1008],visualOnly:true,serverCooldownUnchanged:true};
+  }
+  function setTianQuanBasicVisualSpeed(factor=1){
+    if(![1,9,30,99,9999].includes(factor))throw Error('TQ basic visual speed must be 1, 9, 30, 99 or 9999');
+    CFG.tqBasicVisualSpeed=factor;
+    if(factor===1)restoreSpeedClips();
+    return {factor,scope:'THIEN_QUAN',ids:[8001,8002,8003,8004,8005],visualOnly:true,serverCooldownUnchanged:true};
+  }
+  function setTianQuanVisualSpeed(factor=9999){
+    setTianQuanTuyetHocVisualSpeed(factor);
+    setTianQuanBasicVisualSpeed(factor);
+    return {factor,scope:'THIEN_QUAN',basic:[8001,8002,8003,8004,8005],tuyetHoc:[1001,1002,1003,1004,1005,1006,1007,1008],visualOnly:true,serverCooldownUnchanged:true};
   }
   function setBasicAnimationSpeed(factor=1){if(![1,9,99,99999].includes(factor))throw Error('Native animation factor must be 1, 9 or 99');finishSpeedTrial('stopped');restoreSpeedClips();CFG.basicAnimationSpeed=factor;return {factor,scope:['THIEN_QUAN','LINH_LUNG','PHU_VAN','TRU_TIEN'],playerSkillId:8001,serverDamageMultiplierVerified:false};}
 // [VI dòng gốc 701] Khai báo biến không gán lại bằng const: api = tạo đối tượng gồm setBasicAnimationSpeed, startBasicSpeedTrial, setBasicOnly, isBasicOnly, releaseOutsideScope, setClientPace, setConfirmedTailCut, startConfirmedTailStudy, startBasicRangeTest, setAfterTHWait, setBasicHitQuota, setBasicRotation, setPrimaryBasic, setBasicPace, setInterleaved, setBasicProbe, setBurst, performance, version, start, stop, status, report, setDistance, repairPolling, sync, export, his…
@@ -1802,7 +1838,7 @@
     if(!['tuyet_hoc_first','interleaved'].includes(value))throw Error('Skill priority must be tuyet_hoc_first or interleaved');
     skillPriority=value;return {skillPriority};
   }
-  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,startTianQuan4100CooldownExperiment,setTianQuan4100CooldownOverride,setLocalLogAutoClear,tianQuan4100CooldownEligible:c=>ST.running&&basicSolo4100Active()&&ST.target===c?.target&&eligible(c?.target)&&role().c===c,tianQuan4100Diagnosis,setTianQuan4100BasicSolo,setTianQuan4100Pilot,setTianQuanLuoFeng,setTianQuanCosmic,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
+  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,startTianQuan4100CooldownExperiment,setTianQuan4100CooldownOverride,setLocalLogAutoClear,tianQuan4100CooldownEligible:c=>ST.running&&basicSolo4100Active()&&ST.target===c?.target&&eligible(c?.target)&&role().c===c,tianQuan4100Diagnosis,setTianQuan4100BasicSolo,setTianQuan4100Pilot,setTianQuanLuoFeng,setTianQuanCosmic,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanBasicVisualSpeed,setTianQuanVisualSpeed,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
 // [VI dòng gốc 702] gán W.KVPV_TH300 bằng api
   W.KVPV_TH300=api;
 // [VI dòng gốc 703] gọi console.info(TAG, 'READY/OFF. START: KVPV_MODE.start("BOSS_TH300_SCAN") then KVPV_MODE.start("BOSS_TH300")')
