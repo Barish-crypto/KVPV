@@ -82,8 +82,8 @@ console.log('PASS per-scope ride/mansion toggles, independent cooldown, native m
  clock+=1;api.sync();assert.equal(petCalls,1);assert.equal(fuwaCalls,1,'Road companions honor native cooldown on repeated scans');
  fuwaCd=false;clock+=1;api.sync();assert.equal(petCalls,1);assert.equal(fuwaCalls,2,'only native-ready Fuwa resumes');
  petCd=false;petReady=false;clock+=1;api.sync();assert.equal(petCalls,1,'selector readiness retained');petReady=true;roadRange=false;clock+=1;api.sync();assert.equal(petCalls,1,'native range retained');roadRange=true;
- W._Ba._rJ._O$.ins.isDead=true;clock+=1;api.sync();emit();assert.equal(petCalls,3);W._Ba._rJ._O$.ins.isDead=false;
- W.KVPV_ROAD_CADENCE.enabled=false;clock+=1;api.sync();assert.equal(petCalls,3);W.KVPV_ROAD_CADENCE.enabled=true;team=false;clock+=1;api.sync();assert.equal(petCalls,3);team=true;
+ W._Ba._rJ._O$.ins.isDead=true;clock+=1;api.sync();emit();assert.equal(petCalls,1);W._Ba._rJ._O$.ins.isDead=false;
+ W.KVPV_ROAD_CADENCE.enabled=false;clock+=1;api.sync();assert.equal(petCalls,1);W.KVPV_ROAD_CADENCE.enabled=true;team=false;clock+=1;api.sync();assert.equal(petCalls,1);team=true;
  clock+=1;api.sync();assert.equal(petCalls,2);assert.equal(fuwaCalls,2);assert.deepEqual(pet.data,[[2001,9000,30000]]);assert.deepEqual(fuwa.data,[[3001,9000,30000]]);
  api.stop();assert.equal(interval,0);assert.equal(role.listeners.length,0);
  console.log('PASS Road pet/fuwa/ride: independent native skill selection with DEFAULT cooldown, range, death, team and support gates');
