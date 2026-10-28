@@ -1,0 +1,33 @@
+name: KVPV regression tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [fix/visual-combo-stable-20261028]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build bundles
+        run: node build.cjs
+      - name: Combo regression
+        run: node TEST_COMBO_DEFAULT.cjs
+      - name: Tian Quan visual 99 and 9999
+        run: node TEST_TQ_TH_VISUAL99.cjs
+      - name: Stage lease isolation
+        run: node TEST_TQ_STAGE_LEASE.cjs
+      - name: Full project test suite
+        run: node test.cjs
