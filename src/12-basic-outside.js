@@ -317,6 +317,7 @@
     const selector=role?.getComponent?.(W._d?._Yct?._Eet),combat=role?.getComponent?.(W._d?._Yct?._Het);
 // [VI dòng gốc 109] Kiểm tra !role||typeof selector?._f7t!=='function'||typeof combat?.combat!=='function': đúng thì chạy nhánh sau if. | gọi release() để nhả quyền điều khiển đang giữ | gán S.reason bằng 'waiting_components' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(!role||typeof selector?._f7t!=='function'||typeof combat?.combat!=='function'){release();S.reason='waiting_components';return;}
+    if(Number(combat?.target?.property?.get?.('type'))===4){release();S.reason='player_target_yield_pvp';return;}
 // [VI dòng gốc 110] Chú thích gốc của tác giả; không được thực thi. Nội dung: Thí Luyện chỉ hỗ trợ di chuyển; giao chọn skill và tung đòn cho bộ native.
     // Thí Luyện chỉ hỗ trợ di chuyển; giao chọn skill và tung đòn cho bộ native.
 // [VI dòng gốc 111] Kiểm tra road(): đúng thì chạy nhánh sau if.
