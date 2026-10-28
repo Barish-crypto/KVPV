@@ -8,7 +8,13 @@
 const W=window,NS=W.KVPV||(W.KVPV={}),old=W.KVPV_EVENT_PRIORITY,carry=old?._handoff?.();
 old?.stop?.('reload');
 const actor=String(W.__KVPV_OWN_ACTOR_ID||''),same=carry?.actor===actor;
-const C={enabled:true,pollMs:750,cacheMs:400,exitRetryMs:15000,exitStageForEvent:true};
+// Only manually attended large events verified in the existing Daily schedule.
+// This is a scene reservation, NOT an event-entry executor or a reward request.
+const C={enabled:true,pollMs:750,cacheMs:400,exitRetryMs:15000,exitStageForEvent:true,
+ manualLeadMinutes:same?(carry?.manualLeadMinutes??5):5,
+ manualPriorityKeys:same&&carry?.manualPriorityKeys?
+   {...carry.manualPriorityKeys}:
+   {tien_ma:true,tien_duyen_tac_chien:true,chien_doi:true,tranh_ba_tu_phuong:true}};
 const S={timer:null,cachedAt:0,hold:null,lastHoldKey:'',paused:same?(carry.paused||0):0,
   resumed:same?(carry.resumed||0):0,exitRequests:same?(carry.exitRequests||0):0,
   pending:same?(carry.pending||null):null,watching:false,
@@ -47,6 +53,36 @@ function guardPending(){
  if(!S.watching&&!watch()){cancel('cannot_monitor_manual_input');return false;}
  return true;
 }
+// Use Daily's authoritative read-only event calendar. Never fabricate event
+// windows or treat schedule-only entries as executable automatic actions.
+function manualReservation(daily,now){
+ if(daily?.config?.enableEventSchedule===false||typeof daily?.lichData!=='function')return null;
+ const calendar=daily.lichData();
+ if(!calendar||!Array.isArray(calendar.active)||!Array.isArray(calendar.upcoming))return null;
+ const lead=Math.max(0,Math.min(10,Number(C.manualLeadMinutes)||0));
+ const wallMinute=now/60000+420; // VN is UTC+7, no DST; Daily uses VN wall-clock minutes.
+ const eligible=(e,phase)=>{
+  if(!e||C.manualPriorityKeys?.[e.key]!==true||e.action==='auto'||e.instant===true||e.unlock)return null;
+  const start=Number(e.start),end=Number(e.end);
+  if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start)return null;
+  const until=start-wallMinute;
+  if(phase==='opening' ? !(wallMinute>=start&&wallMinute<end) : !(until>0&&until<=lead))return null;
+  return {key:e.key,name:e.name||e.key,phase,time:e.time,
+   minutesUntil:Math.max(0,until),requiresManualEntry:true,mode:'manual'};
+ };
+ const active=calendar.active.map(e=>eligible(e,'opening')).filter(Boolean);
+ const next=calendar.upcoming.map(e=>eligible(e,'upcoming')).filter(Boolean);
+ active.sort((a,b)=>a.minutesUntil-b.minutesUntil||a.key.localeCompare(b.key));
+ next.sort((a,b)=>a.minutesUntil-b.minutesUntil||a.key.localeCompare(b.key));
+ return active[0]||next[0]||null;
+}
+function chooseReservation(auto,manual){
+ if(!manual)return auto;
+ if(!auto)return manual;
+ if(manual.phase==='opening'&&auto.phase!=='opening')return manual;
+ if(auto.phase==='opening'&&manual.phase!=='opening')return auto;
+ return manual.minutesUntil<auto.minutesUntil?manual:auto;
+}
 function hold(){
  if(!C.enabled||!owned()||W.KVPV_ENTRY_POLICY?.manual===true)return null;
  const now=Date.now();if(now-S.cachedAt<C.cacheMs)return S.hold;
@@ -54,11 +90,17 @@ function hold(){
  try{
   const planner=NS.timeline,daily=W.KVPV_DAILY;
   if(!planner?.config?.enabled||!daily?.quickState?.()?.running){S.hold=null;return null;}
-  const reservation=planner.reservation?.({atMs:now,flags:daily.config,forTask:'stage'});
+  const auto=planner.reservation?.({atMs:now,flags:daily.config,forTask:'stage'});
+  const manual=manualReservation(daily,now);
+  const reservation=chooseReservation(auto,manual);
   S.hold=reservation&&reservation.key?{key:reservation.key,name:reservation.name,
-    phase:reservation.phase,time:reservation.time,minutesUntil:reservation.minutesUntil??null}:null;
-  const key=S.hold?.key+'/'+S.hold?.phase;
-  if(key!==S.lastHoldKey){S.lastHoldKey=key;note(S.hold?'event_hold':'event_released',S.hold?.name||'');}
+    phase:reservation.phase,time:reservation.time,minutesUntil:reservation.minutesUntil??null,
+    mode:reservation.requiresManualEntry===true?'manual':'auto',
+    requiresManualEntry:reservation.requiresManualEntry===true}:null;
+  const key=S.hold?.key+'/'+S.hold?.phase+'/'+S.hold?.mode;
+  if(key!==S.lastHoldKey){S.lastHoldKey=key;
+   note(S.hold?.requiresManualEntry?'manual_event_hold':S.hold?'event_hold':'event_released',
+    S.hold?.name||'');}
   return S.hold;
  }catch(e){S.lastError=String(e);S.hold=null;return null;}
 }
@@ -120,9 +162,11 @@ function status(){return {enabled:C.enabled,actor,hold:hold(),reason:S.reason,pa
  resumed:S.resumed,pendingResume:S.pending?{map:S.pending.map,eventKey:S.pending.eventKey,at:S.pending.at}:null,
  exitRequests:S.exitRequests,stageEnabled:W.KVPV_DAILY?.config?.enableTuVuot??null,
  nativeStageAuto:model()?.auto===true,timerActive:S.timer!=null,lastError:S.lastError,history:S.history.slice(-20),
- note:'Resume only the previously paused native stage flag if same scene, no other owner and no manual input. Never re-enter or send an RPC.'};}
+ manualPriorityKeys:Object.keys(C.manualPriorityKeys||{}).filter(k=>C.manualPriorityKeys[k]===true),
+ note:'Automatic events keep native Daily entry; manual-only events reserve time but require user entry. Restore only in the same stage without manual input. No invented RPC or KNB.'};}
 W.KVPV_EVENT_PRIORITY=Object.freeze({config:C,hold,yieldStage,tick,start,stop,status,
  _handoff:()=>({actor,paused:S.paused,resumed:S.resumed,exitRequests:S.exitRequests,
-  pending:S.pending?{...S.pending}:null,lastExitAt:S.lastExitAt,lastExitKey:S.lastExitKey,history:S.history.slice(-60)})});
+  pending:S.pending?{...S.pending}:null,lastExitAt:S.lastExitAt,lastExitKey:S.lastExitKey,history:S.history.slice(-60),
+  manualLeadMinutes:C.manualLeadMinutes,manualPriorityKeys:{...C.manualPriorityKeys}})});
 if(owned()){if(S.pending&&!watch())cancel('cannot_monitor_manual_input');start();}
 })();
