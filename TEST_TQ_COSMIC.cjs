@@ -45,7 +45,8 @@ function setup(){
  // Restore native-ready TH rows; once every seven confirmed TH casts, choose under-sampled skill.
  for(const row of q.s._rtt.filter(r=>r[0]<8000))row[1]=0;
  while(q.mod.status(false).cosmic.thCasts%7!==6)hit(1001,10);
- q.elapse(1000);id=q.s.selectSkill();
+ // The combo may currently prefer a basic; reset its preference to exercise a ready TH selection.
+ q.mod.setInterleaved(true,310);q.elapse(1000);id=q.s.selectSkill();
  assert.equal(id,1003,'low-sample ready TH receives periodic exploration');
  status=q.mod.status(false);
  assert(status.cosmic.explorationChecks>=1);
