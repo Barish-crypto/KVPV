@@ -60,7 +60,7 @@
     S.live=false;
     restoreTween();
     restoreCooldown();
-    if(disable)S.enabled=false;
+    if(disable){S.enabled=false;S.blocked=false;}
     S.target=null;S.scene='';S.reason=reason;
     return status();
   }
@@ -124,8 +124,12 @@
     let ok=false;
     try{ok=available(c);}catch(e){S.error=String(e?.message||e);}
     if(!ok){if(S.hook||S.tween)release('suspended_outside_basic_tq',false);return status();}
-    if(S.hook&&(S.hook.obj!==c||c.isCooldown!==S.hook.fn))
+    if(S.hook&&(S.hook.obj!==c||c.isCooldown!==S.hook.fn)){
+      const foreign=S.hook.obj===c&&c.isCooldown!==S.hook.fn;
       release('combat_component_changed_or_foreign_hook',false);
+      if(foreign){S.error='Foreign cooldown hook retained; turn OFF before re-enabling';S.blocked=true;return status();}
+    }
+    if(S.blocked)return status();
     if(!S.hook){
       const own=Object.getOwnPropertyDescriptor(c,'isCooldown');
       if(typeof c.isCooldown!=='function'||own&&!own.configurable){
@@ -149,7 +153,7 @@
   function setEnabled(enabled=true){
     if(enabled!==true)return release('manual_off');
     if(!available(combat()))throw Error('Requires running BASIC ONLY in Tian Quan');
-    S.enabled=true;S.error='';
+    S.enabled=true;S.blocked=false;S.error='';
     return sync();
   }
   function status(){
