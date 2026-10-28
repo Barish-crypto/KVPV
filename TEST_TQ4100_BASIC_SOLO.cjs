@@ -60,4 +60,23 @@ function make(){
  assert.equal(q.calls.length,prior,'no basic cast while native cooldown');
  q.cooldown(false);q.mod.stop();
 }
+{
+ // Startup must auto-arm stage 4100 native basics while preserving other floors.
+ const q=ctx.make({fastReady:true,defaultDistance:true,newDefault:true,startX:310});
+ q.W.FAKE=null;
+ q.W._Ba._Co._Mo.ins.curLv=4100;
+ q.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN'}),inside:()=>true,eligible:()=>true};
+ q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
+ q.s._rtt=[8001,8002,8003,8004,8005,1001].map(id=>[id,0,50]);q.s._wet=[];
+ vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8'),{
+   window:q.W,console:{info(){},warn(){}}
+ });
+ const st=q.mod.status(false);
+ assert.equal(st.luoFeng.basicSolo4100.active,true,'auto startup enables basic solo 4100');
+ assert.equal(st.luoFeng.dpsPilot4100.enabled,false,'experimental pilot stays disabled');
+ assert.equal(st.skillPriority,'4100_native_basics_only');
+ q.elapse(100);
+ assert([8001,8002,8003,8004,8005].includes(q.s.selectSkill()),'auto startup must select basic');
+ q.mod.stop();
+}
 console.log('PASS La Phong 4100 basic solo: five native basics, TH selector/dispatch blocked, 310 and 1ms preserved, cooldown respected, floor/scope isolation and manual off.');
