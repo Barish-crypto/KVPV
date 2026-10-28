@@ -110,20 +110,52 @@
     }catch(e){S.error=String(e?.message||e);}
   }
   function available(c){
-    if(!c||String(W._Ba?._rJ?._O$?.ins?.actorId??'')!==actorId||
-      W.__KVPV_UNIVERSAL_HALTED||W.document?.hidden===true)return false;
+    if(String(W._Ba?._rJ?._O$?.ins?.actorId??'')!==actorId){
+      S.blocker='actor_changed';return false;
+    }
+    if(W.__KVPV_UNIVERSAL_HALTED){S.blocker='universal_halt';return false;}
+    if(W.document?.hidden===true){S.blocker='background_tab';return false;}
+    if(W.KVPV_FAR_SCOPE?.status?.()?.kind!=='THIEN_QUAN'){
+      S.blocker='outside_verified_tianquan';return false;
+    }
+    if(!c){S.blocker='combat_component_missing';return false;}
     const m=W.KVPV_TH300?.status?.(false);
-    if(m?.running!==true||m?.basicOnly!==true)return false;
-    if(W.KVPV_FAR_SCOPE?.status?.()?.kind!=='THIEN_QUAN')return false;
-    if(W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.active?.()===true)return false;
-    return !!c.target;
+    if(m?.running!==true){S.blocker='th300_not_running';return false;}
+    if(m?.basicOnly!==true){S.blocker='basic_only_disabled';return false;}
+    if(W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.active?.()===true){
+      S.blocker='conflicting_4100_trial';return false;
+    }
+    if(!c.target){S.blocker='waiting_for_boss_target';return false;}
+    S.blocker='';return true;
+  }
+  function configureBasicOnly(){
+    const k=W.KVPV_TH300;
+    if(typeof k?.setTianQuanFiveBasics!=='function'||typeof k?.setTianQuanTuyetHoc!=='function')
+      throw Error('TH300 basic-mode configuration is unavailable');
+    k.setTianQuanFiveBasics(true,1);
+    k.setTianQuanTuyetHoc(false);
+    k.setTianQuanTHGapBasics?.(false);
+    k.setTianQuanIdleFill?.(false);
+    k.setConfirmedTailCut?.(true);
   }
   function sync(){
     if(!S.enabled)return status();
     const c=combat();
+    // When the user armed outside the map, auto-enable BASIC ONLY once the
+    // existing Tian Quan watcher starts TH300. No explicit F5/retry needed.
+    if(W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&
+       W.KVPV_TH300?.isBasicOnly?.()===false){
+      try{
+        if(W.KVPV_TH300.status(false)?.running===true)configureBasicOnly();
+      }catch(e){S.error=String(e?.message||e);}
+    }
     let ok=false;
     try{ok=available(c);}catch(e){S.error=String(e?.message||e);}
-    if(!ok){if(S.hook||S.tween)release('suspended_outside_basic_tq',false);return status();}
+    if(!ok){
+      if(S.hook||S.tween)release('suspended_outside_basic_tq',false);
+      S.reason=S.blocker||'waiting_for_basic_tq';
+      return status();
+    }
     if(S.hook&&(S.hook.obj!==c||c.isCooldown!==S.hook.fn)){
       const foreign=S.hook.obj===c&&c.isCooldown!==S.hook.fn;
       release('combat_component_changed_or_foreign_hook',false);
@@ -152,16 +184,31 @@
   }
   function setEnabled(enabled=true){
     if(enabled!==true)return release('manual_off');
-    if(!available(combat()))throw Error('Requires running BASIC ONLY in Tian Quan');
-    S.enabled=true;S.blocked=false;S.error='';
+    if(String(W._Ba?._rJ?._O$?.ins?.actorId??'')!==actorId||W.__KVPV_UNIVERSAL_HALTED)
+      throw Error('Wrong actor or paused session; no hooks installed');
+    // Explicit one-click intent: configure BASIC ONLY rather than requiring
+    // the user to remember commands from a previous browser session.
+    const inside=W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
+    if(inside){
+      // Re-arm through the existing map coordinator. Do not call TH300.start()
+      // directly or overwrite the native movement/HitRun owner.
+      if(W.KVPV_TH300?.status?.(false)?.running!==true)
+        W.KVPV_MODE?.armTianQuan?.();
+      configureBasicOnly();
+    }
+    // If Boss selection/scene transition is pending, keep the explicit
+    // user choice armed. The next TH300 tick applies it in verified scope.
+    S.enabled=true;S.blocked=false;S.error='';S.reason='armed';
     return sync();
   }
   function status(){
     return {enabled:S.enabled,active:S.enabled&&S.live&&!!S.hook,
       animationForced:!!S.tween,cooldownFalseReturns:S.cooldownFalse,
       animationFalseReads:S.animationFalse,animationPatched:S.animationPatched,
-      restores:S.restores,reason:S.reason,error:S.error,
+      restores:S.restores,reason:S.reason,blocker:S.blocker??'',error:S.error,
       autoTimeout:false,serverCooldownModified:false};
   }
-  W.KVPV_TQ_BASIC_FORCE=Object.freeze({setEnabled,status,sync,stop:reason=>release(reason??'manual_off')});
+  W.KVPV_TQ_BASIC_FORCE=Object.freeze({setEnabled,status,sync,
+    suspend:reason=>release(reason??'th300_paused',false),
+    stop:reason=>release(reason??'manual_off')});
 })();

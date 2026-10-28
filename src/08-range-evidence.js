@@ -1724,7 +1724,7 @@
 // [VI dòng gốc 661] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 662] Định nghĩa hàm stop; tham số: reason='user'. Mục đích: dừng bộ điều khiển và dọn tài nguyên | Khai báo biến không gán lại bằng const: ownPositioning = ST.positioning và chỉ đánh giá vế phải khi vế trái truthy: ST.moveGoal; r = gọi role() | gán ST.running bằng false | gán ST.mode bằng 'OFF'
-  function stop(reason='user'){W.KVPV_TQ_BASIC_FORCE?.stop?.('th300_stop');W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.stop?.('stop');localLogCleanup.enabled=false;trial1008?.stop();tqFive?.stop(reason);const ownPositioning=ST.positioning&&ST.moveGoal,r=role();ST.running=false;ST.mode='OFF';if(ST.timer!=null){(W.KVPV_V1?.timers?.clearInterval ?? W.clearInterval)(ST.timer);ST.timer=null;}
+  function stop(reason='user'){if(reason==='user'||String(reason).startsWith('Người dùng dừng'))W.KVPV_TQ_BASIC_FORCE?.stop?.('th300_manual_stop');else W.KVPV_TQ_BASIC_FORCE?.suspend?.('th300_paused');W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.stop?.('stop');localLogCleanup.enabled=false;trial1008?.stop();tqFive?.stop(reason);const ownPositioning=ST.positioning&&ST.moveGoal,r=role();ST.running=false;ST.mode='OFF';if(ST.timer!=null){(W.KVPV_V1?.timers?.clearInterval ?? W.clearInterval)(ST.timer);ST.timer=null;}
 // [VI dòng gốc 663] gọi finishSpeedTrial('stopped') | Kiểm tra speedTrial: đúng thì chạy nhánh sau if. | gán speedTrial.restored bằng true
     finishSpeedTrial('stopped');if(speedTrial)speedTrial.restored=true;
 // [VI dòng gốc 664] gọi restoreSpeedClips()
