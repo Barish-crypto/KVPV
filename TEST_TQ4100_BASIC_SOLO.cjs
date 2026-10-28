@@ -79,4 +79,28 @@ function make(){
  assert([8001,8002,8003,8004,8005].includes(q.s.selectSkill()),'auto startup must select basic');
  q.mod.stop();
 }
+{
+ const {q}=make();
+ // With TH explicitly disabled, learning must still rank confirmed native basics.
+ q.mod.setTianQuanTuyetHoc(false);
+ assert.equal(q.mod.status(false).luoFeng.active,true,'basic learning works without TH');
+ assert.equal(q.mod.status(false).cosmic.active,true,'basic ranking works without TH');
+ const actor='10228867268946';
+ function hit(id,damage){
+   q.elapse(100);
+   const before=q.calls.length;
+   q.c.combat(id);
+   assert.equal(q.calls.length,before+1,'native basic admitted');
+   q.events[1012](actor,id*10000,damage,1,'boss1');
+ }
+ for(let n=0;n<3;n++){
+   hit(8001,880352786);hit(8002,853073777);hit(8003,939328243);
+   hit(8004,939241294);hit(8005,3624495604);
+ }
+ const samples=q.mod.status(false).luoFeng.recentBasics;
+ assert.equal(samples.find(x=>x.id===8005)?.hits,3);
+ q.elapse(1000);
+ assert.equal(q.s.selectSkill(),8005,'select strongest confirmed native basic');
+ q.mod.stop();
+}
 console.log('PASS La Phong 4100 basic solo: five native basics, TH selector/dispatch blocked, 310 and 1ms preserved, cooldown respected, floor/scope isolation and manual off.');
