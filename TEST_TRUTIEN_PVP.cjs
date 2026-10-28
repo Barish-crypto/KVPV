@@ -157,9 +157,10 @@ function setup(){
  const q=setup();
  q.api.start({autoDodge:false});
  q.tick();
- assert.deepEqual(q.api.status().tqSkillProfile.requested,[1001,1002,1003,1004,1005,1006,1007,1008,8001,8002,8003,8004,8005]);
+ // Normalize VM-realm arrays before Node's strict structural comparison.
+ assert.deepEqual(Array.from(q.api.status().tqSkillProfile.requested),[1001,1002,1003,1004,1005,1006,1007,1008,8001,8002,8003,8004,8005]);
  assert.equal(q.companionCalls.length,3,'all three Tian Quan native companions dispatched once');
- assert.deepEqual(q.api.status().companions.attempts,{pet:1,fuwa:1,ride:1});
+ assert.deepEqual({...q.api.status().companions.attempts},{pet:1,fuwa:1,ride:1});
  assert(q.companionCalls.some(x=>x.key==='pet'&&x.skill===8012&&x.target===q.enemy.id));
  assert(q.companionCalls.some(x=>x.key==='fuwa'&&x.skill===5611&&x.target===actorId),'native self buff targets player owner');
  assert(q.companionCalls.some(x=>x.key==='ride'&&x.skill===3832&&x.target===q.enemy.id));
