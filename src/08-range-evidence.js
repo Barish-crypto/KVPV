@@ -27,7 +27,7 @@
 // [VI dòng gốc 18] Chú thích gốc của tác giả; không được thực thi. Nội dung: Mặc định 302 đơn vị Boss → nhân vật, sai số 5; dải thử còn yêu cầu lớn hơn 300.
   // Mặc định 302 đơn vị Boss → nhân vật, sai số 5; dải thử còn yêu cầu lớn hơn 300.
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: CFG = tạo đối tượng gồm min, max, goal, tolerance, scanMs, basicOnly, basicAnimationSpeed, clientPaceMs, afterTHWaitMs, moveWaitMs, castTtlMs, minCastConfirmations, paceMs
-  const CFG={min:300,max:312,goal:302,tolerance:5,scanMs:4,basicOnly:false,basicAnimationSpeed:1,clientPaceMs:null,afterTHWaitMs:0,moveWaitMs:150,castTtlMs:3500,minCastConfirmations:2,paceMs:75};
+  const CFG={min:300,max:312,goal:302,tolerance:5,scanMs:4,basicOnly:false,basicAnimationSpeed:1,tqTuyetHocVisualSpeed:99,clientPaceMs:null,afterTHWaitMs:0,moveWaitMs:150,castTtlMs:3500,minCastConfirmations:2,paceMs:75};
 // [VI dòng gốc 20] Khai báo biến không gán lại bằng const: scopedCombat = tạo hàm với tham số (không có); mỗi lần gọi trả về W.KVPV_DESKTOP_CONTROL?.scopeProfile?.(W.KVPV_FAR_SCOPE?.status?.()?.kind) hoặc dùng vế phải khi vế trái là null/undefined: null
   const scopedCombat=()=>W.KVPV_DESKTOP_CONTROL?.scopeProfile?.(W.KVPV_FAR_SCOPE?.status?.()?.kind)??null;
   const tqDistanceOnly=()=>W.KVPV_TQ_POSITION_ONLY?.enabled===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
@@ -154,6 +154,7 @@
   const speedKey='__KVPV_BASIC_SPEED_TRIAL_99_REPEAT1_20261025';let speedTrial=null;
 // [VI dòng gốc 80] Khai báo biến không gán lại bằng const: speedClips = tạo đối tượng bằng Map()
   const speedClips=new Map();
+  let thVisualCalls=0,thVisualScaled=0,thVisualUnavailable=0,thVisualLastSkill=null;
 // [VI dòng gốc 81] Định nghĩa hàm restoreSpeedClips; tham số: không có | Duyệt từng giá trị trong speedClips bằng const [clip,s]. | Khai báo biến không gán lại bằng const: [clip,s] (chưa gán giá trị) | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function restoreSpeedClips(){for(const [clip,s]of speedClips)try{if(clip?._nt===s.applied)clip.timeScale=s.before;}catch(e){ST.lastError=String(e);}speedClips.clear();}
 // [VI dòng gốc 82] Định nghĩa hàm finishSpeedTrial; tham số: reason='complete'
@@ -217,38 +218,39 @@
 // [VI dòng gốc 111] Chú thích gốc của tác giả; không được thực thi. Nội dung: Chỉ thay tham số khi đang gọi đúng combat 8001 của chính nhân vật trong phép thử.
   // Chỉ thay tham số khi đang gọi đúng combat 8001 của chính nhân vật trong phép thử.
 // [VI dòng gốc 112] Định nghĩa hàm animationTrialCall; tham số: native, self, args
+  // Native getActionTween(action,reset,timeScale): shorten VISIBLE animation only.
+  // No native cooldown, hit events or RPC behavior is rewritten.
   function animationTrialCall(native,self,args){
-// [VI dòng gốc 113] Khai báo biến không gán lại bằng const: t = speedTrial; avatar = đọc self?._Qrt nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); trialActive = t?.state==='accelerated' và chỉ đánh giá vế phải khi vế trái truthy: Date.now()<t.deadline
-    const t=speedTrial,avatar=self?._Qrt,trialActive=t?.state==='accelerated'&&Date.now()<t.deadline;
-// [VI dòng gốc 114] Khai báo biến không gán lại bằng const: factor = nếu trialActive thì lấy t.multiplier, ngược lại lấy CFG.basicAnimationSpeed
-    const factor=trialActive?t.multiplier:CFG.basicAnimationSpeed;
-// [VI dòng gốc 115] Kiểm tra factor<=1||!CFG.basicOnly||Number(args[0])!==8001|| self.owner!==dispatch.actor||!canFight()||typeof avatar?.getActionTween!=='function': đúng thì chạy nhánh sau if.
-    if(factor<=1||!CFG.basicOnly||Number(args[0])!==8001||
-// [VI dòng gốc 116] Kết thúc hàm hiện tại và trả về: gọi native.apply(self, args).
-      self.owner!==dispatch.actor||!canFight()||typeof avatar?.getActionTween!=='function')return native.apply(self,args);
-// [VI dòng gốc 117] Khai báo biến không gán lại bằng const: original = đọc avatar.getActionTween; expectedAction = gọi String(self._mvt?.(8001)?.[5]||'attack') để chuyển sang chuỗi | Kiểm tra trialActive: đúng thì chạy nhánh sau if. | gán t.nativeAction bằng expectedAction
-    const original=avatar.getActionTween,expectedAction=String(self._mvt?.(8001)?.[5]||'attack');if(trialActive)t.nativeAction=expectedAction;
-// [VI dòng gốc 118] Khai báo biến không gán lại bằng const: wrapped = tạo hàm với tham số ...a
+    const id=Number(args[0]),t=speedTrial,avatar=self?._Qrt,
+      trialActive=t?.state==='accelerated'&&Date.now()<t.deadline,
+      thVisual=id>=1001&&id<=1008&&CFG.tqTuyetHocVisualSpeed>1&&
+        W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&tqFive?.active()&&
+        tqFive.allowsTuyetHoc()===true,
+      basicVisual=id===8001&&CFG.basicOnly,
+      factor=thVisual?CFG.tqTuyetHocVisualSpeed:trialActive?t.multiplier:CFG.basicAnimationSpeed;
+    if(factor<=1||(!thVisual&&!basicVisual)||self.owner!==dispatch.actor||
+       !canFight()||typeof avatar?.getActionTween!=='function')return native.apply(self,args);
+    // TH requires its native skill action, not a guessed generic "attack" animation.
+    let action;try{action=self._mvt?.(id)?.[5];}catch(_){action=null;}
+    if(thVisual){thVisualCalls++;thVisualLastSkill=id;}
+    if(thVisual&&(typeof action!=='string'||!action.trim())){
+      thVisualUnavailable++;return native.apply(self,args);
+    }
+    const original=avatar.getActionTween,expectedAction=String(action||'attack');
+    if(trialActive&&!thVisual)t.nativeAction=expectedAction;
     const wrapped=function(...a){
-// [VI dòng gốc 119] Kiểm tra a[0]!==expectedAction: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: gọi original.apply(this, a).
       if(a[0]!==expectedAction)return original.apply(this,a);
-// [VI dòng gốc 120] Khai báo biến không gán lại bằng const: before = gọi Number(a[2]??1) để chuyển sang số | Kiểm tra !Number.isFinite(before)||before<=0: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: gọi original.apply(this, a).
       const before=Number(a[2]??1);if(!Number.isFinite(before)||before<=0)return original.apply(this,a);
-// [VI dòng gốc 121] gán a[2] bằng Math.min(factor,before*factor) | Khai báo biến không gán lại bằng const: tween = gọi original.apply(this, a); clip = đọc this.getCurAction
-      a[2]=Math.min(factor,before*factor);const tween=original.apply(this,a),clip=this.getCurAction;
-// [VI dòng gốc 122] Kiểm tra clip&&typeof clip==='object'&&speedClips.size<32: đúng thì chạy nhánh sau if. | gọi speedClips.set(clip, {before,applied:a[2]})
+      a[2]=Math.min(factor,before*factor);
+      const tween=original.apply(this,a),clip=this.getCurAction;
       if(clip&&typeof clip==='object'&&speedClips.size<32)speedClips.set(clip,{before,applied:a[2]});
-// [VI dòng gốc 123] Kiểm tra trialActive: đúng thì chạy nhánh sau if. | gán t.scaledAnimations bằng (t.scaledAnimations??0)+1 | gán ST.scaledBasicAnimations bằng (ST.scaledBasicAnimations??0)+1 | Kết thúc hàm hiện tại và trả về: tween.
-      if(trialActive)t.scaledAnimations=(t.scaledAnimations??0)+1;ST.scaledBasicAnimations=(ST.scaledBasicAnimations??0)+1;return tween;
-// [VI dòng gốc 124] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+      if(thVisual)thVisualScaled++;
+      else{if(trialActive)t.scaledAnimations=(t.scaledAnimations??0)+1;ST.scaledBasicAnimations=(ST.scaledBasicAnimations??0)+1;}
+      return tween;
     };
-// [VI dòng gốc 125] gán avatar.getActionTween bằng wrapped
     avatar.getActionTween=wrapped;
-// [VI dòng gốc 126] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | Kết thúc hàm hiện tại và trả về: gọi native.apply(self, args). | Kiểm tra avatar.getActionTween===wrapped: đúng thì chạy nhánh sau if. | gán avatar.getActionTween bằng original
     try{return native.apply(self,args);}finally{if(avatar.getActionTween===wrapped)avatar.getActionTween=original;}
-// [VI dòng gốc 127] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
-// [VI dòng gốc 128] Định nghĩa hàm onNativeCast; tham số: targetId, skillId | Khai báo biến không gán lại bằng const: p = đọc dispatch.pending | Kiểm tra p: đúng thì chạy nhánh sau if. | Kiểm tra p.events.length<4: đúng thì chạy nhánh sau if.
   function onNativeCast(targetId,skillId){const p=dispatch.pending;if(p){if(p.events.length<4)p.events.push({targetId:String(targetId),id:Number(skillId)});if(String(targetId)===p.targetId&&Number(skillId)===p.id)p.signaled=true;}}
 // [VI dòng gốc 129] Định nghĩa hàm detachDispatch; tham số: không có | Kiểm tra dispatch.actor: đúng thì chạy nhánh sau if. | gọi dispatch.actor.off(1039, ST.owner, onNativeCast) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gán dispatch.actor bằng null
   function detachDispatch(){if(dispatch.actor){dispatch.actor.off?.(1039,ST.owner,onNativeCast);dispatch.actor=null;}}
@@ -1269,7 +1271,11 @@
   function status(show=true){const occ=stageOcc(),ready=skillNames(),proved=ready.filter(x=>verified(occ,x.id)).map(x=>({...x,confirmations:ST.proofs.get(key(occ,x.id))?.size||0}));
 // [VI dòng gốc 621] Khai báo biến không gán lại bằng const: ret = tạo đối tượng gồm basicAnimationSpeed, scaledBasicAnimations, basicSpeedTrial, basicOnly, playerSkillIds, interleavedBasic, basicProbeActive, version, running, operation, goalDistance, requestedDistance, requireDistanceGreaterThan, clientTrialRadius, nativeTuyetHoc, confirmedSkills, confirmedOver300, bossClientRange, minimumDistance, skills, afterTHWaitMs, basicHitQuota, confirmedSinceTH, thCycles, primaryBasic…
     const tqIds=tqFive?.active()?[...basicRotation(),...(tqFive.allowsTuyetHoc()?ready.filter(x=>x.id>=1001&&x.id<=1008).map(x=>x.id):[])]:null;
-    const ret={basicAnimationSpeed:CFG.basicAnimationSpeed,scaledBasicAnimations:ST.scaledBasicAnimations??0,basicSpeedTrial:speedTrial??W[speedKey]??null,basicOnly:tqFive?.active()?!tqFive.allowsTuyetHoc():CFG.basicOnly,playerSkillIds:tqFive?.active()?tqIds:CFG.basicOnly?[8001]:null,interleavedBasic:tqFive?.active()||mixed.enabled,basicProbeActive:ST.running&&probeActive(),version:'1.0.0',running:ST.running,operation:ST.mode,goalDistance:targetDistance()??CFG.goal,requestedDistance:CFG.goal,
+    const ret={basicAnimationSpeed:CFG.basicAnimationSpeed,
+       tqTuyetHocVisualSpeed:CFG.tqTuyetHocVisualSpeed,
+       tqTuyetHocVisualCalls:thVisualCalls,tqTuyetHocVisualScaled:thVisualScaled,
+       tqTuyetHocVisualUnavailable:thVisualUnavailable,tqTuyetHocVisualLastSkill:thVisualLastSkill,
+       scaledBasicAnimations:ST.scaledBasicAnimations??0,basicSpeedTrial:speedTrial??W[speedKey]??null,basicOnly:tqFive?.active()?!tqFive.allowsTuyetHoc():CFG.basicOnly,playerSkillIds:tqFive?.active()?tqIds:CFG.basicOnly?[8001]:null,interleavedBasic:tqFive?.active()||mixed.enabled,basicProbeActive:ST.running&&probeActive(),version:'1.0.0',running:ST.running,operation:ST.mode,goalDistance:targetDistance()??CFG.goal,requestedDistance:CFG.goal,
 // [VI dòng gốc 622] Thuộc tính requireDistanceGreaterThan: đọc CFG.min | Thuộc tính clientTrialRadius: đọc CFG.max
       requireDistanceGreaterThan:CFG.min,clientTrialRadius:CFG.max,
 // [VI dòng gốc 623] Thuộc tính nativeTuyetHoc: ready | Thuộc tính confirmedSkills: proved | Thuộc tính confirmedOver300: gọi proved.filter(x=>supportedDistance(occ,x.id)>300) để giữ phần tử thỏa điều kiện
@@ -1454,6 +1460,13 @@
 // [VI dòng gốc 699] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm enabled, skillId, scanMs, addedClientWaitMs, serverMultiplierVerified.
     return {enabled:CFG.basicOnly,skillId:8001,scanMs:CFG.scanMs,addedClientWaitMs:CFG.clientPaceMs,serverMultiplierVerified:false};}
 // [VI dòng gốc 700] Định nghĩa hàm setBasicAnimationSpeed; tham số: factor=1. Mục đích: đặt hệ số phát hoạt ảnh 8001 phía client; không phải hệ số sát thương server | Kiểm tra ![1,9,99,99999].includes(factor): đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Native animation factor must be 1, 9 or 99') | gọi finishSpeedTrial('stopped')
+  // 1 restores native visuals. 9/30/99 reduce only Tuyet Hoc visual duration.
+  function setTianQuanTuyetHocVisualSpeed(factor=99){
+    if(![1,9,30,99].includes(factor))throw Error('TH visual speed must be 1, 9, 30 or 99');
+    CFG.tqTuyetHocVisualSpeed=factor;
+    if(factor===1)restoreSpeedClips();
+    return {factor,scope:'THIEN_QUAN',ids:[1001,1002,1003,1004,1005,1006,1007,1008],visualOnly:true,serverCooldownUnchanged:true};
+  }
   function setBasicAnimationSpeed(factor=1){if(![1,9,99,99999].includes(factor))throw Error('Native animation factor must be 1, 9 or 99');finishSpeedTrial('stopped');restoreSpeedClips();CFG.basicAnimationSpeed=factor;return {factor,scope:['THIEN_QUAN','LINH_LUNG','PHU_VAN','TRU_TIEN'],playerSkillId:8001,serverDamageMultiplierVerified:false};}
 // [VI dòng gốc 701] Khai báo biến không gán lại bằng const: api = tạo đối tượng gồm setBasicAnimationSpeed, startBasicSpeedTrial, setBasicOnly, isBasicOnly, releaseOutsideScope, setClientPace, setConfirmedTailCut, startConfirmedTailStudy, startBasicRangeTest, setAfterTHWait, setBasicHitQuota, setBasicRotation, setPrimaryBasic, setBasicPace, setInterleaved, setBasicProbe, setBurst, performance, version, start, stop, status, report, setDistance, repairPolling, sync, export, his…
   function setTianQuanFiveBasics(enabled=true,wait=10){if(!tqFive)throw Error('Thiếu module đo năm chiêu tay.');const out=tqFive.configure(enabled,wait);mixed.ready.clear();mixed.rotationCursor=0;if(ST.timer!==null){(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(ST.timer);ST.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,CFG.scanMs);}return out;}
@@ -1464,7 +1477,7 @@
     if(!['tuyet_hoc_first','interleaved'].includes(value))throw Error('Skill priority must be tuyet_hoc_first or interleaved');
     skillPriority=value;return {skillPriority};
   }
-  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?!tqFive.allowsTuyetHoc():CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
+  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,setTianQuanTuyetHocVisualSpeed,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?!tqFive.allowsTuyetHoc():CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
 // [VI dòng gốc 702] gán W.KVPV_TH300 bằng api
   W.KVPV_TH300=api;
 // [VI dòng gốc 703] gọi console.info(TAG, 'READY/OFF. START: KVPV_MODE.start("BOSS_TH300_SCAN") then KVPV_MODE.start("BOSS_TH300")')
