@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [fix/visual-combo-stable-20261028]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,8 +12,13 @@ permissions:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    name: Node 24 - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    timeout-minutes: 30
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -21,6 +26,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Simulate Windows Git CRLF checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path . -Recurse -File -Include '*.js','*.cjs' | ForEach-Object {
+            $text = [IO.File]::ReadAllText($_.FullName)
+            $crlf = [Regex]::Replace($text, '\r?\n', "`r`n")
+            if ($text -cne $crlf) {
+              [IO.File]::WriteAllText($_.FullName, $crlf, [Text.UTF8Encoding]::new($false))
+            }
+          }
       - name: Build bundles
         run: node build.cjs
       - name: Combo regression
