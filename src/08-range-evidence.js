@@ -194,7 +194,7 @@
       configuredDistance:CFG.goal,nativeCooldownPreserved:true,
       note:'Basic attacks only while stage 4100 Tian Quan is active. Client pace 1ms is not server attack rate; confirmed range/hits still required.'};
   }
-  const cosmicActive=()=>cosmic.enabled&&tqDistanceOnly()&&tqFive?.active()&&tqFive.allowsTuyetHoc()&&!transforming()&&ST.running;
+  const cosmicActive=()=>cosmic.enabled&&tqDistanceOnly()&&tqFive?.active()&&!transforming()&&ST.running;
   function cosmicReset(){cosmic.thCasts=0;cosmic.basicCasts=0;cosmic.lastNativeAt=null;cosmic.lastNativeSkill=null;
     cosmic.thMeasured.clear();cosmic.thRanked=0;cosmic.basicRanked=0;cosmic.exploration=0;
     luoFeng.lastExploreTH=-1;luoFeng.lastExploreBasic=-1;resetApexRhythm();resetPilot4100();}
