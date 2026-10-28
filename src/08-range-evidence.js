@@ -437,7 +437,7 @@
     const id=Number(args[0]),t=speedTrial,avatar=self?._Qrt,
       trialActive=t?.state==='accelerated'&&Date.now()<t.deadline,
       inTQ=W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&tqFive?.active()&&ST.running,
-      thVisual=inTQ&&id>=1001&&id<=1008&&tqFive.allowsTuyetHoc()===true&&CFG.tqTuyetHocVisualSpeed>1,
+      thVisual=id>=1001&&id<=1008&&inTQ&&tqFive.allowsTuyetHoc()===true&&CFG.tqTuyetHocVisualSpeed>1,
       tqBasicVisual=inTQ&&id>=8001&&id<=8005&&CFG.tqBasicVisualSpeed>1,
       basicVisual=id===8001&&CFG.basicOnly,
       factor=thVisual?CFG.tqTuyetHocVisualSpeed:tqBasicVisual?CFG.tqBasicVisualSpeed:trialActive?t.multiplier:CFG.basicAnimationSpeed;
@@ -481,7 +481,10 @@
     }
     try{return native.apply(self,args);}
     finally{if(avatar.getActionTween===wrapped){
-      if(own)Object.defineProperty(avatar,'getActionTween',own);
+      if(own&&'value' in own&&own.writable===true){
+        avatar.getActionTween=original;
+        Object.defineProperty(avatar,'getActionTween',own);
+      }else if(own)Object.defineProperty(avatar,'getActionTween',own);
       else delete avatar.getActionTween;
     }}
   }
@@ -1812,7 +1815,7 @@
     return {enabled:thGap.enabled,windowMs:thGap.windowMs,nativeReadyOnly:true,perTHLimit:1};
   }
   function setTianQuanTuyetHocVisualSpeed(factor=99){
-    if(![1,9,30,99,9999].includes(factor))throw Error('TH visual speed must be 1, 9, 30, 99 or 9999');
+    if(![1,9,30,99].includes(factor))throw Error('TH visual speed must be 1, 9, 30 or 99');
     CFG.tqTuyetHocVisualSpeed=factor;
     if(factor===1)restoreSpeedClips();
     return {factor,scope:'THIEN_QUAN',ids:[1001,1002,1003,1004,1005,1006,1007,1008],visualOnly:true,serverCooldownUnchanged:true};
@@ -1824,7 +1827,11 @@
     return {factor,scope:'THIEN_QUAN',ids:[8001,8002,8003,8004,8005],visualOnly:true,serverCooldownUnchanged:true};
   }
   function setTianQuanVisualSpeed(factor=9999){
-    setTianQuanTuyetHocVisualSpeed(factor);
+    if(![1,9,30,99,9999].includes(factor))throw Error('Unsupported visual speed');
+    if(factor===9999){
+      // Combined TQ-only mode intentionally supports x9999 while standalone TH stays bounded to x99.
+      CFG.tqTuyetHocVisualSpeed=9999;
+    }else setTianQuanTuyetHocVisualSpeed(factor);
     setTianQuanBasicVisualSpeed(factor);
     return {factor,scope:'THIEN_QUAN',basic:[8001,8002,8003,8004,8005],tuyetHoc:[1001,1002,1003,1004,1005,1006,1007,1008],visualOnly:true,serverCooldownUnchanged:true};
   }
