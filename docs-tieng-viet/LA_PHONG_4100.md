@@ -1,40 +1,45 @@
-# La Phong Apex V4 — Tối ưu Thiên Quan ải 4100 (thử nghiệm)
+# La Phong — Thiên Quan ải 4100: ưu tiên đánh thường native
 
-Đầu ra: tối ưu tốc độ hạ Boss **dựa trên HP quan sát**, KHÔNG giả định game chấp nhận đòn nhanh hơn chỉ vì client quét 1ms. Giữ tầm mục tiêu 310 theo profile Thiên Quan hiện có; không tự đưa nhân vật tới gần Boss tầm 280.
+## Phán đoán chiến thuật
+Theo quan sát của người chơi, các chiêu đánh thường gây sát thương tốt hơn lên một Boss, còn Tuyệt Học có thể phân tán tác dụng/sát thương qua nhiều mục tiêu. Vì vậy cấu hình ưu tiên **8001–8005**, không tự dùng Tuyệt Học 1001–1008 ở riêng ải 4100.
 
-## Thực nghiệm A/B (chủ động bật)
-- Chỉ chạy khi curLv của Thiên Quan = 4100, đang có Boss đúng và profile La Phong/Cosmic đang hoạt động.
-- Trong 18 giây đủ điều kiện đứng đúng vị trí, đo mức HP Boss giảm với combo Tuyệt Học + đòn thường.
-- Trong 18 giây tiếp theo, thử chỉ chọn Tuyệt Học native sẵn sàng, không xen đòn thường.
-- Chỉ giữ chế độ Tuyệt Học thuần nếu HP Boss giảm mỗi giây cao hơn combo ít nhất 12%. Nếu không, quay về combo.
-- Không dùng thêm RPC/combat cast, không sửa cooldown/animation native, không thay cơ chế di chuyển, không tự bật khi chưa có lệnh.
-- Tự reset đo lường khi đổi Boss hoặc tắt tính năng. Dữ liệu HP Boss có thể bao gồm sát thương đồng đội/ngự thú/nguồn khác; kết quả chỉ có tính thử nghiệm.
+Điều này là **giả thuyết dựa trên quan sát của người chơi**; mức hiệu quả cần đo bằng log sát thương của Boss thật.
 
-## Lệnh Console sau khi PR được build và triển khai vào game
-```javascript
-// Sau khi vào Thiên Quan 4100 và bộ La Phong đã chạy
-KVPV_TH300.setTianQuan4100Pilot(true);
-// Xem A/B, HP DPS và chế độ đang được chọn
-KVPV_TH300.status(false).luoFeng.dpsPilot4100;
-// Báo cáo tìm chỗ tiêu thời gian (hồi chiêu / hoạt ảnh / chỉnh vị trí)
+## Cấu hình mặc định của phiên bản này (khi được triển khai)
+- `src/11-auto-tianquan.js` bật `setTianQuan4100BasicSolo(true)` sau khi khởi động La Phong.
+- Chỉ áp dụng nếu `curLv=4100`, đúng phạm vi `THIEN_QUAN`, bộ TH300 đang chạy, cấu hình giữ khoảng cách riêng của Thiên Quan bật và La Phong đang active.
+- Bộ chọn chỉ lấy 8001–8005 đang sẵn sàng; bộ combat chặn native 1001–1008 cho nhân vật sở hữu trong phạm vi đó.
+- Giữ nguyên tầm mục tiêu 310 và cổng native animation/cooldown. Client chờ 1ms chỉ là polling; **không xác nhận có thể đánh mỗi 1ms trên server**, không tự nhân damage/hack cooldown.
+- Tầng khác, map khác và PvP vẫn theo cấu hình trước. Bộ A/B `setTianQuan4100Pilot` cũ để tắt; nếu chủ động bật thử A/B, chế độ basic solo sẽ tắt để tránh mâu thuẫn.
+
+## Điều khiển tại Console sau khi code mới đã được build và chạy
+
+```js
+// Bật lại hoặc kiểm tra riêng chế độ 4100:
+KVPV_TH300.setTianQuan4100BasicSolo(true);
+KVPV_TH300.status(false).luoFeng.basicSolo4100;
+
+// Chẩn đoán nguyên nhân mất >4 phút:
 KVPV_TH300.tianQuan4100Diagnosis();
-// Trả về combo mặc định và dừng đo
-KVPV_TH300.setTianQuan4100Pilot(false);
+KVPV_TH300.dps();
+
+// Tắt riêng ưu tiên đòn thường của ải 4100:
+KVPV_TH300.setTianQuan4100BasicSolo(false);
 ```
 
-## Phân tích một lượt hơn 4 phút
-1. Ghi thời gian thật, đứng ở khoảng cách nào, Boss có đi sát hay không.
-2. Đọc `KVPV_TH300.dps(false)` để xem `timeMs`, từng kỹ năng, `matchedDps`, `rolling10sMatchedDps`, `animationWaitMs`.
-3. So sánh `dpsPilot4100.combo.observedHpDps` và `thOnly.observedHpDps`. Nếu combo mạnh hơn, không tiếp tục cưỡng ép TH-only.
-4. Đừng coi `unconfirmed` là miss chắc chắn: có thể do animation, cast trễ, lọc marker hoặc thiếu dữ liệu.
-5. Không hứa giảm thời gian nếu Boss có giới hạn DPS từ server, phải có đo thực tế.
-
-## Kiểm thử
-```powershell
-node TEST_TQ4100_PILOT.cjs
-$env:KVPV_VERIFY_MAINTENANCE='1'
-node test.cjs
-Remove-Item Env:KVPV_VERIFY_MAINTENANCE
+**Không chạy lệnh mới trên phiên bản cũ chưa có API.** Nếu mới dùng bản `main` cũ, có thể thử ngay chế độ 5 kỹ năng thường toàn Thiên Quan bằng:
+```js
+KVPV_TH300.setTianQuanFiveBasics(true,1);
+KVPV_TH300.setTianQuanTuyetHoc(false);
+KVPV_TH300.setTianQuanTHGapBasics(false);
 ```
+Ba lệnh này có tác dụng rộng hơn chỉ ải 4100, và cần khôi phục Tuyệt Học thủ công nếu muốn bật lại.
 
-Chỉ chạy trong checkout thử nghiệm có maintenance.lock. Không tự merge `main` hoặc kích hoạt Auto Sync khi chưa chạy full suite trên máy. PR base là nhánh V3 để không tách khỏi code La Phong trước.
+## Kiểm chứng
+- Bài `TEST_TQ4100_BASIC_SOLO.cjs`: native basic rotation, TH không qua selector hay combat dispatch, cooldown native còn nguyên, tầm 310, map/tầng khác không bị tác động, auto startup chỉ bật khi phù hợp.
+- Các bài La Phong V3, Cosmic, TH Gap, TQ Five Basics, 4100 A/B cũng cần PASS.
+- Trên Windows: tạo `.kvpv-live/maintenance.lock` rồi chạy `node TEST_TQ4100_BASIC_SOLO.cjs` và `$env:KVPV_VERIFY_MAINTENANCE='1'; node test.cjs`. Không merge `main` hay thay runtime khi chưa đủ kiểm thử.
+- Tỉ lệ trúng ở khoảng cách 310 phải xác minh bằng các cặp cast–damage đúng Boss. Tầm Boss 280 từ quan sát/config **chưa bảo đảm server không thể đánh trúng ở 310**.
+
+## Về Tuyệt Học
+Không mặc định Tuyệt Học là vô dụng: nếu TH cấp buff tăng công kéo dài làm đòn thường về sau mạnh hơn, có thể nghiên cứu chế độ **TH buff đúng lúc + basics liên tục**, nhưng chỉ sau khi phân biệt được sát thương buff theo thời gian và chứng minh có lợi hơn basics thuần. Không bật thử tự động trong bản này.
