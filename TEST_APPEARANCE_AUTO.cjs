@@ -37,7 +37,7 @@ function harness(){
 // [VI dòng gốc 19] Thuộc tính KVPV_BG_RESOURCES: tạo đối tượng gồm status | Thuộc tính status: tạo hàm với tham số (không có); mỗi lần gọi trả về tạo đối tượng gồm busy | Thuộc tính busy: resourcesBusy | Thuộc tính KVPV_CONFIRM_POPUPS: tạo đối tượng gồm beforeTask
   KVPV_BG_RESOURCES:{status:()=>({busy:resourcesBusy})},KVPV_CONFIRM_POPUPS:{beforeTask:()=>blocked},
 // [VI dòng gốc 20] Kiểm tra plugins.has(p.id): đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Trung module ID') | gọi plugins.set(p.id, p) | gán plugins.get(key).enabled bằng on
-  KVPV_V8:{register(p){if(plugins.has(p.id))throw Error('Trung module ID');plugins.set(p.id,p);},toggle(key,on){plugins.get(key).enabled=on;}},
+  KVPV_V8:{register(p){if(plugins.has(p.id))throw Error('Trung module ID');plugins.set(p.id,p);},toggle(key,on){const p=plugins.get(key);if(!p)throw Error('Khong tim thay module');p.enabled=on;}},
 // [VI dòng gốc 21] gọi timers.set(++id, fn) | Kết thúc hàm hiện tại và trả về: id. | gọi timers.delete(i)
   setInterval(fn){timers.set(++id,fn);return id;},clearInterval(i){timers.delete(i);}};
 // [VI dòng gốc 22] Định nghĩa lớp Clock kế thừa Date. | Kết thúc hàm hiện tại và trả về: now.
