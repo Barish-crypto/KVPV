@@ -14,7 +14,7 @@ const count=q.calls.length;q.c.combat(1001);q.c.combat(8001);assert.equal(q.call
 q.cooldown(true);const rows=JSON.stringify(q.s._rtt);assert.equal(q.s.selectSkill(),-1);assert.equal(JSON.stringify(q.s._rtt),rows);q.cooldown(false);
 q.mod.startTianQuanBasicRangeTest([302,80]);assert.equal(q.mod.rangeReport().probe.status,'running');q.phase('RETREAT');q.hp(35);const before=q.calls.length;q.advance(1000);assert.equal(q.calls.length,before);assert.equal(q.mod.rangeReport().probePaused,true);assert.equal(q.mod.status(false).requestedDistance,302);
 q.mod.stopTianQuanBasicRangeTest();assert.equal(q.mod.status(false).requestedDistance,302);q.mod.stop();
-kind='LINH_LUNG';assert.equal(q.mod.rangeReport().active,false);assert.equal(q.mod.status(false).basicOnly,false);assert.equal(q.mod.status(false).paceMs,75);
+kind='LINH_LUNG';assert.equal(q.mod.rangeReport().active,true);assert.equal(q.mod.status(false).basicOnly,true);assert.equal(q.mod.status(false).paceMs,10);
 console.log('PASS five basics: native five-skill rotation, TQ-only 10ms, TH/transform blocked, original rows preserved, per-skill matched range, native cooldown and recovery priority.');
 
 let now=1000,scope='THIEN_QUAN',hp=100,phase='FIGHT',context='map/boss';class Clock extends Date{static now(){return now;}}
@@ -23,7 +23,7 @@ const p=W.KVPV_TQ_BASIC_PROFILE.create({scope:()=>scope,hp:()=>hp,phase:()=>phas
 let serial=0;p.cast(++serial,8001,302);p.cast(++serial,8001,302);assert.equal(p.canAttempt(8001),false);now+=3501;p.tick();assert.equal(p.goal(),80);assert.equal(p.report().rows[0].rangeStatus,'unverified');
 p.cast(++serial,8001,80);p.hit(serial,80,79,20);p.cast(++serial,8001,80);p.hit(serial,80,80,20);p.tick();assert.equal(p.ids()[0],8002);assert.equal(p.goal(),302);assert.equal(p.report().rows[0].confirmedDistance,79);
 hp=60;assert.equal(p.goal(),null);p.tick();assert.equal(p.report().probePaused,true);hp=100;phase='DODGE';assert.equal(p.goal(),null);phase='FIGHT';context='map/newBoss';p.tick();assert.equal(p.report().probe.status,'Boss/map changed');assert.equal(p.goal(),null);assert(p.report().rows.every(r=>r.hits.length===0));
-scope='LINH_LUNG';assert.equal(p.active(),false);assert.throws(()=>p.start(),/Thiên Quan/);
+scope='LINH_LUNG';assert.equal(p.active(),true);assert.equal(p.start([302,80]).probe.status,'running');p.stop();scope='OUTSIDE';assert.equal(p.active(),false);
 console.log('PASS inward range probe: two attempts per distance, expiry does not prove miss, matched proof, closer-only skill, missing skills, low-HP/dodge pause and Boss-change cleanup.');
 const close=ctx.make({fastReady:true,defaultDistance:true,newDefault:true,startX:302});close.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN'}),inside:()=>true,eligible:()=>true};close.s._rtt=[[8002,0,500],[1001,0,1000]];close.s._wet=[];
 close.mod.setInterleaved(true,302);close.mod.setTianQuanFiveBasics(true,10);close.mod.start('SCAN');close.pump();close.mod.startTianQuanBasicRangeTest([302,80]);close.advance(10);close.advance(10);close.advance(10);assert.equal(close.mod.rangeReport().probe.attempts.length,2);
