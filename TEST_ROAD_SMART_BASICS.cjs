@@ -37,9 +37,11 @@ const W={__KVPV_OWN_ACTOR_ID:actor,
  KVPV_ACCOUNT_POLICY:{pollingGap:()=>0},
  setInterval(){return ++seq;},clearInterval(){}};
 const load=file=>vm.runInNewContext(fs.readFileSync(__dirname+'/'+file,'utf8'),{window:W,Date:Clock,console});
-load('src/59-road-cadence.js');load('src/12-basic-outside.js');
-// Explicitly opt into the Road native evidence-ranking profile for legacy tests.
+load('src/59-road-cadence.js');W.KVPV_ROAD_CADENCE.stop();
+load('src/12-basic-outside.js');
+// The legacy smart-basic ranking is an explicit Road native profile.
 W.KVPV_BASIC10.setSkillPriority('tuyet_hoc_first');
+W.KVPV_ROAD_CADENCE.start();W.KVPV_BASIC10.sync();
 const road=W.KVPV_ROAD_CADENCE,auto=W.KVPV_BASIC10;
 assert.equal(road.status().basicPriority,true);
 assert.equal(road.status().preferredBasic,8001);
