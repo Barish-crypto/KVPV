@@ -91,7 +91,7 @@ function setup(){
  assert.equal(q.api.status().paceMs,10);
  assert.equal(q.api.status().focusTargetId,q.enemy.id);
  assert.equal(q.api.status().observedSkills.length,3);
- assert.deepEqual(q.api.status().skillIds.th,[],'TH skill list is empty');
+ assert.deepEqual(Array.from(q.api.status().skillIds.th),[],'TH skill list is empty');
  assert(q.calls.every(x=>x>=8001&&x<=8005),'only 8001-8005 dispatched');
  assert.equal(q.visuals.length,3);
  assert(q.visuals.every(x=>x.timeScale===9999),'each synchronous native basic animation runs at visual x9999');
@@ -115,7 +115,7 @@ function setup(){
  assert.equal(q.api.status().focusTargetId,q.enemy2.id,'operator may deliberately focus second player');
  assert.equal(q.api.status().observedSkills.length,1,'damage ranking resets per PvP target');
  assert(q.calls.length>beforeFocus,'can attack focused second enemy');
- q.setTarget(q.monster);q.tick();assert.equal(q.api.status().reason,'select_player_target','never casts on monsters');
+ q.setTarget(q.monster);q.tick();assert.equal(q.api.status().reason,'waiting_player_target','never casts on monsters');
  q.setTarget(q.enemy);q.setFocus(false);const before=q.calls.length;q.tick();assert.equal(q.calls.length,before,'background/unfocused blocks');
  q.setFocus(true);q.setJob('quest');q.tick();assert.equal(q.calls.length,before,'daily job priority');
  q.setJob(null);q.setDead(true);q.tick();assert.equal(q.calls.length,before,'dead player cannot attack');
