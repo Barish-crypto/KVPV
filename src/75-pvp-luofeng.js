@@ -25,6 +25,8 @@ const inTuLa=()=>{
  const q=W.KVPV_DAILY?.tuLaStatus?.(false);
  const native=W._Ba?._hE?._olt?.inst;
  const sceneType=Number(W._Ba?._$a?.SceneUtil?.curScene);
+ const foreign=W.KVPV_FAR_SCOPE?.status?.();
+ if(foreign?.inside===true&&foreign.kind!=='TU_LA')return false;
  const job=W.KVPV_DAILY?.quickState?.()?.job;
  return q?.dangTrongTran===true&&[58,61].includes(Number(q.canh))&&
    [58,61].includes(sceneType)&&Number(q.giaiDoan)>=1&&
