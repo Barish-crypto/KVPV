@@ -115,10 +115,10 @@
     const a=apexRhythm.intervals.slice().sort((x,y)=>x-y);
     const median=arr=>arr.length?arr.length%2?arr[arr.length>>1]:
       (arr[arr.length/2-1]+arr[arr.length/2])/2:null;
-    const cycle=median(a),jitter=median(a.map(x=>Math.abs(x-cycle)).sort((x,y)=>x-y));
+    const cycle=median(a),jitter=cycle===null?null:Math.max(...a.map(x=>Math.abs(x-cycle)));
     const regular=luoFengActive()&&a.length>=3&&jitter<=Math.max(250,cycle*.15);
     const age=apexRhythm.lossAt===null?null:now-apexRhythm.lossAt;
-    const predicted=regular&&age>=0&&age<=cycle*1.5?apexRhythm.lossAt+cycle:null;
+    const predicted=regular&&age>=0&&age<=cycle?apexRhythm.lossAt+cycle:null;
     return {active:luoFengActive(),observedHpLosses:apexRhythm.losses,
       intervalSamples:a.length,estimatedCycleMs:cycle,jitterMs:jitter,
       confidence:regular?'tentative-rhythmic':'insufficient',
