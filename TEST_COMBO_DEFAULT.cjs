@@ -31,7 +31,12 @@ test('all attack modifier modules excluded from bundle and manifest',()=>{
 // [VI dòng gốc 16] gọi test('main combat keeps native cooldown and animation; experimental boost stays isolated', ()=>{ for(const pattern of [/\.isC…)
 test('main combat keeps native cooldown; visual speed changes only native TH action in Tian Quan',()=>{
 // [VI dòng gốc 17] Duyệt từng giá trị trong [/\.isCooldown\s*=/,/(hook|install)\([^\n]*['"]isCooldown['"]/,/\bvirtualReady\b/,/\blocalNext\b/,/\bsetBasic\b/,/\bsetParallel\b/,/\bsetCompanion\b/,/\bsetMaThanAuto\b/,/\bsetSpee… bằng const pattern. | Khai báo biến không gán lại bằng const: pattern (chưa gán giá trị) | gọi assert.equal(pattern.test(nativeSource), false, String(pattern)) để kiểm tra hai giá trị bằng nhau
- for(const pattern of [/\.isCooldown\s*=/,/(hook|install)\([^\n]*['"]isCooldown['"]/,/\bvirtualReady\b/,/\blocalNext\b/,/\bsetBasic\b/,/\bsetParallel\b/,/\bsetCompanion\b/,/\bsetMaThanAuto\b/,/\bsetSpeed\b/,/\.speed\s*=/,/_Tet\s*=/,/\.combat\s*\(\s*800[1-9]\s*\)/])assert.equal(pattern.test(nativeSource),false,String(pattern));
+ // Distinguish assignment from ===/== comparisons. A native cooldown read is allowed.
+ const cooldownAssignment=/\.isCooldown\s*=(?!=)/;
+ assert.equal(cooldownAssignment.test("c.isCooldown===false"),false,'strict equality is read-only');
+ assert.equal(cooldownAssignment.test("c.isCooldown == false"),false,'loose equality is read-only');
+ assert.equal(cooldownAssignment.test("c.isCooldown = () => false"),true,'actual native cooldown replacement is forbidden');
+ for(const pattern of [cooldownAssignment,/(hook|install)\([^\n]*['"]isCooldown['"]/,/\bvirtualReady\b/,/\blocalNext\b/,/\bsetBasic\b/,/\bsetParallel\b/,/\bsetCompanion\b/,/\bsetMaThanAuto\b/,/\bsetSpeed\b/,/\.speed\s*=/,/_Tet\s*=/,/\.combat\s*\(\s*800[1-9]\s*\)/])assert.equal(pattern.test(nativeSource),false,String(pattern));
 // [VI dòng gốc 18] gọi assert.equal(/\btimeScale\b/.test(defaultNativeSource), false, 'animation scaling is isolated to the explicit bounded trial') để kiểm tra hai giá trị bằng nhau
  assert.equal(/\btimeScale\b/.test(defaultNativeSource),false,'animation scaling is isolated to the explicit bounded trial');
 // [VI dòng gốc 19] Duyệt từng giá trị trong ['multiplier!==9&&multiplier!==99','phaseMs:5000','deadline:Date.now()+60000','Math.min(factor,before*factor)',"t?.state==='accelerated'",'Number(args[0])!==8001','self.owner!==dis… bằng const token. | Khai báo biến không gán lại bằng const: token (chưa gán giá trị) | gọi assert(speedTrialSource.includes(token), token) để kiểm tra điều kiện của bài test
