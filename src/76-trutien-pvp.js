@@ -8,6 +8,8 @@ const W=window,KEY='KVPV_TRUTIEN_PVP',actorId=String(W.__KVPV_OWN_ACTOR_ID||'');
 try{W[KEY]?.stop?.('reload');}catch(e){W.KVPV_V1?.diagnostics?.record?.(e);}
 const S={enabled:false,timer:null,role:null,target:null,scene:null,attacks:0,signals:0,hits:0,matchedDamage:0,blockedCooldown:0,
   thAttempts:0,basicAttempts:0,lastGroup:null,perSkill:new Map(),focusLock:true,focusTarget:null,focusId:'',focusBlocked:0,focusSwitches:0,
+  companions:true,lastCompanionPoll:-Infinity,companionAttempts:{pet:0,fuwa:0,ride:0},
+  companionLastSkill:null,companionLastTarget:null,companionBlocked:0,companionErrors:0,
   reason:'off',error:'',lastSkill:null,lastCastAt:null,autoDodge:false};
 const prop=(r,k)=>r?.property?.get?.(k);
 const id=r=>String(r?.id??prop(r,'id')??'');
@@ -23,6 +25,42 @@ const isTH=x=>Number.isSafeInteger(Number(x))&&Number(x)>=1001&&Number(x)<=1008;
 const isBasic=x=>Number.isSafeInteger(Number(x))&&Number(x)>=8001&&Number(x)<=8005;
 const priorityBasic=[8005,8004,8002,8003,8001];
 const priorityTH=[1001,1002,1003,1004,1005,1006,1007,1008];
+// Same native skill roster as Tian Quan (KVPV_TQ_BASIC_PROFILE + TH300).
+// Do not copy TH300 boss-only hooks, targeting or movement into PvP.
+const tqRoster=Object.freeze([...priorityTH,...[8001,8002,8003,8004,8005]]);
+const companionTypes=Object.freeze([['pet',2],['fuwa',9],['ride',7]]);
+const learned=selector=>new Set([...(selector?._rtt??[]),...(selector?._wet??[])].map(row=>Number(row?.[0])).filter(Number.isSafeInteger));
+function companionTick(role,target,now){
+ if(!S.companions||now-S.lastCompanionPoll<50)return;
+ S.lastCompanionPoll=now;
+ if(!enemy(target,role)||!live(role)||S.focusLock&&S.focusId!==id(target))return;
+ for(const [name,type] of companionTypes){
+   try{
+     const ctx=prop(role,name+'Context');
+     if(!live(ctx)||Number(prop(ctx,'type'))!==type)continue;
+     const cc=component(ctx,'_Het'),sel=component(ctx,'_Eet');
+     if(typeof cc?.setTarget!=='function'||typeof cc?.combat!=='function'||
+        typeof cc?.isCooldown!=='function'||cc.isCooldown()!==false||
+        typeof sel?.selectSkill!=='function')continue;
+     // Copy Tian Quan companion's native skill selection, no guessed cooldown or RPC.
+     // Per-skill native config says whether the destination is the owner or PvP opponent.
+     const skill=Number(sel.selectSkill());
+     if(!Number.isSafeInteger(skill)||skill<=0)continue;
+     const cfg=W._Ba?._Jtt?._ant?.ins?.getCfgById?.(10000*skill+1);
+     if(!cfg){S.companionBlocked++;continue;}
+     const targetKind=Number(cfg[15])||0,dest=targetKind===1?role:target;
+     cc.setTarget(dest,targetKind);
+     if(cc.target!==dest||typeof cc.isValidTarget!=='function'||cc.isValidTarget(targetKind)!==true||
+        typeof cc.isValidRange!=='function'||cc.isValidRange()!==true){
+       S.companionBlocked++;continue;
+     }
+     if(!scope()||!own()||!enemy(target,role))return;
+     cc.combat(skill,0,targetKind);
+     S.companionAttempts[name]++;
+     S.companionLastSkill=skill;S.companionLastTarget=id(dest);
+   }catch(e){S.companionErrors++;S.error=String(e?.message??e);}
+ }
+}
 function resetFocus(target){S.focusTarget=target;S.focusId=id(target);S.focusSwitches++;S.lastGroup=null;S.perSkill.clear();}
 function setFocusToSelected(){
  if(!S.enabled||!scope()||!own())throw Error('Start PvP in verified Tru Tien first');
@@ -87,12 +125,16 @@ function status(){
   thAttempts:S.thAttempts,basicAttempts:S.basicAttempts,lastGroup:S.lastGroup,
   focusLocked:S.focusLock,focusTargetId:S.focusId,focusBlocked:S.focusBlocked,focusSwitches:S.focusSwitches,
   lastSkill:S.lastSkill,lastCastAt:S.lastCastAt,paceMs:10,
+  tqSkillProfile:{requested:tqRoster.slice(),learned:[...learned(component(r,'_Eet'))].filter(x=>tqRoster.includes(x)),
+    missing:tqRoster.filter(x=>!learned(component(r,'_Eet')).has(x)),source:'Tian Quan TH300 native roster; no boss-only hooks'},
+  companions:{enabled:S.companions,scanMs:50,attempts:{...S.companionAttempts},lastSkill:S.companionLastSkill,lastTarget:S.companionLastTarget,
+    blocked:S.companionBlocked,errors:S.companionErrors,nativePvPTargetAcceptanceRequired:true},
   skillIds:{th:priorityTH.slice(),basic:priorityBasic.slice()},
   observedSkills:[...S.perSkill.values()].map(row=>({...row,averageDamage:row.hits?row.damage/row.hits:null})),
   autoDodge:S.autoDodge,dodge:W.KVPV_PVP_LUOFENG?.status?.()??null,
   allIn:true,autoRetreat:false,autoHeal:false,autoApproach:false,autoTarget:false,
   reason:S.reason,error:S.error,
-  note:'Native TH+basic attempts only; 1012 observations are not server-confirmed pairing to a specific outgoing cast. PvP reduction differs from Boss. 10ms is polling cadence, not hit interval.'};
+  note:'TQ full main roster: TH+5 basics; pet/fuwa/ride native casts only if client accepts PvP target and range. 1012 observations are not confirmed cast-to-hit pairs. 10ms/50ms are polling cadences.'};
 }
 function tick(){
  try{
@@ -105,6 +147,7 @@ function tick(){
   if(S.focusLock&&S.focusId&&live(S.focusTarget)&&id(t)!==S.focusId){
     S.focusBlocked++;S.reason='focus_locked_switch_manual';return;
   }
+  if(!S.focusLock&&S.focusId!==id(t))resetFocus(t);
   if(!S.focusId||!live(S.focusTarget))resetFocus(t);
   link(r,t);
   // PvP observer polls its selected target independently every 120ms.
@@ -112,6 +155,7 @@ function tick(){
   if(W.document?.hidden===true||W.document?.hasFocus?.()===false){S.reason='unfocused';return;}
   if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){S.reason='manual_ui';return;}
   const owner=occupied();if(owner){S.reason=owner;return;}
+  companionTick(r,t,Date.now()); // independent of master's native cooldown
   if(typeof c?.isCooldown!=='function'||c.isCooldown()!==false){S.blockedCooldown++;S.reason='native_cooldown';return;}
   if(typeof c?.isValidTarget!=='function'||c.isValidTarget()!==true){S.reason='native_target_invalid';return;}
   if(typeof c?.isValidRange!=='function'||c.isValidRange()!==true){S.reason='outside_native_range';return;}
@@ -155,7 +199,7 @@ function start(opts={}){
  if(occupied())throw Error('Combat owner or Daily is still active; not taking over');
  if(S.enabled)stop('restart');
  S.enabled=true;S.scene=scene();S.autoDodge=opts.autoDodge===true;
- S.focusLock=opts.focusLock!==false;resetFocus(t);
+ S.focusLock=opts.focusLock!==false;S.companions=opts.companions!==false;S.lastCompanionPoll=-Infinity;resetFocus(t);
  try{
    link(r,t);
    W.KVPV_PVP_LUOFENG.start({autoDodge:S.autoDodge});
