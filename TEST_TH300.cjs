@@ -503,16 +503,16 @@ test('290 interleaving alternates native Tuyet Hoc and basics with independent d
 // [VI dòng gốc 251] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 252] gọi test('FULL startup selects 310 and only 8001 with no TH fallback', ()=>{ const q=harness({fastReady:true,tower:true});q.W.__K…)
-test('FULL startup selects 310 and ready TH before basic filler',()=>{
+test('FULL startup selects 310 and basic-only Linh Lung default',()=>{
 // [VI dòng gốc 253] Khai báo biến không gán lại bằng const: q = gọi harness({fastReady:true,tower:true}) | gán q.W.__KVPV_BASIC_RANGE_TEST_20261023 bằng {status:'complete'} | gán q.W.KVPV_MODE bằng {armTianQuan(){q.mod.start('SCAN');}} | gọi q.mod.start('SCAN') để khởi động bộ điều khiển
  const q=harness({fastReady:true,tower:true});q.W.__KVPV_BASIC_RANGE_TEST_20261023={status:'complete'};q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
 // [VI dòng gốc 254] gọi vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''), {window:q…) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử | gọi q.pump() | gọi assert.equal(q.mod.report().goalDistance, 302) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.actor.coords.x, 302) để kiểm tra hai giá trị bằng nhau
- vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:q.W});q.pump();assert.equal(q.mod.report().goalDistance,310);assert(Math.abs(q.actor.coords.x-310)<=5);assert.equal(q.mod.report().interleaved.enabled,true);assert.equal(q.calls[0],1001);
+ vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:q.W});q.pump();assert.equal(q.mod.report().goalDistance,310);assert(Math.abs(q.actor.coords.x-310)<=5);assert.equal(q.mod.report().interleaved.enabled,true);assert([8001,8002,8003,8004,8005].includes(q.calls[0]));
 // [VI dòng gốc 255] gán q.s._rtt[0][1] bằng Date.now()+100000 | gán q.s._wet[0][1] bằng Date.now()+100000
  q.s._wet[0][1]=Date.now()+100000;
 // [VI dòng gốc 256] gọi q.advance(500) | gọi assert.equal(q.calls.at(-1), 8001) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.mod.report().basicOnly, true) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.mod.report().basicHitQuota, 1) để kiểm tra hai giá trị bằng nhau
- q.s._rtt[1][1]=Date.now()+100000;q.advance(100);assert.equal(q.calls.at(-1),1002);
- q.s._rtt[2][1]=Date.now()+100000;q.advance(100);assert.equal(q.calls.at(-1),8001);assert.equal(q.mod.report().basicOnly,false);assert.equal(q.mod.report().basicHitQuota,null);assert.equal(q.mod.report().afterTHWaitMs,1);
+ q.s._rtt[1][1]=Date.now()+100000;q.advance(100);assert([8001,8002,8003,8004,8005].includes(q.calls.at(-1)));
+ q.s._rtt[2][1]=Date.now()+100000;q.advance(100);assert.equal(q.calls.at(-1),8001);assert.equal(q.mod.report().basicOnly,true);assert.equal(q.mod.report().basicHitQuota,null);assert.equal(q.mod.report().afterTHWaitMs,1);assert.equal(q.mod.report().interleaved.basicClientWaitMs,1);assert(q.calls.every(id=>id>=8001&&id<=8005));
 // [VI dòng gốc 257] Khai báo biến không gán lại bằng const: n = đọc q.calls.length | gọi q.cooldown(true) | gọi q.advance(500) | gọi assert.equal(q.calls.length, n) để kiểm tra hai giá trị bằng nhau
  const n=q.calls.length;q.cooldown(true);q.advance(500);assert.equal(q.calls.length,n);
 // [VI dòng gốc 258] gọi q.cooldown(false) | gọi q.hp(0) | gọi q.advance(500) | gọi assert.equal(q.calls.length, n) để kiểm tra hai giá trị bằng nhau
