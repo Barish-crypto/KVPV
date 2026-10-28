@@ -84,10 +84,51 @@
     const kept=valid.slice(trim,valid.length-trim);
     return kept.reduce((sum,v)=>sum+v,0)/kept.length;
   }
+  // Apex V3 observer, read only. HP loss may be from a non-Boss source.
+  const apexRhythm={key:null,hp:null,lossAt:null,sampleAt:-Infinity,losses:0,
+    intervals:[],minMs:1200,maxMs:12000,debounceMs:700};
+  function resetApexRhythm(){apexRhythm.key=null;apexRhythm.hp=null;
+    apexRhythm.lossAt=null;apexRhythm.sampleAt=-Infinity;
+    apexRhythm.losses=0;apexRhythm.intervals=[];}
+  function observeApexRhythm(key,hp,now=Date.now()){
+    if(!luoFengActive()||!key){resetApexRhythm();return;}
+    if(apexRhythm.key!==key){resetApexRhythm();apexRhythm.key=key;}
+    const v=Number(hp);
+    if(!Number.isFinite(v)||v<0||!Number.isFinite(now)||now-apexRhythm.sampleAt<80)return;
+    apexRhythm.sampleAt=now;
+    if(apexRhythm.hp!==null&&v<apexRhythm.hp){
+      const last=apexRhythm.lossAt,dt=last===null?null:now-last;
+      if(dt===null||dt>=apexRhythm.debounceMs){
+        apexRhythm.losses++;
+        if(dt!==null){
+          if(dt>=apexRhythm.minMs&&dt<=apexRhythm.maxMs){
+            apexRhythm.intervals.push(dt);
+            if(apexRhythm.intervals.length>8)apexRhythm.intervals.shift();
+          }else apexRhythm.intervals=[];
+        }
+        apexRhythm.lossAt=now;
+      }
+    }
+    apexRhythm.hp=v;
+  }
+  function apexRhythmReport(now=Date.now()){
+    const a=apexRhythm.intervals.slice().sort((x,y)=>x-y);
+    const median=arr=>arr.length?arr.length%2?arr[arr.length>>1]:
+      (arr[arr.length/2-1]+arr[arr.length/2])/2:null;
+    const cycle=median(a),jitter=median(a.map(x=>Math.abs(x-cycle)).sort((x,y)=>x-y));
+    const regular=luoFengActive()&&a.length>=3&&jitter<=Math.max(250,cycle*.15);
+    const age=apexRhythm.lossAt===null?null:now-apexRhythm.lossAt;
+    const predicted=regular&&age>=0&&age<=cycle*1.5?apexRhythm.lossAt+cycle:null;
+    return {active:luoFengActive(),observedHpLosses:apexRhythm.losses,
+      intervalSamples:a.length,estimatedCycleMs:cycle,jitterMs:jitter,
+      confidence:regular?'tentative-rhythmic':'insufficient',
+      predictedNextHpLossAt:predicted,msUntilPrediction:predicted===null?null:predicted-now,
+      source:'player_hp_loss_unattributed',advisoryOnly:true};
+  }
   const cosmicActive=()=>cosmic.enabled&&tqDistanceOnly()&&tqFive?.active()&&tqFive.allowsTuyetHoc()&&!transforming()&&ST.running;
   function cosmicReset(){cosmic.thCasts=0;cosmic.basicCasts=0;cosmic.lastNativeAt=null;cosmic.lastNativeSkill=null;
     cosmic.thMeasured.clear();cosmic.thRanked=0;cosmic.basicRanked=0;cosmic.exploration=0;
-    luoFeng.lastExploreTH=-1;luoFeng.lastExploreBasic=-1;}
+    luoFeng.lastExploreTH=-1;luoFeng.lastExploreBasic=-1;resetApexRhythm();}
   const cosmicScore=(map,id)=>apexRobustDamage(map.get(Number(id)));
   function cosmicRank(rows,kind,fallback){
     if(!cosmicActive()||rangeTest?.status==='running'||thGap.picking)return rows.sort(fallback);
@@ -1137,6 +1178,7 @@
       const newPositionTarget=ST.target!==r.c.target||ST.targetKey!==identity(r.c.target)+'/'+String(prop(r.c.target,'occ'))+'/'+scene();
 // [VI dòng gốc 507] gọi listen(r.c.target)
       listen(r.c.target);
+      observeApexRhythm(ST.targetKey,prop(r.a,'hp')?.[0]);
 // [VI dòng gốc 508] Chú thích gốc của tác giả; không được thực thi. Nội dung: Khi nhận boss mới, bỏ đường áp sát còn sót; bộ giữ khoảng cách sẽ tự chọn đích 302.
       // Khi nhận boss mới, bỏ đường áp sát còn sót; bộ giữ khoảng cách sẽ tự chọn đích 302.
 // [VI dòng gốc 509] Chú thích gốc của tác giả; không được thực thi. Nội dung: Chỉ nhận quyền di chuyển trong pha đánh, không can thiệp đường rút lui hồi máu.
@@ -1399,10 +1441,10 @@
         lastNativeSkill:cosmic.lastNativeSkill,
         idleMs:cosmic.lastNativeAt==null?null:Math.max(0,Date.now()-cosmic.lastNativeAt),
         possibleIdle:luoFengActive()&&cosmic.lastNativeAt!==null&&Date.now()-cosmic.lastNativeAt>=luoFeng.idleThresholdMs,
-        lastReason:ST.lastReason,
+        lastReason:ST.lastReason,rhythm:apexRhythmReport(),
         recentTH:[...cosmic.thMeasured].map(([id,x])=>({id,hits:x.hits,recentHits:x.recent?.length??0,recentMeanDamage:apexDamage(x),robustScore:apexRobustDamage(x)})),
         recentBasics:[...thGap.measured].map(([id,x])=>({id,hits:x.hits,recentHits:x.recent?.length??0,recentMeanDamage:apexDamage(x),robustScore:apexRobustDamage(x)})),
-        note:'Apex V2: native-ready choice uses trimmed recent damage after >=5 confirmed direct hits. No server cooldown, extra combat dispatch or HP-recovery override. Idle is observational.'},
+        note:'Apex V3: robust damage ranking and HP-loss rhythm observation only; not confirmed Boss attacks. No auto-dodge, native cooldown or movement changes.'},
       thGapBasics:{enabled:thGap.enabled,windowMs:thGap.windowMs,active:thGapActive(),strongestVerifiedBasic:strongestThGapBasic(),
         attempts:thGap.attempts,nativeAccepted:thGap.accepted,blockedCooldown:thGap.blockedCooldown,lastBasic:thGap.lastBasic,
         measured:[...thGap.measured].map(([id,x])=>({id,hits:x.hits,meanDamage:x.hits?x.damage/x.hits:null}))},
@@ -1578,7 +1620,7 @@
   // 1 restores native visuals. 9/30/99 reduce only Tuyet Hoc visual duration.
   function setTianQuanLuoFeng(enabled=true){
     luoFeng.enabled=!!enabled;
-    if(enabled)cosmic.enabled=true;
+    if(enabled)cosmic.enabled=true;else resetApexRhythm();
     return {enabled:luoFeng.enabled,scope:'THIEN_QUAN',sampleWindow:luoFeng.sampleWindow,
       inheritedCosmic:cosmic.enabled,nativeCooldownUnchanged:true};
   }
