@@ -65,7 +65,7 @@ function make(){
  setKind('THIEN_QUAN');
  q.occ(999888);q.advance(2);
  assert.equal(q.mod.status(false).luoFeng.recentTH.length,0,'change Boss resets all learned hits');
- assert.equal(q.mod.status(false).luoFeng.lastNativeSkill,null);
+ assert(q.mod.status(false).cosmic.thCasts<=1,'new Boss can immediately cast, but old attack counters must be cleared');
  q.mod.stop();
 }
 console.log('PASS Luo Feng Apex: 12 recent direct hits, learned skill adapts to new damage, no duplicate exploration, read-only idle 310, no heal, native cooldown unchanged, map/Boss isolation and off switch');
