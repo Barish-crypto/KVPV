@@ -135,7 +135,7 @@
 // [VI dòng gốc 58] gọi setRide(prop(role,'rideContext')??null) | gọi setMansion(prop(role,'mansionContext')??null)
     setRide(prop(role,'rideContext')??null);setMansion(prop(role,'mansionContext')??null);
     if(inRoad()&&owned()&&W._Ba?._rJ?._O$?.ins?.isDead!==true)dispatchRoad(role,component(role,'_Het')?.target);
-    else if(scope()&&owned())dispatchNativeCompanions(role,component(role,'_Het')?.target);
+    else if(!withStatus&&scope()&&owned())dispatchNativeCompanions(role,component(role,'_Het')?.target);
 // [VI dòng gốc 59] Kiểm tra !role: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gán S.reason bằng 'waiting_player' | Kiểm tra !scope(): đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gán S.reason bằng 'outside_supported_dungeons'
     if(!role)S.reason='waiting_player';else if(!scope())S.reason='outside_supported_dungeons';
 // [VI dòng gốc 60] Kiểm tra !S.ride: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gán S.reason bằng 'waiting_native_ride'
