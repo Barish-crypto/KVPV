@@ -99,4 +99,57 @@ function setup(){
  assert.equal(q.c.isCooldown,foreign,'manual off must preserve foreign code');
  q.mod.stop();
 }
+{
+ const {q,force}=setup();
+ q.mod.setTianQuanTuyetHoc(true);
+ assert.equal(q.mod.status(false).basicOnly,false,'startup profile allows TH');
+ q.c._jh={isPlaying:true};
+ const out=force.setEnabled(true);
+ assert.equal(out.active,true,'one-click force enables after switching to basics');
+ assert.equal(q.mod.status(false).basicOnly,true,'one-click disables native TH fallback');
+ assert.deepEqual(Array.from(q.mod.status(false).playerSkillIds),[8001,8002,8003,8004,8005]);
+ assert.equal(q.mod.status(false).paceMs,1);
+ assert.equal(q.c.isCooldown(),false);
+ assert.equal(q.c._jh.isPlaying,false);
+ force.setEnabled(false);q.mod.stop();
+}
+{
+ const {q,force}=setup();
+ q.mod.stop();
+ let rearmed=0;
+ q.W.KVPV_MODE={armTianQuan(){
+   rearmed++;q.mod.start('SCAN');return q.mod.status(false);
+ }};
+ q.mod.setTianQuanTuyetHoc(true);
+ const out=force.setEnabled(true);
+ assert.equal(rearmed,1,'one-click uses existing map owner when core is stopped');
+ assert.equal(out.active,true);
+ assert.equal(q.mod.status(false).basicOnly,true);
+ force.setEnabled(false);q.mod.stop();
+}
+{
+ const {q,force}=setup();
+ const boss=q.c.target;
+ q.c.target=null;
+ const pending=force.setEnabled(true);
+ assert.equal(pending.enabled,true,'explicit opt-in persists while Boss target is missing');
+ assert.equal(pending.active,false);
+ assert.equal(pending.blocker,'waiting_for_boss_target');
+ q.c.target=boss;q.mod.sync();
+ assert.equal(force.status().active,true,'auto applies when the native Boss becomes selected');
+ force.setEnabled(false);q.mod.stop();
+}
+{
+ const {q,force,setKind}=setup();
+ setKind('OUTSIDE');
+ const pending=force.setEnabled(true);
+ assert.equal(pending.enabled,true);
+ assert.equal(pending.active,false);
+ assert.equal(pending.blocker,'outside_verified_tianquan');
+ setKind('THIEN_QUAN');q.mod.setTianQuanTuyetHoc(true);
+ q.mod.sync();
+ assert.equal(q.mod.status(false).basicOnly,true,'pending user intent configures BASIC ONLY on entering TQ');
+ assert.equal(force.status().active,true);
+ force.setEnabled(false);q.mod.stop();
+}
 console.log('PASS TQ basic force: persistent opt-in, cooldown+own/inherited animation, native restoration, TQ isolation, no status recursion');
