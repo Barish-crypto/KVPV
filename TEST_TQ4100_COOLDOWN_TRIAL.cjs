@@ -27,6 +27,8 @@ function setup(){
  assert.equal(original(),true);
  let trial=q.mod.setTianQuan4100CooldownOverride(true);
  assert.equal(trial.active,true);
+ assert.equal(q.mod.status(false).paceMs,80,'dispatch pace limited to >=80ms when override is on');
+ assert.equal(q.mod.status(false).luoFeng.basicSolo4100.active,true);
  q.elapse(100);
  assert.equal(q.c.isCooldown(),false,'client hook returns false on stage 4100');
  assert.equal(q.mod.status(false).cooldown4100Trial.falseReturns>0,true);
@@ -93,6 +95,7 @@ function setup(){
  q.elapse(100);
  assert.equal(q.c.isCooldown(),false,'one-click method active');
  q.mod.setTianQuan4100CooldownOverride(false);
+ assert.equal(q.mod.status(false).paceMs,1,'native client pace restored when override is off');
  assert.equal(q.c.isCooldown,original,'manual off restores native method');
  q.mod.stop();
 }
