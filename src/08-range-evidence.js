@@ -179,6 +179,8 @@
   // Solo 4100: native basics first, without changing other Tian Quan stages.
   // No extra combat dispatch and no cooldown/skill timestamp mutation.
   const basicSolo4100={enabled:false,blockedTH:0};
+  // Observed Boss 4100 single-target preference; real matched-hit ranking takes over.
+  const basicSolo4100Prior=Object.freeze([8005,8004,8002,8003,8001]);
   const basicSolo4100Active=()=>basicSolo4100.enabled&&
     Number(W._Ba?._Co?._Mo?.ins?.curLv)===4100&&tqDistanceOnly()&&
     tqFive?.active()&&luoFengActive()&&!transforming();
@@ -190,7 +192,7 @@
   function basicSolo4100Status(){
     return {enabled:basicSolo4100.enabled,active:basicSolo4100Active(),
       stage:Number(W._Ba?._Co?._Mo?.ins?.curLv)||null,
-      skillIds:[8001,8002,8003,8004,8005],blockedTH:basicSolo4100.blockedTH,
+      skillIds:[8001,8002,8003,8004,8005],startupPreference:basicSolo4100Prior.slice(),blockedTH:basicSolo4100.blockedTH,
       configuredDistance:CFG.goal,nativeCooldownPreserved:true,
       note:'Basic attacks only while stage 4100 Tian Quan is active. Client pace 1ms is not server attack rate; confirmed range/hits still required.'};
   }
@@ -976,8 +978,15 @@
     const basicWait=tqFive?.active()?tqFive.wait():mixed.basicPaceMs,now=Date.now(),trial=(tqFive?.active()||mixed.enabled)&&basicWait!==null;
 // [VI dòng gốc 380] Khai báo biến không gán lại bằng const: rotation = nếu rangeTest?.status==='running' thì lấy [], ngược lại lấy basicRotation(); order = gọi rotation.slice(mixed.rotationCursor).concat(rotation.slice(0,mixed.rotationCursor))
     const rotation=rangeTest?.status==='running'?[]:basicRotation(),order=rotation.slice(mixed.rotationCursor).concat(rotation.slice(0,mixed.rotationCursor));
+    const basicFallback=(a,b)=>{
+      if(basicSolo4100Active()&&rangeTest?.status!=='running'){
+        const ai=basicSolo4100Prior.indexOf(Number(a[0])),bi=basicSolo4100Prior.indexOf(Number(b[0]));
+        if(ai!==bi&&ai>=0&&bi>=0)return ai-bi;
+      }
+      return rotation.length?order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])):Number(a[0])-Number(b[0]);
+    };
 // [VI dòng gốc 381] Khai báo biến không gán lại bằng const: rows = gọi all.filter(row=>isBasic(row?.[0])&&(!mixed.primary||(rotation.length?rotation.includes(Number(row[0])):Number(row[0])===primaryBasicId()))&&allowed(Number(row[0]),occ,d)&&Number.is…((a,b)=>rotation.length?order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])):Number(stats(occ,Number(b[0])).hits>0)-Nu…) để sắp xếp mảng tại chỗ
-    const rows=all.filter(row=>isBasic(row?.[0])&&(!mixed.primary||(rotation.length?rotation.includes(Number(row[0])):Number(row[0])===primaryBasicId()))&&allowed(Number(row[0]),occ,d)&&Number.isFinite(Number(row[1])))
+    const rows=all.filter(row=>isBasic(row?.[0])&&(!mixed.primary||(rotation.length?rotation.includes(Number(row[0])):Number(row[0])===primaryBasicId()))&&allowed(Number(row[0]),occ,d)&&Number.isFinite(Number(row[1]))&&(!basicSolo4100Active()||Number(row[1])<now))
 // [VI dòng gốc 382] Kiểm tra !trial: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: row. | Khai báo biến không gán lại bằng const: id = gọi Number(row[0]) để chuyển sang số; copy = gọi row.slice() để lấy một đoạn dữ liệu
       .map(row=>{if(!trial)return row;const id=Number(row[0]),copy=row.slice();
 // [VI dòng gốc 383] Kiểm tra !mixed.ready.has(id): đúng thì chạy nhánh sau if. | gọi mixed.ready.set(id, Number(row[1])<now?0:now+Math.min(mixed.basicPaceMs,Math.max(0,Number(row[1])-now)))
@@ -989,10 +998,9 @@
 // [VI dòng gốc 386] Định nghĩa hàm hàm không đặt tên; tham số: a, b
       .sort((a,b)=>{
         if(thGap.picking){const best=strongestThGapBasic();if(best!==null){const ap=Number(a[0])===best,bp=Number(b[0])===best;if(ap!==bp)return ap?-1:1;}}
-        return rotation.length?order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])):Number(stats(occ,Number(b[0])).hits>0)-Number(stats(occ,Number(a[0])).hits>0);
+        return basicSolo4100Active()?basicFallback(a,b):rotation.length?order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])):Number(stats(occ,Number(b[0])).hits>0)-Number(stats(occ,Number(a[0])).hits>0);
       });
-    if(cosmicActive()&&!thGap.picking)cosmicRank(rows,'basic',(a,b)=>
-      rotation.length?order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])):Number(a[0])-Number(b[0]));
+    if(cosmicActive()&&!thGap.picking)cosmicRank(rows,'basic',basicFallback);
 // [VI dòng gốc 387] Khai báo biến không gán lại bằng const: id = gọi Number(native.call(selector,rows,[],mode)) để chuyển sang số
     const id=Number(native.call(selector,rows,[],mode));
 // [VI dòng gốc 388] Kiểm tra trial&&isBasic(id): đúng thì chạy nhánh sau if. | Khai báo biến không gán lại bằng const: picked = gọi rows.find(row=>Number(row[0])===id) để tìm phần tử đầu tiên thỏa điều kiện | Kiểm tra picked: đúng thì chạy nhánh sau if. | gọi mixed.ready.set(id, Math.max(now+mixed.basicPaceMs,Number(picked[1])||0))
