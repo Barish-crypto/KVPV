@@ -19,6 +19,8 @@ const nativeTarget=r=>{
 function active(){
  const d=W.KVPV_DAILY?.tuLaStatus?.(false),m=W._Ba?._hE?._olt?.inst;
  const scene=Number(W._Ba?._$a?.SceneUtil?.curScene);
+ const foreign=W.KVPV_FAR_SCOPE?.status?.();
+ if(foreign?.inside===true&&foreign.kind!=='TU_LA')return false;
  const job=W.KVPV_DAILY?.quickState?.()?.job;
  return own()&&W.KVPV_DAILY?.config?.enableTuLa!==false&&
    d?.dangTrongTran===true&&[58,61].includes(Number(d.canh))&&
