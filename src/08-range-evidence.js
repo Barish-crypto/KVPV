@@ -1725,7 +1725,9 @@
       warning:'Client matched-hit DPS omits some damage sources; Boss HP drops can include companions/other players. No server speed guarantee.'};
     if(show){console.table(out.topTimeCosts);console.table(out.skillGroups);console.log('[La Phong 4100]',out);}return out;
   }
-  function setTianQuan4100Pilot(enabled=true){pilot4100.enabled=enabled===true;resetPilot4100();return pilot4100Status();}
+  function setTianQuan4100Pilot(enabled=true){pilot4100.enabled=enabled===true;
+    if(pilot4100.enabled)basicSolo4100.enabled=false;
+    resetPilot4100();return pilot4100Status();}
   function setTianQuanLuoFeng(enabled=true){
     luoFeng.enabled=!!enabled;
     if(enabled)cosmic.enabled=true;else resetApexRhythm();
