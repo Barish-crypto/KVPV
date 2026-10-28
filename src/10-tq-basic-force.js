@@ -208,5 +208,7 @@
       restores:S.restores,reason:S.reason,blocker:S.blocker??'',error:S.error,
       autoTimeout:false,serverCooldownModified:false};
   }
-  W.KVPV_TQ_BASIC_FORCE=Object.freeze({setEnabled,status,sync,stop:reason=>release(reason??'manual_off')});
+  W.KVPV_TQ_BASIC_FORCE=Object.freeze({setEnabled,status,sync,
+    suspend:reason=>release(reason??'th300_paused',false),
+    stop:reason=>release(reason??'manual_off')});
 })();
