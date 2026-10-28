@@ -2,7 +2,7 @@
 /* Ngự Thú và kỹ năng Dinh Thự theo đòn của chủ trong Thiên Quan, Linh Lung Tháp, Phù Văn.
  * AI native chờ tầm đánh thường của chủ nên có thể đứng khi chủ đánh xa.
  * Nhận sự kiện tung đòn 1039, dùng selector và hồi chiêu/hoạt ảnh native của Ngự Thú.
- * Đường Thí Luyện: Linh Thú, Phúc Oa, Ngự Thú chọn chiêu native độc lập mỗi 1 ms khi sẵn sàng. Không đổi timestamp kỹ năng.
+ * Linh Thú, Phúc Oa và Ngự Thú tự chọn đòn thường/kỹ năng native mỗi 50ms ở các map hỗ trợ; không can thiệp hồi chiêu.
  * Tín hiệu tung đòn không phải xác nhận sát thương từ server. */
 // [VI dòng gốc 6] chạy ngay hàm bao để tạo phạm vi và khởi tạo phần chức năng bên trong
 (() => {
@@ -121,7 +121,7 @@
 // [VI dòng gốc 51] Định nghĩa hàm unbind; tham số: không có | gọi S.role?.off(1039, S, onPlayerCast) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gán S.role bằng null | gọi setRide(null)
   function unbind(){S.role?.off?.(1039,S,onPlayerCast);S.role=null;setRide(null);setMansion(null);}
 // [VI dòng gốc 52] Chú thích gốc của tác giả; không được thực thi. Nội dung: Timer chỉ cập nhật đăng ký sự kiện khi chủ/Ngự Thú đổi, không tự lặp combat.
-  // Timer chỉ cập nhật đăng ký sự kiện khi chủ/Ngự Thú đổi, không tự lặp combat.
+  // Đồng bộ listener và quét độc lập các trợ chiến; mọi lần đánh vẫn qua các cổng native.
 // [VI dòng gốc 53] Định nghĩa hàm sync; tham số: không có | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function sync(withStatus=true){try{
 // [VI dòng gốc 54] Kiểm tra !S.enabled: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: gọi status() để trả trạng thái để kiểm tra.
