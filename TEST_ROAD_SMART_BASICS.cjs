@@ -42,6 +42,8 @@ load('src/12-basic-outside.js');
 // The legacy smart-basic ranking is an explicit Road native profile.
 W.KVPV_BASIC10.setSkillPriority('tuyet_hoc_first');
 W.KVPV_ROAD_CADENCE.start();W.KVPV_BASIC10.sync();
+// Road report caches until the next second; let the native observer populate its target.
+now+=1001;W.KVPV_BASIC10.sync();
 const road=W.KVPV_ROAD_CADENCE,auto=W.KVPV_BASIC10;
 assert.equal(road.status().basicPriority,true);
 assert.equal(road.status().preferredBasic,8001);
