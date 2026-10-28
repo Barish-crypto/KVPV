@@ -129,8 +129,9 @@ for(const key of ['tien_ma','tien_duyen_tac_chien','chien_doi','tranh_ba_tu_phuo
  h.W.KVPV_DAILY.lichData=()=>calendar;
  const api=h.load();
  h.begin();assert.equal(api.status().hold?.key,'tien_ma','active manual event beats upcoming automatic reservation');
- calendar={active:[],upcoming:[]};h.end();
- assert.equal(api.status().hold?.key,'tam_tien','known active auto remains prioritized after manual slot ends');
+ calendar={active:[],upcoming:[]};h.tick();
+ assert.equal(api.status().hold?.key,'tam_tien','known auto reservation remains after manual slot ends');
+ h.end();
 }
 const built=fs.readFileSync(__dirname+'/KVPV_V1_FULL.js','utf8');
 assert(built.includes('Source: src/62-event-priority.js'));
