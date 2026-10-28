@@ -27,10 +27,13 @@ function setup(){
  assert.equal(original(),true);
  let trial=q.mod.setTianQuan4100CooldownOverride(true);
  assert.equal(trial.active,true);
+ q.elapse(100);
  assert.equal(q.c.isCooldown(),false,'client hook returns false on stage 4100');
  assert.equal(q.mod.status(false).cooldown4100Trial.falseReturns>0,true);
  q.elapse(60000);q.mod.sync();
- assert.equal(q.c.isCooldown(),false,'still overridden after 60 seconds');
+ assert.equal(q.mod.status(false).cooldown4100Trial.active,true,'still enabled after 60 seconds');
+ q.elapse(100);
+ assert.equal(q.c.isCooldown(),false,'not expired after 60 seconds');
  assert.equal(q.mod.status(false).cooldown4100Trial.automaticExpiry,false);
  trial=q.mod.setTianQuan4100CooldownOverride(true);
  assert.equal(trial.active,true);
@@ -87,6 +90,8 @@ function setup(){
  assert.equal(oneClick.trial.active,true,'single command enables experiment');
  assert.equal(oneClick.cleanup.enabled,true,'single command enables local diagnostic cleanup');
  assert.equal(oneClick.devToolsWsFramesCleared,false,'never misrepresent DevTools');
+ q.elapse(100);
+ assert.equal(q.c.isCooldown(),false,'one-click method active');
  q.mod.setTianQuan4100CooldownOverride(false);
  assert.equal(q.c.isCooldown,original,'manual off restores native method');
  q.mod.stop();
