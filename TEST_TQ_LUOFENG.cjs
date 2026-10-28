@@ -68,4 +68,72 @@ function make(){
  assert(q.mod.status(false).cosmic.thCasts<=1,'new Boss can immediately cast, but old attack counters must be cleared');
  q.mod.stop();
 }
-console.log('PASS Luo Feng Apex: 12 recent direct hits, learned skill adapts to new damage, no duplicate exploration, read-only idle 310, no heal, native cooldown unchanged, map/Boss isolation and off switch');
+
+{
+ const {q,hit}=make();
+ // One exceptional critical hit must not eclipse a stronger consistent TH.
+ for(let i=0;i<4;i++)hit(1001,100);
+ hit(1001,50000);
+ for(let i=0;i<5;i++)hit(1002,120);
+ let st=q.mod.status(false);
+ const a=st.luoFeng.recentTH.find(x=>x.id===1001),b=st.luoFeng.recentTH.find(x=>x.id===1002);
+ assert.equal(st.luoFeng.robustMinHits,5);
+ assert.equal(st.luoFeng.trimPerTail,1);
+ assert.equal(a.recentMeanDamage,10080,'rolling mean remains observable');
+ assert.equal(a.robustScore,100,'trim extreme critical without hiding raw data');
+ assert.equal(b.robustScore,120,'stable skill remains strongest');
+ q.mod.setInterleaved(true,310);q.elapse(1000);
+ assert.equal(q.s.selectSkill(),1002,'Apex selects stronger repeatable TH');
+ assert.deepEqual(Array.from(q.s._rtt.map(x=>x[2])),[50,50,50,50,50],'native cooldown unchanged');
+ q.mod.setTianQuanLuoFeng(false);
+ st=q.mod.status(false);
+ assert.equal(st.luoFeng.active,false);
+ assert.equal(st.luoFeng.recentTH.find(x=>x.id===1001).robustScore,10080,'switch off restores lifetime ranking');
+ q.mod.stop();
+}
+
+{
+ const {q,setKind}=make();
+ let rhythm=q.mod.status(false).luoFeng.rhythm;
+ assert.equal(rhythm.advisoryOnly,true);
+ assert.equal(rhythm.predictedNextHpLossAt,null,'no prediction without observations');
+ // Boss-like periodic HP losses: this is still player-HP evidence, NOT a verified Boss attack.
+ for(let i=0;i<4;i++){q.hp(90-i*10);q.advance(3500);}
+ rhythm=q.mod.status(false).luoFeng.rhythm;
+ assert.equal(rhythm.observedHpLosses,4);
+ assert.equal(rhythm.intervalSamples,3);
+ assert.equal(rhythm.estimatedCycleMs,3500);
+ assert.equal(rhythm.confidence,'tentative-rhythmic');
+ assert.equal(rhythm.msUntilPrediction,3500);
+ const calls=q.calls.length,moves=q.movements.length;
+ q.mod.status(false);q.mod.status(false);
+ assert.equal(q.calls.length,calls,'rhythm reporting must not dispatch any casts');
+ assert.equal(q.movements.length,moves,'rhythm reporting must not issue movement');
+ q.hp(59);q.advance(100);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.observedHpLosses,4,'debounce damage burst');
+ q.hp(70);q.advance(100);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.observedHpLosses,4,'heal is not an attack');
+ q.elapse(3601);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.predictedNextHpLossAt,null,'stale HP prediction expires');
+ setKind('LINH_LUNG');q.advance(100);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.active,false,'other map disabled');
+ setKind('THIEN_QUAN');q.advance(100);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.intervalSamples,0,'other map resets learned cadence');
+ q.occ(7777);q.advance(100);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.observedHpLosses,0,'Boss switch resets sensor');
+ q.mod.stop();
+}
+
+{
+ const {q}=make();
+ q.hp(90);q.advance(3500);
+ q.hp(80);q.advance(3500);
+ q.hp(70);q.advance(3500);
+ q.hp(60);q.advance(6000);
+ const rhythm=q.mod.status(false).luoFeng.rhythm;
+ assert.equal(rhythm.intervalSamples,3);
+ assert.equal(rhythm.confidence,'insufficient','irregular HP loss must not imply a reliable Boss rhythm');
+ assert.equal(rhythm.predictedNextHpLossAt,null);
+ q.mod.stop();
+}
+console.log('PASS Luo Feng Apex V3: 12 recent direct hits, learned skill adapts to new damage, no duplicate exploration, read-only idle 310, no heal, native cooldown unchanged, map/Boss isolation and off switch');
