@@ -195,8 +195,8 @@
     return {enabled:basicSolo4100.enabled,active:basicSolo4100Active(),
       stage:Number(W._Ba?._Co?._Mo?.ins?.curLv)||null,
       skillIds:[8001,8002,8003,8004,8005],startupPreference:basicSolo4100Prior.slice(),blockedTH:basicSolo4100.blockedTH,
-      configuredDistance:CFG.goal,nativeCooldownPreserved:true,
-      note:'Basic attacks only while stage 4100 Tian Quan is active. Client pace 1ms is not server attack rate; confirmed range/hits still required.'};
+      configuredDistance:CFG.goal,nativeCooldownPreserved:!cooldown4100.enabled,
+      note:'Basic attacks only while stage 4100 Tian Quan is active. Native cooldown is preserved unless the explicit client-only experiment is enabled; range/hits still require confirmation.'};
   }
   // Reversible, short client-side trial; never enabled automatically at startup.
   const cooldown4100={enabled:false,hook:null,falseReturns:0,
