@@ -3,7 +3,7 @@
   window.KVPV_TQ_BASIC_PROFILE=Object.freeze({create(env){
     const ids=[8001,8002,8003,8004,8005],pending=new Map(),rows=new Map();
     let enabled=false,waitMs=10,context='',probe=null,serial=0,tuyetHoc=false;
-    const now=()=>Date.now(),active=()=>enabled&&env.scope()==='THIEN_QUAN';
+    const now=()=>Date.now(),active=()=>enabled&&['THIEN_QUAN','LINH_LUNG','PHU_VAN'].includes(env.scope());
     const learned=()=>ids.filter(id=>env.learned().includes(id));
     const row=id=>{if(!rows.has(id))rows.set(id,{id,attempts:0,unconfirmed:0,hits:[]});return rows.get(id);};
     const probeRunning=()=>active()&&probe?.status==='running';

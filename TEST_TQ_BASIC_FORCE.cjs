@@ -44,7 +44,7 @@ function setup(){
  q.c._jh=replacement;q.mod.sync();
  assert.equal(anim.isPlaying,true,'old tween is restored on replacement');
  assert.equal(replacement.isPlaying,false,'new tween forced on next tick');
- setKind('LINH_LUNG');
+ setKind('OUTSIDE');
  assert.equal(q.c.isCooldown(),false,'cached predicate until next module tick');
  q.mod.sync();
  assert.equal(q.c.isCooldown,native,'outside scope restores cooldown');
@@ -145,7 +145,7 @@ function setup(){
  const pending=force.setEnabled(true);
  assert.equal(pending.enabled,true);
  assert.equal(pending.active,false);
- assert.equal(pending.blocker,'outside_verified_tianquan');
+ assert.equal(pending.blocker,'outside_supported_boss_scene');
  setKind('THIEN_QUAN');q.mod.setTianQuanTuyetHoc(true);
  q.mod.sync();
  assert.equal(q.mod.status(false).basicOnly,true,'pending user intent configures BASIC ONLY on entering TQ');
@@ -192,5 +192,36 @@ function setup(){
  setKind('THIEN_QUAN');q.mod.sync();
  assert.equal(force.status().active,true,'map entry starts force automatically');
  q.mod.stop();
+}
+{
+ // Both dungeon detectors are native-backed; TH300 already owns their
+ // skill/movement hooks, and BASIC FORCE only masks verified boss readiness.
+ for(const type of ['tower','rune']){
+   const q=ctx.make({[type]:true,fastReady:true,defaultDistance:true,newDefault:true,startX:310});
+   const expected=type==='tower'?'LINH_LUNG':'PHU_VAN';
+   assert.equal(q.W.KVPV_FAR_SCOPE.status().kind,expected);
+   q.s._rtt=[8001,8002,8003,8004,8005,1001].map(id=>[id,0,50]);q.s._wet=[];
+   q.mod.setInterleaved(true,310);
+   q.mod.setTianQuanFiveBasics(true,1);
+   q.mod.setTianQuanTuyetHoc(false);
+   q.mod.start('SCAN');q.cooldown(true);q.c._jh={isPlaying:true};
+   vm.runInNewContext(source,{window:q.W});
+   const force=q.W.KVPV_TQ_BASIC_FORCE;
+   const enabled=force.setEnabled(true);
+   assert.equal(enabled.active,true,expected+' should arm while in dungeon');
+   assert.equal(q.mod.status(false).basicOnly,true,expected+' uses five basics only');
+   assert.deepEqual(Array.from(q.mod.status(false).playerSkillIds),[8001,8002,8003,8004,8005]);
+   assert.equal(q.mod.status(false).paceMs,1);
+   assert.equal(q.c.isCooldown(),false);
+   assert.equal(q.c._jh.isPlaying,false);
+   const native=q.c.isCooldown;
+   // Invalid/foreign target causes the native dungeon eligibility gate to release.
+   q.c.target={isValid:true,property:{get:k=>k==='type'?4:k==='occ'?999:null}};
+   q.mod.sync();
+   assert.equal(force.status().active,false,expected+' must not override a player');
+   q.c.target=q.boss;q.mod.sync();
+   assert.equal(force.status().active,true,expected+' resumes after native boss selection');
+   force.setEnabled(false);q.mod.stop();
+ }
 }
 console.log('PASS TQ basic force: persistent opt-in, cooldown+own/inherited animation, native restoration, TQ isolation, no status recursion');

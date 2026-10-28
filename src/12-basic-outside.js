@@ -22,7 +22,10 @@
 // [VI dòng gốc 10] Khai báo biến không gán lại bằng const: outside = tạo hàm với tham số (không có); mỗi lần gọi trả về tính biểu thức (W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()===false
   const outside=()=>(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()===false;
 // [VI dòng gốc 11] Khai báo biến không gán lại bằng const: road = tạo hàm với tham số (không có); mỗi lần gọi trả về Number(W._ft?._po?.ins?.getCfgById?.(Number(W._C?._Mn?._Cn?.currentID))?.[7])===41 và chỉ đánh giá vế phải khi vế trái truthy: W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true
-  const road=()=>Number(W._ft?._po?.ins?.getCfgById?.(Number(W._C?._Mn?._Cn?.currentID))?.[7])===41&&W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true;
+  const sceneType=()=>Number(W._ft?._po?.ins?.getCfgById?.(Number(W._C?._Mn?._Cn?.currentID))?.[7]);
+  const beastScene=()=>sceneType()===49;
+  const beastReady=c=>!beastScene()||W.KVPV_BEAST_ISLAND?.basicCombatReady?.(c?.target)===true;
+  const road=()=>sceneType()===41&&W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true;
 // [VI dòng gốc 12] Khai báo biến không gán lại bằng const: castGap = tạo hàm với tham số (không có); mỗi lần gọi trả về nếu road() thì lấy 250, ngược lại lấy 1
   const roadForce=()=>road()&&skillPriority==='basic_force_default'&&W.KVPV_ROAD_CADENCE?.enabled===true&&W.KVPV_ROAD_CADENCE?.combatMode!=='basic8001';
   const castGap=()=>road()&&!roadForce()?250:1;
@@ -160,7 +163,7 @@
     const t=c?.target;
     // Force only native PvE monsters, never players (type 4), Road,
     // hidden tabs, UI interaction, recovery or another combat owner.
-    const can=S.enabled&&skillPriority==='basic_force_default'&&owner()&&outside()&&(!road()||roadForce()&&roadClose(S.role,c))&&
+    const can=S.enabled&&skillPriority==='basic_force_default'&&owner()&&outside()&&beastReady(c)&&(!road()||roadForce()&&roadClose(S.role,c))&&
       W.document?.hidden!==true&&W._Ba?._rJ?._O$?.ins?.isDead!==true&&
       !W.KVPV_BOSS_TEAM?.priority?.()&&
       Date.now()>=Number(W.__KVPV_USER_UI_UNTIL||0)&&
@@ -212,7 +215,7 @@
 // [VI dòng gốc 57] gọi hook(selector, '_f7t', native=>function(active,common,mode){ if(!S.enabled||!outside()||!owner())return native.apply(this,arg…)
       hook(selector,'_f7t',native=>function(active,common,mode){
 // [VI dòng gốc 58] Kiểm tra !S.enabled||!outside()||!owner(): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: gọi native.apply(this, arguments).
-        if(!S.enabled||!outside()||!owner())return native.apply(this,arguments);
+        if(!S.enabled||!outside()||!owner()||!beastReady(combat))return native.apply(this,arguments);
 // [VI dòng gốc 59] Kiểm tra W.KVPV_BOSS_TEAM?.priority?.(): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: áp dụng toán tử - lên 1.
         if(W.KVPV_BOSS_TEAM?.priority?.())return -1;
         if(W.KVPV_TERRITORY_LOOT?.shouldBlock?.(combat.target))return -1;
@@ -265,7 +268,7 @@
         const id=first();return basic(id)||tuyetHoc(id)?id:second();
 // [VI dòng gốc 83] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
       });
-// [VI dòng gốc 84] gọi hook(combat, 'combat', native=>function(id){ if(S.enabled&&outside()&&owner()){ if(W.KVPV_BOSS_TEAM?.priority?.())return unde…)
+// [VI dòng gốc 84] gọi hook(combat, 'combat', native=>function(id){ if(S.enabled&&outside()&&owner()&&beastReady(combat)){ if(W.KVPV_BOSS_TEAM?.priority?.())return unde…)
       hook(combat,'combat',native=>function(id){
 // [VI dòng gốc 85] Kiểm tra S.enabled&&outside()&&owner(): đúng thì chạy nhánh sau if.
         if(S.enabled&&outside()&&owner()){
@@ -319,6 +322,7 @@
 // [VI dòng gốc 109] Kiểm tra !role||typeof selector?._f7t!=='function'||typeof combat?.combat!=='function': đúng thì chạy nhánh sau if. | gọi release() để nhả quyền điều khiển đang giữ | gán S.reason bằng 'waiting_components' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(!role||typeof selector?._f7t!=='function'||typeof combat?.combat!=='function'){release();S.reason='waiting_components';return;}
     if(Number(combat?.target?.property?.get?.('type'))===4){release();S.reason='player_target_yield_pvp';return;}
+    if(!beastReady(combat)){release();S.reason='beast_collect_or_unverified_boss';return;}
 // [VI dòng gốc 110] Chú thích gốc của tác giả; không được thực thi. Nội dung: Thí Luyện chỉ hỗ trợ di chuyển; giao chọn skill và tung đòn cho bộ native.
     // Road BASIC FORCE: preserve the Road module's approach/target acquisition;
     // only take native combat ownership in verified melee range of a monster.

@@ -115,8 +115,12 @@
     }
     if(W.__KVPV_UNIVERSAL_HALTED){S.blocker='universal_halt';return false;}
     if(W.document?.hidden===true){S.blocker='background_tab';return false;}
-    if(W.KVPV_FAR_SCOPE?.status?.()?.kind!=='THIEN_QUAN'){
-      S.blocker='outside_verified_tianquan';return false;
+    const kind=W.KVPV_FAR_SCOPE?.status?.()?.kind;
+    if(!['THIEN_QUAN','LINH_LUNG','PHU_VAN'].includes(kind)){
+      S.blocker='outside_supported_boss_scene';return false;
+    }
+    if(kind!=='THIEN_QUAN'&&W.KVPV_FAR_SCOPE?.eligible?.(c?.target)!==true){
+      S.blocker='waiting_verified_dungeon_monster';return false;
     }
     if(!c){S.blocker='combat_component_missing';return false;}
     const m=W.KVPV_TH300?.status?.(false);
@@ -143,7 +147,7 @@
     const c=combat();
     // When the user armed outside the map, auto-enable BASIC ONLY once the
     // existing Tian Quan watcher starts TH300. No explicit F5/retry needed.
-    if(W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&
+    if(['THIEN_QUAN','LINH_LUNG','PHU_VAN'].includes(W.KVPV_FAR_SCOPE?.status?.()?.kind)&&
        W.KVPV_TH300?.isBasicOnly?.()===false){
       try{
         if(W.KVPV_TH300.status(false)?.running===true)configureBasicOnly();
@@ -188,7 +192,7 @@
       throw Error('Wrong actor or paused session; no hooks installed');
     // Explicit one-click intent: configure BASIC ONLY rather than requiring
     // the user to remember commands from a previous browser session.
-    const inside=W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
+    const inside=['THIEN_QUAN','LINH_LUNG','PHU_VAN'].includes(W.KVPV_FAR_SCOPE?.status?.()?.kind);
     if(inside){
       // Re-arm through the existing map coordinator. Do not call TH300.start()
       // directly or overwrite the native movement/HitRun owner.
