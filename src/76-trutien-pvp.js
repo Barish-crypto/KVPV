@@ -69,7 +69,7 @@ function tick(){
   const r=me(),c=component(r,'_Het'),s=component(r,'_Eet'),t=c?.target;
   if(!enemy(t,r)){link(null,null);S.reason='select_player_target';return;}
   link(r,t);
-  W.KVPV_PVP_LUOFENG?.sync?.();
+  // PvP observer polls its selected target independently every 120ms.
   if(!live(r)||W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='player_dead';return;}
   if(W.document?.hidden===true||W.document?.hasFocus?.()===false){S.reason='unfocused';return;}
   if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){S.reason='manual_ui';return;}
