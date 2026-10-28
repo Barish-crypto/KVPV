@@ -36,6 +36,7 @@
 // [VI dòng gốc 17] gọi W.KVPV_TH300?.setAfterTHWait(1) để đặt thời gian chờ thêm sau Tuyệt Học theo mili giây (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     W.KVPV_TH300?.setAfterTHWait?.(1);
 // [VI dòng gốc 18] gọi W.KVPV_TH300?.setConfirmedTailCut(true) để bật/tắt cắt phần đuôi hoạt ảnh chỉ sau khi đã ghép được đòn trúng (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
+    W.KVPV_TH300?.setTianQuanTuyetHocVisualSpeed?.(99);
     W.KVPV_TH300?.setConfirmedTailCut?.(true);
 // [VI dòng gốc 19] gọi W.KVPV_TH300?.setBasicOnly(true) để bật/tắt chế độ nhân vật chỉ dùng đòn tay 8001 trong Thiên Quan, Linh Lung, Phù Văn và Tru Tiên (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     W.KVPV_TH300?.setBasicOnly?.(false);
