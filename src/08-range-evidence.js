@@ -185,6 +185,7 @@
     Number(W._Ba?._Co?._Mo?.ins?.curLv)===4100&&tqDistanceOnly()&&
     tqFive?.active()&&luoFengActive()&&!transforming();
   function setTianQuan4100BasicSolo(enabled=true){
+    if(enabled!==true)cooldown4100Release('basic_solo_disabled');
     basicSolo4100.enabled=enabled===true;
     if(basicSolo4100.enabled){pilot4100.enabled=false;resetPilot4100();}
     return basicSolo4100Status();
@@ -195,6 +196,79 @@
       skillIds:[8001,8002,8003,8004,8005],startupPreference:basicSolo4100Prior.slice(),blockedTH:basicSolo4100.blockedTH,
       configuredDistance:CFG.goal,nativeCooldownPreserved:true,
       note:'Basic attacks only while stage 4100 Tian Quan is active. Client pace 1ms is not server attack rate; confirmed range/hits still required.'};
+  }
+  // Reversible, short client-side trial; never enabled automatically at startup.
+  const cooldown4100={enabled:false,expiresAt:0,hook:null,falseReturns:0,
+    trials:0,restores:0,lastReason:'off',error:''};
+  function cooldown4100Release(reason='manual'){
+    const h=cooldown4100.hook;cooldown4100.hook=null;
+    cooldown4100.enabled=false;cooldown4100.expiresAt=0;
+    if(h){restore(h);cooldown4100.restores++;}
+    cooldown4100.lastReason=reason;
+  }
+  function cooldown4100Status(){return {
+    enabled:cooldown4100.enabled,active:!!cooldown4100.hook&&cooldown4100.enabled&&
+      Date.now()<cooldown4100.expiresAt&&basicSolo4100Active(),
+    expiresInMs:cooldown4100.enabled?Math.max(0,cooldown4100.expiresAt-Date.now()):0,
+    falseReturns:cooldown4100.falseReturns,trials:cooldown4100.trials,
+    restores:cooldown4100.restores,reason:cooldown4100.lastReason,error:cooldown4100.error,
+    scope:'Tian Quan 4100 native basics',nativeAnimationGatePreserved:true,
+    serverCooldownModified:false,webSocketUnaffected:true,
+    warning:'isCooldown=false is client-only. Server may reject casts; trial expires in <=15s.'};}
+  function cooldown4100Sync(c){
+    if(!cooldown4100.enabled)return;
+    if(Date.now()>=cooldown4100.expiresAt){cooldown4100Release('expired');return;}
+    if(!basicSolo4100Active()||!ST.running||!c||c!==role().c||!eligible(c.target)){
+      cooldown4100Release('left_4100_or_combat');return;
+    }
+    if(cooldown4100.hook){
+      if(cooldown4100.hook.obj!==c||c.isCooldown!==cooldown4100.hook.fn)
+        cooldown4100Release('component_or_external_hook_changed');
+      return;
+    }
+    try{
+      cooldown4100.hook=hook(c,'isCooldown',native=>function(...args){
+        if(this===c&&cooldown4100.enabled&&Date.now()<cooldown4100.expiresAt&&
+           basicSolo4100Active()&&ST.running&&ST.target===c.target){
+          cooldown4100.falseReturns++;return false;
+        }
+        return native.apply(this,args);
+      });
+      if(!cooldown4100.hook)cooldown4100Release('hook_unavailable');
+      else cooldown4100.lastReason='active';
+    }catch(e){cooldown4100.error=String(e?.message||e);cooldown4100Release('hook_error');}
+  }
+  function setTianQuan4100CooldownOverride(enabled=true,durationMs=10000){
+    if(enabled!==true){cooldown4100Release('manual');return cooldown4100Status();}
+    if(!Number.isInteger(durationMs)||durationMs<1000||durationMs>15000)
+      throw Error('Trial duration must be 1000..15000ms');
+    if(!basicSolo4100Active()||!ST.running||!eligible(role().c?.target))
+      throw Error('Start native basic solo on Tian Quan 4100 before enabling trial');
+    cooldown4100Release('restart');
+    cooldown4100.enabled=true;cooldown4100.expiresAt=Date.now()+durationMs;
+    cooldown4100.trials++;cooldown4100.error='';
+    cooldown4100Sync(role().c);
+    return cooldown4100Status();
+  }
+  // Script-owned diagnostic buffers only. This cannot clear DevTools WS frames.
+  const localLogCleanup={enabled:false,intervalMs:10000,nextAt:Infinity,clears:0};
+  function localLogCleanupStatus(){return {enabled:localLogCleanup.enabled,
+    intervalMs:localLogCleanup.intervalMs,clears:localLogCleanup.clears,
+    nextInMs:localLogCleanup.enabled?Math.max(0,localLogCleanup.nextAt-Date.now()):null,
+    onlyLocalDiagnostics:true,chromeDevToolsWebSocketFramesCleared:false,
+    countersAndMatchedDpsPreserved:true};}
+  function setLocalLogAutoClear(enabled=true,intervalMs=10000){
+    if(!Number.isInteger(intervalMs)||intervalMs<1000||intervalMs>120000)
+      throw Error('Local-log interval must be 1000..120000ms');
+    localLogCleanup.enabled=enabled===true;localLogCleanup.intervalMs=intervalMs;
+    localLogCleanup.nextAt=localLogCleanup.enabled?Date.now()+intervalMs:Infinity;
+    return localLogCleanupStatus();
+  }
+  function localLogCleanupSync(){
+    if(!localLogCleanup.enabled||Date.now()<localLogCleanup.nextAt)return;
+    localLogCleanup.nextAt=Date.now()+localLogCleanup.intervalMs;
+    ST.history.length=0;dispatch.recent.length=0;hitDiagnostics.recent.length=0;
+    localLogCleanup.clears++;
   }
   const cosmicActive=()=>cosmic.enabled&&tqDistanceOnly()&&tqFive?.active()&&!transforming()&&ST.running;
   function cosmicReset(){cosmic.thCasts=0;cosmic.basicCasts=0;cosmic.lastNativeAt=null;cosmic.lastNativeSkill=null;
@@ -686,7 +760,7 @@
 // [VI dòng gốc 244] Chú thích gốc của tác giả; không được thực thi. Nội dung: Gỡ các hook do bộ kỹ năng cài đặt và giải phóng quyền giữ vị trí.
   // Gỡ các hook do bộ kỹ năng cài đặt và giải phóng quyền giữ vị trí.
 // [VI dòng gốc 245] Định nghĩa hàm unbind; tham số: không có | gán ST.basicImpactSerial bằng null | gọi detachDispatch() | Duyệt từng giá trị trong ST.movement.slice().reverse() bằng const h.
-  function unbind(){ST.basicImpactSerial=null;detachDispatch();for(const h of ST.movement.slice().reverse())restore(h);ST.movement=[];restore(ST.s);restore(ST.c);ST.s=null;ST.c=null;ST.positioning=false;}
+  function unbind(){cooldown4100Release('unbind');ST.basicImpactSerial=null;detachDispatch();for(const h of ST.movement.slice().reverse())restore(h);ST.movement=[];restore(ST.s);restore(ST.c);ST.s=null;ST.c=null;ST.positioning=false;}
 // [VI dòng gốc 246] Chú thích gốc của tác giả; không được thực thi. Nội dung: Đối chiếu khoảng cách Boss hiện tại với mục tiêu, sai số cho phép và điều kiện STRICT.
   // Đối chiếu khoảng cách Boss hiện tại với mục tiêu, sai số cho phép và điều kiện STRICT.
 // [VI dòng gốc 247] Định nghĩa hàm atPosition; tham số: r | Khai báo biến không gán lại bằng const: d = gọi radius(r.a, r.c?.target); goal = gọi targetDistance() | Kết thúc hàm hiện tại và trả về: goal!==null&&outside(d)&&Math.abs(d-goal)<=CFG.tolerance+(ST.mode==='SCAN'&&ST.arrivalSnap?1:0) và chỉ đánh giá vế phải khi vế trái truthy: ST.mode!=='STRICT'||d<=goal+0.2.
@@ -1208,7 +1282,7 @@
 // [VI dòng gốc 482] Chú thích gốc của tác giả; không được thực thi. Nội dung: Thực hiện một lượt kiểm tra của module; các nhánh bên dưới quyết định có đủ điều kiện để hành động hay phải chờ.
   // Thực hiện một lượt kiểm tra của module; các nhánh bên dưới quyết định có đủ điều kiện để hành động hay phải chờ.
 // [VI dòng gốc 483] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Kiểm tra !ST.running: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-  function tick(){if(!ST.running)return;trial1008?.sync();
+  function tick(){if(!ST.running)return;cooldown4100Sync(role().c);localLogCleanupSync();trial1008?.sync();
     tqFive?.tick();
 // [VI dòng gốc 484] gọi advanceSpeedTrial()
     advanceSpeedTrial();
@@ -1549,7 +1623,7 @@
 // [VI dòng gốc 638] Thuộc tính castAttempts: đọc ST.castAttempts | Thuộc tính confirmedCastHitPairs: đọc ST.confirmedPairs | Thuộc tính blockedOtherSkills: đọc ST.blocked
       castAttempts:ST.castAttempts,confirmedCastHitPairs:ST.confirmedPairs,blockedOtherSkills:ST.blocked,
 // [VI dòng gốc 639] Thuộc tính lastReason: đọc ST.lastReason | Thuộc tính lastError: đọc ST.lastError
-      lastReason:ST.lastReason,lastError:ST.lastError,
+      lastReason:ST.lastReason,lastError:ST.lastError,cooldown4100Trial:cooldown4100Status(),localLogCleanup:localLogCleanupStatus(),
 // [VI dòng gốc 640] Thuộc tính timerActive: tính biểu thức ST.timer!=null | Thuộc tính lastTickAt: đọc ST.lastTickAt | Thuộc tính tickAgeMs: nếu ST.lastTickAt===null thì lấy null, ngược lại lấy Math.max(0,Date.now()-ST.lastTickAt) | Thuộc tính timerRepairs: đọc ST.timerRepairs
       timerActive:ST.timer!=null,lastTickAt:ST.lastTickAt,tickAgeMs:ST.lastTickAt===null?null:Math.max(0,Date.now()-ST.lastTickAt),timerRepairs:ST.timerRepairs,
 // [VI dòng gốc 641] Thuộc tính warning: nếu proved.length===0 thì lấy 'No independently verified skill at this distance yet. STRICT will wait; use SCAN for real-game testing.', ngược lại lấy 'Observed matching skill damage at tested distance; this does not guarantee safety from Boss attacks.'
@@ -1595,7 +1669,7 @@
 // [VI dòng gốc 661] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 662] Định nghĩa hàm stop; tham số: reason='user'. Mục đích: dừng bộ điều khiển và dọn tài nguyên | Khai báo biến không gán lại bằng const: ownPositioning = ST.positioning và chỉ đánh giá vế phải khi vế trái truthy: ST.moveGoal; r = gọi role() | gán ST.running bằng false | gán ST.mode bằng 'OFF'
-  function stop(reason='user'){trial1008?.stop();tqFive?.stop(reason);const ownPositioning=ST.positioning&&ST.moveGoal,r=role();ST.running=false;ST.mode='OFF';if(ST.timer!=null){(W.KVPV_V1?.timers?.clearInterval ?? W.clearInterval)(ST.timer);ST.timer=null;}
+  function stop(reason='user'){cooldown4100Release('stop');localLogCleanup.enabled=false;trial1008?.stop();tqFive?.stop(reason);const ownPositioning=ST.positioning&&ST.moveGoal,r=role();ST.running=false;ST.mode='OFF';if(ST.timer!=null){(W.KVPV_V1?.timers?.clearInterval ?? W.clearInterval)(ST.timer);ST.timer=null;}
 // [VI dòng gốc 663] gọi finishSpeedTrial('stopped') | Kiểm tra speedTrial: đúng thì chạy nhánh sau if. | gán speedTrial.restored bằng true
     finishSpeedTrial('stopped');if(speedTrial)speedTrial.restored=true;
 // [VI dòng gốc 664] gọi restoreSpeedClips()
@@ -1765,7 +1839,7 @@
     if(!['tuyet_hoc_first','interleaved'].includes(value))throw Error('Skill priority must be tuyet_hoc_first or interleaved');
     skillPriority=value;return {skillPriority};
   }
-  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,tianQuan4100Diagnosis,setTianQuan4100BasicSolo,setTianQuan4100Pilot,setTianQuanLuoFeng,setTianQuanCosmic,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
+  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,setTianQuan4100CooldownOverride,setLocalLogAutoClear,tianQuan4100Diagnosis,setTianQuan4100BasicSolo,setTianQuan4100Pilot,setTianQuanLuoFeng,setTianQuanCosmic,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
 // [VI dòng gốc 702] gán W.KVPV_TH300 bằng api
   W.KVPV_TH300=api;
 // [VI dòng gốc 703] gọi console.info(TAG, 'READY/OFF. START: KVPV_MODE.start("BOSS_TH300_SCAN") then KVPV_MODE.start("BOSS_TH300")')
