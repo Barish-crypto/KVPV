@@ -45,6 +45,8 @@
     W.KVPV_TH300?.setTianQuanTHGapBasics?.(true,1200);
     W.KVPV_TH300?.setTianQuanCosmic?.(true);
     W.KVPV_TH300?.setTianQuanLuoFeng?.(true);
+    // Ải 4100 dùng 5 đòn tay native, các tầng Thiên Quan khác giữ combo.
+    W.KVPV_TH300?.setTianQuan4100BasicSolo?.(true);
 // [VI dòng gốc 20] gọi W.KVPV_MODE.armTianQuan() để đăng ký bộ theo dõi map để tự bật bộ combat khi vào phó bản phù hợp
     W.KVPV_MODE.armTianQuan();
 // [VI dòng gốc 21] Chú thích gốc của tác giả; không được thực thi. Nội dung: Khôi phục tốc độ hoạt ảnh gốc (1) theo yêu cầu; không tăng tốc hoạt ảnh 8001.
@@ -52,7 +54,7 @@
 // [VI dòng gốc 22] Kiểm tra String(W.__KVPV_OWN_ACTOR_ID)==='10228867268946': đúng thì chạy nhánh sau if. | gọi W.KVPV_TH300?.setBasicAnimationSpeed(1) để đặt hệ số phát hoạt ảnh 8001 phía client; không phải hệ số sát thương server (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     if(String(W.__KVPV_OWN_ACTOR_ID)==='10228867268946')W.KVPV_TH300?.setBasicAnimationSpeed?.(1);
 // [VI dòng gốc 23] gọi console.info('[KVPV V1] Ba phó bản chỉ dùng 8001; kiểm tra 1 ms, chờ thêm 0 ms; tốc độ server chưa xác minh.')
-    console.info('[KVPV V1] Thiên Quan: 5 chiêu tay 8001–8005 xen Tuyệt Học đã hồi, khoảng cách 310, wait client 1ms.');
+    console.info('[KVPV V1] Thiên Quan: ải 4100 đánh thường 8001–8005, tầng khác giữ combo; tầm 310, client pace 1ms.');
 // [VI dòng gốc 24] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gọi W.KVPV_V1?.diagnostics?.record(e) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gọi console.warn('[KVPV V1] Auto Thiên Quan:', String(e))
   }catch(e){W.KVPV_V1?.diagnostics?.record?.(e);console.warn('[KVPV V1] Auto Thiên Quan:',String(e));}
 // [VI dòng gốc 25] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
