@@ -578,6 +578,8 @@
   // hết animation. Luôn giữ cổng native, không ép tốc độ tween hay sửa server CD.
 // [VI dòng gốc 282] Khai báo biến không gán lại bằng const: basicTailReady = tạo hàm với tham số (không có); mỗi lần gọi trả về mixed.enabled&&ST.basicImpactSerial===ST.castAttempts và chỉ đánh giá vế phải khi vế trái truthy: ST.basicImpactSerial!==null
   const basicTailReady=()=>mixed.enabled&&ST.basicImpactSerial===ST.castAttempts&&ST.basicImpactSerial!==null;
+  // TQ: only matched damage may release the tails of 8001..8005; other maps keep 8001/8005.
+  const confirmedTailSkill=id=>tqFive?.active()?Number(id)>=8001&&Number(id)<=8005:[8001,8005].includes(Number(id));
 // [VI dòng gốc 283] Định nghĩa hàm nativeReady; tham số: c
   function nativeReady(c){
 // [VI dòng gốc 284] Khai báo biến không gán lại bằng const: studyRunning = tính biểu thức tailStudy?.status==='running'; cutEnabled = nếu studyRunning thì lấy tailStudy.phase==='trim', ngược lại lấy confirmedTailCut
@@ -587,7 +589,7 @@
 // [VI dòng gốc 286] Khai báo biến không gán lại bằng const: cast = gọi ST.casts.findLast(x=>x.serial===ST.basicImpactSerial) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); tween = đọc c?._jh nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
       const cast=ST.casts.findLast?.(x=>x.serial===ST.basicImpactSerial),tween=c?._jh;
 // [VI dòng gốc 287] Kiểm tra cast?.used&&(!studyRunning||cast.tailPhase==='trim')&&!cast.tailCut&&[8001,8005].includes(cast.id)&&cast.targetId===identity(c.target)&&cast.scene===scene()&&tween?.isPlaying===tru…: đúng thì chạy nhánh sau if.
-      if(cast?.used&&(!studyRunning||cast.tailPhase==='trim')&&!cast.tailCut&&[8001,8005].includes(cast.id)&&cast.targetId===identity(c.target)&&cast.scene===scene()&&tween?.isPlaying===true&&typeof tween.stop==='function'){
+      if(cast?.used&&(!studyRunning||cast.tailPhase==='trim')&&!cast.tailCut&&confirmedTailSkill(cast.id)&&cast.targetId===identity(c.target)&&cast.scene===scene()&&tween?.isPlaying===true&&typeof tween.stop==='function'){
 // [VI dòng gốc 288] gán cast.tailCut bằng true | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi tween.stop() để dừng bộ điều khiển và dọn tài nguyên | Kiểm tra c._jh===tween: đúng thì chạy nhánh sau if.
         cast.tailCut=true;try{tween.stop();if(c._jh===tween)c._jh=null;confirmedTailCuts++;if(studyRunning)tailStudy.trim.cuts++;}
 // [VI dòng gốc 289] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán confirmedTailCut bằng false | gán ST.lastError bằng String(e?.message||e) | Kiểm tra studyRunning: đúng thì chạy nhánh sau if.
@@ -1283,7 +1285,7 @@
 // [VI dòng gốc 628] Thuộc tính confirmedTailStudy: W[tailStudyKey] hoặc dùng vế phải khi vế trái là null/undefined: null
       confirmedTailStudy:W[tailStudyKey]??null,
 // [VI dòng gốc 629] Thuộc tính confirmedBasicTailCut: confirmedTailCut | Thuộc tính confirmedBasicTailCuts: confirmedTailCuts
-      confirmedBasicTailCut:confirmedTailCut,confirmedBasicTailCuts:confirmedTailCuts,
+      confirmedBasicTailCut:confirmedTailCut,confirmedBasicTailCuts:confirmedTailCuts,confirmedTailSkillIds:tqFive?.active()?[8001,8002,8003,8004,8005]:[8001,8005],
 // [VI dòng gốc 630] Thuộc tính basicRangeTest: W[rangeTestKey] hoặc dùng vế phải khi vế trái là null/undefined: null
       basicRangeTest:W[rangeTestKey]??null,
 // [VI dòng gốc 631] Thuộc tính skillPriority: nếu mixed.enabled thì lấy mixed.primary?(basicRotation().length?'native_basic_rotation_then_tuyet_hoc':'three_primary_basics_then_tuyet_hoc'):'alternating_native_rotation', ngược lại lấy ['LINH_LUNG','PHU_VAN','TRU_TIEN'].includes(W.KVPV_FAR_SCOPE?.status?.().kind)?'observed_damage_with_fair_rotation':'native_rotation'
