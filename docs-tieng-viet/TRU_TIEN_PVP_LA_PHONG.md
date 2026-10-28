@@ -1,69 +1,53 @@
-# Tru Tiên PvP — chỉ spam đòn tay native, hoạt ảnh x9999 (thử nghiệm)
+# Tru Tiên PvP — đánh tay native 8001–8005, hoạt ảnh x9999
 
-**Thay đổi mới chỉ cho Tru Tiên:** nhân vật KHÔNG còn tự tung Tuyệt Học 1001–1008. Chỉ xoay vòng **8001–8005** ở nhịp quét client 10ms, miễn là native cooldown, native target, range và selector hợp lệ. Tham chiếu đòn tay từ Thiên Quan nhưng không mang hook Boss sang PvP. 10ms không phải tốc độ hit server.
+Chỉ áp dụng trong scene **TRU_TIEN** được nhận diện bằng native map type 52. Đây là chế độ thủ công thử nghiệm, không tự khởi động và không can thiệp Thiên Quan, Linh Lung, Phù Văn hoặc cooldown server.
 
-**Khởi động có thể không có mục tiêu:** đang trong Tru Tiên có thể chạy `KVPV_TRUTIEN_PVP.start({autoDodge:false, companions:true})`; hệ thống sẽ `enabled:true`, `reason:'waiting_player_target'` cho tới khi người dùng chọn người chơi hợp lệ (type 4). Không tự chọn hay tấn công quái/đồng đội. Lệnh start nhả Boss mode đang giữ quyền, nên chỉ bật khi muốn chuyển hẳn từ PvE sang PvP.
+## Thay đổi mới
+
+- **Không gửi Tuyệt Học 1001–1008** từ nhân vật nữa. Chỉ gửi các đòn tay đã học trong nhóm **8001–8005**; ưu tiên khởi điểm 8005, 8004, 8002, 8003, 8001; dựa trên damage native 1012 thu được để điều chỉnh thứ tự khi đủ mẫu. Không phát đòn khi game từ chối native target/range/cooldown hay không có hàng skill ready.
+- Quét nhịp client **10ms**, không có khoảng chờ client bổ sung cho hoạt ảnh. **10ms là nhịp kiểm tra, không phải 100 hit/s hay xóa cooldown server.**
+- Hoạt ảnh mặc định **x9999**, chỉ nhân native timeScale của action lấy từ config native đòn tay khi gọi `combat(8001..8005)` đồng bộ. Dùng wrapper `_Qrt.getActionTween` ngay trong lúc cast, **trả nguyên descriptor sau khi cast kể cả lỗi**. Không đụng timeScale của Tuyệt Học, nhân vật khác, các map khác hoặc clip bên ngoài lần cast này.
+- Có thể bật trước khi chọn đối thủ: `enabled:true`, `reason:'waiting_player_target'`. Khi chọn người chơi type 4 trong game, module tự sử dụng mục tiêu đang chọn; **không tự tìm/đánh ngẫu nhiên người khác**, và sẽ không phát skill lên quái.
+- Khi đã khóa mục tiêu đầu, để chủ động chuyển sang đối thủ thứ hai còn sống dùng `setFocusToSelected()`. Khi mục tiêu trước chết, tự nhận người tiếp theo **nếu người dùng đã chọn**.
+- Pet/Fuwa/Ride giữ đúng logic native riêng từ phiên trước, có thể tắt bằng `companions:false`; `autoDodge` chỉ liên quan né Tuyệt Học **đối phương** chứ không làm nhân vật tung Tuyệt Học.
+
+## Cách sử dụng trong game-frame
+
+Sau khi **merge + build + nạp bản mới**, vào Tru Tiên:
 
 ```js
-// Sau khi build và cập nhật FULL từ PR mới:
-KVPV_TRUTIEN_PVP.start({autoDodge:false,companions:true});
+// Có thể chạy trước khi click chọn đối thủ
+KVPV_TRUTIEN_PVP.start({autoDodge:false, companions:true});
+
+// Hoạt ảnh x9999 (mặc định phiên bản này)
 KVPV_TRUTIEN_PVP.setVisualSpeed(9999);
-console.log(KVPV_TRUTIEN_PVP.status().visual);
-console.log(KVPV_TRUTIEN_PVP.status().skillIds); // th:[], basic:[8001..8005]
 
-// Nếu hình ảnh lỗi/khựng, trả clip về tốc độ native (không chạm cooldown):
+// Theo dõi đánh tay, chặn/cooldown và clip thực sự đã tăng tốc
+const s=KVPV_TRUTIEN_PVP.status();
+console.log({enabled:s.enabled,reason:s.reason,attacks:s.attacks,basics:s.basicAttempts,
+  th:s.thAttempts,skills:s.skillIds,visual:s.visual,companions:s.companions});
+```
+
+Nếu hoạt ảnh mất hình, lag hoặc đánh không cải thiện, trả tốc độ clip về native **không cần dừng module**:
+
+```js
 KVPV_TRUTIEN_PVP.setVisualSpeed(1);
-
-// Ngừng mode:
-KVPV_TRUTIEN_PVP.stop();
 ```
 
-**Giới hạn x9999:** chỉ nhân hệ số timeScale của clip trong một lần gọi `combat(8001..8005)` đồng bộ, tạm wrap `_Qrt.getActionTween` khi action native khớp rồi khôi phục descriptor trong `finally`. Không chỉnh FPS, cooldown server, damage hoặc RPC. Nếu cấu trúc avatar/animation không tồn tại hoặc clip được tạo bất đồng bộ, `visual.unavailable` tăng hoặc `visual.applied` không tăng; x9999 khi đó **không có hiệu quả**. x9999 có thể khiến hoạt ảnh gần như không nhìn thấy hoặc gặp lỗi visual. Bật 1 để so sánh.
+Muốn chuyển mục tiêu khi đối thủ thứ nhất còn sống: click người thứ hai trong game rồi gọi:
 
-Lệnh `status()` có `basicAttempts`, `attacks`, `visual.applied`, `visual.unavailable`, `reason`, `observedSkills`. Attempts không chứng minh server nhận đòn. Bộ trợ chiến pet/fuwa/ride vẫn dùng native như cũ; `companions:false` nếu muốn chỉ còn chủ đánh tay. Theo dõi/né Tuyệt Học **đối thủ** là tùy chọn riêng, không làm nhân vật chính tung Tuyệt Học.
-
-**Chưa live test PK hoặc full suite Windows.** Giữ bản đang chạy cho tới khi kiểm thử và chủ động merge.
-
----
-
-# Tài liệu chế độ cũ (TH + tay), chỉ để tham khảo
-
-## Kích hoạt
-- Vào Tru Tiên; KVPV_FAR_SCOPE.status() phải có inside=true và kind=TRU_TIEN (native scene type 52, entry khớp map).
-- Chọn thủ công một người chơi đối phương: role native type 4. Không tự chọn quái / đồng đội, không bấm request ngoài game.
-- Hai API cần có sau khi build branch PR #8: KVPV_PVP_LUOFENG và KVPV_TRUTIEN_PVP.
-
-Quan sát TH đối phương, không tự né:
 ```js
-KVPV_TRUTIEN_PVP.start({autoDodge:false,companions:true});
-KVPV_TRUTIEN_PVP.status();
-KVPV_TRUTIEN_PVP.status().tqSkillProfile; // 13 chiêu Thiên Quan được học
-KVPV_TRUTIEN_PVP.status().companions; // pet, fuwa, ride
-KVPV_TRUTIEN_PVP.setFocusToSelected(); // chỉ khi muốn chuyển mục tiêu đang sống
+KVPV_TRUTIEN_PVP.setFocusToSelected();
 ```
-Chỉ thử tự né khi đã thấy remote TH 1039 được nhận thật:
-```js
-KVPV_TRUTIEN_PVP.start({autoDodge:true});
-KVPV_TRUTIEN_PVP.status().dodge;
-```
-Dừng ngay:
+
+Dừng toàn bộ module PvP này:
+
 ```js
 KVPV_TRUTIEN_PVP.stop();
 ```
 
-## Hành vi và giới hạn
-- ALL-IN: **kết hợp Tuyệt Học native 1001–1008 với 5 đòn tay native 8001–8005** (không bỏ đòn thường). TH → tay → TH nếu đều sẵn sàng; khi TH hồi chiêu, ưu tiên dùng tay còn sẵn sàng. Không rút theo HP, không tự hồi máu, không tự chạy áp sát; phải tự chọn mục tiêu và đứng trong tầm native của skill.
-- Nhịp quét client 10ms, nhưng chỉ gọi combat khi native isCooldown()===false, isValidTarget()===true, isValidRange()===true, selector native _f7t chọn được hàng TH hoặc đòn tay đã học. Không chỉnh cooldown, WebSocket, damage hoặc vùng đánh. Không chờ cờ hoạt ảnh native riêng trong module PvP Tru Tiên.
-- **Bộ ba trợ chiến Thiên Quan được thử trong Tru Tiên:** petContext (Linh Thú type 2), fuwaContext (Phúc Oa type 9), rideContext (Ngự Thú type 7), quét native 50ms độc lập với cooldown của nhân vật. Chỉ khi companion có selector native, skill id và config hợp lệ, c.isCooldown()===false, game chấp nhận `setTarget`/`isValidTarget`/`isValidRange` cho mục tiêu PvP, mới gọi `combat(skill,0,targetKind)`. Buff tự thân nhắm chủ khi config targetKind=1. Không ép game chấp nhận player; nếu không chấp nhận thì stats.companions.blocked tăng, không bảo đảm đồng hành gây sát thương. Có thể tắt riêng bằng `start({autoDodge:false,companions:false})`.
-- Khi bắt đầu, module chỉ dừng KVPV_MODE nếu đã chọn đúng người chơi và Tru Tiên hợp lệ. Lệnh này giải phóng Boss mode/TH300/HitRun để không tự chọn lại quái. Nếu Daily đang bận hoặc chủ combat vẫn đang chạy thì từ chối bật. Muốn trở lại auto Boss phải kích hoạt mode cũ sau trận.
-- Né tự động qua PR #8 chỉ nghe 1039 của mục tiêu đã chọn, TH 1001–1008 nhắm đúng actorID, rồi thử moveTo sang ngang 115 đơn vị tối đa 1 lần/1250ms. Nhường thao tác UI, cooldown né, movement busy, tab nền, Daily, mode Boss. Né ngang không phải rút lui để hồi máu.
-- Map / actor đổi thì dừng và gỡ listener. Đổi mục tiêu sang quái thì không đánh và không tự tìm người khác. **Tập trung một địch**: mặc định khóa người đầu tiên đang được chọn; chọn nhầm người thứ hai khi người thứ nhất còn sống sẽ bị chặn (`reason=focus_locked_switch_manual`), tránh chia nhỏ sát thương. Khi đối thủ đầu đã chết và người dùng chọn địch mới, khóa đổi tự động. Nếu muốn đổi khi địch đầu còn sống: chọn mục tiêu mới trong game, chạy `KVPV_TRUTIEN_PVP.setFocusToSelected()`; hoặc ngay từ đầu `start({autoDodge:false,focusLock:false})` để tắt khóa.
-- **Quan trọng**: chưa chứng minh remote 1039 tồn tại ở client hoặc né được server hit; có thể skill/AoE đã trúng trước khi thấy tín hiệu. CastAttempt không bảo đảm hit, 10ms không bảo đảm 100 đòn/giây.
-- Danh sách `tqSkillProfile.requested` lấy đúng 13 ID của TQ_BASIC_PROFILE + TH300. `learned/missing` đối chiếu hàng native của nhân vật, không tự học/cấp kỹ năng thiếu. Trang bị bị động/phụ kiện khác chưa được xác nhận trong roster 13 ID, vẫn để native tự hoạt động chứ không giả làm chiêu trực tiếp.
-- Chỉ có bằng chứng người chơi chính của KVPV dùng type 4; nếu một đối thủ có native type khác thì lấy status().targetType và log thật, không mở rộng bừa.
-- Module combat đo sự kiện damage 1012 đã lọc source / receiver / marker nhưng không ghép từng hit vào lần cast của chính module. `status().observedSkills` thống kê từng đòn trong cùng một mục tiêu; sau ít nhất 2 hit quan sát của từng skill, bộ chọn ưu tiên mức trung bình cao hơn. Các ID tay khởi điểm ưu tiên [8005,8004,8002,8003,8001] dựa profile Boss, **chưa chứng minh mạnh nhất trong PvP**. Khi đổi mục tiêu, bảng học per-skill được xóa để không trộn dữ liệu.
+## Giới hạn kiểm thử
 
-## Kiểm thử
-- TEST_PVP_LUOFENG.cjs; TEST_TRUTIEN_PVP.cjs — mô phỏng đã PASS, gồm TH+5 đòn tay xen kẽ, không sửa cooldown, khóa một địch, chuyển mục tiêu thủ công, 3 trợ chiến pet/fuwa/ride (50ms native + self buff), giới hạn PvP target, né skill đối phương, và cleanup.
-- Chưa chạy full node test.cjs trong checkout Windows; chưa live test server PvP.
-- Trước khi build/merge: tạo .kvpv-live/maintenance.lock, chạy full node test.cjs, và kiểm tra xung đột live. PR #8 vẫn là draft nên không ảnh hưởng main/extension hiện tại.
+- Test mô phỏng: duy nhất 8001–8005, không có Tuyệt Học chủ; visual x9999; khôi phục wrapper khi native throw; map exit; native cooldown/target/range; target chưa chọn; tập trung một đối thủ và trợ chiến.
+- **Chưa xác minh PK thật / full test Windows.** `visual.applied` tăng chỉ chứng minh client đã gọi đúng animation hook, không phải server chấp nhận nhiều đòn hoặc tăng DPS.
+- Nếu `visual.unavailable` tăng, client đang dùng đường animation khác nên không có tăng tốc visual. Không ghi đè hook lạ và không xóa native cooldown.
