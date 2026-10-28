@@ -11,13 +11,13 @@ const src=fs.readFileSync(path.join(__dirname,'KVPV_V1_FULL.js'),'utf8');
 // [VI dòng gốc 6] gọi assert(src.includes('// Source: src/07-tuyet-hoc.js')) để kiểm tra điều kiện của bài test
 assert(src.includes('// Source: src/07-tuyet-hoc.js'));
 // [VI dòng gốc 7] Khai báo biến không gán lại bằng const: rangeSource = gọi fs.readFileSync(path.join(__dirname,'src/07-tuyet-hoc.js'),'utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm, '')
-const rangeSource=fs.readFileSync(path.join(__dirname,'src/07-tuyet-hoc.js'),'utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'');
+const rangeSource=fs.readFileSync(path.join(__dirname,'src/07-tuyet-hoc.js'),'utf8').replace(/\r\n?/g,'\n').replace(/^\/\/ \[VI dòng gốc \d+\].*\n/gm,'');
 // [VI dòng gốc 8] Khai báo biến không gán lại bằng const: oldStart = gọi rangeSource.indexOf('[mở chú thích] ===========================================================================\n * KVPV V12.9.5 — BOSS TH ONLY')
 const oldStart=rangeSource.indexOf('/* ===========================================================================\n * KVPV V12.9.5 — BOSS TH ONLY');
 // [VI dòng gốc 9] gọi assert(oldStart>0) để kiểm tra điều kiện của bài test
 assert(oldStart>0);
 // [VI dòng gốc 10] Khai báo biến không gán lại bằng const: addon = tính biểu thức rangeSource.slice(oldStart)+'\n'+fs.readFileSync(path.join(__dirname,'src/08-range-evidence.js'),'utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'')
-const addon=rangeSource.slice(oldStart)+'\n'+fs.readFileSync(path.join(__dirname,'src/08-range-evidence.js'),'utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'');
+const addon=rangeSource.slice(oldStart)+'\n'+fs.readFileSync(path.join(__dirname,'src/08-range-evidence.js'),'utf8').replace(/\r\n?/g,'\n').replace(/^\/\/ \[VI dòng gốc \d+\].*\n/gm,'');
 // [VI dòng gốc 11] Khai báo biến có thể gán lại bằng let: passed = 0
 let passed=0;
 // [VI dòng gốc 12] Định nghĩa hàm test; tham số: label, fn | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi fn() | tăng passed một đơn vị sau khi lấy giá trị
