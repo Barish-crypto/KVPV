@@ -152,4 +152,45 @@ function setup(){
  assert.equal(force.status().active,true);
  force.setEnabled(false);q.mod.stop();
 }
+{
+ const {q,force}=setup(),native=q.c.isCooldown;
+ force.setEnabled(true);
+ assert.equal(force.status().active,true);
+ q.mod.stop('Đổi phạm vi/map/tầng');
+ assert.equal(force.status().enabled,true,'automatic stage transition retains user preference');
+ assert.equal(force.status().active,false,'automatic stage transition releases native hook');
+ assert.equal(q.c.isCooldown,native,'cooldown restored when TH300 suspends');
+ q.mod.start('SCAN');q.mod.sync();
+ assert.equal(force.status().active,true,'re-entering stage re-applies force with no Console call');
+ q.mod.stop();
+ assert.equal(force.status().enabled,false,'manual TH300 stop disables auto force');
+ assert.equal(q.c.isCooldown,native);
+}
+{
+ const {q,force}=setup();
+ let armed=0;
+ q.W.KVPV_MODE={armTianQuan(){armed++;}};
+ const startup=fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8');
+ vm.runInNewContext(startup,{window:q.W,console:{info(){},warn(){}}});
+ assert.equal(armed,1,'startup installs original map watcher once');
+ assert.equal(q.mod.status(false).basicOnly,true,'FULL startup selects 8001..8005 only');
+ assert.equal(force.status().enabled,true,'FULL startup automatically enables force without Console');
+ assert.equal(force.status().active,true,'already inside Tian Quan activates immediately');
+ assert.equal(q.mod.status(false).paceMs,1,'1ms client cadence retained');
+ q.mod.stop();
+}
+{
+ const {q,force,setKind}=setup();
+ let armed=0;
+ setKind('OUTSIDE');
+ q.W.KVPV_MODE={armTianQuan(){armed++;}};
+ vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8'),{
+   window:q.W,console:{info(){},warn(){}}});
+ assert.equal(armed,1);
+ assert.equal(force.status().enabled,true,'FULL auto arms even before entering Tian Quan');
+ assert.equal(force.status().active,false,'no force applied to outside-map combat');
+ setKind('THIEN_QUAN');q.mod.sync();
+ assert.equal(force.status().active,true,'map entry starts force automatically');
+ q.mod.stop();
+}
 console.log('PASS TQ basic force: persistent opt-in, cooldown+own/inherited animation, native restoration, TQ isolation, no status recursion');
