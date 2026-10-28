@@ -156,7 +156,7 @@
   const speedClips=new Map();
   let thVisualCalls=0,thVisualScaled=0,thVisualUnavailable=0,thVisualLastSkill=null;
 // [VI dòng gốc 81] Định nghĩa hàm restoreSpeedClips; tham số: không có | Duyệt từng giá trị trong speedClips bằng const [clip,s]. | Khai báo biến không gán lại bằng const: [clip,s] (chưa gán giá trị) | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
-  function restoreSpeedClips(){for(const [clip,s]of speedClips)try{if(clip?._nt===s.applied)clip.timeScale=s.before;}catch(e){ST.lastError=String(e);}speedClips.clear();}
+  function restoreSpeedClips(){for(const [clip,s]of speedClips)try{if(clip?._nt===s.applied||clip?.timeScale===s.applied)clip.timeScale=s.before;}catch(e){ST.lastError=String(e);}speedClips.clear();}
 // [VI dòng gốc 82] Định nghĩa hàm finishSpeedTrial; tham số: reason='complete'
   function finishSpeedTrial(reason='complete'){
 // [VI dòng gốc 83] Kiểm tra !speedTrial||['complete','interrupted','timeout','stopped'].includes(speedTrial.state): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
