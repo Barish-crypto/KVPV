@@ -136,7 +136,7 @@
 // [VI dòng gốc 71] Định nghĩa hàm exit; tham số: reason | gán S.reason bằng reason | gán S.phase bằng 'EXITING' | gán S.lastEntry bằng Date.now()
   function exit(reason){S.reason=reason;S.phase='EXITING';S.lastEntry=Date.now();rpc()?.rqEtScene?.(0);}
 // [VI dòng gốc 72] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Kiểm tra W.KVPV_ENTRY_POLICY?.manual===true: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
-  function tick(){S.bossCombatOcc=null;if(W.KVPV_ENTRY_POLICY?.manual===true)return;try{
+  function tick(){if(W.KVPV_ENTRY_POLICY?.manual===true)return;S.bossCombatOcc=null;try{
 // [VI dòng gốc 73] Kiểm tra W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'priority_agree_popup' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true){S.reason='priority_agree_popup';return;}
 // [VI dòng gốc 74] Kiểm tra !S.enabled||!owned(): đúng thì chạy nhánh sau if. | gọi stop() để dừng bộ điều khiển và dọn tài nguyên | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
