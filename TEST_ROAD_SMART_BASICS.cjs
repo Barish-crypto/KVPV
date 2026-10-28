@@ -38,6 +38,8 @@ const W={__KVPV_OWN_ACTOR_ID:actor,
  setInterval(){return ++seq;},clearInterval(){}};
 const load=file=>vm.runInNewContext(fs.readFileSync(__dirname+'/'+file,'utf8'),{window:W,Date:Clock,console});
 load('src/59-road-cadence.js');load('src/12-basic-outside.js');
+// Explicitly opt into the Road native evidence-ranking profile for legacy tests.
+W.KVPV_BASIC10.setSkillPriority('tuyet_hoc_first');
 const road=W.KVPV_ROAD_CADENCE,auto=W.KVPV_BASIC10;
 assert.equal(road.status().basicPriority,true);
 assert.equal(road.status().preferredBasic,8001);
