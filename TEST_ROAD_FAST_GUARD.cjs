@@ -19,7 +19,9 @@ const W={__KVPV_OWN_ACTOR_ID:'12345',
  KVPV_TQ_SCOPE:{inside:()=>false},document:{hidden:false},
  setInterval(fn,ms){timers.push(ms);return ++seq;},clearInterval(){}};
 const run=file=>vm.runInNewContext(fs.readFileSync(__dirname+'/'+file,'utf8'),{window:W,Date:Clock,console});
-run('src/59-road-cadence.js');run('src/12-basic-outside.js');
+run('src/59-road-cadence.js');W.KVPV_ROAD_CADENCE.setCombatMode('basic8001');run('src/12-basic-outside.js');
+// Explicitly verify the legacy native Road throttle instead of new BASIC FORCE default.
+W.KVPV_BASIC10.setSkillPriority('tuyet_hoc_first');
 assert.equal(W.KVPV_ROAD_CADENCE.minCastIntervalMs,80);
 assert.equal(W.KVPV_BASIC10.status().intervalMs,100,'road polling remains bounded');
 assert.equal(c.combat===nativeCombat,false,'native call is wrapped only for duplicate guard');
