@@ -36,7 +36,7 @@
 // [VI dòng gốc 17] gọi W.KVPV_TH300?.setAfterTHWait(1) để đặt thời gian chờ thêm sau Tuyệt Học theo mili giây (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     W.KVPV_TH300?.setAfterTHWait?.(1);
 // [VI dòng gốc 18] gọi W.KVPV_TH300?.setConfirmedTailCut(true) để bật/tắt cắt phần đuôi hoạt ảnh chỉ sau khi đã ghép được đòn trúng (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
-    W.KVPV_TH300?.setTianQuanTuyetHocVisualSpeed?.(99);
+    // TH and 5 native basics share the Tian Quan-only visual scale configured below.
     W.KVPV_TH300?.setConfirmedTailCut?.(true);
 // [VI dòng gốc 19] gọi W.KVPV_TH300?.setBasicOnly(true) để bật/tắt chế độ nhân vật chỉ dùng đòn tay 8001 trong Thiên Quan, Linh Lung, Phù Văn và Tru Tiên (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     W.KVPV_TH300?.setBasicOnly?.(false);
@@ -53,6 +53,7 @@
     // Khôi phục tốc độ hoạt ảnh gốc (1) theo yêu cầu; không tăng tốc hoạt ảnh 8001.
 // [VI dòng gốc 22] Kiểm tra String(W.__KVPV_OWN_ACTOR_ID)==='10228867268946': đúng thì chạy nhánh sau if. | gọi W.KVPV_TH300?.setBasicAnimationSpeed(1) để đặt hệ số phát hoạt ảnh 8001 phía client; không phải hệ số sát thương server (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     if(String(W.__KVPV_OWN_ACTOR_ID)==='10228867268946')W.KVPV_TH300?.setBasicAnimationSpeed?.(1);
+    W.KVPV_TH300?.setTianQuanVisualSpeed?.(9999); // 13 skills, Tian Quan only, client visuals
 // [VI dòng gốc 23] gọi console.info('[KVPV V1] Ba phó bản chỉ dùng 8001; kiểm tra 1 ms, chờ thêm 0 ms; tốc độ server chưa xác minh.')
     console.info('[KVPV V1] Thiên Quan: ải 4100 đánh thường 8001–8005, tầng khác giữ combo; tầm 310, client pace 1ms.');
 // [VI dòng gốc 24] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gọi W.KVPV_V1?.diagnostics?.record(e) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gọi console.warn('[KVPV V1] Auto Thiên Quan:', String(e))
