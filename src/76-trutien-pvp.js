@@ -22,7 +22,6 @@ const scope=()=>{const s=W.KVPV_FAR_SCOPE?.status?.();return s?.inside===true&&s
 const own=()=>!!actorId&&actorId===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 const live=r=>{const hp=prop(r,'hp');return !!r&&r.isValid!==false&&(!Array.isArray(hp)||Number(hp[0])>0);};
 const enemy=(t,actor)=>live(t)&&t!==actor&&id(t)!==actorId&&Number(prop(t,'type'))===4&&!!id(t);
-const isTH=x=>Number.isSafeInteger(Number(x))&&Number(x)>=1001&&Number(x)<=1008;
 const isBasic=x=>Number.isSafeInteger(Number(x))&&Number(x)>=8001&&Number(x)<=8005;
 const priorityBasic=[8005,8004,8002,8003,8001];
 // Borrow ONLY native basics from Tian Quan. Do not import its boss targeting/movement hooks.
