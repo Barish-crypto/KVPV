@@ -198,26 +198,24 @@
       note:'Basic attacks only while stage 4100 Tian Quan is active. Client pace 1ms is not server attack rate; confirmed range/hits still required.'};
   }
   // Reversible, short client-side trial; never enabled automatically at startup.
-  const cooldown4100={enabled:false,expiresAt:0,hook:null,falseReturns:0,
+  const cooldown4100={enabled:false,hook:null,falseReturns:0,
     trials:0,restores:0,lastReason:'off',error:''};
   function cooldown4100Release(reason='manual'){
     const h=cooldown4100.hook;cooldown4100.hook=null;
-    cooldown4100.enabled=false;cooldown4100.expiresAt=0;
+    cooldown4100.enabled=false;
     if(h){restore(h);cooldown4100.restores++;}
     cooldown4100.lastReason=reason;
   }
   function cooldown4100Status(){return {
-    enabled:cooldown4100.enabled,active:!!cooldown4100.hook&&cooldown4100.enabled&&
-      Date.now()<cooldown4100.expiresAt&&basicSolo4100Active(),
-    expiresInMs:cooldown4100.enabled?Math.max(0,cooldown4100.expiresAt-Date.now()):0,
+    enabled:cooldown4100.enabled,active:!!cooldown4100.hook&&cooldown4100.enabled&&basicSolo4100Active(),
+    expiresInMs:null,automaticExpiry:false,minCastGapMs:80,
     falseReturns:cooldown4100.falseReturns,trials:cooldown4100.trials,
     restores:cooldown4100.restores,reason:cooldown4100.lastReason,error:cooldown4100.error,
     scope:'Tian Quan 4100 native basics',nativeAnimationGatePreserved:true,
     serverCooldownModified:false,webSocketUnaffected:true,
-    warning:'isCooldown=false is client-only. Server may reject casts; trial expires in <=15s.'};}
+    warning:'Continuous opt-in client-only isCooldown=false at TQ 4100 with >=80ms cast pacing. Server may reject casts. Restore on stop, map exit, or manual disable.'};}
   function cooldown4100Sync(c){
     if(!cooldown4100.enabled)return;
-    if(Date.now()>=cooldown4100.expiresAt){cooldown4100Release('expired');return;}
     if(!basicSolo4100Active()||!ST.running||!c||c!==role().c||!eligible(c.target)){
       cooldown4100Release('left_4100_or_combat');return;
     }
@@ -228,8 +226,8 @@
     }
     try{
       cooldown4100.hook=hook(c,'isCooldown',native=>function(...args){
-        if(this===c&&cooldown4100.enabled&&Date.now()<cooldown4100.expiresAt&&
-           basicSolo4100Active()&&ST.running&&ST.target===c.target){
+        if(this===c&&cooldown4100.enabled&&basicSolo4100Active()&&ST.running&&ST.target===c.target){
+          if(Date.now()-ST.lastInvocation<80)return true;
           cooldown4100.falseReturns++;return false;
         }
         return native.apply(this,args);
@@ -238,14 +236,12 @@
       else cooldown4100.lastReason='active';
     }catch(e){cooldown4100.error=String(e?.message||e);cooldown4100Release('hook_error');}
   }
-  function setTianQuan4100CooldownOverride(enabled=true,durationMs=10000){
+  function setTianQuan4100CooldownOverride(enabled=true){
     if(enabled!==true){cooldown4100Release('manual');return cooldown4100Status();}
-    if(!Number.isInteger(durationMs)||durationMs<1000||durationMs>15000)
-      throw Error('Trial duration must be 1000..15000ms');
     if(!basicSolo4100Active()||!ST.running||!eligible(role().c?.target))
       throw Error('Start native basic solo on Tian Quan 4100 before enabling trial');
     cooldown4100Release('restart');
-    cooldown4100.enabled=true;cooldown4100.expiresAt=Date.now()+durationMs;
+    cooldown4100.enabled=true;
     cooldown4100.trials++;cooldown4100.error='';
     cooldown4100Sync(role().c);
     return cooldown4100Status();
@@ -265,10 +261,10 @@
     return localLogCleanupStatus();
   }
   // One command enables both the short cooldown experiment and local debug pruning.
-  function startTianQuan4100CooldownExperiment(durationMs=10000,logIntervalMs=2000){
+  function startTianQuan4100CooldownExperiment(logIntervalMs=2000){
     if(!Number.isInteger(logIntervalMs)||logIntervalMs<1000||logIntervalMs>120000)
       throw Error('Local-log interval must be 1000..120000ms');
-    const trial=setTianQuan4100CooldownOverride(true,durationMs);
+    const trial=setTianQuan4100CooldownOverride(true);
     const cleanup=setLocalLogAutoClear(true,logIntervalMs);
     return {trial,cleanup,devToolsWsFramesCleared:false};
   }
