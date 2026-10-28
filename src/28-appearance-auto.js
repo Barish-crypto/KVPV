@@ -9,7 +9,11 @@
 // [VI dòng gốc 7] "use strict"
   'use strict';
 // [VI dòng gốc 8] Khai báo biến không gán lại bằng const: W = window; old = đọc W.KVPV_APPEARANCE_AUTO; carry = gọi old?._handoff(); chức năng nội bộ chưa xác minh từ tên hàm (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gọi old?.stop('reload') để dừng bộ điều khiển và dọn tài nguyên (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
-  const W=window,old=W.KVPV_APPEARANCE_AUTO,carry=old?._handoff?.();old?.stop?.('reload');
+  const W=window,old=W.KVPV_APPEARANCE_AUTO,carry=old?._handoff?.();
+  // A previous live version can stop against a newly reset V8 registry.
+  // Ignore only missing module IDs; other teardown errors still abort reload.
+  const missingQueueModule=e=>/Khong tim thay module|Không tìm thấy module|module not found|module does not exist/i.test(String(e?.message??e));
+  try{old?.stop?.('reload');}catch(e){if(!missingQueueModule(e))throw e;}
 // [VI dòng gốc 9] Khai báo biến không gán lại bằng const: actor = gọi String(W.__KVPV_OWN_ACTOR_ID||'') để chuyển sang chuỗi; same = tính biểu thức carry?.actor===actor
   const actor=String(W.__KVPV_OWN_ACTOR_ID||''),same=carry?.actor===actor;
 // [VI dòng gốc 10] Khai báo biến không gán lại bằng const: S = tạo đối tượng gồm enabled, timer, pending, saved, savedPet, savedMount, requests, confirmed, reason, lastError, registered, lastMountRefresh
@@ -399,7 +403,10 @@
 // [VI dòng gốc 202] gán S.enabled bằng false | Kiểm tra S.timer!==null: đúng thì chạy nhánh sau if. | gọi W.KVPV_V1?.timers?.clearInterval??W.clearInterval(S.timer) | gán S.timer bằng null
     S.enabled=false;if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(S.timer);S.timer=null;
 // [VI dòng gốc 203] Duyệt từng giá trị trong definitions bằng const d. | Khai báo biến không gán lại bằng const: d (chưa gán giá trị) | gọi W.KVPV_V8?.toggle('appearance_auto_'+d.key, false) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
-    for(const d of definitions)W.KVPV_V8?.toggle?.('appearance_auto_'+d.key,false);
+    // The shared V8 queue may have been replaced or partially registered
+    // between builds. Missing IDs are already disabled; continue teardown.
+    for(const d of definitions)try{W.KVPV_V8?.toggle?.('appearance_auto_'+d.key,false);}
+      catch(e){if(!missingQueueModule(e))throw e;}
 // [VI dòng gốc 204] Chú thích gốc của tác giả; không được thực thi. Nội dung: Không khởi động lại sender cũ khi yêu cầu mới còn chưa rõ kết quả.
     // Không khởi động lại sender cũ khi yêu cầu mới còn chưa rõ kết quả.
 // [VI dòng gốc 205] Kiểm tra reason!=='reload'&&!S.pending: đúng thì chạy nhánh sau if.
