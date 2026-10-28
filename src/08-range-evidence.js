@@ -831,8 +831,9 @@
     }
 // [VI dòng gốc 292] Kết thúc hàm hiện tại và trả về: !animationPlaying(c)||basicTailReady() và chỉ đánh giá vế phải khi vế trái truthy: typeof c?.isCooldown!=='function'||c.isCooldown()===false.
     const skip=skipAnimation4100Active()&&animationPlaying(c);
-    const ready=(skip||!animationPlaying(c)||basicTailReady())&&
-      (typeof c?.isCooldown!=='function'||c.isCooldown()===false);
+    // Skipping the animation gate must never turn a missing native cooldown API into a ready state.
+    const cooldownReady=typeof c?.isCooldown==='function'?c.isCooldown()===false:!skipAnimation4100Active();
+    const ready=(skip||!animationPlaying(c)||basicTailReady())&&cooldownReady;
     if(ready&&skip)animation4100.admittedWhilePlaying++;
     return ready;
 // [VI dòng gốc 293] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
