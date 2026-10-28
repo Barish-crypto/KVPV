@@ -2,7 +2,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const script=fs.readFileSync(__dirname+'/src/75-pvp-luofeng.js','utf8');
 function harness(){
- let tick=1000,scene=5000,target=null,busy=false,high=false,paused=false,mode='OFF';
+ let tick=1000,scene=5000,target=null,busy=false,high=false,paused=false,mode='OFF',kind='OUTSIDE';
  const id='10228867268946',timers=new Map(),moveCalls=[];
  class Clock extends Date{static now(){return tick;}}
  class Emitter{
@@ -14,7 +14,7 @@ function harness(){
  }
  const enemy=new Emitter('enemy1',2);
  enemy.point={x:0,y:0};
- const monster=new Emitter('monster1',1);
+ const monster=new Emitter('monster1',1),human=new Emitter('enemy-human',4);
  const move={_fut:0,running:()=>busy,moveTo(x,y){moveCalls.push({x,y});}};
  const combat={get target(){return target;}};
  function Combat(){}function Move(){}
@@ -24,17 +24,17 @@ function harness(){
  _Ba:{_rJ:{_O$:{ins:{actorId:id}}}},_d:{_Yct:{_Het:Combat,_zet:Move}},
  _C:{_Ba:{instance:{getRole:()=>me}},_Mn:{_Cn:{get currentID(){return scene;}}}},
  document:{hidden:false,hasFocus:()=>true},
- KVPV_FAR_SCOPE:{status:()=>({inside:false})},
+ KVPV_FAR_SCOPE:{status:()=>({inside:kind==='TRU_TIEN',kind})}, 
  KVPV_BASIC10:{status:()=>({roadMelee:{active:high}})},
  KVPV_MODE:{status:()=>({mode})},
  setInterval(fn){const n=timers.size+1;timers.set(n,fn);return n;},
  clearInterval(i){timers.delete(i);}
  };
  vm.runInNewContext(script,{window:W,Date:Clock,console},{timeout:3000});
- return {W,mod:W.KVPV_PVP_LUOFENG,id,enemy,monster,moveCalls,
+ return {W,mod:W.KVPV_PVP_LUOFENG,id,enemy,monster,human,moveCalls,
  setTarget:v=>target=v,setTime:t=>tick=t,step:ms=>tick+=ms,
  setMode:v=>mode=v,setHigh:v=>high=v,setBusy:v=>busy=v,
- setScene:v=>scene=v,pump:()=>{for(const fn of timers.values())fn();},
+ setScene:v=>scene=v,setKind:v=>kind=v,pump:()=>{for(const fn of timers.values())fn();},
  timerCount:()=>timers.size};
 }
 {
@@ -105,5 +105,18 @@ function harness(){
  q.W._Ba._rJ._O$.ins.actorId='other';q.pump();
  assert.equal(q.mod.status().enabled,false,'actor changed stops');
  assert.equal(q.timerCount(),0);
+}
+{
+ const q=harness();q.setKind('TRU_TIEN');q.setTarget(q.human);
+ q.mod.start({autoDodge:true});
+ assert.equal(q.mod.status().attached,true,'type-4 remote player is eligible in verified Tru Tien');
+ q.human.emit(1039,q.id,1008);
+ assert.equal(q.mod.status().observedTH,1);
+ assert.equal(q.moveCalls.length,1,'Tru Tien dodge executes with mode owner OFF');
+ q.setMode('BOSS_TH300_SCAN');q.step(2000);q.human.emit(1039,q.id,1007);
+ assert.equal(q.moveCalls.length,1,'never steal movement from boss owner');
+ q.setMode('OFF');q.setKind('OUTSIDE');q.pump();
+ assert.equal(q.mod.status().attached,false,'outside Tru Tien rejects type-4 target');
+ q.mod.stop();assert.equal(q.human.listeners.size,0,'native listener released on scene exit');
 }
 console.log('PASS PvP La Phong: opt-in, direct enemy TH event, lateral native dodge, cooldown, UI/owner guards, monster and map isolation, cleanup, no extra combat RPC');
