@@ -62,7 +62,7 @@ function setup(){
    setInterval(fn,ms){assert([10,120].includes(ms),'only known 10ms/120ms timers');const id=timers.size+1;timers.set(id,fn);return id;},
    clearInterval(id){timers.delete(id);}};
  vm.runInNewContext(script,{window:W,Date:Clock,console},{timeout:3000});
- return {W,api:W.KVPV_TRUTIEN_PVP,Clock,calls,rows,visuals,avatar,nativeGetActionTween,enemy,enemy2,monster,remote,timers,moveCalls,companionCalls,companionMethods,
+ return {W,api:W.KVPV_TRUTIEN_PVP,Clock,combat,calls,rows,visuals,avatar,nativeGetActionTween,enemy,enemy2,monster,remote,timers,moveCalls,companionCalls,companionMethods,
    tick:()=>{time+=10;for(const fn of timers.values())fn();},advance:ms=>{time+=ms;for(const fn of timers.values())fn();},
    setKind:v=>kind=v,setScene:v=>sc=v,setTarget:v=>selected=v,
    setCd:v=>cooldown=v,setFocus:v=>focus=v,setRange:v=>range=v,setValid:v=>valid=v,
@@ -197,6 +197,38 @@ function setup(){
  q.tick();
  assert.equal(q.companionCalls.length,0,'opt-out disables companions without blocking main skill rotation');
  assert.equal(q.api.status().companions.enabled,false);
+ q.api.stop();
+}
+{
+ const q=setup();q.setTarget(null);
+ const pending=q.api.start({autoDodge:false,companions:false});
+ assert.equal(pending.enabled,true,'allow one-click arming with no target');
+ assert.equal(pending.reason,'waiting_player_target');
+ q.tick();assert.equal(q.calls.length,0,'no phantom basic before player selected');
+ q.setTarget(q.enemy);q.tick();assert.equal(q.calls[0],8005,'begin native basic after manual player selection');
+ q.api.stop();
+ assert.equal(q.avatar.getActionTween,q.nativeGetActionTween,'no persistent animation override');
+}
+{
+ const q=setup();q.api.start({autoDodge:false,companions:false});
+ q.combat.combat=function(){throw Error('simulated native cast failure');};
+ q.tick();
+ assert.equal(q.api.status().reason,'error','native errors are recorded without forcing casts');
+ assert.equal(q.avatar.getActionTween,q.nativeGetActionTween,'visual wrapper restored even if combat throws');
+ q.api.stop();
+}
+{
+ const q=setup();q.api.start({autoDodge:false,companions:false});
+ q.api.setVisualSpeed(9999);
+ q.setKind('OUTSIDE');q.tick();
+ assert.equal(q.api.status().enabled,false,'Tru Tien scope exit stops spam');
+ assert.equal(q.visuals.length,0,'outside Tru Tien never accelerates native clips');
+ q.api.stop();
+}
+{
+ const q=setup();q.api.start({autoDodge:false,companions:false});
+ assert.throws(()=>q.api.setVisualSpeed(99999),/speed must be/);
+ assert.equal(q.api.status().visual.factor,9999,'unsupported factor rejected without mutation');
  q.api.stop();
 }
 console.log('PASS Tru Tien PvP: native 8001-8005 basic-only spam with scoped x9999 visual, target arming, cooldown/range, companions and cleanup.');
