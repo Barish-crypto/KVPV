@@ -91,4 +91,33 @@ function make(){
  assert.equal(st.luoFeng.recentTH.find(x=>x.id===1001).robustScore,10080,'switch off restores lifetime ranking');
  q.mod.stop();
 }
-console.log('PASS Luo Feng Apex V2: 12 recent direct hits, learned skill adapts to new damage, no duplicate exploration, read-only idle 310, no heal, native cooldown unchanged, map/Boss isolation and off switch');
+
+{
+ const {q,setKind}=make();
+ let rhythm=q.mod.status(false).luoFeng.rhythm;
+ assert.equal(rhythm.advisoryOnly,true);
+ assert.equal(rhythm.predictedNextHpLossAt,null,'no prediction without observations');
+ // Boss-like periodic HP losses: this is still player-HP evidence, NOT a verified Boss attack.
+ for(let i=0;i<4;i++){q.hp(90-i*10);q.advance(3500);}
+ rhythm=q.mod.status(false).luoFeng.rhythm;
+ assert.equal(rhythm.observedHpLosses,4);
+ assert.equal(rhythm.intervalSamples,3);
+ assert.equal(rhythm.estimatedCycleMs,3500);
+ assert.equal(rhythm.confidence,'tentative-rhythmic');
+ assert.equal(rhythm.msUntilPrediction,3500);
+ const calls=q.calls.length,moves=q.movements.length;
+ q.hp(59);q.advance(100);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.observedHpLosses,4,'debounce damage burst');
+ q.hp(70);q.advance(100);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.observedHpLosses,4,'heal is not an attack');
+ assert.equal(q.calls.length,calls,'sensor cannot dispatch extra casts');
+ assert.equal(q.movements.length,moves,'sensor cannot issue extra movement');
+ setKind('LINH_LUNG');q.advance(100);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.active,false,'other map disabled');
+ setKind('THIEN_QUAN');q.advance(100);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.intervalSamples,0,'other map resets learned cadence');
+ q.occ(7777);q.advance(100);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.observedHpLosses,0,'Boss switch resets sensor');
+ q.mod.stop();
+}
+console.log('PASS Luo Feng Apex V3: 12 recent direct hits, learned skill adapts to new damage, no duplicate exploration, read-only idle 310, no heal, native cooldown unchanged, map/Boss isolation and off switch');
