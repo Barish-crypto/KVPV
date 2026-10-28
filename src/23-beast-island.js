@@ -30,7 +30,7 @@
 // [VI dòng gốc 18] Khai báo biến không gán lại bằng const: S = tạo đối tượng gồm enabled, timer, lease, phase, reason, lastError, lastRefresh, lastEntry, lastAction, idleSince, action, stageAuto, hooks
   const S={enabled:true,timer:null,lease:false,phase:'WAITING',reason:'starting',lastError:'',
 // [VI dòng gốc 19] Thuộc tính lastRefresh: áp dụng toán tử - lên Infinity | Thuộc tính lastEntry: áp dụng toán tử - lên Infinity | Thuộc tính lastAction: áp dụng toán tử - lên Infinity | Thuộc tính idleSince: null
-    lastRefresh:-Infinity,lastEntry:-Infinity,lastAction:-Infinity,idleSince:null,action:'',stageAuto:null,hooks:[]};
+    lastRefresh:-Infinity,lastEntry:-Infinity,lastAction:-Infinity,idleSince:null,action:'',bossCombatOcc:null,stageAuto:null,hooks:[]};
 // [VI dòng gốc 20] Kiểm tra carry?.actor===actor&&Number.isFinite(carry.lastEntry): đúng thì chạy nhánh sau if. | gán S.lastEntry bằng carry.lastEntry
   if(carry?.actor===actor&&Number.isFinite(carry.lastEntry))S.lastEntry=carry.lastEntry;
 // [VI dòng gốc 21] Khai báo biến không gán lại bằng const: model = tạo hàm với tham số (không có); mỗi lần gọi trả về đọc W._Ba?._dP?._P5t?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); cfg = tạo hàm với tham số (không có); mỗi lần gọi trả về đọc W._ft?._gci?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
@@ -116,7 +116,7 @@
 // [VI dòng gốc 61] Khai báo biến không gán lại bằng const: stage = đọc W._Ba?._Co?._Mo?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kiểm tra owned()&&S.stageAuto===true&&stage?.auto===false: đúng thì chạy nhánh sau if. | gán stage.auto bằng true
     const stage=W._Ba?._Co?._Mo?.ins;if(owned()&&S.stageAuto===true&&stage?.auto===false&&!W.KVPV_EVENT_PRIORITY?.hold?.())stage.auto=true;
 // [VI dòng gốc 62] gán S.stageAuto bằng null | gán S.action bằng '' | gán S.idleSince bằng null
-    S.stageAuto=null;S.action='';S.idleSince=null;
+    S.stageAuto=null;S.action='';S.bossCombatOcc=null;S.idleSince=null;
 // [VI dòng gốc 63] Duyệt từng giá trị trong S.hooks bằng const h. | Khai báo biến không gán lại bằng const: h (chưa gán giá trị) | Kiểm tra h.m[h.key]===h.wrapped: đúng thì chạy nhánh sau if. | gán h.m[h.key] bằng h.original
     for(const h of S.hooks)if(h.m[h.key]===h.wrapped)h.m[h.key]=h.original;S.hooks=[];}
 // [VI dòng gốc 64] Định nghĩa hàm reserve; tham số: không có. Mục đích: xin giữ quyền điều khiển cảnh | Khai báo biến không gán lại bằng const: a = gọi arb(); l = gọi a?.status() để trả trạng thái để kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
@@ -136,7 +136,7 @@
 // [VI dòng gốc 71] Định nghĩa hàm exit; tham số: reason | gán S.reason bằng reason | gán S.phase bằng 'EXITING' | gán S.lastEntry bằng Date.now()
   function exit(reason){S.reason=reason;S.phase='EXITING';S.lastEntry=Date.now();rpc()?.rqEtScene?.(0);}
 // [VI dòng gốc 72] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Kiểm tra W.KVPV_ENTRY_POLICY?.manual===true: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
-  function tick(){if(W.KVPV_ENTRY_POLICY?.manual===true)return;try{
+  function tick(){S.bossCombatOcc=null;if(W.KVPV_ENTRY_POLICY?.manual===true)return;try{
 // [VI dòng gốc 73] Kiểm tra W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'priority_agree_popup' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true){S.reason='priority_agree_popup';return;}
 // [VI dòng gốc 74] Kiểm tra !S.enabled||!owned(): đúng thì chạy nhánh sau if. | gọi stop() để dừng bộ điều khiển và dọn tài nguyên | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
@@ -226,6 +226,7 @@
 // [VI dòng gốc 116] Kiểm tra S.action===key&&(now-S.lastAction<8000||m.getMovePoint?.()||target?.isValid===true): đúng thì chạy nhánh sau if.
     if(S.action===key&&(now-S.lastAction<8000||m.getMovePoint?.()||target?.isValid===true)){
 // [VI dòng gốc 117] gán S.reason bằng kind===1?'native_boss_'+bossLevel:'native_collect_path' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
+      S.bossCombatOcc=kind===1?Number(occ):null;
       S.reason=kind===1?'native_boss_'+bossLevel:'native_collect_path';return;
 // [VI dòng gốc 118] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
     }
@@ -242,7 +243,7 @@
 // [VI dòng gốc 124] gọi m.setTarget(occ, 1, 49) để đặt mục tiêu qua đối tượng đang gọi
     }else m.setTarget(occ,1,49);
 // [VI dòng gốc 125] gán S.action bằng key | gán S.lastAction bằng now | gán S.reason bằng kind===1?'native_boss_'+bossLevel:'native_collect_path'
-    S.action=key;S.lastAction=now;S.reason=kind===1?'native_boss_'+bossLevel:'native_collect_path';
+    S.action=key;S.bossCombatOcc=kind===1?Number(occ):null;S.lastAction=now;S.reason=kind===1?'native_boss_'+bossLevel:'native_collect_path';
 // [VI dòng gốc 126] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán S.lastError bằng String(e?.message||e) | gán S.reason bằng 'error'
   }catch(e){S.lastError=String(e?.message||e);S.reason='error';}}
 // [VI dòng gốc 127] Chú thích gốc của tác giả; không được thực thi. Nội dung: Boss 800 chỉ dành cho acc chính theo lựa chọn của người dùng.
@@ -266,6 +267,16 @@
 // [VI dòng gốc 136] Dòng trống để tách các phần, không có lệnh thực thi.
 
 // [VI dòng gốc 137] Định nghĩa hàm status; tham số: không có. Mục đích: trả trạng thái để kiểm tra
+  function basicCombatReady(target){
+    if(!owned()||!S.enabled||!S.lease||S.phase!=='ACTIVE'||S.bossCombatOcc===null||
+       user()?.isDead===true||W._Ba?._K_t?._Z7t?.ins?.gathering===true||
+       arb()?.status?.()?.tag!==tag||!target||target.isValid===false)return false;
+    const occ=Number(target.property?.get?.('occ'));
+    if(occ!==S.bossCombatOcc||Number(target.property?.get?.('type'))!==1)return false;
+    const hp=target.property?.get?.('hp');if(Array.isArray(hp)&&Number(hp[0])<=0)return false;
+    const map=Number(W._C?._Mn?._Cn?.currentID??W._Ba?._$a?._yo?.ins?.intoSce?.[0]);
+    return Number(W._ft?._po?.ins?.getCfgById?.(map)?.[7])===49;
+  }
   function status(){
 // [VI dòng gốc 138] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm enabled, phase, reason, collectionLayer, bossLevel, bossLayer, quota, lastError, allowKNB.
     return {
@@ -286,7 +297,8 @@
 // [VI dòng gốc 146] Thuộc tính lastError: đọc S.lastError
       lastError:S.lastError,
 // [VI dòng gốc 147] Thuộc tính allowKNB: false
-      allowKNB:false
+      allowKNB:false,
+      basicCombat:{enabled:true,active:S.bossCombatOcc!==null&&S.lease,skillIds:[8001,8002,8003,8004,8005]}
 // [VI dòng gốc 148] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
     };
 // [VI dòng gốc 149] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
@@ -335,6 +347,7 @@
     stop,
 // [VI dòng gốc 171] Thuộc tính sync: tick (xử lý một nhịp kiểm tra)
     sync:tick,
+    basicCombatReady,
 // [VI dòng gốc 172] Thuộc tính setBossLevel: dùng biến cùng tên
     setBossLevel,
 // [VI dòng gốc 173] Thuộc tính status: dùng biến cùng tên
