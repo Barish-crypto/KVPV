@@ -144,9 +144,10 @@
     // When the user armed outside the map, auto-enable BASIC ONLY once the
     // existing Tian Quan watcher starts TH300. No explicit F5/retry needed.
     if(W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&
-       W.KVPV_TH300?.status?.(false)?.running===true&&
-       W.KVPV_TH300?.status?.(false)?.basicOnly!==true){
-      try{configureBasicOnly();}catch(e){S.error=String(e?.message||e);}
+       W.KVPV_TH300?.isBasicOnly?.()===false){
+      try{
+        if(W.KVPV_TH300.status(false)?.running===true)configureBasicOnly();
+      }catch(e){S.error=String(e?.message||e);}
     }
     let ok=false;
     try{ok=available(c);}catch(e){S.error=String(e?.message||e);}
