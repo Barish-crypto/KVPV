@@ -17,7 +17,7 @@
 // [VI dòng gốc 11] Khai báo biến không gán lại bằng const: S = tạo đối tượng gồm enabled, timer, role, ride, mansion, mansionAttempts, dispatching, reason, lastError, attempts, nativeCastSignals, lastSkill, lastTarget
   const S={enabled:true,timer:null,role:null,ride:null,mansion:null,mansionAttempts:0,dispatching:false,reason:'starting',lastError:'',
 // [VI dòng gốc 12] Thuộc tính attempts: nếu carry?.actor===actor thì lấy Number(carry.attempts)||0, ngược lại lấy 0 | Thuộc tính nativeCastSignals: nếu carry?.actor===actor thì lấy Number(carry.nativeCastSignals)||0, ngược lại lấy 0 | Thuộc tính lastSkill: null | Thuộc tính lastTarget: null
-    attempts:carry?.actor===actor?Number(carry.attempts)||0:0,nativeCastSignals:carry?.actor===actor?Number(carry.nativeCastSignals)||0:0,lastSkill:null,lastTarget:null};
+    attempts:carry?.actor===actor?Number(carry.attempts)||0:0,nativeCastSignals:carry?.actor===actor?Number(carry.nativeCastSignals)||0:0,lastSkill:null,lastTarget:null,nativeAutoAttempts:0,perCompanion:{pet:0,fuwa:0,ride:0},lastCompanion:null};
 // [VI dòng gốc 13] Khai báo biến không gán lại bằng const: prop = tạo hàm với tham số r, k; mỗi lần gọi trả về gọi r?.property?.get(k) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); types = tạo hàm với tham số (không có); mỗi lần gọi trả về đọc W._d?._Yct nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
   const prop=(r,k)=>r?.property?.get?.(k),types=()=>W._d?._Yct;
 // [VI dòng gốc 14] Khai báo biến không gán lại bằng const: component = tạo hàm với tham số r, k; mỗi lần gọi trả về nếu types()?.[k] thì lấy r?.getComponent?.(types()[k]), ngược lại lấy null
@@ -55,10 +55,29 @@
       W.KVPV_FAR_SCOPE?.eligible?.(target)!==true||master?.isValidTarget?.()!==true)return;
 // [VI dòng gốc 30] Khai báo biến không gán lại bằng const: p = gọi settings() | gán S.dispatching bằng true | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | Duyệt từng giá trị trong [['ride',7,p.rideFollow!==false],['mansion',12,p.mansionFollow===true]] bằng const [key,type,on].
     if(inRoad()){dispatchRoad(role,target);return;}
-    const p=settings();S.dispatching=true;try{for(const [key,type,on] of [['ride',7,p.rideFollow!==false],['mansion',12,p.mansionFollow===true]])if(on){try{follow(key,type,role,target);}catch(e){S.lastError=String(e?.message??e);S.reason='error';}}}finally{S.dispatching=false;}
+    const p=settings();S.dispatching=true;try{for(const [key,type,on] of [['pet',2,true],['fuwa',9,true],['ride',7,p.rideFollow!==false],['mansion',12,p.mansionFollow===true]])if(on){try{follow(key,type,role,target);}catch(e){S.lastError=String(e?.message??e);S.reason='error';}}}finally{S.dispatching=false;}
 // [VI dòng gốc 31] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán S.lastError bằng String(e?.message??e) | gán S.reason bằng 'error'
   }catch(e){S.lastError=String(e?.message??e);S.reason='error';}}
 // [VI dòng gốc 32] Định nghĩa hàm follow; tham số: key, type, role, target
+  // Pet / Fuwa / Ride native selector autonomously chooses normal attacks
+  // and special skills; only native readiness, animation and range admit casts.
+  function dispatchNativeCompanions(role,target){
+    const master=component(role,'_Het');
+    if(!S.enabled||S.dispatching||!owned()||!scope()||inRoad()||
+      W._Ba?._rJ?._O$?.ins?.isDead===true||!live(role)||Number(prop(role,'type'))!==4||
+      !live(target)||Number(prop(target,'type'))!==1||
+      W.KVPV_FAR_SCOPE?.eligible?.(target)!==true||
+      typeof master?.isValidTarget!=='function'||master.isValidTarget()!==true)return;
+    const p=settings();S.dispatching=true;
+    try{
+      for(const [key,type,on] of [['pet',2,true],['fuwa',9,true],['ride',7,p.rideFollow!==false]]){
+        if(!on)continue;
+        try{const before=S.attempts;follow(key,type,role,target);
+          if(S.attempts>before)S.nativeAutoAttempts++;}
+        catch(e){S.lastError=String(e?.message??e);S.reason='error';}
+      }
+    }finally{S.dispatching=false;}
+  }
   let lastRoadDispatch=-Infinity;
   function dispatchRoad(role,target){if(W._Ba?._rJ?._O$?.ins?.isDead===true||S.dispatching||Date.now()-lastRoadDispatch<1||!live(role)||Number(prop(role,'type'))!==4||!live(target)||Number(prop(target,'type'))!==1||component(role,'_Het')?.isValidTarget?.()!==true)return;lastRoadDispatch=Date.now();S.dispatching=true;try{const p=settings();for(const [key,type,on] of [['pet',2,true],['fuwa',9,true],['ride',7,p.rideFollow!==false]])if(on)try{follow(key,type,role,target);}catch(e){S.lastError=String(e?.message??e);S.reason='error';}}finally{S.dispatching=false;}}
   function follow(key,type,role,target){
@@ -71,11 +90,11 @@
 // [VI dòng gốc 36] Kiểm tra typeof combat?.combat!=='function'||typeof combat?.setTarget!=='function'||typeof selector?.selectSkill!=='function': đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_native_components' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(typeof combat?.combat!=='function'||typeof combat?.setTarget!=='function'||typeof selector?.selectSkill!=='function'){S.reason='waiting_native_components';return;}
 // [VI dòng gốc 37] Kiểm tra combat.isCooldown?.()!==false: đúng thì chạy nhánh sau if. | gán S.reason bằng 'native_ride_cooldown' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-    if(!inRoad()&&(combat._jh?.isPlaying===true||combat.isCooldown?.()!==false)){S.reason='native_ride_cooldown';return;}
+    if(combat._jh?.isPlaying===true||typeof combat.isCooldown!=='function'||combat.isCooldown()!==false){S.reason='native_companion_cooldown';return;}
 // [VI dòng gốc 38] Dòng trống để tách các phần, không có lệnh thực thi.
 
 // [VI dòng gốc 39] Khai báo biến không gán lại bằng const: selected = gọi Number(selector.selectSkill()) để chuyển sang số
-      const selected=Number(inRoad()&&W.KVPV_ROAD_CADENCE?.selectSkill1ms?W.KVPV_ROAD_CADENCE.selectSkill1ms(selector):selector.selectSkill());
+      const selected=Number(selector.selectSkill());
 // [VI dòng gốc 40] Kiểm tra !Number.isSafeInteger(selected)||selected<=0: đúng thì chạy nhánh sau if. | gán S.reason bằng 'no_ready_native_skill' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       if(!Number.isSafeInteger(selected)||selected<=0){S.reason='no_ready_native_skill';return;}
 // [VI dòng gốc 41] Khai báo biến không gán lại bằng const: cfg = gọi W._Ba?._Jtt?._ant?.ins?.getCfgById(10000*selected+1) để tra cấu hình theo ID bằng API client (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
@@ -89,11 +108,12 @@
 // [VI dòng gốc 45] Kiểm tra combat.target!==destination||combat.isValidTarget?.(targetKind)!==true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'native_target_rejected' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       if(combat.target!==destination||combat.isValidTarget?.(targetKind)!==true){S.reason='native_target_rejected';return;}
 // [VI dòng gốc 46] Kiểm tra key==='mansion'&&combat.isValidRange?.()!==true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'native_mansion_range' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-      if((key==='mansion'||inRoad()&&typeof combat.isValidRange==='function')&&combat.isValidRange?.()!==true){S.reason='native_mansion_range';return;}
+      if(typeof combat.isValidRange==='function'&&combat.isValidRange()!==true){S.reason='native_companion_range';return;}
 // [VI dòng gốc 47] Kiểm tra key==='mansion': đúng thì chạy nhánh sau if. | tăng S.mansionAttempts một đơn vị sau khi lấy giá trị | tăng S.attempts một đơn vị sau khi lấy giá trị | gán S.lastSkill bằng selected
       if(key==='mansion')S.mansionAttempts++;S.attempts++;S.lastSkill=selected;S.lastTarget=identity(destination);
 // [VI dòng gốc 48] gọi combat.combat(selected, 0, targetKind) | gán S.reason bằng key+'_follow_player_cast'
-      combat.combat(selected,0,targetKind);S.reason=key+'_follow_player_cast';
+      if(key in S.perCompanion){S.perCompanion[key]++;S.lastCompanion=key;}
+      combat.combat(selected,0,targetKind);S.reason=key+'_native_cast';
 // [VI dòng gốc 49] Dòng trống để tách các phần, không có lệnh thực thi.
 
 // [VI dòng gốc 50] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
@@ -115,6 +135,7 @@
 // [VI dòng gốc 58] gọi setRide(prop(role,'rideContext')??null) | gọi setMansion(prop(role,'mansionContext')??null)
     setRide(prop(role,'rideContext')??null);setMansion(prop(role,'mansionContext')??null);
     if(inRoad()&&owned()&&W._Ba?._rJ?._O$?.ins?.isDead!==true)dispatchRoad(role,component(role,'_Het')?.target);
+    else if(scope()&&owned())dispatchNativeCompanions(role,component(role,'_Het')?.target);
 // [VI dòng gốc 59] Kiểm tra !role: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gán S.reason bằng 'waiting_player' | Kiểm tra !scope(): đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gán S.reason bằng 'outside_supported_dungeons'
     if(!role)S.reason='waiting_player';else if(!scope())S.reason='outside_supported_dungeons';
 // [VI dòng gốc 60] Kiểm tra !S.ride: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gán S.reason bằng 'waiting_native_ride'
@@ -126,13 +147,13 @@
 // [VI dòng gốc 63] Định nghĩa hàm status; tham số: không có. Mục đích: trả trạng thái để kiểm tra | Khai báo biến không gán lại bằng const: combat = gọi component(S.ride, '_Het'); selector = gọi component(S.ride, '_Eet') | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm mansionAttempts, rideFollow, mansionFollow, mansionPresent, mansionNativeRangeGate, enabled, mode, reason, lastError, scanMs, clientSkillCooldownMs, attempts, nativeCastSignals, lastSkill, lastTarget, nativeRangeGate, rangePolicy, nativeAnimationGate, contexts, otherCompanions.
   function status(){const combat=component(S.ride,'_Het'),selector=component(S.ride,'_Eet');return {
 // [VI dòng gốc 64] Thuộc tính mansionAttempts: đọc S.mansionAttempts | Thuộc tính rideFollow: tính biểu thức settings().rideFollow!==false | Thuộc tính mansionFollow: tính biểu thức settings().mansionFollow===true | Thuộc tính mansionPresent: đảo giá trị đúng/sai của !S.mansion
-    mansionAttempts:S.mansionAttempts,rideFollow:settings().rideFollow!==false,mansionFollow:settings().mansionFollow===true,mansionPresent:!!S.mansion,mansionNativeRangeGate:true,enabled:S.enabled,mode:'ride_follow_player_cast',reason:S.reason,lastError:S.lastError,scanMs,clientSkillCooldownMs:null,
+    mansionAttempts:S.mansionAttempts,rideFollow:settings().rideFollow!==false,mansionFollow:settings().mansionFollow===true,mansionPresent:!!S.mansion,mansionNativeRangeGate:true,enabled:S.enabled,mode:'pet_fuwa_ride_native_basic_and_skills',reason:S.reason,lastError:S.lastError,scanMs,clientSkillCooldownMs:null,nativeAutoAttempts:S.nativeAutoAttempts,perCompanion:{...S.perCompanion},lastCompanion:S.lastCompanion,
 // [VI dòng gốc 65] Thuộc tính attempts: đọc S.attempts | Thuộc tính nativeCastSignals: đọc S.nativeCastSignals | Thuộc tính lastSkill: đọc S.lastSkill | Thuộc tính lastTarget: đọc S.lastTarget
     attempts:S.attempts,nativeCastSignals:S.nativeCastSignals,lastSkill:S.lastSkill,lastTarget:S.lastTarget,
 // [VI dòng gốc 66] Thuộc tính nativeRangeGate: false | Thuộc tính rangePolicy: "same_target_as_player_cast_in_verified_dungeons" | Thuộc tính nativeAnimationGate: true
-    nativeRangeGate:false,rangePolicy:'same_target_as_player_cast_in_verified_dungeons',nativeAnimationGate:!inRoad(),clientSkillWaitMs:inRoad()?1:null,
+    nativeRangeGate:true,rangePolicy:'same_verified_master_target',nativeAnimationGate:true,clientSkillWaitMs:null,
 // [VI dòng gốc 67] Thuộc tính contexts: nếu S.ride thì lấy [{kind:'ride',present:true,target:identity(combat?.target),skills:(selector?._rtt??[]).slice(0,10).map(r=>r.slice(0,3))}], ngược lại lấy [] | Thuộc tính kind: "ride" | Thuộc tính present: true | Thuộc tính target: gọi identity(combat?.target)
-    contexts:S.ride?[{kind:'ride',present:true,target:identity(combat?.target),skills:(selector?._rtt??[]).slice(0,10).map(r=>r.slice(0,3))}]:[],otherCompanions:inRoad()?'pet_fuwa_ride_native_ready':'native_defaults'};}
+    contexts:['pet','fuwa','ride'].map(key=>{const ctx=prop(S.role,key+'Context'),sel=component(ctx,'_Eet'),cc=component(ctx,'_Het');return {kind:key,present:live(ctx),target:identity(cc?.target),skills:[...(sel?._rtt??[]),...(sel?._wet??[])].slice(0,12).map(r=>r.slice(0,3))};}),otherCompanions:'independent_native_basics_and_skills'};}
 // [VI dòng gốc 68] Định nghĩa hàm stop; tham số: không có. Mục đích: dừng bộ điều khiển và dọn tài nguyên | gán S.enabled bằng false | Kiểm tra S.timer!==null: đúng thì chạy nhánh sau if. | gọi W.KVPV_V1?.timers?.clearInterval??W.clearInterval(S.timer)
   function stop(){S.enabled=false;if(S.timer!==null){(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(S.timer);S.timer=null;}unbind();S.reason='stopped';return status();}
 // [VI dòng gốc 69] gán W.KVPV_COMPANION_COMBAT bằng Object.freeze({sync,status,stop,_handoff:()=>({actor,attempts:S.attempts,nativeCastSignals:S.nativeCastSignals})})
