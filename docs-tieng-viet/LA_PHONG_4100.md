@@ -49,3 +49,21 @@ Không mặc định Tuyệt Học là vô dụng: nếu TH cấp buff tăng cô
 - Bộ đánh hiện tại có thể tung khoảng 13 lần/3 giây ở điều kiện đã đo; đây là *lần thử phía client*, không phải 13 đòn được server xác nhận.
 - **Fix mới:** `cosmicActive()` không còn phụ thuộc `tqFive.allowsTuyetHoc()`. Khi tắt Tuyệt Học, Cosmic và La Phong vẫn học các đòn thường 8001–8005 bằng sát thương `cast → hit` đã xác nhận. Giữ nguyên native readiness, cooldown và movement. Bổ sung kiểm thử mẫu 8005 ~3,62 tỷ/đòn ưu tiên hơn 8001–8004 ~0,85–0,94 tỷ/đòn.
 - `basicSolo4100` trả về `undefined` trong bản người dùng đang chạy là dấu hiệu phiên bản PR chưa được build/triển khai; bản nháp trên GitHub không tự thay đổi runtime hiện tại.
+
+## Dữ liệu Boss 4100 — cửa sổ 15 giây, 28/10/2026
+
+Từ log người chơi (matched hit, không phải toàn bộ sát thương của game):
+
+| Skill | Attempts | Matched hits | Matched damage | Damage/hit |
+|---|---:|---:|---:|---:|
+| 8005 | 10 | 5 | 16.601.058.286 | 3.320.211.657 |
+| 8004 | 10 | 5 | 5.504.965.151 | 1.100.993.030 |
+| 8002 | 11 | 5 | 4.003.396.646 | 800.679.329 |
+| 8003 | 10 | 4 | 3.015.732.731 | 753.933.183 |
+| 8001 | 10 | 4 | 2.914.220.115 | 728.555.029 |
+
+Tổng 32.039.372.929 matched damage / 15 giây = ~2,136 tỷ/s; 8005 chiếm ~51,8% sát thương matched. Không khẳng định 28 lần không matched là miss server. Một trận 15 giây chưa chứng minh thứ tự đó tối ưu vĩnh viễn.
+
+**Thay đổi:** chỉ ở chế độ `setTianQuan4100BasicSolo(true)`, lúc thiếu dữ liệu Boss mới áp dụng thứ tự khởi đầu `8005 → 8004 → 8002 → 8003 → 8001` trong những hàng native skill thực sự ready. Khi có matched-hit evidence, La Phong/Cosmic vẫn xếp lại theo robust damage và thỉnh thoảng khám phá các kỹ năng ít mẫu. 8005 đang cooldown native thì bỏ qua để chọn kỹ năng kế tiếp, không đụng timestamp hoặc gọi combat trực tiếp. Chế độ này không thay đổi PvP, các tầng/map khác, hay bản chạy cũ chưa được triển khai.
+
+**Đo hiệu quả:** so sánh matched DPS và thời gian kill Boss 4100 ít nhất vài trận tương đương trước/sau. Không suy ra thời gian kill chỉ từ lượng damage/hit.
