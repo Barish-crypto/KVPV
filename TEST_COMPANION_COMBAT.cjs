@@ -46,7 +46,7 @@ W._Ba._rJ._O$.ins.actorId='999';emit();assert.equal(casts.length,3,'wrong actor 
 // [VI dòng gốc 23] gọi assert.deepEqual(rows, [[3817,9000,30000]], 'do not rewrite cooldown rows') để kiểm tra cấu trúc hai giá trị tương đương
 assert.deepEqual(rows,[[3817,9000,30000]],'do not rewrite cooldown rows');
 // [VI dòng gốc 24] gán api bằng load() | gọi assert.equal(interval, 1) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(role.listeners.length, 1) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(ride.listeners.length, 1) để kiểm tra hai giá trị bằng nhau
-api=load();assert.equal(scheduledMs,50);assert.equal(scheduledCallback(),undefined);assert.equal(typeof api.sync(),'object');assert.equal(interval,1);assert.equal(role.listeners.length,1);assert.equal(ride.listeners.length,1);assert.equal(api.status().attempts,3);
+api=load();assert.equal(scheduledMs,50);cooldown=true;assert.equal(scheduledCallback(),undefined);assert.equal(typeof api.sync(),'object');assert.equal(interval,1);assert.equal(role.listeners.length,1);assert.equal(ride.listeners.length,1);assert.equal(api.status().attempts,3);
 // [VI dòng gốc 25] gán cooldown bằng false | gọi emit() | gọi assert.equal(casts.length, 4, 'one cast after reload, no duplicate listeners') để kiểm tra hai giá trị bằng nhau
 cooldown=false;emit();assert.equal(casts.length,4,'one cast after reload, no duplicate listeners');
 // [VI dòng gốc 26] gán cooldown bằng false | gán kind bằng 'TRU_TIEN' | gọi emit() | gọi assert.equal(casts.length, 5, 'ride also follows player casts in Tru Tien') để kiểm tra hai giá trị bằng nhau
@@ -79,12 +79,12 @@ console.log('PASS per-scope ride/mansion toggles, independent cooldown, native m
  W._ft={_po:{ins:{getCfgById:()=>[0,0,0,0,0,0,0,41]}}};W._C._Mn={_Cn:{currentID:2518}};W._Ba._cm={_q3t:{ins:{getHasTeamByType:()=>team}}};W.KVPV_ROAD_CADENCE={enabled:true};followProfile={rideFollow:true,mansionFollow:false};inside=false;cooldown=false;
  vm.runInNewContext(source,{window:W,Date:RoadDate});api=W.KVPV_COMPANION_COMBAT;
  assert.equal(petCalls,1);assert.equal(fuwaCalls,1);assert.equal(cooldown,true,'ride also dispatched without a player event');
- clock+=1;api.sync();assert.equal(petCalls,2);assert.equal(fuwaCalls,2,'client cooldown gates bypassed on next 1ms scan');
- fuwaCd=false;clock+=1;api.sync();assert.equal(petCalls,3);assert.equal(fuwaCalls,3,'companion resumes on the next 1ms scan');
- petCd=false;petReady=false;clock+=1;api.sync();assert.equal(petCalls,3,'selector readiness retained');petReady=true;roadRange=false;clock+=1;api.sync();assert.equal(petCalls,3,'native range retained');roadRange=true;
- W._Ba._rJ._O$.ins.isDead=true;clock+=1;api.sync();emit();assert.equal(petCalls,3);W._Ba._rJ._O$.ins.isDead=false;
- W.KVPV_ROAD_CADENCE.enabled=false;clock+=1;api.sync();assert.equal(petCalls,3);W.KVPV_ROAD_CADENCE.enabled=true;team=false;clock+=1;api.sync();assert.equal(petCalls,3);team=true;
- clock+=1;api.sync();assert.equal(petCalls,4);assert.deepEqual(pet.data,[[2001,9000,30000]]);assert.deepEqual(fuwa.data,[[3001,9000,30000]]);
+ clock+=1;api.sync();assert.equal(petCalls,1);assert.equal(fuwaCalls,1,'Road companions honor native cooldown on repeated scans');
+ fuwaCd=false;clock+=1;api.sync();assert.equal(petCalls,1);assert.equal(fuwaCalls,2,'only native-ready Fuwa resumes');
+ petCd=false;petReady=false;clock+=1;api.sync();assert.equal(petCalls,1,'selector readiness retained');petReady=true;roadRange=false;clock+=1;api.sync();assert.equal(petCalls,1,'native range retained');roadRange=true;
+ W._Ba._rJ._O$.ins.isDead=true;clock+=1;api.sync();emit();assert.equal(petCalls,1);W._Ba._rJ._O$.ins.isDead=false;
+ W.KVPV_ROAD_CADENCE.enabled=false;clock+=1;api.sync();assert.equal(petCalls,1);W.KVPV_ROAD_CADENCE.enabled=true;team=false;clock+=1;api.sync();assert.equal(petCalls,1);team=true;
+ clock+=1;api.sync();assert.equal(petCalls,2);assert.equal(fuwaCalls,2);assert.deepEqual(pet.data,[[2001,9000,30000]]);assert.deepEqual(fuwa.data,[[3001,9000,30000]]);
  api.stop();assert.equal(interval,0);assert.equal(role.listeners.length,0);
- console.log('PASS Road pet/fuwa/ride: independent native skills, cooldown, range, death, team and support gates; no player-cast dependency or recursion');
+ console.log('PASS Road pet/fuwa/ride: independent native skill selection with DEFAULT cooldown, range, death, team and support gates');
 }
