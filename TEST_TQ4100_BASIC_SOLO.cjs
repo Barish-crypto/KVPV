@@ -77,6 +77,8 @@ function make(){
  assert.equal(st.luoFeng.dpsPilot4100.enabled,false,'experimental pilot stays disabled');
  assert.equal(st.skillPriority,'five_basics_plus_tuyet_hoc_10ms');
  assert.equal(st.afterTHWaitMs,0,'no artificial 1ms post-TH freeze');
+ assert.equal(st.paceMs,10,'startup uses 10ms TH and basic client pacing');
+ assert.equal(st.animation4100.active,true,'4100 startup skips native animation readiness gate');
  assert.equal(st.basicOnly,false,'TH and five basics are available together');
  q.elapse(100);
  assert([1001,8001,8002,8003,8004,8005].includes(q.s.selectSkill()),'auto startup selects from TH+native basics');
