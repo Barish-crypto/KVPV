@@ -103,4 +103,17 @@ function make(){
  assert.equal(q.s.selectSkill(),8005,'select strongest confirmed native basic');
  q.mod.stop();
 }
+{
+ // Boss 4100 initial ordering uses observed high-damage 8005, but native-ready rows win.
+ const {q}=make(),status=q.mod.status(false);
+ assert.deepEqual(Array.from(status.luoFeng.basicSolo4100.startupPreference),[8005,8004,8002,8003,8001]);
+ q.elapse(100);
+ assert.equal(q.s.selectSkill(),8005,'4100 8005 startup choice');
+ const native8005=q.s._rtt.find(x=>x[0]===8005);
+ native8005[1]=Number.MAX_SAFE_INTEGER;
+ q.elapse(100);
+ assert.equal(q.s.selectSkill(),8004,'native 8005 row on cooldown: use 8004');
+ assert.equal(native8005[1],Number.MAX_SAFE_INTEGER,'do not modify native cooldown');
+ q.mod.stop();
+}
 console.log('PASS La Phong 4100 basic solo: five native basics, TH selector/dispatch blocked, 310 and 1ms preserved, cooldown respected, floor/scope isolation and manual off.');
