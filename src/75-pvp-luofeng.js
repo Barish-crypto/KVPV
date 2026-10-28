@@ -60,7 +60,8 @@ function enemyCast(targetId,skillId){
    log('DODGE_ATTEMPT',{skill,x,y});
  }catch(e){S.error=String(e);S.blocked++;S.reason='movement_failed';log('MOVE_ERROR',{skill});}
 }
-function status(){return {enabled:S.on,autoDodge:S.auto,attached:!!S.target,enemyId:S.targetId,
+function status(){const candidate=component(me(),'_Het')?.target;return {enabled:S.on,autoDodge:S.auto,attached:!!S.target,enemyId:S.targetId,
+ selectedTargetId:id(candidate),selectedTargetType:prop(candidate,'type')??null,
  scene:S.scene,observedSignals:S.signals,observedTH:S.threats,nativeDodgeAttempts:S.dodgeAttempts,
  blocked:S.blocked,lastSkill:S.lastSkill,lastSignalAt:S.lastSignal,lastReason:S.reason,error:S.error,
  config:{...cfg},recent:S.history.slice(),
