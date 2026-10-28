@@ -56,6 +56,16 @@
 // [VI dòng gốc 32] Khai báo biến không gán lại bằng const: mixed = tạo đối tượng gồm enabled, primary, primaryStreak, hitQuota, confirmedSinceTH, thCycles, rotation, rotationCursor, wantBasic, suspended, unconfirmed, basicPaceMs, ready, attempts, hits, damage, examples
   const mixed={enabled:false,primary:false,primaryStreak:0,hitQuota:null,confirmedSinceTH:0,thCycles:0,rotation:[],rotationCursor:0,wantBasic:false,suspended:false,unconfirmed:0,basicPaceMs:null,ready:new Map(),attempts:0,hits:0,damage:0,examples:[]};
   let skillPriority='interleaved';
+  // One native-ready basic may fill the TH visual tail without touching server cooldown.
+  const thGap={enabled:false,windowMs:1200,lastAt:-Infinity,lastTarget:'',lastSerial:0,picking:false,attempts:0,accepted:0,blockedCooldown:0,lastBasic:null,measured:new Map()};
+  function resetThGap(){thGap.lastAt=-Infinity;thGap.lastTarget='';thGap.lastSerial=0;thGap.picking=false;thGap.lastBasic=null;thGap.measured.clear();}
+  function thGapActive(c=role().c){return thGap.enabled&&tqDistanceOnly()&&ST.running&&tqFive?.active()&&tqFive.allowsTuyetHoc()&&!transforming()&&
+    ST.targetKey===thGap.lastTarget&&thGap.lastSerial===ST.castAttempts&&Date.now()-thGap.lastAt>=0&&Date.now()-thGap.lastAt<=thGap.windowMs&&
+    animationPlaying(c)&&canFight()&&castReady();}
+  const thGapNativeReady=c=>typeof c?.isCooldown==='function'&&c.isCooldown()===false;
+  function strongestThGapBasic(){const rows=basicRotation().map(id=>({id,...(thGap.measured.get(id)||{hits:0,damage:0})})).filter(r=>r.hits>=2);
+    rows.sort((a,b)=>b.damage/b.hits-a.damage/a.hits||a.id-b.id);return rows[0]?.id??null;}
+
   const tqFive=W.KVPV_TQ_BASIC_PROFILE?.create?.({scope:()=>W.KVPV_FAR_SCOPE?.status?.()?.kind??(W.KVPV_TQ_SCOPE?.inside?.()===true?'THIEN_QUAN':'OUTSIDE'),context:()=>scene()+'/'+identity(role().c?.target),phase:()=>combatOwner()?.phase,hp:()=>{const h=prop(role().a,'hp');return Array.isArray(h)&&Number(h[1])>0?Number(h[0])/Number(h[1])*100:null;},learned:()=>[...(role().s?._rtt??[]),...(role().s?._wet??[])].map(r=>Number(r?.[0]))})??null;
   for(const key of ['goal','min','max','scanMs']){const descriptor=Object.getOwnPropertyDescriptor(CFG,key);let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){const d=tqFive?.goal();if(key==='scanMs'&&tqFive?.active())return tqFive.wait();if(d!==null&&d!==undefined)return key==='goal'?d:key==='min'?Math.max(0,d-15):key==='max'?d+10:base;return descriptor.get?descriptor.get():base;},set(value){if(descriptor.set)descriptor.set(value);else base=value;}});}
 // [VI dòng gốc 33] Khai báo biến không gán lại bằng const: basicProbe = tạo đối tượng gồm enabled, dispatch, context, attempts, hits, damage, startedAt, nextAt, examples
@@ -271,7 +281,10 @@
 // [VI dòng gốc 137] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | Kết thúc hàm hiện tại và trả về: gọi animationTrialCall(native, self, args).
     try{return animationTrialCall(native,self,args);}finally{
 // [VI dòng gốc 138] Kiểm tra pending.signaled: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | tăng dispatch.signals một đơn vị sau khi lấy giá trị | Kiểm tra pending.id>=1001&&pending.id<=1008: đúng thì chạy nhánh sau if. | gán ST.lastTHAt bằng Date.now()
-      if(pending.signaled){dispatch.signals++;if(pending.id>=1001&&pending.id<=1008)ST.lastTHAt=Date.now();if(mixed.hitQuota!==null&&pending.id>=1001&&pending.id<=1008){mixed.confirmedSinceTH=0;mixed.thCycles++;mixed.wantBasic=true;}}else dispatch.silent++;
+      if(pending.signaled){dispatch.signals++;
+        if(thGap.picking&&isBasic(pending.id)){thGap.accepted++;thGap.lastBasic=pending.id;}
+        if(pending.id>=1001&&pending.id<=1008){ST.lastTHAt=Date.now();thGap.lastAt=ST.lastTHAt;
+          thGap.lastTarget=ST.targetKey;thGap.lastSerial=ST.castAttempts;}if(mixed.hitQuota!==null&&pending.id>=1001&&pending.id<=1008){mixed.confirmedSinceTH=0;mixed.thCycles++;mixed.wantBasic=true;}}else dispatch.silent++;
 // [VI dòng gốc 139] Khai báo biến có thể gán lại bằng let: silentDetail = null
       let silentDetail=null;
 // [VI dòng gốc 140] Kiểm tra !pending.signaled: đúng thì chạy nhánh sau if.
@@ -671,6 +684,20 @@
 // [VI dòng gốc 326] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 327] Định nghĩa hàm fastCast; tham số: r
+  function thGapCast(r){
+    if(!thGapActive(r.c))return false;
+    if(!thGapNativeReady(r.c)){thGap.blockedCooldown++;ST.lastReason='th_gap_native_cooldown';return true;}
+    if(r.c.isValidTarget?.()!==true){ST.lastReason='native_target_invalid';return true;}
+    thGap.picking=true;
+    try{
+      const id=Number(r.s.selectSkill?.()),occ=Number(prop(r.c.target,'occ')),d=radius(r.a,r.c.target);
+      if(!isBasic(id)||id>8005||!allowed(id,occ,d)){ST.lastReason='th_gap_no_ready_basic';return true;}
+      const before=ST.castAttempts;r.c.combat(id);
+      if(ST.castAttempts>before){thGap.attempts++;ST.fastCasts++;ST.lastReason='th_gap_basic_native_attempt';}
+      else ST.lastReason='th_gap_basic_blocked';
+      return true;
+    }finally{thGap.picking=false;}
+  }
   function fastCast(r){
 // [VI dòng gốc 328] Khai báo biến không gán lại bằng const: pace = gọi currentPace()
     const pace=currentPace();
@@ -682,6 +709,7 @@
     if(burst.enabled&&!transforming())return burstCast(r);
 // [VI dòng gốc 332] Kiểm tra Date.now()-ST.lastInvocation<pace: đúng thì chạy nhánh sau if. | gán ST.lastReason bằng 'waiting_pace' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(Date.now()-ST.lastInvocation<pace){ST.lastReason='waiting_pace';return;}
+    if(thGapCast(r))return;
 // [VI dòng gốc 333] Kiểm tra typeof r.c.isCooldown!=='function': đúng thì chạy nhánh sau if. | gán ST.lastReason bằng 'native_cooldown_unavailable' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(typeof r.c.isCooldown!=='function'){ST.lastReason='native_cooldown_unavailable';return;}
 // [VI dòng gốc 334] Kiểm tra !nativeReady(r.c): đúng thì chạy nhánh sau if. | gán ST.lastReason bằng animationPlaying(r.c)?'waiting_native_animation':'waiting_native_cooldown' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
@@ -731,7 +759,9 @@
 // [VI dòng gốc 356] Kiểm tra !cast: đúng thì chạy nhánh sau if. | gọi reject('no_matching_pending_cast') | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | tăng hitDiagnostics.accepted một đơn vị sau khi lấy giá trị
     if(!cast){reject('no_matching_pending_cast');return;}hitDiagnostics.accepted++;
 // [VI dòng gốc 357] Kiểm tra cast.basicTrial: đúng thì chạy nhánh sau if. | Kiểm tra cast.mixedBasic&&id===8001&&mixed.hitQuota!==null: đúng thì chạy nhánh sau if. | tăng mixed.confirmedSinceTH một đơn vị sau khi lấy giá trị | gán mixed.wantBasic bằng mixed.confirmedSinceTH<mixed.hitQuota
-    if(cast.basicTrial){tqFive?.hit?.(cast.serial,cast.distance,d,Number(damage));if(cast.mixedBasic&&id===8001&&mixed.hitQuota!==null){mixed.confirmedSinceTH++;mixed.wantBasic=mixed.confirmedSinceTH<mixed.hitQuota;}cast.used=true;if(cast.mixedBasic&&cast.serial===ST.castAttempts)ST.basicImpactSerial=cast.serial;const metric=stats(cast.occ,id);metric.hits++;metric.damage+=Number(damage);
+    if(cast.basicTrial){
+      if(tqFive?.active()&&isBasic(id)){const sample=thGap.measured.get(id)||{hits:0,damage:0};sample.hits++;sample.damage+=Number(damage);thGap.measured.set(id,sample);}
+      tqFive?.hit?.(cast.serial,cast.distance,d,Number(damage));if(cast.mixedBasic&&id===8001&&mixed.hitQuota!==null){mixed.confirmedSinceTH++;mixed.wantBasic=mixed.confirmedSinceTH<mixed.hitQuota;}cast.used=true;if(cast.mixedBasic&&cast.serial===ST.castAttempts)ST.basicImpactSerial=cast.serial;const metric=stats(cast.occ,id);metric.hits++;metric.damage+=Number(damage);
 // [VI dòng gốc 358] Kiểm tra cast.tailPhase&&tailStudy?.[cast.tailPhase]: đúng thì chạy nhánh sau if. | tăng tailStudy[cast.tailPhase].hits một đơn vị sau khi lấy giá trị | cập nhật bằng toán tử += tailStudy[cast.tailPhase].damage bằng Number(damage)
       if(cast.tailPhase&&tailStudy?.[cast.tailPhase]){tailStudy[cast.tailPhase].hits++;tailStudy[cast.tailPhase].damage+=Number(damage);}
 // [VI dòng gốc 359] Khai báo biến không gán lại bằng const: testRow = gọi rangeTest?.rows.find(row=>row.id===id) để tìm phần tử đầu tiên thỏa điều kiện (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
@@ -763,7 +793,7 @@
 // [VI dòng gốc 372] Chú thích gốc của tác giả; không được thực thi. Nội dung: Hủy theo dõi Boss cũ và bỏ các lần tung chiêu đang chờ để không ghép sang Boss mới.
   // Hủy theo dõi Boss cũ và bỏ các lần tung chiêu đang chờ để không ghép sang Boss mới.
 // [VI dòng gốc 373] Định nghĩa hàm unlisten; tham số: không có | gọi metrics?.close(ST.running?'target_changed':'stopped') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kiểm tra ST.target: đúng thì chạy nhánh sau if. | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
-  function unlisten(){trial1008?.stop();metrics?.close(ST.running?'target_changed':'stopped');if(ST.target){try{ST.target.off?.(1012,ST.owner,onHit);}catch(_){window.KVPV_V1?.diagnostics?.record(_);}}ST.target=null;ST.targetOcc=null;ST.targetKey=null;ST.casts=[];}
+  function unlisten(){resetThGap();trial1008?.stop();metrics?.close(ST.running?'target_changed':'stopped');if(ST.target){try{ST.target.off?.(1012,ST.owner,onHit);}catch(_){window.KVPV_V1?.diagnostics?.record(_);}}ST.target=null;ST.targetOcc=null;ST.targetKey=null;ST.casts=[];}
 // [VI dòng gốc 374] Chú thích gốc của tác giả; không được thực thi. Nội dung: Đổi đối tượng theo dõi theo ID, loại Boss và map, kể cả khi game tái sử dụng cùng object.
   // Đổi đối tượng theo dõi theo ID, loại Boss và map, kể cả khi game tái sử dụng cùng object.
 // [VI dòng gốc 375] Định nghĩa hàm listen; tham số: t | Khai báo biến không gán lại bằng const: targetKey = tính biểu thức identity(t)+'/'+String(prop(t,'occ'))+'/'+scene() | Kiểm tra t===ST.target&&targetKey===ST.targetKey: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
@@ -789,7 +819,10 @@
 // [VI dòng gốc 385] Định nghĩa hàm hàm không đặt tên; tham số: row
       .filter(row=>Number(row[1])<now)
 // [VI dòng gốc 386] Định nghĩa hàm hàm không đặt tên; tham số: a, b
-      .sort((a,b)=>rotation.length?order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])):Number(stats(occ,Number(b[0])).hits>0)-Number(stats(occ,Number(a[0])).hits>0));
+      .sort((a,b)=>{
+        if(thGap.picking){const best=strongestThGapBasic();if(best!==null){const ap=Number(a[0])===best,bp=Number(b[0])===best;if(ap!==bp)return ap?-1:1;}}
+        return rotation.length?order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])):Number(stats(occ,Number(b[0])).hits>0)-Number(stats(occ,Number(a[0])).hits>0);
+      });
 // [VI dòng gốc 387] Khai báo biến không gán lại bằng const: id = gọi Number(native.call(selector,rows,[],mode)) để chuyển sang số
     const id=Number(native.call(selector,rows,[],mode));
 // [VI dòng gốc 388] Kiểm tra trial&&isBasic(id): đúng thì chạy nhánh sau if. | Khai báo biến không gán lại bằng const: picked = gọi rows.find(row=>Number(row[0])===id) để tìm phần tử đầu tiên thỏa điều kiện | Kiểm tra picked: đúng thì chạy nhánh sau if. | gọi mixed.ready.set(id, Math.max(now+mixed.basicPaceMs,Number(picked[1])||0))
@@ -819,10 +852,10 @@
 // [VI dòng gốc 400] Khai báo biến không gán lại bằng const: s = gọi hook(r.s, '_f7t', native=>function(active,common,mode){ if(CFG.basicOnly&&ST.running&&this===r.s&&(W.KVPV_FAR_SCOPE??W.KVPV_T…)
     const s=hook(r.s,'_f7t',native=>function(active,common,mode){
       if(tqFive?.active()&&ST.running&&this===r.s){
-        if(mode!==1||!eligible(r.c?.target)||!castReady()||!nativeReady(r.c)||Date.now()-ST.lastInvocation<currentPace())return -1;
+        if(mode!==1||!eligible(r.c?.target)||!castReady()||!(thGap.picking?thGapNativeReady(r.c):nativeReady(r.c))||Date.now()-ST.lastInvocation<currentPace())return -1;
         const all=[...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])],occ=Number(prop(r.c.target,'occ')),d=radius(r.a,r.c.target);
         const pickBasic=()=>selectBasic(native,this,all,mode,occ,d);
-        if(!tqFive.allowsTuyetHoc())return pickBasic();
+        if(!tqFive.allowsTuyetHoc()||thGap.picking)return pickBasic();
         const roster=skillNames().map(x=>x.id).filter(id=>id>=1001&&id<=1008),offset=roster.length?ST.skillCursor%roster.length:0,order=roster.slice(offset).concat(roster.slice(0,offset));
         const pickTH=()=>Number(native.call(this,all.filter(row=>Number(row?.[0])>=1001&&Number(row?.[0])<=1008&&Number.isFinite(Number(row[1]))&&Number(row[1])<Date.now()&&allowed(Number(row[0]),occ,d)).sort((a,b)=>order.indexOf(Number(a[0]))-order.indexOf(Number(b[0]))),[],mode));
         const first=mixed.wantBasic?pickBasic:pickTH,second=mixed.wantBasic?pickTH:pickBasic,id=first();return isBasic(id)||id>=1001&&id<=1008?id:second();
@@ -951,8 +984,9 @@
       if(ST.running&&this===r.c&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false){
 // [VI dòng gốc 462] Khai báo biến không gán lại bằng const: id = gọi Number(skillId) để chuyển sang số; occ = gọi Number(prop(this.target,'occ')) để chuyển sang số; d = gọi radius(r.a, this.target)
         const id=Number(skillId),occ=Number(prop(this.target,'occ')),d=radius(r.a,this.target);
+        const gapBasic=thGap.picking&&isBasic(id)&&id<=8005&&thGapActive(this)&&thGapNativeReady(this);
 // [VI dòng gốc 463] Kiểm tra (probeActive()&&!basicProbe.dispatch)||!eligible(this.target)||!castReady()||(!burst.dispatch&&!nativeReady(this))||!allowed(id,occ,d)||!outside(d)||((pacer||scopedCombat()||tqFive?.active())&&!burs…: đúng thì chạy nhánh sau if. | tăng ST.blocked một đơn vị sau khi lấy giá trị | Kết thúc hàm hiện tại và trả về: undefined.
-        if((probeActive()&&!basicProbe.dispatch)||!eligible(this.target)||!castReady()||(!burst.dispatch&&!nativeReady(this))||!allowed(id,occ,d)||!outside(d)||((pacer||scopedCombat()||tqFive?.active())&&!burst.dispatch&&Date.now()-ST.lastInvocation<currentPace())){ST.blocked++;return undefined;}
+        if((probeActive()&&!basicProbe.dispatch)||!eligible(this.target)||!castReady()||(!burst.dispatch&&!gapBasic&&!nativeReady(this))||!allowed(id,occ,d)||!outside(d)||((pacer||scopedCombat()||tqFive?.active())&&!burst.dispatch&&Date.now()-ST.lastInvocation<currentPace())){ST.blocked++;return undefined;}
 // [VI dòng gốc 464] Kiểm tra animationPlaying(this)&&basicTailReady(): đúng thì chạy nhánh sau if. | tăng ST.basicTailReleases một đơn vị sau khi lấy giá trị
         if(animationPlaying(this)&&basicTailReady())ST.basicTailReleases++;
 // [VI dòng gốc 465] gán ST.lastInvocation bằng Date.now()
@@ -1291,6 +1325,9 @@
 // [VI dòng gốc 628] Thuộc tính confirmedTailStudy: W[tailStudyKey] hoặc dùng vế phải khi vế trái là null/undefined: null
       confirmedTailStudy:W[tailStudyKey]??null,
 // [VI dòng gốc 629] Thuộc tính confirmedBasicTailCut: confirmedTailCut | Thuộc tính confirmedBasicTailCuts: confirmedTailCuts
+      thGapBasics:{enabled:thGap.enabled,windowMs:thGap.windowMs,active:thGapActive(),strongestVerifiedBasic:strongestThGapBasic(),
+        attempts:thGap.attempts,nativeAccepted:thGap.accepted,blockedCooldown:thGap.blockedCooldown,lastBasic:thGap.lastBasic,
+        measured:[...thGap.measured].map(([id,x])=>({id,hits:x.hits,meanDamage:x.hits?x.damage/x.hits:null}))},
       confirmedBasicTailCut:confirmedTailCut,confirmedBasicTailCuts:confirmedTailCuts,confirmedTailSkillIds:tqFive?.active()?[8001,8002,8003,8004,8005]:[8001,8005],
 // [VI dòng gốc 630] Thuộc tính basicRangeTest: W[rangeTestKey] hoặc dùng vế phải khi vế trái là null/undefined: null
       basicRangeTest:W[rangeTestKey]??null,
@@ -1461,6 +1498,11 @@
     return {enabled:CFG.basicOnly,skillId:8001,scanMs:CFG.scanMs,addedClientWaitMs:CFG.clientPaceMs,serverMultiplierVerified:false};}
 // [VI dòng gốc 700] Định nghĩa hàm setBasicAnimationSpeed; tham số: factor=1. Mục đích: đặt hệ số phát hoạt ảnh 8001 phía client; không phải hệ số sát thương server | Kiểm tra ![1,9,99,99999].includes(factor): đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Native animation factor must be 1, 9 or 99') | gọi finishSpeedTrial('stopped')
   // 1 restores native visuals. 9/30/99 reduce only Tuyet Hoc visual duration.
+  function setTianQuanTHGapBasics(enabled=true,windowMs=1200){
+    if(!Number.isInteger(windowMs)||windowMs<100||windowMs>2000)throw Error('TH gap window must be 100..2000ms');
+    thGap.enabled=!!enabled;thGap.windowMs=windowMs;if(!thGap.enabled)resetThGap();
+    return {enabled:thGap.enabled,windowMs:thGap.windowMs,nativeReadyOnly:true,perTHLimit:1};
+  }
   function setTianQuanTuyetHocVisualSpeed(factor=99){
     if(![1,9,30,99].includes(factor))throw Error('TH visual speed must be 1, 9, 30 or 99');
     CFG.tqTuyetHocVisualSpeed=factor;
@@ -1477,7 +1519,7 @@
     if(!['tuyet_hoc_first','interleaved'].includes(value))throw Error('Skill priority must be tuyet_hoc_first or interleaved');
     skillPriority=value;return {skillPriority};
   }
-  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,setTianQuanTuyetHocVisualSpeed,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?!tqFive.allowsTuyetHoc():CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
+  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?!tqFive.allowsTuyetHoc():CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
 // [VI dòng gốc 702] gán W.KVPV_TH300 bằng api
   W.KVPV_TH300=api;
 // [VI dòng gốc 703] gọi console.info(TAG, 'READY/OFF. START: KVPV_MODE.start("BOSS_TH300_SCAN") then KVPV_MODE.start("BOSS_TH300")')
