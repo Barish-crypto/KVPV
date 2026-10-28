@@ -53,7 +53,7 @@ function setup(){
  assert.equal(q.c.isCooldown(),true,'outside scope falls back to native');
  q.mod.sync();
  assert.equal(q.c.isCooldown,original);
- setKind('THIEN_QUAN');
+ setKind('THIEN_QUAN');q.mod.sync();
  q.mod.setTianQuan4100CooldownOverride(true);
  q.mod.setTianQuan4100BasicSolo(false);
  assert.equal(q.c.isCooldown,original,'disabling basic solo restores cooldown');
