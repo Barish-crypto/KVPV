@@ -13,7 +13,7 @@ const trialStart=nativeSource.indexOf("  const speedKey='__KVPV_BASIC_SPEED_TRIA
 // [VI dòng gốc 7] gọi assert(trialStart>0&&trialEnd>trialStart) để kiểm tra điều kiện của bài test
 assert(trialStart>0&&trialEnd>trialStart);
 // [VI dòng gốc 8] Khai báo biến không gán lại bằng const: speedTrialSource = gọi nativeSource.slice(trialStart, trialEnd) để lấy một đoạn dữ liệu; defaultNativeSource = tính biểu thức nativeSource.slice(0,trialStart)+nativeSource.slice(trialEnd)
-const speedTrialSource=nativeSource.slice(trialStart,trialEnd),defaultNativeSource=nativeSource.slice(0,trialStart)+nativeSource.slice(trialEnd);
+const speedTrialSource=nativeSource.slice(trialStart,trialEnd).replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),defaultNativeSource=nativeSource.slice(0,trialStart)+nativeSource.slice(trialEnd);
 // [VI dòng gốc 9] Khai báo biến không gán lại bằng const: manifest = gọi JSON.parse(fs.readFileSync(__dirname+'/MANIFEST.json','utf8')) để phân tích dữ liệu đầu vào theo API đang gọi
 const manifest=JSON.parse(fs.readFileSync(__dirname+'/MANIFEST.json','utf8'));
 // [VI dòng gốc 10] Khai báo biến có thể gán lại bằng let: passed = 0
@@ -29,13 +29,29 @@ test('all attack modifier modules excluded from bundle and manifest',()=>{
 // [VI dòng gốc 15] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 16] gọi test('main combat keeps native cooldown and animation; experimental boost stays isolated', ()=>{ for(const pattern of [/\.isC…)
-test('main combat keeps native cooldown and animation; experimental boost stays isolated',()=>{
+test('main combat keeps native cooldown; visual speed changes only native TH action in Tian Quan',()=>{
 // [VI dòng gốc 17] Duyệt từng giá trị trong [/\.isCooldown\s*=/,/(hook|install)\([^\n]*['"]isCooldown['"]/,/\bvirtualReady\b/,/\blocalNext\b/,/\bsetBasic\b/,/\bsetParallel\b/,/\bsetCompanion\b/,/\bsetMaThanAuto\b/,/\bsetSpee… bằng const pattern. | Khai báo biến không gán lại bằng const: pattern (chưa gán giá trị) | gọi assert.equal(pattern.test(nativeSource), false, String(pattern)) để kiểm tra hai giá trị bằng nhau
  for(const pattern of [/\.isCooldown\s*=/,/(hook|install)\([^\n]*['"]isCooldown['"]/,/\bvirtualReady\b/,/\blocalNext\b/,/\bsetBasic\b/,/\bsetParallel\b/,/\bsetCompanion\b/,/\bsetMaThanAuto\b/,/\bsetSpeed\b/,/\.speed\s*=/,/_Tet\s*=/,/\.combat\s*\(\s*800[1-9]\s*\)/])assert.equal(pattern.test(nativeSource),false,String(pattern));
 // [VI dòng gốc 18] gọi assert.equal(/\btimeScale\b/.test(defaultNativeSource), false, 'animation scaling is isolated to the explicit bounded trial') để kiểm tra hai giá trị bằng nhau
  assert.equal(/\btimeScale\b/.test(defaultNativeSource),false,'animation scaling is isolated to the explicit bounded trial');
 // [VI dòng gốc 19] Duyệt từng giá trị trong ['multiplier!==9&&multiplier!==99','phaseMs:5000','deadline:Date.now()+60000','Math.min(factor,before*factor)',"t?.state==='accelerated'",'Number(args[0])!==8001','self.owner!==dis… bằng const token. | Khai báo biến không gán lại bằng const: token (chưa gán giá trị) | gọi assert(speedTrialSource.includes(token), token) để kiểm tra điều kiện của bài test
- for(const token of ['multiplier!==9&&multiplier!==99','phaseMs:5000','deadline:Date.now()+60000','Math.min(factor,before*factor)',"t?.state==='accelerated'",'Number(args[0])!==8001','self.owner!==dispatch.actor','clip.timeScale=s.before','avatar.getActionTween=original'])assert(speedTrialSource.includes(token),token);
+ // The bounded 8001 trial is unchanged; the new TH branch may scale 1001..1008
+ // only in Tian Quan, for the native skill's own animation action.
+ for(const token of ['multiplier!==9&&multiplier!==99','phaseMs:5000','deadline:Date.now()+60000',
+   'Math.min(factor,before*factor)',"t?.state==='accelerated'",'basicVisual=id===8001&&CFG.basicOnly',
+   'thVisual=id>=1001&&id<=1008','CFG.tqTuyetHocVisualSpeed>1',
+   "W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'",
+   'tqFive.allowsTuyetHoc()===true','self.owner!==dispatch.actor',
+   "typeof avatar?.getActionTween!=='function'","typeof action!=='string'",
+   'a[0]!==expectedAction','if(thVisual)thVisualScaled++',
+   'clip?.timeScale===s.applied)clip.timeScale=s.before',
+   'avatar.getActionTween=original'])assert(speedTrialSource.includes(token),token);
+ assert(nativeSource.includes('function setTianQuanTuyetHocVisualSpeed(factor=99)'),
+   'TH animation switch remains available');
+ assert(nativeSource.includes("if(![1,9,30,99].includes(factor))"),
+   'TH animation speed is bounded with an off switch');
+ assert(nativeSource.includes("serverCooldownUnchanged:true"),
+   'visual speed must not claim a cooldown change');
 // [VI dòng gốc 20] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 21] gọi test('Boss safety and native-only optional TH selectors remain available', ()=>{ assert(source.includes('W.KVPV_HITRUN1=api;'…)
