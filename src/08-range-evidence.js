@@ -1289,7 +1289,7 @@
 // [VI dòng gốc 464] Kiểm tra animationPlaying(this)&&basicTailReady(): đúng thì chạy nhánh sau if. | tăng ST.basicTailReleases một đơn vị sau khi lấy giá trị
         if(animationPlaying(this)&&basicTailReady())ST.basicTailReleases++;
 // [VI dòng gốc 465] gán ST.lastInvocation bằng Date.now()
-        ST.lastInvocation=Date.now();ST.tqSelectedNative=null;
+        ST.lastInvocation=Date.now();
 // [VI dòng gốc 466] Khai báo biến không gán lại bằng const: roster = gọi skillNames().map(x=>x.id) để biến đổi từng phần tử | Kiểm tra !isBasic(id): đúng thì chạy nhánh sau if. | gán ST.skillCursor bằng Math.max(0,roster.indexOf(id)+1)
         const roster=skillNames().map(x=>x.id);if(!isBasic(id))ST.skillCursor=Math.max(0,roster.indexOf(id)+1);
 // [VI dòng gốc 467] Kiểm tra mixed.enabled: đúng thì chạy nhánh sau if. | Khai báo biến không gán lại bằng const: order = gọi basicRotation() | Kiểm tra order.includes(id): đúng thì chạy nhánh sau if. | gán mixed.rotationCursor bằng (order.indexOf(id)+1)%order.length
@@ -1307,6 +1307,7 @@
         if(overlap.length){for(const previous of overlap)previous.ambiguousTH=true;tqIdleFill.repeatCalls++;}
         ST.castAttempts++;ST.casts.push({serial:ST.castAttempts,id,occ,targetId:identity(this.target),scene:scene(),time:Date.now(),distance:d,used:false,ambiguousTH:overlap.length>0,basicTrial:basicProbe.dispatch||mixed.enabled&&isBasic(id),mixedBasic:mixed.enabled&&isBasic(id),burstSerial:burst.active?.serial??null,tuningEligible:!isBasic(id)&&!basicProbe.dispatch&&!burst.dispatch&&!transforming()&&verified(occ,id)});
 // [VI dòng gốc 470] Kiểm tra tailStudy?.status==='running'&&[8001,8005].includes(id): đúng thì chạy nhánh sau if. | gán ST.casts.at(-1).tailPhase bằng tailStudy.phase | tăng tailStudy[tailStudy.phase].casts một đơn vị sau khi lấy giá trị
+        ST.tqSelectedNative=null;
         if(tqFive?.active()&&isBasic(id)){ST.casts.at(-1).basicTrial=true;ST.casts.at(-1).mixedBasic=true;tqFive.cast(ST.castAttempts,id,d);mixed.rotationCursor=(tqFive.ids().indexOf(id)+1)%tqFive.ids().length;}
         if(tailStudy?.status==='running'&&[8001,8005].includes(id)){ST.casts.at(-1).tailPhase=tailStudy.phase;tailStudy[tailStudy.phase].casts++;}
 // [VI dòng gốc 471] Kiểm tra rangeTest?.status==='running'&&rangeTest.rows[rangeTest.index]?.id===id: đúng thì chạy nhánh sau if. | gọi rangeTest.rows[rangeTest.index].attempts.push({serial:ST.castAttempts,bossId:identity(this.target),scene:scene(),occ,distance:d,at:Date.now()}) để thêm phần tử vào cuối mảng
