@@ -1671,6 +1671,40 @@
     return {enabled:CFG.basicOnly,skillId:8001,scanMs:CFG.scanMs,addedClientWaitMs:CFG.clientPaceMs,serverMultiplierVerified:false};}
 // [VI dòng gốc 700] Định nghĩa hàm setBasicAnimationSpeed; tham số: factor=1. Mục đích: đặt hệ số phát hoạt ảnh 8001 phía client; không phải hệ số sát thương server | Kiểm tra ![1,9,99,99999].includes(factor): đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Native animation factor must be 1, 9 or 99') | gọi finishSpeedTrial('stopped')
   // 1 restores native visuals. 9/30/99 reduce only Tuyet Hoc visual duration.
+  // On-demand intelligence report only; never called on the 1ms combat loop.
+  function tianQuan4100Diagnosis(show=true){
+    const current=metrics?.report()?.current??null,pilot=pilot4100Status(),
+      states=current?.timeMs??{},elapsedMs=current?.elapsedMs??null;
+    const rows=Object.entries(states).map(([reason,ms])=>({reason,ms,
+      pct:elapsedMs>0?+(ms/elapsedMs*100).toFixed(1):null})).sort((a,b)=>b.ms-a.ms);
+    const relevant=current?.skills??[],basic=relevant.filter(r=>r.group==='basic'),
+      th=relevant.filter(r=>r.group==='tuyetHoc');
+    const groupInfo=rows=>({casts:rows.reduce((n,r)=>n+r.attempts,0),
+      directHits:rows.reduce((n,r)=>n+r.hits,0),unconfirmed:rows.reduce((n,r)=>n+r.unconfirmed,0),
+      directDamage:rows.reduce((n,r)=>n+r.matchedDamage,0)});
+    const recommendations=[];
+    const spent=key=>Number(states[key]||0);
+    if(spent('positioning')>0.2*Number(elapsedMs||0))
+      recommendations.push('Positioning is costly: inspect moving Boss/orbit/retries before changing damage rotation.');
+    if(spent('waiting_native_animation')>0.2*Number(elapsedMs||0))
+      recommendations.push('Native animation gate dominates: inspect animationWaitMs, never assume client visual speed reduces server cooldown.');
+    if(spent('native_cooldown')+spent('waiting_native_cooldown')>0.2*Number(elapsedMs||0))
+      recommendations.push('Native cooldown dominates: prioritize higher confirmed damage on ready skills; 1ms polling cannot shorten server cooldown.');
+    if(spent('skill_readiness')+spent('waiting_ready_tuyet_hoc')>0.2*Number(elapsedMs||0))
+      recommendations.push('Skill readiness dominates: inspect verified TH range and client/native pending casts.');
+    if(pilot.phase==='chosen')
+      recommendations.push('Boss HP A/B selected '+pilot.selectedMode+'; improvement is observed, not guaranteed on the next Boss.');
+    if(!recommendations.length)
+      recommendations.push('Need more confirmed Boss-HP and cast-hit observations before choosing a safe acceleration.');
+    const out={stage:Number(W._Ba?._Co?._Mo?.ins?.curLv)||null,scope:W.KVPV_FAR_SCOPE?.status?.()?.kind??null,
+      distance:radius(role().a,role().c?.target),configuredBossRange:bossRange(),
+      elapsedMs,topTimeCosts:rows.slice(0,8),directMatchedDps:current?.summary?.matchedDps??null,
+      rolling10sMatchedDps:current?.summary?.rolling10sMatchedDps??null,
+      skillGroups:{basic:groupInfo(basic),tuyetHoc:groupInfo(th)},
+      dpsPilot:pilot,recommendations,
+      warning:'Client matched-hit DPS omits some damage sources; Boss HP drops can include companions/other players. No server speed guarantee.'};
+    if(show){console.table(out.topTimeCosts);console.table(out.skillGroups);console.log('[La Phong 4100]',out);}return out;
+  }
   function setTianQuan4100Pilot(enabled=true){pilot4100.enabled=enabled===true;resetPilot4100();return pilot4100Status();}
   function setTianQuanLuoFeng(enabled=true){
     luoFeng.enabled=!!enabled;
@@ -1701,7 +1735,7 @@
     if(!['tuyet_hoc_first','interleaved'].includes(value))throw Error('Skill priority must be tuyet_hoc_first or interleaved');
     skillPriority=value;return {skillPriority};
   }
-  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,setTianQuan4100Pilot,setTianQuanLuoFeng,setTianQuanCosmic,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?!tqFive.allowsTuyetHoc():CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
+  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,tianQuan4100Diagnosis,setTianQuan4100Pilot,setTianQuanLuoFeng,setTianQuanCosmic,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?!tqFive.allowsTuyetHoc():CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
 // [VI dòng gốc 702] gán W.KVPV_TH300 bằng api
   W.KVPV_TH300=api;
 // [VI dòng gốc 703] gọi console.info(TAG, 'READY/OFF. START: KVPV_MODE.start("BOSS_TH300_SCAN") then KVPV_MODE.start("BOSS_TH300")')
