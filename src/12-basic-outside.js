@@ -24,9 +24,10 @@
 // [VI dòng gốc 11] Khai báo biến không gán lại bằng const: road = tạo hàm với tham số (không có); mỗi lần gọi trả về Number(W._ft?._po?.ins?.getCfgById?.(Number(W._C?._Mn?._Cn?.currentID))?.[7])===41 và chỉ đánh giá vế phải khi vế trái truthy: W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true
   const road=()=>Number(W._ft?._po?.ins?.getCfgById?.(Number(W._C?._Mn?._Cn?.currentID))?.[7])===41&&W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true;
 // [VI dòng gốc 12] Khai báo biến không gán lại bằng const: castGap = tạo hàm với tham số (không có); mỗi lần gọi trả về nếu road() thì lấy 250, ngược lại lấy 1
-  const castGap=()=>road()?250:1;
+  const roadForce=()=>road()&&skillPriority==='basic_force_default'&&W.KVPV_ROAD_CADENCE?.enabled!==false&&W.KVPV_ROAD_CADENCE?.combatMode!=='basic8001';
+  const castGap=()=>road()&&!roadForce()?250:1;
   // Poll faster only for an actionable target, never multiply native cast calls.
-  const pollInterval=()=>road()?100:Math.max(S.rapidPoll&&skillPriority==='basic_force_default'?1:S.rapidPoll?4:16,Number(W.KVPV_ACCOUNT_POLICY?.pollingGap?.()??0)||0);
+  const pollInterval=()=>road()&&!roadForce()?100:Math.max(S.rapidPoll&&skillPriority==='basic_force_default'?1:S.rapidPoll?4:16,Number(W.KVPV_ACCOUNT_POLICY?.pollingGap?.()??0)||0);
 // [VI dòng gốc 13] Khai báo biến có thể gán lại bằng let: roadSelector = null
   let roadSelector=null;
 // [VI dòng gốc 14] Khai báo biến có thể gán lại bằng let: roadCast = null; lastRoadCast = áp dụng toán tử - lên Infinity
@@ -77,7 +78,7 @@
 // [VI dòng gốc 32] gán S.reason bằng 'road_closing_to_melee' | Khai báo biến không gán lại bằng const: p = gọi position(combat.target); m = gọi role.getComponent(W._d?._Yct?._zet) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     S.reason='road_closing_to_melee';const p=position(combat.target),m=role.getComponent?.(W._d?._Yct?._zet);
 // [VI dòng gốc 33] Kiểm tra W.KVPV_BOSS_TEAM?.priority?.()||Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)||(combat.isCooldown?.()!==false&&!W.KVPV_ROAD_CADENCE?.fast1ms)||[3,4].includes(m?._fut): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: true.
-    if(W.KVPV_BOSS_TEAM?.priority?.()||Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)||combat.isCooldown?.()!==false||[3,4].includes(m?._fut))return true;
+    if(W.KVPV_BOSS_TEAM?.priority?.()||Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)||(!roadForce()&&combat.isCooldown?.()!==false)||[3,4].includes(m?._fut))return true;
 // [VI dòng gốc 34] Kiểm tra !p||![p.x,p.y].every(Number.isFinite)||typeof m?.moveTo!=='function': đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: true.
     if(!p||![p.x,p.y].every(Number.isFinite)||typeof m?.moveTo!=='function')return true;
 // [VI dòng gốc 35] Kiểm tra Date.now()-(S.lastApproach??-Infinity)>=500: đúng thì chạy nhánh sau if. | gán S.lastApproach bằng Date.now() | gọi m.moveTo(p.x, p.y)
@@ -159,7 +160,7 @@
     const t=c?.target;
     // Force only native PvE monsters, never players (type 4), Road,
     // hidden tabs, UI interaction, recovery or another combat owner.
-    const can=S.enabled&&skillPriority==='basic_force_default'&&owner()&&outside()&&!road()&&
+    const can=S.enabled&&skillPriority==='basic_force_default'&&owner()&&outside()&&(!road()||roadForce()&&roadClose(S.role,c))&&
       W.document?.hidden!==true&&W._Ba?._rJ?._O$?.ins?.isDead!==true&&
       !W.KVPV_BOSS_TEAM?.priority?.()&&
       Date.now()>=Number(W.__KVPV_USER_UI_UNTIL||0)&&
@@ -232,11 +233,11 @@
 // [VI dòng gốc 67] Khai báo biến không gán lại bằng const: pickBasic = tạo hàm với tham số (không có)
         const pickBasic=()=>{
 // [VI dòng gốc 68] Khai báo biến không gán lại bằng const: rows = gọi all.filter(r=>basic(r?.[0])&&(!road()||Number(r[0])===8001)).map(row=>{const id=Number(row[0]),copy=row.slice(); if(!S.basicReady.has(id))S.basicReady.set(id,road()?0:Number(row[1]…((a,b)=>(Number(a[0])-8001-S.basicCursor+9)%9-(Number(b[0])-8001-S.basicCursor+9)%9) để sắp xếp mảng tại chỗ | Khai báo biến không gán lại bằng const: id = gọi Number(row[0]) để chuyển sang số; copy = gọi row.slice() để lấy một đoạn dữ liệu
-          const rows=all.filter(r=>basic(r?.[0])&&(skillPriority!=='basic_force_default'||pveBasic(r[0]))&&(!road()||Number(r[0])===8001)).map(row=>{const id=Number(row[0]),copy=row.slice();
+          const rows=all.filter(r=>basic(r?.[0])&&(skillPriority!=='basic_force_default'||pveBasic(r[0]))&&(!road()||roadForce()||Number(r[0])===8001)).map(row=>{const id=Number(row[0]),copy=row.slice();
 // [VI dòng gốc 69] Kiểm tra !S.basicReady.has(id): đúng thì chạy nhánh sau if. | gọi S.basicReady.set(id, road()?0:Number(row[1])<now?0:now+1)
-            if(!S.basicReady.has(id))S.basicReady.set(id,road()?0:Number(row[1])<now?0:now+1);
+            if(!S.basicReady.has(id))S.basicReady.set(id,road()&&!roadForce()?0:Number(row[1])<now?0:now+1);
 // [VI dòng gốc 70] Kiểm tra !road(): đúng thì chạy nhánh sau if. | gán copy[1] bằng S.basicReady.get(id) | gán copy[2] bằng castGap() | Kết thúc hàm hiện tại và trả về: copy.
-            if(!road()){copy[1]=S.basicReady.get(id);copy[2]=castGap();}return copy;
+            if(!road()||roadForce()){copy[1]=S.basicReady.get(id);copy[2]=castGap();}return copy;
 // [VI dòng gốc 71] Định nghĩa hàm hàm không đặt tên; tham số: row
           }).filter(row=>Number(row[1])<now)
 // [VI dòng gốc 72] Định nghĩa hàm hàm không đặt tên; tham số: a, b
@@ -274,9 +275,9 @@
 // [VI dòng gốc 87] Kiểm tra road()&&!roadClose(role,combat): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: undefined.
           if(road()&&!roadClose(role,combat))return undefined;
 // [VI dòng gốc 88] Kiểm tra road()&&Number(id)!==8001&&!(W.KVPV_TRANSFORM10?.status?.()?.enabled===true&&W.KVPV_TRANSFORM10?.transformed?.()&&W.KVPV_TRANSFORM10?.has?.(id)): đúng thì chạy nhánh sau if. | tăng S.blocked một đơn vị sau khi lấy giá trị | Kết thúc hàm hiện tại và trả về: undefined.
-          if(road()&&Number(id)!==8001&&!(W.KVPV_TRANSFORM10?.status?.()?.enabled===true&&W.KVPV_TRANSFORM10?.transformed?.()&&W.KVPV_TRANSFORM10?.has?.(id))){S.blocked++;return undefined;}
+          if(road()&&!roadForce()&&Number(id)!==8001&&!(W.KVPV_TRANSFORM10?.status?.()?.enabled===true&&W.KVPV_TRANSFORM10?.transformed?.()&&W.KVPV_TRANSFORM10?.has?.(id))){S.blocked++;return undefined;}
 // [VI dòng gốc 89] Kiểm tra !allowed(Number(id)): đúng thì chạy nhánh sau if. | tăng S.blocked một đơn vị sau khi lấy giá trị | Kết thúc hàm hiện tại và trả về: undefined.
-          if(!allowed(Number(id))||(skillPriority==='basic_force_default'&&!road()&&!pveBasic(id))){S.blocked++;return undefined;}
+          if(!allowed(Number(id))||(skillPriority==='basic_force_default'&&(!road()||roadForce())&&!pveBasic(id))){S.blocked++;return undefined;}
 // [VI dòng gốc 90] Kiểm tra Date.now()-S.lastCast<castGap()||W._Ba?._rJ?._O$?.ins?.isDead===true||combat.isCooldown?.()!==false||combat.isValidTarget?.()!==true||combat.isValidRange?.()!==true: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: undefined.
           if(Date.now()-S.lastCast<castGap()||W._Ba?._rJ?._O$?.ins?.isDead===true||combat.isCooldown?.()!==false||combat.isValidTarget?.()!==true||combat.isValidRange?.()!==true)return undefined;
 // [VI dòng gốc 91] gán S.lastCast bằng Date.now() | tăng S.attempts một đơn vị sau khi lấy giá trị
@@ -319,9 +320,36 @@
     if(!role||typeof selector?._f7t!=='function'||typeof combat?.combat!=='function'){release();S.reason='waiting_components';return;}
     if(Number(combat?.target?.property?.get?.('type'))===4){release();S.reason='player_target_yield_pvp';return;}
 // [VI dòng gốc 110] Chú thích gốc của tác giả; không được thực thi. Nội dung: Thí Luyện chỉ hỗ trợ di chuyển; giao chọn skill và tung đòn cho bộ native.
+    // Road BASIC FORCE: preserve the Road module's approach/target acquisition;
+    // only take native combat ownership in verified melee range of a monster.
+    if(roadForce()){
+      releaseRoadCast();releaseRoadSelector();
+      if(W.KVPV_BOSS_TEAM?.priority?.()||Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){
+        release();S.reason='road_yield_to_owner_or_ui';return;
+      }
+      if(W.document?.hidden===true||W._Ba?._rJ?._O$?.ins?.isDead===true){
+        release();S.reason='road_paused';return;
+      }
+      const hp=combat.target?.property?.get?.('hp'),
+        lost=combat.isValidTarget?.()!==true||Array.isArray(hp)&&Number(hp[0])<=0;
+      if(lost){
+        release();
+        const user=W._Ba?._rJ?._O$?.ins;
+        if(typeof user?.selectTar==='function'&&Date.now()-(S.lastAcquire??-Infinity)>=400){
+          S.lastAcquire=Date.now();S.targetSearches++;user.selectTar(1,-1);
+        }
+        S.reason='road_waiting_native_target';return;
+      }
+      if(Number(combat.target?.property?.get?.('type'))!==1){
+        release();S.reason='road_not_monster';return;
+      }
+      if(approachRoad(role,combat)){release();return;}
+      // Avoid learning false ready times from a forced cooldown observation.
+      W.KVPV_ROAD_CADENCE?.observe?.(role,combat);
+    }
     // Thí Luyện chỉ hỗ trợ di chuyển; giao chọn skill và tung đòn cho bộ native.
 // [VI dòng gốc 111] Kiểm tra road(): đúng thì chạy nhánh sau if.
-    if(road()){
+    if(road()&&!roadForce()){
       S.rapidPoll=false;
 // [VI dòng gốc 112] Kiểm tra W.KVPV_ROAD_CADENCE?.enabled===false: đúng thì chạy nhánh sau if. | gọi releaseRoadCast() | gọi releaseRoadSelector() | Kiểm tra S.hooks.length||S.role!==null: đúng thì chạy nhánh sau if.
       if(W.KVPV_ROAD_CADENCE?.enabled===false){releaseRoadCast();releaseRoadSelector();if(S.hooks.length||S.role!==null)release();S.reason='road_support_disabled';return;}
@@ -379,7 +407,7 @@
 // [VI dòng gốc 136] Khai báo biến không gán lại bằng const: id = gọi Number(selector.selectSkill?.()) để chuyển sang số
     const id=Number(selector.selectSkill?.());
 // [VI dòng gốc 137] Kiểm tra !allowed(Number(id)): đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_ready_combo' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-    if(!allowed(Number(id))){S.reason='waiting_ready_combo';return;}
+    if(!allowed(Number(id))||(skillPriority==='basic_force_default'&&!pveBasic(id))){S.reason='waiting_ready_combo';return;}
 // [VI dòng gốc 138] gọi combat.combat(id) | gán S.reason bằng basic(id)?'basic_native_called':'skill_native_called'
     combat.combat(id);S.reason=basic(id)?'basic_native_called':'skill_native_called';
 // [VI dòng gốc 139] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán S.lastError bằng String(e?.message||e) | gán S.reason bằng 'error'
@@ -390,9 +418,9 @@
   function status(){return {enabled:S.enabled,active:S.hooks.length>0&&outside(),intervalMs:S.timerMs,activePollMs:skillPriority==='basic_force_default'?1:4,idlePollMs:16,roadPollMs:100,rapidPoll:S.rapidPoll,skillClientWaitMs:null,combo:road()?'native_combat':skillPriority,skillPriority,nextPreferred:skillPriority==='basic_force_default'?'basic':skillPriority==='interleaved'?S.prefer:'tuyet_hoc',
     defaultBasicForce:{enabled:skillPriority==='basic_force_default',active:S.forceActive,skillIds:[8001,8002,8003,8004,8005],cooldownFalseReturns:S.forceCooldownReads,animationFalseReads:S.forceAnimationReads,animationPatched:S.forceAnimationPatched,animationForced:!!forcedTween,serverCooldownModified:false},basicClientWaitMs:road()?null:castGap(),basicAttempts:S.basicAttempts,tuyetHocAttempts:S.tuyetHocAttempts,
 // [VI dòng gốc 142] Thuộc tính roadMelee: tạo đối tượng gồm active, targetSearches, basicOnly, basicSkill, nativeCooldownBypass, aoePriority, radius, distance, fullBasicRotation, nativeCombat | Thuộc tính active: gọi road() | Thuộc tính targetSearches: đọc S.targetSearches | Thuộc tính basicOnly: false
-    roadMelee:{active:road(),targetSearches:S.targetSearches,basicOnly:false,basicSkill:null,nativeCooldownBypass:false,aoePriority:false,radius:W.KVPV_ROAD_CADENCE?.approachDistance??80,distance:S.role?roadDistance(S.role,S.role.getComponent?.(W._d?._Yct?._Het)):null,fullBasicRotation:true,nativeCombat:road()},attempts:S.attempts,blockedSkills:S.blocked,reason:S.reason,lastError:S.lastError,
+    roadMelee:{active:road(),targetSearches:S.targetSearches,basicOnly:roadForce(),basicSkill:roadForce()?[8001,8002,8003,8004,8005]:null,nativeCooldownBypass:roadForce()&&S.forceActive,aoePriority:false,radius:W.KVPV_ROAD_CADENCE?.approachDistance??80,distance:S.role?roadDistance(S.role,S.role.getComponent?.(W._d?._Yct?._Het)):null,fullBasicRotation:true,nativeCombat:road()},attempts:S.attempts,blockedSkills:S.blocked,reason:S.reason,lastError:S.lastError,
 // [VI dòng gốc 143] Thuộc tính note: "Road Trial delegates skill selection and casting to native combat; script only supports bounded target acquisition and melee approach."
-    note:'Road Trial delegates skill selection and casting to native combat; script only supports bounded target acquisition and melee approach.'};}
+    note:roadForce()?'Road Trial BASIC FORCE runs only against native in-range monsters; approach and target selection stay native.':'Road native combat stays available when BASIC FORCE is disabled.'};}
 // [VI dòng gốc 144] Chú thích gốc của tác giả; không được thực thi. Nội dung: Dừng bộ điều khiển, hủy lịch và giải phóng tài nguyên do module này sở hữu.
   // Dừng bộ điều khiển, hủy lịch và giải phóng tài nguyên do module này sở hữu.
 // [VI dòng gốc 145] Định nghĩa hàm stop; tham số: không có. Mục đích: dừng bộ điều khiển và dọn tài nguyên | gán S.enabled bằng false | Kiểm tra S.timer!=null: đúng thì chạy nhánh sau if. | gọi W.KVPV_V1?.timers?.clearInterval??W.clearInterval(S.timer)
