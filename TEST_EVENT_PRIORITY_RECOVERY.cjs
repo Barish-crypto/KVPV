@@ -81,6 +81,57 @@ function harness({auto=true,monitor=true,exitMode='stuck'}={}){
  const h=harness();h.load();h.begin();h.W.KVPV_EVENT_PRIORITY.stop();h.end();
  assert.equal(h.model.auto,false,'manual stop cancels ownership');
 }
+// Major schedule-only events must yield native stage auto without inventing an
+// entry RPC. Daily's read-only calendar, not a duplicated schedule, owns timing.
+for(const key of ['tien_ma','tien_duyen_tac_chien','chien_doi','tranh_ba_tu_phuong']){
+ const h=harness(),event={key,name:key,time:'20:00-20:25',action:'nhắc lịch',
+   start:425,end:450};
+ let visible=true;
+ h.W.KVPV_DAILY.lichData=()=>({active:[],upcoming:visible?[event]:[]});
+ const api=h.load();
+ assert.equal(api.status().hold?.key,key,'manual scheduled event reserved: '+key);
+ assert.equal(api.status().hold?.requiresManualEntry,true,'must request manual entry');
+ assert.equal(api.status().hold?.mode,'manual');
+ assert.equal(h.model.auto,false,'manual event pauses stage auto');
+ assert.equal(h.exits,1,'one native exit attempt, no fabricated event RPC');
+ h.tick();assert.equal(h.exits,1,'exit retry throttled');
+ visible=false;h.tick();
+ assert.equal(h.model.auto,true,'only resume same-stage native flag after hold ends');
+ assert.equal(api.status().resumed,1);
+}
+{
+ const h=harness();let event={key:'tien_ma',name:'Tiên Ma',time:'20:30-20:45',
+   action:'nhắc lịch',start:425,end:440};
+ h.W.KVPV_DAILY.lichData=()=>({active:[],upcoming:[event]});
+ const api=h.load();api.config.manualPriorityKeys.tien_ma=false;
+ h.model.auto=true;h.tick();
+ assert.equal(api.hold(),null,'manual event opt-out removes reservation');
+ assert.equal(h.exits,1,'disabling after first hold cannot trigger another exit');
+}
+{
+ const h=harness();
+ h.W.KVPV_DAILY.lichData=()=>({active:[],upcoming:[{key:'sa_thanh',name:'Sa Thanh',
+   start:425,end:440,time:'20:00-20:30',unlock:'Liên server đủ 45 ngày',
+   action:'nhắc lịch'}]});
+ const api=h.load();api.config.manualPriorityKeys.sa_thanh=true;h.tick();
+ assert.equal(api.hold(),null,'unverified cross-server eligibility cannot preempt');
+}
+{
+ const h=harness();
+ h.W.KVPV_DAILY.lichData=()=>({active:[],upcoming:[{key:'tien_ma',name:'Tiên Ma',
+   start:425,end:440,time:'20:30-20:45',action:'auto'}]});
+ const api=h.load();
+ assert.equal(api.hold(),null,'manual event path must not reclassify automatic entries');
+}
+{
+ const h=harness();let calendar={active:[{key:'tien_ma',name:'Tiên Ma',
+   start:420,end:440,time:'20:30-20:45',action:'nhắc lịch'}],upcoming:[]};
+ h.W.KVPV_DAILY.lichData=()=>calendar;
+ const api=h.load();
+ h.begin();assert.equal(api.status().hold?.key,'tien_ma','active manual event beats upcoming automatic reservation');
+ calendar={active:[],upcoming:[]};h.end();
+ assert.equal(api.status().hold?.key,'tam_tien','known active auto remains prioritized after manual slot ends');
+}
 const built=fs.readFileSync(__dirname+'/KVPV_V1_FULL.js','utf8');
 assert(built.includes('Source: src/62-event-priority.js'));
 assert(built.includes('stage_auto_restored_in_same_scene'));
