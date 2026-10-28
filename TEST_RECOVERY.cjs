@@ -5,7 +5,7 @@
 // [VI dòng gốc 3] Khai báo biến không gán lại bằng const: fs = gọi require('node:fs') để nạp module Node.js; vm = gọi require('node:vm') để nạp module Node.js; assert = gọi require('node:assert/strict') để nạp module Node.js
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 // [VI dòng gốc 4] Khai báo biến không gán lại bằng const: engine = gọi fs.readFileSync(__dirname+'/src/04-engine.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm, '')
-const engine=fs.readFileSync(__dirname+'/src/04-engine.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'');
+const engine=fs.readFileSync(__dirname+'/src/04-engine.js','utf8').replace(/\r\n?/g,'\n').replace(/^\/\/ \[VI dòng gốc \d+\].*\n/gm,'');
 // [VI dòng gốc 5] Khai báo biến không gán lại bằng const: policy = gọi fs.readFileSync(__dirname+'/src/00-boss-recovery.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm, '')
 const policy=fs.readFileSync(__dirname+'/src/00-boss-recovery.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'');
 // [VI dòng gốc 6] Định nghĩa hàm moduleAt; tham số: marker, endMarker | Khai báo biến không gán lại bằng const: at = gọi engine.indexOf(marker) | gọi assert(at>0) để kiểm tra điều kiện của bài test | Khai báo biến không gán lại bằng const: start = gọi engine.lastIndexOf('(() => {', at)
