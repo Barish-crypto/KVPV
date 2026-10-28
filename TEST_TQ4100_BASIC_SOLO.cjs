@@ -72,11 +72,14 @@ function make(){
    window:q.W,console:{info(){},warn(){}}
  });
  const st=q.mod.status(false);
- assert.equal(st.luoFeng.basicSolo4100.active,true,'auto startup enables basic solo 4100');
+ assert.equal(st.luoFeng.basicSolo4100.active,false,'auto startup now enables mixed TH+five basics at 4100');
+ assert.equal(st.luoFeng.basicSolo4100.enabled,false,'basic-only override remains opt-in');
  assert.equal(st.luoFeng.dpsPilot4100.enabled,false,'experimental pilot stays disabled');
- assert.equal(st.skillPriority,'4100_native_basics_only');
+ assert.equal(st.skillPriority,'five_basics_plus_tuyet_hoc_10ms');
+ assert.equal(st.afterTHWaitMs,0,'no artificial 1ms post-TH freeze');
+ assert.equal(st.basicOnly,false,'TH and five basics are available together');
  q.elapse(100);
- assert([8001,8002,8003,8004,8005].includes(q.s.selectSkill()),'auto startup must select basic');
+ assert([1001,8001,8002,8003,8004,8005].includes(q.s.selectSkill()),'auto startup selects from TH+native basics');
  q.mod.stop();
 }
 {
