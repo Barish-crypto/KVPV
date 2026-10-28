@@ -546,7 +546,7 @@ console.log('PASS mount/pet: feed, rank EXP ACK, paid auto-buy guard, refine, il
  assert.equal(fresh.size,64,'reload repopulates a newly replaced shared queue');
  assert.equal(q.timers.size,1,'only one worker timer remains');
  q.W.KVPV_APPEARANCE_AUTO.stop('reload');
- assert(fresh.values().every(p=>p.enabled===false),'registered modules disabled');
+ assert([...fresh.values()].every(p=>p.enabled===false),'registered modules disabled');
 }
 {
  const q=harness(),previous=q.W.KVPV_APPEARANCE_AUTO;
