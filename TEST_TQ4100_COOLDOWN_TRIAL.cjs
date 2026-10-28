@@ -3,6 +3,14 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const suite=fs.readFileSync(__dirname+'/TEST_TH300.cjs','utf8');
 const prefix=suite.slice(0,suite.indexOf("test('holding 305"));
 assert(prefix.includes('function harness('));
+const core=fs.readFileSync(__dirname+'/src/08-range-evidence.js','utf8');
+const experiment=fs.readFileSync(__dirname+'/src/10-tq4100-cooldown-experiment.js','utf8');
+assert.equal(/(hook|install)\([^\n]*['"]isCooldown['"]/.test(core),false,
+  'native TH300 core must not install isCooldown hooks');
+assert.equal(/\.isCooldown\s*=(?!=)/.test(core),false,
+  'native TH300 core must not assign isCooldown');
+assert(experiment.includes("Object.defineProperty(c,'isCooldown'"),
+  'isolated experimental module owns opt-in cooldown wrapper');
 const ctx={require,__dirname,console};
 vm.runInNewContext(prefix+'\nglobalThis.make=harness;',ctx);
 function setup(){
