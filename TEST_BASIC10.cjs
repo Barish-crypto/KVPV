@@ -21,8 +21,11 @@ const W={__KVPV_OWN_ACTOR_ID:'12345',_Ba:{_rJ:{_O$:{ins:{actorId:'12345'}}}},_d:
 // [VI dòng gốc 11] gọi vm.runInNewContext(fs.readFileSync(__dirname+'/src/12-basic-outside.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''), {window:W…) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử
 vm.runInNewContext(fs.readFileSync(__dirname+'/src/12-basic-outside.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:W,Date:Clock});
 // [VI dòng gốc 12] gọi assert.equal(timers[0].ms, 16) để kiểm tra hai giá trị bằng nhau | gọi assert.deepEqual(calls, [8001]) để kiểm tra cấu trúc hai giá trị tương đương
-assert.equal(timers[0].ms,16);assert.deepEqual(calls,[1001]);
-assert.equal(W.KVPV_BASIC10.status().skillPriority,'tuyet_hoc_first');
+assert.equal(timers[0].ms,16);assert.deepEqual(calls,[8001]);
+assert.equal(W.KVPV_BASIC10.status().skillPriority,'basic_force_default');
+// Legacy TH-first and interleaved modes remain explicitly selectable.
+W.KVPV_BASIC10.setSkillPriority('tuyet_hoc_first');now+=2;W.KVPV_BASIC10.sync();
+assert.equal(calls.at(-1),1001);
 // Ready TH chain before basic filler; original TH cooldowns remain native.
 s._rtt.push([1002,0,1000]);now+=2;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),1002);
 now+=2;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),8001);

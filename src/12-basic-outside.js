@@ -6,11 +6,13 @@
   'use strict';
 // [VI dòng gốc 4] Khai báo biến không gán lại bằng const: W = window | gọi W.KVPV_BASIC10?.stop() để dừng bộ điều khiển và dọn tài nguyên (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
   const W=window;W.KVPV_BASIC10?.stop?.();
-  let skillPriority='tuyet_hoc_first';
+  let skillPriority='basic_force_default';
+  let forcedTween=null;
+  const pveBasic=id=>Number.isInteger(Number(id))&&Number(id)>=8001&&Number(id)<=8005;
 // [VI dòng gốc 5] Khai báo biến không gán lại bằng const: actor = gọi String(W.__KVPV_OWN_ACTOR_ID||'') để chuyển sang chuỗi
   const actor=String(W.__KVPV_OWN_ACTOR_ID||'');
 // [VI dòng gốc 6] Khai báo biến không gán lại bằng const: S = tạo đối tượng gồm enabled, timer, timerMs, hooks, role, lastCast, attempts, blocked, reason, lastError, prefer, cursor, basicCursor, basicReady, targetSearches, basicAttempts, tuyetHocAttempts
-  const S={enabled:true,timer:null,timerMs:16,rapidPoll:false,hooks:[],role:null,lastCast:-Infinity,attempts:0,blocked:0,reason:'starting',lastError:'',prefer:'basic',cursor:0,basicCursor:0,basicReady:new Map(),targetSearches:0,basicAttempts:0,tuyetHocAttempts:0};
+  const S={enabled:true,timer:null,timerMs:16,rapidPoll:false,hooks:[],role:null,lastCast:-Infinity,attempts:0,blocked:0,reason:'starting',lastError:'',prefer:'basic',cursor:0,basicCursor:0,basicReady:new Map(),targetSearches:0,basicAttempts:0,tuyetHocAttempts:0,forceActive:false,forceCombat:null,forceTarget:null,forceScene:null,forceCooldownReads:0,forceAnimationReads:0,forceAnimationPatched:0};
 // [VI dòng gốc 7] Khai báo biến không gán lại bằng const: basic = tạo hàm với tham số id; mỗi lần gọi trả về Number.isSafeInteger(Number(id))&&Number(id)>=8001 và chỉ đánh giá vế phải khi vế trái truthy: Number(id)<=8009
   const basic=id=>Number.isSafeInteger(Number(id))&&Number(id)>=8001&&Number(id)<=8009;
 // [VI dòng gốc 8] Khai báo biến không gán lại bằng const: tuyetHoc = tạo hàm với tham số id; mỗi lần gọi trả về Number.isSafeInteger(Number(id))&&Number(id)>=1001 và chỉ đánh giá vế phải khi vế trái truthy: Number(id)<=1008
@@ -24,7 +26,7 @@
 // [VI dòng gốc 12] Khai báo biến không gán lại bằng const: castGap = tạo hàm với tham số (không có); mỗi lần gọi trả về nếu road() thì lấy 250, ngược lại lấy 1
   const castGap=()=>road()?250:1;
   // Poll faster only for an actionable target, never multiply native cast calls.
-  const pollInterval=()=>road()?100:Math.max(S.rapidPoll?4:16,Number(W.KVPV_ACCOUNT_POLICY?.pollingGap?.()??0)||0);
+  const pollInterval=()=>road()?100:Math.max(S.rapidPoll&&skillPriority==='basic_force_default'?1:S.rapidPoll?4:16,Number(W.KVPV_ACCOUNT_POLICY?.pollingGap?.()??0)||0);
 // [VI dòng gốc 13] Khai báo biến có thể gán lại bằng let: roadSelector = null
   let roadSelector=null;
 // [VI dòng gốc 14] Khai báo biến có thể gán lại bằng let: roadCast = null; lastRoadCast = áp dụng toán tử - lên Infinity
@@ -87,8 +89,90 @@
   }
 // [VI dòng gốc 38] Khai báo biến không gán lại bằng const: owner = tạo hàm với tham số (không có); mỗi lần gọi trả về actor&&String(W._Ba?._rJ?._O$?.ins?.actorId??'')===actor và chỉ đánh giá vế phải khi vế trái truthy: !W.__KVPV_UNIVERSAL_HALTED
   const owner=()=>actor&&String(W._Ba?._rJ?._O$?.ins?.actorId??'')===actor&&!W.__KVPV_UNIVERSAL_HALTED;
+  const liveScene=()=>String(W._Ba?._$a?._yo?.ins?.intoSce?.[0]??'');
+  // Wrapper callbacks only read cached primitive eligibility. Never call
+  // isCooldown/status/sync or scope.status from the forced getters.
+  const forceReady=c=>S.forceActive&&S.forceCombat===c&&c?.target===S.forceTarget&&
+    skillPriority==='basic_force_default'&&
+    String(W._Ba?._rJ?._O$?.ins?.actorId??'')===actor&&
+    !W.__KVPV_UNIVERSAL_HALTED&&W.document?.hidden!==true&&
+    W._Ba?._rJ?._O$?.ins?.isDead!==true&&liveScene()===S.forceScene&&
+    Date.now()>=Number(W.__KVPV_USER_UI_UNTIL||0);
+  function restoreForcedTween(){
+    const h=forcedTween;forcedTween=null;if(!h)return;
+    try{
+      const cur=Object.getOwnPropertyDescriptor(h.obj,'isPlaying');
+      if(cur?.get!==h.get||cur?.set!==h.set){
+        S.lastError='Foreign animation hook retained; not overwritten';return;
+      }
+      if(h.own)Object.defineProperty(h.obj,'isPlaying',{
+        ...h.own,...(Object.prototype.hasOwnProperty.call(h.own,'value')?{value:h.value}:{})
+      });
+      else{
+        delete h.obj.isPlaying;
+        if(h.wrote&&(!h.parent||Object.prototype.hasOwnProperty.call(h.parent,'value')))
+          Object.defineProperty(h.obj,'isPlaying',{configurable:true,writable:true,enumerable:true,value:h.value});
+      }
+    }catch(e){S.lastError=String(e?.message||e);}
+  }
+  function parentDescriptor(obj,key){
+    for(let p=Object.getPrototypeOf(obj);p;p=Object.getPrototypeOf(p)){
+      const d=Object.getOwnPropertyDescriptor(p,key);if(d)return d;
+    }return null;
+  }
+  function syncForcedTween(c){
+    const obj=forceReady(c)?c?._jh:null;
+    if(forcedTween&&forcedTween.obj===obj){
+      const d=Object.getOwnPropertyDescriptor(obj,'isPlaying');
+      if(d?.get===forcedTween.get&&d?.set===forcedTween.set)return;
+      S.lastError='Foreign animation hook changed; not overwritten';
+      forcedTween=null;return;
+    }
+    restoreForcedTween();
+    if(!obj||typeof obj!=='object')return;
+    const own=Object.getOwnPropertyDescriptor(obj,'isPlaying');
+    if((own&&!own.configurable)||(!own&&!Object.isExtensible(obj)))return;
+    const parent=own?null:parentDescriptor(obj,'isPlaying');
+    let value;try{value=obj.isPlaying;}catch(_){return;}
+    let wrote=false;
+    const readNative=()=>{try{
+      if(own?.get)return own.get.call(obj);
+      if(!own&&parent?.get)return parent.get.call(obj);
+    }catch(_){}return value;};
+    const writeNative=v=>{wrote=true;value=v;try{
+      if(own?.set)own.set.call(obj,v);
+      else if(!own&&parent?.set)parent.set.call(obj,v);
+    }catch(e){S.lastError=String(e?.message||e);}};
+    const get=function(){
+      if(this===obj&&forceReady(c)){S.forceAnimationReads++;return false;}
+      return readNative();
+    };
+    const set=function(v){writeNative(v);};
+    try{
+      Object.defineProperty(obj,'isPlaying',{configurable:true,
+        enumerable:own?.enumerable??parent?.enumerable??true,get,set});
+      forcedTween={obj,own,parent,get,set,get value(){return value;},get wrote(){return wrote;}};
+      S.forceAnimationPatched++;
+    }catch(e){S.lastError=String(e?.message||e);}
+  }
+  function syncForceContext(c){
+    const t=c?.target;
+    // Force only native PvE monsters, never players (type 4), Road,
+    // hidden tabs, UI interaction, recovery or another combat owner.
+    const can=S.enabled&&skillPriority==='basic_force_default'&&owner()&&outside()&&!road()&&
+      W.document?.hidden!==true&&W._Ba?._rJ?._O$?.ins?.isDead!==true&&
+      !W.KVPV_BOSS_TEAM?.priority?.()&&
+      Date.now()>=Number(W.__KVPV_USER_UI_UNTIL||0)&&
+      !W.KVPV_TERRITORY_LOOT?.shouldBlock?.(t)&&
+      Number(t?.property?.get?.('type'))===1&&
+      c?.isValidTarget?.()===true&&c?.isValidRange?.()===true;
+    S.forceCombat=can?c:null;S.forceTarget=can?t:null;
+    S.forceScene=can?liveScene():null;S.forceActive=!!can;
+    syncForcedTween(c);
+  }
+
 // [VI dòng gốc 39] Định nghĩa hàm release; tham số: không có. Mục đích: nhả quyền điều khiển đang giữ | gọi releaseRoadCast() | gọi releaseRoadSelector() | gọi W.KVPV_ROAD_CADENCE?.release() để nhả quyền điều khiển đang giữ (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
-  function release(){S.rapidPoll=false;releaseRoadCast();releaseRoadSelector();W.KVPV_ROAD_CADENCE?.release?.();if(!S.hooks.length&&S.role===null)return;for(const h of S.hooks.slice().reverse()){
+  function release(){S.forceActive=false;S.forceCombat=null;S.forceTarget=null;restoreForcedTween();S.rapidPoll=false;releaseRoadCast();releaseRoadSelector();W.KVPV_ROAD_CADENCE?.release?.();if(!S.hooks.length&&S.role===null)return;for(const h of S.hooks.slice().reverse()){
 // [VI dòng gốc 40] Kiểm tra h.obj[h.key]!==h.fn: đúng thì chạy nhánh sau if. | Bỏ phần còn lại của vòng hiện tại và chuyển sang vòng tiếp theo.
     if(h.obj[h.key]!==h.fn)continue;
 // [VI dòng gốc 41] Kiểm tra h.descriptor: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gọi Object.defineProperty(h.obj, h.key, h.descriptor) | xóa thuộc tính h.obj[h.key]
@@ -117,6 +201,7 @@
     try{
 // [VI dòng gốc 53] gọi hook(combat, 'isCooldown', native=>function(){ // Giữ nguyên hồi chiêu native, không ép sẵn sàng khi đang Thí Luyện. return n…)
       hook(combat,'isCooldown',native=>function(){
+        if(this===combat&&forceReady(combat)){S.forceCooldownReads++;return false;}
 // [VI dòng gốc 54] Chú thích gốc của tác giả; không được thực thi. Nội dung: Giữ nguyên hồi chiêu native, không ép sẵn sàng khi đang Thí Luyện.
         // Giữ nguyên hồi chiêu native, không ép sẵn sàng khi đang Thí Luyện.
 // [VI dòng gốc 55] Kết thúc hàm hiện tại và trả về: gọi native.apply(this, arguments).
@@ -147,7 +232,7 @@
 // [VI dòng gốc 67] Khai báo biến không gán lại bằng const: pickBasic = tạo hàm với tham số (không có)
         const pickBasic=()=>{
 // [VI dòng gốc 68] Khai báo biến không gán lại bằng const: rows = gọi all.filter(r=>basic(r?.[0])&&(!road()||Number(r[0])===8001)).map(row=>{const id=Number(row[0]),copy=row.slice(); if(!S.basicReady.has(id))S.basicReady.set(id,road()?0:Number(row[1]…((a,b)=>(Number(a[0])-8001-S.basicCursor+9)%9-(Number(b[0])-8001-S.basicCursor+9)%9) để sắp xếp mảng tại chỗ | Khai báo biến không gán lại bằng const: id = gọi Number(row[0]) để chuyển sang số; copy = gọi row.slice() để lấy một đoạn dữ liệu
-          const rows=all.filter(r=>basic(r?.[0])&&(!road()||Number(r[0])===8001)).map(row=>{const id=Number(row[0]),copy=row.slice();
+          const rows=all.filter(r=>basic(r?.[0])&&(skillPriority!=='basic_force_default'||pveBasic(r[0]))&&(!road()||Number(r[0])===8001)).map(row=>{const id=Number(row[0]),copy=row.slice();
 // [VI dòng gốc 69] Kiểm tra !S.basicReady.has(id): đúng thì chạy nhánh sau if. | gọi S.basicReady.set(id, road()?0:Number(row[1])<now?0:now+1)
             if(!S.basicReady.has(id))S.basicReady.set(id,road()?0:Number(row[1])<now?0:now+1);
 // [VI dòng gốc 70] Kiểm tra !road(): đúng thì chạy nhánh sau if. | gán copy[1] bằng S.basicReady.get(id) | gán copy[2] bằng castGap() | Kết thúc hàm hiện tại và trả về: copy.
@@ -161,7 +246,7 @@
 // [VI dòng gốc 74] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
         };
 // [VI dòng gốc 75] Kiểm tra road(): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: gọi pickBasic().
-        if(road())return pickBasic();
+        if(road()||skillPriority==='basic_force_default')return pickBasic();
 // [VI dòng gốc 76] Khai báo biến không gán lại bằng const: pickTH = tạo hàm với tham số (không có)
         const pickTH=()=>{
 // [VI dòng gốc 77] Khai báo biến không gán lại bằng const: rows = gọi all.filter(r=>tuyetHoc(r?.[0])&&Number.isFinite(Number(r[1]))&&Number(r[1])<now) .sort((a,b)=>(Number(a[0])-1001-S.cursor+8)%8-(Number(b[0])-1001-S.cursor+8)%8) để sắp xếp mảng tại chỗ
@@ -191,13 +276,13 @@
 // [VI dòng gốc 88] Kiểm tra road()&&Number(id)!==8001&&!(W.KVPV_TRANSFORM10?.status?.()?.enabled===true&&W.KVPV_TRANSFORM10?.transformed?.()&&W.KVPV_TRANSFORM10?.has?.(id)): đúng thì chạy nhánh sau if. | tăng S.blocked một đơn vị sau khi lấy giá trị | Kết thúc hàm hiện tại và trả về: undefined.
           if(road()&&Number(id)!==8001&&!(W.KVPV_TRANSFORM10?.status?.()?.enabled===true&&W.KVPV_TRANSFORM10?.transformed?.()&&W.KVPV_TRANSFORM10?.has?.(id))){S.blocked++;return undefined;}
 // [VI dòng gốc 89] Kiểm tra !allowed(Number(id)): đúng thì chạy nhánh sau if. | tăng S.blocked một đơn vị sau khi lấy giá trị | Kết thúc hàm hiện tại và trả về: undefined.
-          if(!allowed(Number(id))){S.blocked++;return undefined;}
+          if(!allowed(Number(id))||(skillPriority==='basic_force_default'&&!road()&&!pveBasic(id))){S.blocked++;return undefined;}
 // [VI dòng gốc 90] Kiểm tra Date.now()-S.lastCast<castGap()||W._Ba?._rJ?._O$?.ins?.isDead===true||combat.isCooldown?.()!==false||combat.isValidTarget?.()!==true||combat.isValidRange?.()!==true: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: undefined.
           if(Date.now()-S.lastCast<castGap()||W._Ba?._rJ?._O$?.ins?.isDead===true||combat.isCooldown?.()!==false||combat.isValidTarget?.()!==true||combat.isValidRange?.()!==true)return undefined;
 // [VI dòng gốc 91] gán S.lastCast bằng Date.now() | tăng S.attempts một đơn vị sau khi lấy giá trị
           S.lastCast=Date.now();S.attempts++;
 // [VI dòng gốc 92] Kiểm tra basic(id): đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | tăng S.basicAttempts một đơn vị sau khi lấy giá trị | gán S.prefer bằng road()?'basic':'tuyet_hoc' | gán S.basicCursor bằng (Number(id)-8001+1)%9
-          if(basic(id)){S.basicAttempts++;S.prefer=road()?'basic':'tuyet_hoc';S.basicCursor=(Number(id)-8001+1)%9;}else if(tuyetHoc(id)){S.tuyetHocAttempts++;S.prefer='basic';S.cursor=(Number(id)-1001+1)%8;}
+          if(basic(id)){S.basicAttempts++;S.prefer=road()||skillPriority==='basic_force_default'?'basic':'tuyet_hoc';S.basicCursor=(Number(id)-8001+1)%9;}else if(tuyetHoc(id)){S.tuyetHocAttempts++;S.prefer='basic';S.cursor=(Number(id)-1001+1)%8;}
 // [VI dòng gốc 93] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
         }
 // [VI dòng gốc 94] Kết thúc hàm hiện tại và trả về: gọi native.apply(this, arguments).
@@ -232,6 +317,7 @@
     const selector=role?.getComponent?.(W._d?._Yct?._Eet),combat=role?.getComponent?.(W._d?._Yct?._Het);
 // [VI dòng gốc 109] Kiểm tra !role||typeof selector?._f7t!=='function'||typeof combat?.combat!=='function': đúng thì chạy nhánh sau if. | gọi release() để nhả quyền điều khiển đang giữ | gán S.reason bằng 'waiting_components' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(!role||typeof selector?._f7t!=='function'||typeof combat?.combat!=='function'){release();S.reason='waiting_components';return;}
+    if(Number(combat?.target?.property?.get?.('type'))===4){release();S.reason='player_target_yield_pvp';return;}
 // [VI dòng gốc 110] Chú thích gốc của tác giả; không được thực thi. Nội dung: Thí Luyện chỉ hỗ trợ di chuyển; giao chọn skill và tung đòn cho bộ native.
     // Thí Luyện chỉ hỗ trợ di chuyển; giao chọn skill và tung đòn cho bộ native.
 // [VI dòng gốc 111] Kiểm tra road(): đúng thì chạy nhánh sau if.
@@ -242,9 +328,9 @@
 // [VI dòng gốc 113] Kiểm tra S.hooks.length||S.role!==null: đúng thì chạy nhánh sau if. | gọi release() để nhả quyền điều khiển đang giữ | gọi syncRoadCast(combat) | gọi syncRoadSelector(selector)
       if(S.hooks.length||S.role!==null)release();syncRoadCast(combat);syncRoadSelector(selector);W.KVPV_ROAD_CADENCE?.observe?.(role,combat);
 // [VI dòng gốc 114] Kiểm tra W._Ba?._rJ?._O$?.ins?.isDead===true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'dead' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-      if(W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='dead';return;}
+      if(W._Ba?._rJ?._O$?.ins?.isDead===true){S.forceActive=false;restoreForcedTween();S.reason='dead';return;}
 // [VI dòng gốc 115] Kiểm tra W.document?.hidden&&W.KVPV_ACCOUNT_POLICY?.config?.pauseWhenHidden===true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'hidden_tab' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-      if(W.document?.hidden&&W.KVPV_ACCOUNT_POLICY?.config?.pauseWhenHidden===true){S.reason='hidden_tab';return;}
+      if(W.document?.hidden&&W.KVPV_ACCOUNT_POLICY?.config?.pauseWhenHidden===true){S.forceActive=false;restoreForcedTween();S.reason='hidden_tab';return;}
 // [VI dòng gốc 116] Kiểm tra W.KVPV_BOSS_TEAM?.priority?.()||Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0): đúng thì chạy nhánh sau if. | gán S.reason bằng 'road_yield_native' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       if(W.KVPV_BOSS_TEAM?.priority?.()||Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){S.reason='road_yield_native';return;}
 // [VI dòng gốc 117] Khai báo biến không gán lại bằng const: hp = gọi combat.target?.property?.get('hp') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); lost = combat.isValidTarget?.()!==true hoặc dùng vế phải khi vế trái falsy: Array.isArray(hp)&&Number(hp[0])<=0
@@ -260,6 +346,7 @@
     }
 // [VI dòng gốc 122] gọi releaseRoadCast() | gọi releaseRoadSelector() | Kiểm tra !bind(role,selector,combat): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     releaseRoadCast();releaseRoadSelector();if(!bind(role,selector,combat))return;
+    syncForceContext(combat);
 // [VI dòng gốc 123] gọi W.KVPV_ROAD_CADENCE?.observe(role, combat) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     W.KVPV_ROAD_CADENCE?.observe?.(role,combat);
 // [VI dòng gốc 124] Kiểm tra W._Ba?._rJ?._O$?.ins?.isDead===true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'dead' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
@@ -300,7 +387,8 @@
 // [VI dòng gốc 140] Chú thích gốc của tác giả; không được thực thi. Nội dung: Trả trạng thái hiện tại để kiểm tra; ý nghĩa từng bộ đếm thuộc phạm vi module này.
   // Trả trạng thái hiện tại để kiểm tra; ý nghĩa từng bộ đếm thuộc phạm vi module này.
 // [VI dòng gốc 141] Định nghĩa hàm status; tham số: không có. Mục đích: trả trạng thái để kiểm tra | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm enabled, active, intervalMs, skillClientWaitMs, combo, nextPreferred, basicClientWaitMs, basicAttempts, tuyetHocAttempts, roadMelee, attempts, blockedSkills, reason, lastError, note.
-  function status(){return {enabled:S.enabled,active:S.hooks.length>0&&outside(),intervalMs:S.timerMs,activePollMs:4,idlePollMs:16,roadPollMs:100,rapidPoll:S.rapidPoll,skillClientWaitMs:null,combo:road()?'native_combat':skillPriority,skillPriority,nextPreferred:skillPriority==='interleaved'?S.prefer:'tuyet_hoc',basicClientWaitMs:road()?null:castGap(),basicAttempts:S.basicAttempts,tuyetHocAttempts:S.tuyetHocAttempts,
+  function status(){return {enabled:S.enabled,active:S.hooks.length>0&&outside(),intervalMs:S.timerMs,activePollMs:skillPriority==='basic_force_default'?1:4,idlePollMs:16,roadPollMs:100,rapidPoll:S.rapidPoll,skillClientWaitMs:null,combo:road()?'native_combat':skillPriority,skillPriority,nextPreferred:skillPriority==='basic_force_default'?'basic':skillPriority==='interleaved'?S.prefer:'tuyet_hoc',
+    defaultBasicForce:{enabled:skillPriority==='basic_force_default',active:S.forceActive,skillIds:[8001,8002,8003,8004,8005],cooldownFalseReturns:S.forceCooldownReads,animationFalseReads:S.forceAnimationReads,animationPatched:S.forceAnimationPatched,animationForced:!!forcedTween,serverCooldownModified:false},basicClientWaitMs:road()?null:castGap(),basicAttempts:S.basicAttempts,tuyetHocAttempts:S.tuyetHocAttempts,
 // [VI dòng gốc 142] Thuộc tính roadMelee: tạo đối tượng gồm active, targetSearches, basicOnly, basicSkill, nativeCooldownBypass, aoePriority, radius, distance, fullBasicRotation, nativeCombat | Thuộc tính active: gọi road() | Thuộc tính targetSearches: đọc S.targetSearches | Thuộc tính basicOnly: false
     roadMelee:{active:road(),targetSearches:S.targetSearches,basicOnly:false,basicSkill:null,nativeCooldownBypass:false,aoePriority:false,radius:W.KVPV_ROAD_CADENCE?.approachDistance??80,distance:S.role?roadDistance(S.role,S.role.getComponent?.(W._d?._Yct?._Het)):null,fullBasicRotation:true,nativeCombat:road()},attempts:S.attempts,blockedSkills:S.blocked,reason:S.reason,lastError:S.lastError,
 // [VI dòng gốc 143] Thuộc tính note: "Road Trial delegates skill selection and casting to native combat; script only supports bounded target acquisition and melee approach."
@@ -317,8 +405,8 @@
   function start(){S.enabled=true;schedule(pollInterval());tick();return status();}
 // [VI dòng gốc 149] gán W.KVPV_BASIC10 bằng Object.freeze({start,stop,status,release,sync:tick}) | gọi start() để khởi động bộ điều khiển
   function setSkillPriority(value='tuyet_hoc_first'){
-    if(!['tuyet_hoc_first','interleaved'].includes(value))throw Error('Skill priority must be tuyet_hoc_first or interleaved');
-    skillPriority=value;return status();
+    if(!['basic_force_default','tuyet_hoc_first','interleaved'].includes(value))throw Error('Skill priority must be basic_force_default, tuyet_hoc_first or interleaved');
+    if(value!==skillPriority){S.forceActive=false;restoreForcedTween();S.basicReady.clear();S.basicCursor=0;}skillPriority=value;return status();
   }
   W.KVPV_BASIC10=Object.freeze({start,stop,status,release,sync:tick,setSkillPriority});start();
 // [VI dòng gốc 150] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
