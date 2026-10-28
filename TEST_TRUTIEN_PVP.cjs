@@ -108,4 +108,28 @@ function setup(){
  assert.equal(q.timers.size,0,'both 10ms attack and 120ms dodge observer timers cleaned');
  assert.equal(q.enemy.listeners.size,0,'all native opponent listeners released');
 }
+{
+ const q=setup();
+ q.api.start({autoDodge:false});
+ q.tick();
+ q.setTarget(q.enemy2);
+ const before=q.calls.length;
+ q.tick();
+ assert.equal(q.calls.length,before,'do not distribute casts to second opponent while first is alive');
+ q.enemy.hpNow=0;
+ q.tick();
+ assert.equal(q.api.status().focusTargetId,q.enemy2.id,'automatically hand focus to user-selected second opponent after first dies');
+ assert(q.calls.length>before,'continue pressure on second opponent without restarting module');
+ q.api.stop();
+}
+{
+ const q=setup();
+ q.api.start({autoDodge:false,focusLock:false});
+ q.tick();
+ q.setTarget(q.enemy2);
+ const old=q.calls.length;
+ q.tick();
+ assert(q.calls.length>old,'optional unlocked mode permits user-directed target switching');
+ q.api.stop();
+}
 console.log('PASS Tru Tien PvP: manual 10ms TH+five basics, focused one target, native cooldown/target/range, optional dodge, all-in, handoff and cleanup.');
