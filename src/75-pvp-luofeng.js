@@ -19,6 +19,19 @@ const scene=()=>String(W._C?._Mn?._Cn?.currentID??W._Ba?._$a?._yo?.ins?.intoSce?
 const owned=()=>!!actorId&&String(W._Ba?._rJ?._O$?.ins?.actorId??'')===actorId&&!W.__KVPV_UNIVERSAL_HALTED;
 const pos=r=>{const p=prop(r,'position')??r?.coords??r?.position;const x=Number(p?.x),y=Number(p?.y);return p&&Number.isFinite(x)&&Number.isFinite(y)?{x,y}:null;};
 const inTruTien=()=>{const s=W.KVPV_FAR_SCOPE?.status?.();return s?.inside===true&&s.kind==='TRU_TIEN';};
+// Native Tu La model + the existing Daily scene observer must agree. Never
+// infer arena membership from map number alone.
+const inTuLa=()=>{
+ const q=W.KVPV_DAILY?.tuLaStatus?.(false);
+ const native=W._Ba?._hE?._olt?.inst;
+ const sceneType=Number(W._Ba?._$a?.SceneUtil?.curScene);
+ const foreign=W.KVPV_FAR_SCOPE?.status?.();
+ if(foreign?.inside===true&&foreign.kind!=='TU_LA')return false;
+ const job=W.KVPV_DAILY?.quickState?.()?.job;
+ return q?.dangTrongTran===true&&[58,61].includes(Number(q.canh))&&
+   [58,61].includes(sceneType)&&Number(q.giaiDoan)>=1&&
+   native?.funIsOpen===true&&(!job||['tula','rảnh','ranh','idle'].includes(String(job).toLowerCase()));
+};
 const inStrongest=()=>{
  const st=W.KVPV_STRONGEST_TEAM?.status?.();
  return st?.enabled===true&&st?.inside===true&&st?.open===true&&st?.phase==='ACTIVE';
@@ -34,7 +47,7 @@ const opposingStrongest=enemy=>{
 const isEnemy=(enemy,actor)=>{if(!enemy||enemy===actor||enemy.isValid===false||!id(enemy)||id(enemy)===actorId)return false;
  const type=Number(prop(enemy,'type'));
  // Real player roles use type 4. Strongest Team additionally checks native enemy-team membership.
- return (inTruTien()?type===4:inStrongest()?opposingStrongest(enemy):[0,2].includes(type))&&
+ return (inTruTien()||inTuLa()?type===4:inStrongest()?opposingStrongest(enemy):[0,2].includes(type))&&
    typeof enemy.on==='function'&&typeof enemy.off==='function';};
 const selected=()=>{const a=me(),t=component(a,'_Het')?.target;return owned()&&isEnemy(t,a)?{actor:a,enemy:t}:null;};
 function log(kind,extra={}){S.history.push({at:Date.now(),kind,...extra});if(S.history.length>cfg.maxHistory)S.history.shift();}
@@ -86,13 +99,13 @@ function blocked(actor,enemy){
  if(W.document?.hidden===true||W.document?.hasFocus?.()===false)return 'unfocused';
  if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0))return 'manual_ui';
  if(W.KVPV_ENTRY_POLICY?.manual===true)return 'manual_entry_policy';
- if(W.KVPV_FAR_SCOPE?.status?.()?.inside===true&&!inTruTien()&&!inStrongest())return 'dungeon_priority';
+ if(W.KVPV_FAR_SCOPE?.status?.()?.inside===true&&!inTruTien()&&!inStrongest()&&!inTuLa())return 'dungeon_priority';
  if(inStrongest()&&W._Ba?._T3?._G_t?.instance?.collecting===true)return 'native_collecting';
  if(W.KVPV_TH300?.status?.(false)?.running===true||W.KVPV_HITRUN1?.status?.(false)?.running===true)return 'boss_owner';
- const mode=W.KVPV_MODE?.status?.(false)?.mode;if(mode&&mode!=='OFF'&&!inStrongest())return 'combat_mode_owner';
+ const mode=W.KVPV_MODE?.status?.(false)?.mode;if(mode&&mode!=='OFF'&&!inStrongest()&&!inTuLa())return 'combat_mode_owner';
  if(W.KVPV_BOSS_TEAM?.priority?.()===true||W.KVPV_BASIC10?.status?.()?.roadMelee?.active===true)return 'higher_priority';
  const job=W.KVPV_DAILY?.quickState?.()?.job;
- if(job&&!['rảnh','ranh','idle'].includes(String(job).toLowerCase())&&!inStrongest())return 'daily_job';
+ if(job&&!['rảnh','ranh','idle'].includes(String(job).toLowerCase())&&!inStrongest()&&!(inTuLa()&&String(job).toLowerCase()==='tula'))return 'daily_job';
  const hp=prop(actor,'hp');if(Array.isArray(hp)&&Number(hp[0])<=0)return 'dead';
  const move=component(actor,'_zet');if(typeof move?.moveTo!=='function')return 'move_unavailable';
  if(move.running?.()===true||[3,4].includes(Number(move._fut)))return 'movement_busy';
@@ -127,13 +140,13 @@ function enemyCast(targetId,skillId,source=S.target){
 }
 function status(){const candidate=component(me(),'_Het')?.target;return {enabled:S.on,autoDodge:S.auto,attached:!!S.target,enemyId:S.targetId,
  selectedTargetId:id(candidate),selectedTargetType:prop(candidate,'type')??null,
- scene:S.scene,scope:inTruTien()?'TRU_TIEN':inStrongest()?'STRONGEST_TEAM':'OTHER',
+ scene:S.scene,scope:inTruTien()?'TRU_TIEN':inStrongest()?'STRONGEST_TEAM':inTuLa()?'TU_LA':'OTHER',
  observedSignals:S.signals,observedTH:S.threats,nearbyTH:S.nearbyThreats,
  nearbyMode:S.nearbyMode,monitoredNearby:[...S.nearby.keys()],lastDodgeAt:Number.isFinite(S.lastDodge)?S.lastDodge:null,
  nativeDodgeAttempts:S.dodgeAttempts,
  blocked:S.blocked,lastSkill:S.lastSkill,lastSignalAt:S.lastSignal,lastReason:S.reason,error:S.error,
  config:{...cfg},recent:S.history.slice(),
- note:'Remote 1039 may not fire for opponents; dodge is a bounded native lateral move, not guaranteed evasion. Strongest Team only accepts verified enemy team type-4 targets.'};}
+ note:'Remote 1039 may not fire for opponents; dodge is a bounded native lateral move, not guaranteed evasion. Tu La only observes selected native player targets in scene 58/61; no unverified nearby roster scan.'};}
 function sync(){
  if(!S.on)return status();
  if(!owned()){stop('actor_changed');return status();}
