@@ -11,7 +11,7 @@ for(const file of ['build.cjs','TEST_V1.cjs','TEST_COMBO_DEFAULT.cjs','TEST_RECO
 // [VI dòng gốc 6] Khai báo biến không gán lại bằng const: result = gọi spawnSync(process.execPath, [require('node:path').join(__dirname,file)], {stdio:'inherit'})
   const result=spawnSync(process.execPath,[require('node:path').join(__dirname,file)],{stdio:'inherit'});
 // [VI dòng gốc 7] Kiểm tra result.status!==0: đúng thì chạy nhánh sau if. | gọi process.exit(result.status||1)
-  if(result.status!==0)process.exit(result.status||1);
+  if(result.status!==0){console.error('[KVPV_TEST_FAILED] '+file+' exit='+(result.status??result.signal??'unknown'));process.exit(result.status||1);}
 // [VI dòng gốc 8] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 }
 // [VI dòng gốc 9] Dòng trống để tách các phần, không có lệnh thực thi.
