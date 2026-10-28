@@ -106,12 +106,13 @@ function make(){
  assert.equal(rhythm.confidence,'tentative-rhythmic');
  assert.equal(rhythm.msUntilPrediction,3500);
  const calls=q.calls.length,moves=q.movements.length;
+ q.mod.status(false);q.mod.status(false);
+ assert.equal(q.calls.length,calls,'rhythm reporting must not dispatch any casts');
+ assert.equal(q.movements.length,moves,'rhythm reporting must not issue movement');
  q.hp(59);q.advance(100);
  assert.equal(q.mod.status(false).luoFeng.rhythm.observedHpLosses,4,'debounce damage burst');
  q.hp(70);q.advance(100);
  assert.equal(q.mod.status(false).luoFeng.rhythm.observedHpLosses,4,'heal is not an attack');
- assert.equal(q.calls.length,calls,'sensor cannot dispatch extra casts');
- assert.equal(q.movements.length,moves,'sensor cannot issue extra movement');
  q.elapse(3601);
  assert.equal(q.mod.status(false).luoFeng.rhythm.predictedNextHpLossAt,null,'stale HP prediction expires');
  setKind('LINH_LUNG');q.advance(100);
