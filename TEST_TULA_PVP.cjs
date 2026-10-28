@@ -92,7 +92,7 @@ function harness(){
  q.job('tula');q.valid(false);q.tick();
  assert.equal(q.observer().status().enabled,false,'invalid native target gate');
  q.valid(true);q.scopeOther(true);q.tick();
- assert.equal(q.observer().status().enabled,true,'may observe but never override TH boss owner');
+ assert.equal(q.observer().status().enabled,false,'foreign dungeon scope disarms observer entirely');
  q.enemy.emit(1039,q.actor,1001);
  assert.equal(q.moves.length,0,'foreign scope blocks actual movement');
  q.scopeOther(false);q.dead(true);q.tick();
