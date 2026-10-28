@@ -8,7 +8,7 @@ const W=window,KEY='KVPV_TRUTIEN_PVP',actorId=String(W.__KVPV_OWN_ACTOR_ID||'');
 try{W[KEY]?.stop?.('reload');}catch(e){W.KVPV_V1?.diagnostics?.record?.(e);}
 const S={enabled:false,timer:null,role:null,target:null,scene:null,attacks:0,signals:0,hits:0,matchedDamage:0,blockedCooldown:0,
   thAttempts:0,basicAttempts:0,lastGroup:null,perSkill:new Map(),focusLock:true,focusTarget:null,focusId:'',focusBlocked:0,focusSwitches:0,
-  companions:true,lastCompanionPoll:-Infinity,companionAttempts:{pet:0,fuwa:0,ride:0},
+  companions:true,lastCompanionPoll:-Infinity,companionAttempts:{pet:0,fuwa:0,ride:0},companionRetryAfter:{pet:0,fuwa:0,ride:0},
   companionLastSkill:null,companionLastTarget:null,companionBlocked:0,companionErrors:0,
   reason:'off',error:'',lastSkill:null,lastCastAt:null,autoDodge:false};
 const prop=(r,k)=>r?.property?.get?.(k);
@@ -35,6 +35,7 @@ function companionTick(role,target,now){
  S.lastCompanionPoll=now;
  if(!enemy(target,role)||!live(role)||S.focusLock&&S.focusId!==id(target))return;
  for(const [name,type] of companionTypes){
+   if(now<S.companionRetryAfter[name])continue;
    try{
      const ctx=prop(role,name+'Context');
      if(!live(ctx)||Number(prop(ctx,'type'))!==type)continue;
@@ -47,12 +48,12 @@ function companionTick(role,target,now){
      const skill=Number(sel.selectSkill());
      if(!Number.isSafeInteger(skill)||skill<=0)continue;
      const cfg=W._Ba?._Jtt?._ant?.ins?.getCfgById?.(10000*skill+1);
-     if(!cfg){S.companionBlocked++;continue;}
+     if(!cfg){S.companionBlocked++;S.companionRetryAfter[name]=now+1000;continue;}
      const targetKind=Number(cfg[15])||0,dest=targetKind===1?role:target;
      cc.setTarget(dest,targetKind);
      if(cc.target!==dest||typeof cc.isValidTarget!=='function'||cc.isValidTarget(targetKind)!==true||
         typeof cc.isValidRange!=='function'||cc.isValidRange()!==true){
-       S.companionBlocked++;continue;
+       S.companionBlocked++;S.companionRetryAfter[name]=now+1000;continue;
      }
      if(!scope()||!own()||!enemy(target,role))return;
      cc.combat(skill,0,targetKind);
@@ -128,7 +129,7 @@ function status(){
   tqSkillProfile:{requested:tqRoster.slice(),learned:[...learned(component(r,'_Eet'))].filter(x=>tqRoster.includes(x)),
     missing:tqRoster.filter(x=>!learned(component(r,'_Eet')).has(x)),source:'Tian Quan TH300 native roster; no boss-only hooks'},
   companions:{enabled:S.companions,scanMs:50,attempts:{...S.companionAttempts},lastSkill:S.companionLastSkill,lastTarget:S.companionLastTarget,
-    blocked:S.companionBlocked,errors:S.companionErrors,nativePvPTargetAcceptanceRequired:true},
+    blocked:S.companionBlocked,retryAfter:{...S.companionRetryAfter},errors:S.companionErrors,nativePvPTargetAcceptanceRequired:true},
   skillIds:{th:priorityTH.slice(),basic:priorityBasic.slice()},
   observedSkills:[...S.perSkill.values()].map(row=>({...row,averageDamage:row.hits?row.damage/row.hits:null})),
   autoDodge:S.autoDodge,dodge:W.KVPV_PVP_LUOFENG?.status?.()??null,
@@ -199,7 +200,7 @@ function start(opts={}){
  if(occupied())throw Error('Combat owner or Daily is still active; not taking over');
  if(S.enabled)stop('restart');
  S.enabled=true;S.scene=scene();S.autoDodge=opts.autoDodge===true;
- S.focusLock=opts.focusLock!==false;S.companions=opts.companions!==false;S.lastCompanionPoll=-Infinity;resetFocus(t);
+ S.focusLock=opts.focusLock!==false;S.companions=opts.companions!==false;S.lastCompanionPoll=-Infinity;S.companionRetryAfter={pet:0,fuwa:0,ride:0};resetFocus(t);
  try{
    link(r,t);
    W.KVPV_PVP_LUOFENG.start({autoDodge:S.autoDodge});
