@@ -40,7 +40,8 @@
 // [VI dòng gốc 24] Khai báo biến không gán lại bằng const: transforming = tạo hàm với tham số (không có); mỗi lần gọi trả về W.KVPV_TRANSFORM10?.transformed?.() và chỉ đánh giá vế phải khi vế trái truthy: W.KVPV_TRANSFORM10.status().enabled
   const transforming=()=>W.KVPV_TRANSFORM10?.transformed?.()&&W.KVPV_TRANSFORM10.status().enabled;
 // [VI dòng gốc 25] Khai báo biến không gán lại bằng const: currentPace = tạo hàm với tham số (không có); mỗi lần gọi trả về scopedCombat()?.intervalMs??CFG.clientPaceMs hoặc dùng vế phải khi vế trái là null/undefined: transforming()?10:(mixed.enabled&&mixed.wantBasic&&mixed.basicPaceMs!==null?mixed.basicPaceMs:(pacer?.pace()??CFG.paceMs))
-  const currentPace=()=>tqFive?.active()?tqFive.wait():scopedCombat()?.intervalMs??CFG.clientPaceMs??(transforming()?10:(mixed.enabled&&mixed.wantBasic&&mixed.basicPaceMs!==null?mixed.basicPaceMs:(pacer?.pace()??CFG.paceMs)));
+  const currentPace=()=>Math.max(cooldown4100.enabled&&basicSolo4100Active()?80:0,
+    tqFive?.active()?tqFive.wait():scopedCombat()?.intervalMs??CFG.clientPaceMs??(transforming()?10:(mixed.enabled&&mixed.wantBasic&&mixed.basicPaceMs!==null?mixed.basicPaceMs:(pacer?.pace()??CFG.paceMs))));
 // [VI dòng gốc 26] Định nghĩa hàm setClientPace; tham số: value=1. Mục đích: đặt khoảng chờ thêm chung giữa các lần thử tung chiêu phía client | Kiểm tra value===null: đúng thì chạy nhánh sau if. | gán CFG.clientPaceMs bằng null | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm clientPaceMs.
   function setClientPace(value=1){if(value===null){CFG.clientPaceMs=null;return {clientPaceMs:null};}const n=Number(value);if(!Number.isFinite(n)||n<0||n>1000)throw Error('Client pace must be 0..1000 ms');CFG.clientPaceMs=n;return {clientPaceMs:n};}
 // [VI dòng gốc 27] Khai báo biến không gán lại bằng const: ST = tạo đối tượng gồm running, mode, s, c, target, targetOcc, owner, lastMove, timer, lastTickAt, timerRepairs, casts, proofs, evidence, stats, seen, blocked, skillWaits, moves, castAttempts, confirmedPairs, basicImpactSerial, basicTailReleases, lastDistance, lastHitDistance, arrivalSample, arrivalSnap, positionSample, positionRetries, positionOffset, positionCommands, positionPause, positionRecovery, movement, posi…
@@ -227,7 +228,6 @@
     try{
       cooldown4100.hook=hook(c,'isCooldown',native=>function(...args){
         if(this===c&&cooldown4100.enabled&&basicSolo4100Active()&&ST.running&&ST.target===c.target){
-          if(Date.now()-ST.lastInvocation<80)return true;
           cooldown4100.falseReturns++;return false;
         }
         return native.apply(this,args);
