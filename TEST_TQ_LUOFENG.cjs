@@ -112,12 +112,27 @@ function make(){
  assert.equal(q.mod.status(false).luoFeng.rhythm.observedHpLosses,4,'heal is not an attack');
  assert.equal(q.calls.length,calls,'sensor cannot dispatch extra casts');
  assert.equal(q.movements.length,moves,'sensor cannot issue extra movement');
+ q.elapse(3601);
+ assert.equal(q.mod.status(false).luoFeng.rhythm.predictedNextHpLossAt,null,'stale HP prediction expires');
  setKind('LINH_LUNG');q.advance(100);
  assert.equal(q.mod.status(false).luoFeng.rhythm.active,false,'other map disabled');
  setKind('THIEN_QUAN');q.advance(100);
  assert.equal(q.mod.status(false).luoFeng.rhythm.intervalSamples,0,'other map resets learned cadence');
  q.occ(7777);q.advance(100);
  assert.equal(q.mod.status(false).luoFeng.rhythm.observedHpLosses,0,'Boss switch resets sensor');
+ q.mod.stop();
+}
+
+{
+ const {q}=make();
+ q.hp(90);q.advance(3500);
+ q.hp(80);q.advance(3500);
+ q.hp(70);q.advance(3500);
+ q.hp(60);q.advance(6000);
+ const rhythm=q.mod.status(false).luoFeng.rhythm;
+ assert.equal(rhythm.intervalSamples,3);
+ assert.equal(rhythm.confidence,'insufficient','irregular HP loss must not imply a reliable Boss rhythm');
+ assert.equal(rhythm.predictedNextHpLossAt,null);
  q.mod.stop();
 }
 console.log('PASS Luo Feng Apex V3: 12 recent direct hits, learned skill adapts to new damage, no duplicate exploration, read-only idle 310, no heal, native cooldown unchanged, map/Boss isolation and off switch');
