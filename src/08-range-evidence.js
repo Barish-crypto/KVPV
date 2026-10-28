@@ -1299,7 +1299,9 @@
 // [VI dòng gốc 469] tăng ST.castAttempts một đơn vị sau khi lấy giá trị | gọi ST.casts.push({serial:ST.castAttempts,id,occ,targetId:identity(this.target),scene:scene(),time:Date.now(),distance:d,used:false,basicT…) để thêm phần tử vào cuối mảng
         // Overlapping same-ID pending casts have ambiguous cast-to-hit identity.
         // They can count toward observed damage but never independent TH range proof.
-        const overlap=!isBasic(id)&&tqFive?.active()&&tqDistanceOnly()&&
+        const overlap=tqIdleFill.enabled&&ST.tqSelectedNative?.id===id&&
+          ST.tqSelectedNative.targetId===identity(this.target)&&
+          !isBasic(id)&&tqFive?.active()&&tqDistanceOnly()&&
           ST.casts.filter(c=>!c.used&&c.id===id&&c.targetId===identity(this.target)&&
             c.scene===scene()&&Date.now()-c.time<=CFG.castTtlMs)||[];
         if(overlap.length){for(const previous of overlap)previous.ambiguousTH=true;tqIdleFill.repeatCalls++;}
