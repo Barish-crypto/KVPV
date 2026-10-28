@@ -43,6 +43,11 @@ function make(){
  assert.equal(p.phase,'chosen');
  assert.equal(p.selectedMode,'thOnly','stronger TH-only selected');
  assert(Math.abs(p.thOnly.observedHpDps-1800)<5,'measurement tolerates 2ms selector probe');
+ const diagnosis=x.q.mod.tianQuan4100Diagnosis(false);
+ assert.equal(diagnosis.stage,4100);
+ assert.equal(diagnosis.dpsPilot.selectedMode,'thOnly');
+ assert.equal(Array.isArray(diagnosis.recommendations),true);
+ assert.equal(diagnosis.distance,310);
  x.stage(4101);
  assert.equal(x.status().active,false,'stage gated');
  assert.equal(x.status().activeMode,'combo','no TH-only outside stage 4100');
