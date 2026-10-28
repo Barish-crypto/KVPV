@@ -57,7 +57,7 @@ assert.deepEqual(calls.slice(3).map(x=>x.id),[2001,3001,3801]);
 assert.deepEqual(helpers.map(h=>h.rowsBasic[0][1]),[now+150,now+150,now+150]);
 step();assert.equal(calls.length,6,'no new casts while native rows are on cooldown');
 step();assert.equal(calls.length,6);
-pet.setAnimation(true);step();
+pet.setAnimation(true);step(51);
 assert.equal(calls.filter(x=>x.key==='pet').length,2,'pet animation blocks native attempt');
 assert.equal(calls.filter(x=>x.key==='fuwa').length,3,'fuwa independently resumes ordinary attack');
 assert.equal(calls.filter(x=>x.key==='ride').length,3,'ride independently resumes ordinary attack');
