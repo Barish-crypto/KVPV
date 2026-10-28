@@ -3,6 +3,14 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const suite=fs.readFileSync(__dirname+'/TEST_TH300.cjs','utf8');
 const prefix=suite.slice(0,suite.indexOf("test('holding 305"));
 assert(prefix.includes('function harness('));
+const core=fs.readFileSync(__dirname+'/src/08-range-evidence.js','utf8');
+const experiment=fs.readFileSync(__dirname+'/src/10-tq4100-cooldown-experiment.js','utf8');
+assert.equal(/(hook|install)\([^\n]*['"]isCooldown['"]/.test(core),false,
+  'native TH300 core must not install isCooldown hooks');
+assert.equal(/\.isCooldown\s*=(?!=)/.test(core),false,
+  'native TH300 core must not assign isCooldown');
+assert(experiment.includes("Object.defineProperty(c,'isCooldown'"),
+  'isolated experimental module owns opt-in cooldown wrapper');
 const ctx={require,__dirname,console};
 vm.runInNewContext(prefix+'\nglobalThis.make=harness;',ctx);
 function setup(){
@@ -20,6 +28,8 @@ function setup(){
  q.mod.setTianQuanLuoFeng(true);
  q.mod.setTianQuan4100BasicSolo(true);
  q.mod.start('SCAN');q.cooldown(true);
+ // Install the optional experiment as the build does after src/08.
+ vm.runInNewContext(fs.readFileSync(__dirname+'/src/10-tq4100-cooldown-experiment.js','utf8'),{window:q.W});
  return {q,setKind:v=>kind=v,setStage:v=>q.W._Ba._Co._Mo.ins.curLv=v};
 }
 {
@@ -31,6 +41,8 @@ function setup(){
  assert.equal(q.mod.status(false).luoFeng.basicSolo4100.active,true);
  q.elapse(100);
  assert.equal(q.c.isCooldown(),false,'client hook returns false on stage 4100');
+ assert.equal(q.mod.status(false).cooldown4100Trial.active,true);
+ assert.equal(q.mod.status(false).luoFeng.basicSolo4100.active,true);
  assert.equal(q.mod.status(false).cooldown4100Trial.falseReturns>0,true);
  q.elapse(60000);q.mod.sync();
  assert.equal(q.mod.status(false).cooldown4100Trial.active,true,'still enabled after 60 seconds');
@@ -49,7 +61,7 @@ function setup(){
  assert.equal(q.c.isCooldown(),true,'outside scope falls back to native');
  q.mod.sync();
  assert.equal(q.c.isCooldown,original);
- setKind('THIEN_QUAN');
+ setKind('THIEN_QUAN');q.mod.sync();
  q.mod.setTianQuan4100CooldownOverride(true);
  q.mod.setTianQuan4100BasicSolo(false);
  assert.equal(q.c.isCooldown,original,'disabling basic solo restores cooldown');
