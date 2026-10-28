@@ -38,7 +38,7 @@ function dodge(target){
  if(!observer?.start||!observer?.status){S.reason='dodge_module_missing';return;}
  if(!S.armedDodge){
   if(observer.status().enabled){S.reason='other_dodge_owner';return;}
-  observer.start({autoDodge:true});S.armedDodge=true;
+  observer.start({autoDodge:true,nearby:true});S.armedDodge=true;
  }else if(observer.status().enabled!==true){S.armedDodge=false;S.reason='dodge_stopped_elsewhere';return;}
  observer.sync?.();
 }
@@ -60,6 +60,12 @@ function tick(){
  S.enemyId=identity(target);
  if(W._Ba?._rJ?._O$?.ins?.isDead===true){releaseDodge('dead');S.reason='dead';return;}
  try{dodge(target);}catch(e){S.lastError=String(e);S.reason='dodge_error';}
+ // A native lateral dodge gets a short exclusive movement window. Avoid
+ // sending an attack in the same instant as an observed enemy TH.
+ const d=S.armedDodge?W.KVPV_PVP_LUOFENG?.status?.():null;
+ if(d?.lastDodgeAt!=null&&Date.now()-d.lastDodgeAt<180){
+   S.reason='dodge_movement_priority';return;
+ }
  if(!C.nativeAttack){S.reason='dodge_only';return;}
  if(W.document?.hidden===true||W.document?.hasFocus?.()===false||
     Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){S.reason='manual_or_unfocused';return;}
@@ -100,7 +106,8 @@ function stop(reason='manual_stop'){
 function status(){return {enabled:C.enabled,inside:inEvent(),actor,enemyId:S.enemyId,
  nativeCasts:S.casts,thCasts:S.thCasts,basicCasts:S.basicCasts,blocked:S.blocked,
  lastSkill:S.lastSkill,lastCastAt:S.lastCastAt,reason:S.reason,lastError:S.lastError,
- autoDodgeOwned:S.armedDodge,dodge:W.KVPV_PVP_LUOFENG?.status?.()??null,
+ autoDodgeOwned:S.armedDodge,nearbyTH:W.KVPV_PVP_LUOFENG?.status?.()?.nearbyTH??0,
+ dodge:W.KVPV_PVP_LUOFENG?.status?.()??null,
  config:{...C},note:'Only scene 82 and native non-teammate type-4 target. TH dodge requires observable remote 1039; cast and move attempts cannot guarantee server hits or successful evasion.'};}
 W[KEY]=Object.freeze({start,stop,status,tick:safeTick,config:C});start();
 })();
