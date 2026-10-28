@@ -20,6 +20,8 @@ function setup(){
  q.mod.setTianQuanLuoFeng(true);
  q.mod.setTianQuan4100BasicSolo(true);
  q.mod.start('SCAN');q.cooldown(true);
+ // Install the optional experiment as the build does after src/08.
+ vm.runInNewContext(fs.readFileSync(__dirname+'/src/10-tq4100-cooldown-experiment.js','utf8'),{window:q.W});
  return {q,setKind:v=>kind=v,setStage:v=>q.W._Ba._Co._Mo.ins.curLv=v};
 }
 {
@@ -31,6 +33,8 @@ function setup(){
  assert.equal(q.mod.status(false).luoFeng.basicSolo4100.active,true);
  q.elapse(100);
  assert.equal(q.c.isCooldown(),false,'client hook returns false on stage 4100');
+ assert.equal(q.mod.status(false).cooldown4100Trial.active,true);
+ assert.equal(q.mod.status(false).luoFeng.basicSolo4100.active,true);
  assert.equal(q.mod.status(false).cooldown4100Trial.falseReturns>0,true);
  q.elapse(60000);q.mod.sync();
  assert.equal(q.mod.status(false).cooldown4100Trial.active,true,'still enabled after 60 seconds');
