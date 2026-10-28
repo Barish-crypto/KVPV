@@ -47,11 +47,11 @@ async function main(){
     {cwd:root,windowsHide:true,maxBuffer:1024*1024},(error,stdout,stderr)=>{
       if(!error){resolve();return;}
       const log=String(stdout||''),trace=String(stderr||error.message||'');
-      const firstFail=log.split(/\\r?\\n/).find(line=>/^FAIL(?:\\s|:)/.test(line))||'';
-      const marker=(trace.match(/\\[KVPV_TEST_FAILED\\][^\\r\\n]*/g)||[]).at(-1)||'';
+      const firstFail=log.split(/\r?\n/).find(line=>/^FAIL(?:\s|:)/.test(line))||'';
+      const marker=(trace.match(/\[KVPV_TEST_FAILED\][^\r\n]*/g)||[]).at(-1)||'';
       // Keep the original assertion's FIRST stack frame instead of only its tail.
       // The daemon displays the final 800 bytes: ensure the test name survives there.
-      const diagnostic=[firstFail.slice(0,150),trace.slice(0,460),marker.slice(0,130)].filter(Boolean).join('\\n');
+      const diagnostic=[firstFail.slice(0,150),trace.slice(0,460),marker.slice(0,130)].filter(Boolean).join('\n');
       reject(Error(diagnostic||String(error.message)));
     }));
 // [VI dòng gốc 25] Kiểm tra !cached(root): đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Verification receipt missing or source changed')
