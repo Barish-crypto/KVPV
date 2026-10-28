@@ -25,9 +25,12 @@ function setup(){
  const rows=[[8001,0,50],[1001,0,200],[1002,0,200],[8002,0,50],[8005,0,100]],calls=[],timers=new Map(),remote=[];
  selected=enemy;
  const moveCalls=[],movement={running:()=>false,moveTo(x,y){moveCalls.push({x,y});}};
- const combat={get target(){return selected;},_jh:{get isPlaying(){return playing;}},isCooldown:()=>cooldown,
-   isValidTarget:()=>valid,isValidRange:()=>range,
-   combat(skill){calls.push(skill);me.emit(1039,selected.id,skill);selected.emit(1012,actorId,skill*10000,50,1,selected.id);}
+ const visuals=[],avatar={getActionTween(action,reset,timeScale){visuals.push({action,timeScale});return {};}};
+ const nativeGetActionTween=avatar.getActionTween;
+ const combat={get target(){return selected;},_jh:{get isPlaying(){return playing;}},_Qrt:avatar,
+   _mvt:skill=>[null,null,null,null,null,'attack'],
+   isCooldown:()=>cooldown,isValidTarget:()=>valid,isValidRange:()=>range,
+   combat(skill){calls.push(skill);avatar.getActionTween('attack',false,1);me.emit(1039,selected.id,skill);selected.emit(1012,actorId,skill*10000,50,1,selected.id);}
  };
  const selector={_rtt:rows,_wet:[],_f7t(active,common,mode){assert.equal(mode,1);
    const row=[...active,...common].find(x=>x[1]<time);
@@ -59,7 +62,7 @@ function setup(){
    setInterval(fn,ms){assert([10,120].includes(ms),'only known 10ms/120ms timers');const id=timers.size+1;timers.set(id,fn);return id;},
    clearInterval(id){timers.delete(id);}};
  vm.runInNewContext(script,{window:W,Date:Clock,console},{timeout:3000});
- return {W,api:W.KVPV_TRUTIEN_PVP,Clock,calls,rows,enemy,enemy2,monster,remote,timers,moveCalls,companionCalls,companionMethods,
+ return {W,api:W.KVPV_TRUTIEN_PVP,Clock,combat,calls,rows,visuals,avatar,nativeGetActionTween,enemy,enemy2,monster,remote,timers,moveCalls,companionCalls,companionMethods,
    tick:()=>{time+=10;for(const fn of timers.values())fn();},advance:ms=>{time+=ms;for(const fn of timers.values())fn();},
    setKind:v=>kind=v,setScene:v=>sc=v,setTarget:v=>selected=v,
    setCd:v=>cooldown=v,setFocus:v=>focus=v,setRange:v=>range=v,setValid:v=>valid=v,
@@ -68,23 +71,36 @@ function setup(){
 {
  const q=setup();
  assert.equal(q.api.status().enabled,false);
- assert.throws(()=>{q.setTarget(q.monster);q.api.start({autoDodge:true});},/Select a real enemy player/);
- assert.equal(q.W.KVPV_MODE.status().mode,'BOSS_TH300_SCAN','invalid target never clears boss owner');
+ q.setTarget(q.monster);
+ const pending=q.api.start({autoDodge:false});
+ assert.equal(pending.enabled,true,'arm inside Tru Tien even without player target');
+ assert.equal(pending.reason,'waiting_player_target');
+ assert.equal(q.W.KVPV_MODE.status().mode,'OFF','explicit manual start releases PvE owner');
+ q.tick();assert.equal(q.calls.length,0,'never cast basic on native monster target');
  q.setTarget(q.enemy);
  const s=q.api.start({autoDodge:true});
  assert.equal(q.W.KVPV_MODE.status().mode,'OFF','explicit start releases old boss owner to prevent monster target reacquire');
  assert.equal(s.enabled,true);assert.equal(s.autoDodge,true);assert.equal(q.timers.size,1);
- q.tick();assert.equal(q.calls[0],1001,'first choose a native TH, not first 8001 row');
- q.tick();assert.equal(q.calls[1],8005,'after TH prefer initial native basic 8005');
- q.tick();assert.equal(q.calls[2],1002,'after basic return to next ready TH');
- q.tick();assert.equal(q.calls[3],8002,'while TH on cooldown, next ready basic fills the gap');
- q.tick();assert.equal(q.calls[4],8001,'use final ready native basic during TH cooldown');
- assert.deepEqual(q.calls.slice(0,5),[1001,8005,1002,8002,8001]);
- assert.equal(q.api.status().thAttempts,2);
+ q.tick();assert.equal(q.calls[0],8005,'basic-only chooses 8005 first');
+ q.tick();assert.equal(q.calls[1],8002,'next ready native basic 8002');
+ q.tick();assert.equal(q.calls[2],8001,'next ready native basic 8001');
+ q.tick();assert.equal(q.calls.length,3,'never inject TH when basics cooling down');
+ assert.deepEqual(q.calls,[8005,8002,8001]);
+ assert.equal(q.api.status().thAttempts,0,'outgoing TH is fully disabled');
  assert.equal(q.api.status().basicAttempts,3);
  assert.equal(q.api.status().paceMs,10);
  assert.equal(q.api.status().focusTargetId,q.enemy.id);
- assert.equal(q.api.status().observedSkills.length,5);
+ assert.equal(q.api.status().observedSkills.length,3);
+ assert.deepEqual(Array.from(q.api.status().skillIds.th),[],'TH skill list is empty');
+ assert(q.calls.every(x=>x>=8001&&x<=8005),'only 8001-8005 dispatched');
+ assert.equal(q.visuals.length,3);
+ assert(q.visuals.every(x=>x.timeScale===9999),'each synchronous native basic animation runs at visual x9999');
+ assert.equal(q.avatar.getActionTween,q.nativeGetActionTween,'native animation method is restored after each cast');
+ assert.equal(q.api.status().visual.applied,3);
+ q.api.setVisualSpeed(1);
+ q.advance(200);assert.equal(q.visuals.at(-1).timeScale,1,'visual-only acceleration has opt-out');
+ q.api.setVisualSpeed(9999);
+ assert.equal(q.api.status().visual.factor,9999);
  assert.deepEqual(q.rows.map(row=>row[2]),[50,200,200,50,100],'native per-skill cooldown durations unchanged');
  q.setCd(true);const cdBefore=q.calls.length;q.advance(1000);assert.equal(q.calls.length,cdBefore,'native cooldown blocks');
  q.setCd(false);q.setRange(false);q.tick();assert.equal(q.calls.length,cdBefore,'native range blocks');
@@ -99,7 +115,7 @@ function setup(){
  assert.equal(q.api.status().focusTargetId,q.enemy2.id,'operator may deliberately focus second player');
  assert.equal(q.api.status().observedSkills.length,1,'damage ranking resets per PvP target');
  assert(q.calls.length>beforeFocus,'can attack focused second enemy');
- q.setTarget(q.monster);q.tick();assert.equal(q.api.status().reason,'select_player_target','never casts on monsters');
+ q.setTarget(q.monster);q.tick();assert.equal(q.api.status().reason,'waiting_player_target','never casts on monsters');
  q.setTarget(q.enemy);q.setFocus(false);const before=q.calls.length;q.tick();assert.equal(q.calls.length,before,'background/unfocused blocks');
  q.setFocus(true);q.setJob('quest');q.tick();assert.equal(q.calls.length,before,'daily job priority');
  q.setJob(null);q.setDead(true);q.tick();assert.equal(q.calls.length,before,'dead player cannot attack');
@@ -158,7 +174,7 @@ function setup(){
  q.api.start({autoDodge:false});
  q.tick();
  // Normalize VM-realm arrays before Node's strict structural comparison.
- assert.deepEqual(Array.from(q.api.status().tqSkillProfile.requested),[1001,1002,1003,1004,1005,1006,1007,1008,8001,8002,8003,8004,8005]);
+ assert.deepEqual(Array.from(q.api.status().tqSkillProfile.requested),[8001,8002,8003,8004,8005]);
  assert.equal(q.companionCalls.length,3,'all three Tian Quan native companions dispatched once');
  assert.deepEqual({...q.api.status().companions.attempts},{pet:1,fuwa:1,ride:1});
  assert(q.companionCalls.some(x=>x.key==='pet'&&x.skill===8012&&x.target===q.enemy.id));
@@ -183,4 +199,36 @@ function setup(){
  assert.equal(q.api.status().companions.enabled,false);
  q.api.stop();
 }
-console.log('PASS Tru Tien PvP: manual 10ms TH+five basics, focused one target, native cooldown/target/range, optional dodge, all-in, handoff and cleanup.');
+{
+ const q=setup();q.setTarget(null);
+ const pending=q.api.start({autoDodge:false,companions:false});
+ assert.equal(pending.enabled,true,'allow one-click arming with no target');
+ assert.equal(pending.reason,'waiting_player_target');
+ q.tick();assert.equal(q.calls.length,0,'no phantom basic before player selected');
+ q.setTarget(q.enemy);q.tick();assert.equal(q.calls[0],8005,'begin native basic after manual player selection');
+ q.api.stop();
+ assert.equal(q.avatar.getActionTween,q.nativeGetActionTween,'no persistent animation override');
+}
+{
+ const q=setup();q.api.start({autoDodge:false,companions:false});
+ q.combat.combat=function(){throw Error('simulated native cast failure');};
+ q.tick();
+ assert.equal(q.api.status().reason,'error','native errors are recorded without forcing casts');
+ assert.equal(q.avatar.getActionTween,q.nativeGetActionTween,'visual wrapper restored even if combat throws');
+ q.api.stop();
+}
+{
+ const q=setup();q.api.start({autoDodge:false,companions:false});
+ q.api.setVisualSpeed(9999);
+ q.setKind('OUTSIDE');q.tick();
+ assert.equal(q.api.status().enabled,false,'Tru Tien scope exit stops spam');
+ assert.equal(q.visuals.length,0,'outside Tru Tien never accelerates native clips');
+ q.api.stop();
+}
+{
+ const q=setup();q.api.start({autoDodge:false,companions:false});
+ assert.throws(()=>q.api.setVisualSpeed(99999),/speed must be/);
+ assert.equal(q.api.status().visual.factor,9999,'unsupported factor rejected without mutation');
+ q.api.stop();
+}
+console.log('PASS Tru Tien PvP: native 8001-8005 basic-only spam with scoped x9999 visual, target arming, cooldown/range, companions and cleanup.');
