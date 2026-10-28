@@ -1335,7 +1335,7 @@
 // [VI dòng gốc 482] Chú thích gốc của tác giả; không được thực thi. Nội dung: Thực hiện một lượt kiểm tra của module; các nhánh bên dưới quyết định có đủ điều kiện để hành động hay phải chờ.
   // Thực hiện một lượt kiểm tra của module; các nhánh bên dưới quyết định có đủ điều kiện để hành động hay phải chờ.
 // [VI dòng gốc 483] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Kiểm tra !ST.running: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-  function tick(){if(!ST.running)return;W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.sync?.();localLogCleanupSync();trial1008?.sync();
+  function tick(){if(!ST.running)return;W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.sync?.();W.KVPV_TQ_BASIC_FORCE?.sync?.();localLogCleanupSync();trial1008?.sync();
     tqFive?.tick();
 // [VI dòng gốc 484] gọi advanceSpeedTrial()
     advanceSpeedTrial();
@@ -1724,7 +1724,7 @@
 // [VI dòng gốc 661] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 662] Định nghĩa hàm stop; tham số: reason='user'. Mục đích: dừng bộ điều khiển và dọn tài nguyên | Khai báo biến không gán lại bằng const: ownPositioning = ST.positioning và chỉ đánh giá vế phải khi vế trái truthy: ST.moveGoal; r = gọi role() | gán ST.running bằng false | gán ST.mode bằng 'OFF'
-  function stop(reason='user'){W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.stop?.('stop');localLogCleanup.enabled=false;trial1008?.stop();tqFive?.stop(reason);const ownPositioning=ST.positioning&&ST.moveGoal,r=role();ST.running=false;ST.mode='OFF';if(ST.timer!=null){(W.KVPV_V1?.timers?.clearInterval ?? W.clearInterval)(ST.timer);ST.timer=null;}
+  function stop(reason='user'){W.KVPV_TQ_BASIC_FORCE?.stop?.('th300_stop');W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.stop?.('stop');localLogCleanup.enabled=false;trial1008?.stop();tqFive?.stop(reason);const ownPositioning=ST.positioning&&ST.moveGoal,r=role();ST.running=false;ST.mode='OFF';if(ST.timer!=null){(W.KVPV_V1?.timers?.clearInterval ?? W.clearInterval)(ST.timer);ST.timer=null;}
 // [VI dòng gốc 663] gọi finishSpeedTrial('stopped') | Kiểm tra speedTrial: đúng thì chạy nhánh sau if. | gán speedTrial.restored bằng true
     finishSpeedTrial('stopped');if(speedTrial)speedTrial.restored=true;
 // [VI dòng gốc 664] gọi restoreSpeedClips()
