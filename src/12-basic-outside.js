@@ -24,7 +24,7 @@
 // [VI dòng gốc 11] Khai báo biến không gán lại bằng const: road = tạo hàm với tham số (không có); mỗi lần gọi trả về Number(W._ft?._po?.ins?.getCfgById?.(Number(W._C?._Mn?._Cn?.currentID))?.[7])===41 và chỉ đánh giá vế phải khi vế trái truthy: W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true
   const road=()=>Number(W._ft?._po?.ins?.getCfgById?.(Number(W._C?._Mn?._Cn?.currentID))?.[7])===41&&W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true;
 // [VI dòng gốc 12] Khai báo biến không gán lại bằng const: castGap = tạo hàm với tham số (không có); mỗi lần gọi trả về nếu road() thì lấy 250, ngược lại lấy 1
-  const roadForce=()=>road()&&skillPriority==='basic_force_default'&&W.KVPV_ROAD_CADENCE?.enabled!==false&&W.KVPV_ROAD_CADENCE?.combatMode!=='basic8001';
+  const roadForce=()=>road()&&skillPriority==='basic_force_default'&&W.KVPV_ROAD_CADENCE?.enabled===true&&W.KVPV_ROAD_CADENCE?.combatMode!=='basic8001';
   const castGap=()=>road()&&!roadForce()?250:1;
   // Poll faster only for an actionable target, never multiply native cast calls.
   const pollInterval=()=>road()&&!roadForce()?100:Math.max(S.rapidPoll&&skillPriority==='basic_force_default'?1:S.rapidPoll?4:16,Number(W.KVPV_ACCOUNT_POLICY?.pollingGap?.()??0)||0);
@@ -436,7 +436,7 @@
     if(!['basic_force_default','tuyet_hoc_first','interleaved'].includes(value))throw Error('Skill priority must be basic_force_default, tuyet_hoc_first or interleaved');
     if(value!==skillPriority){S.forceActive=false;restoreForcedTween();S.basicReady.clear();S.basicCursor=0;}skillPriority=value;return status();
   }
-  W.KVPV_BASIC10=Object.freeze({start,stop,status,release,sync:tick,setSkillPriority});start();
+  W.KVPV_BASIC10=Object.freeze({start,stop,status,release,sync:tick,setSkillPriority,isForceActive:()=>S.forceActive&&roadForce()});start();
 // [VI dòng gốc 150] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
 })();
 // [VI dòng gốc 151] Dòng trống để tách các phần, không có lệnh thực thi.
