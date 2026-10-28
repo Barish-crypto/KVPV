@@ -523,3 +523,49 @@ for(const pet of [false,true]){
 // [VI dòng gốc 262] gọi console.log('PASS mount/pet: feed, rank EXP ACK, paid auto-buy guard, refine, illusion, formation and rank skills')
 console.log('PASS mount/pet: feed, rank EXP ACK, paid auto-buy guard, refine, illusion, formation and rank skills');
 // [VI dòng gốc 263] Dòng trống để tách các phần, không có lệnh thực thi.
+
+{
+ const q=harness();
+ q.run('weapon');q.plugins.delete('appearance_auto_weapon');
+ // During live update a partly reset queue omits an old module ID.
+ q.load();
+ assert.equal(q.plugins.size,64,'all missing queue modules are re-registered');
+ assert.equal(q.timers.size,1,'live reload does not duplicate timers');
+ assert.equal(q.ready('wing').ready,false,'existing pending ACK remains protected');
+ q.levels.weapon++;q.W.KVPV_APPEARANCE_AUTO.sync();
+ assert.equal(q.ready('wing').ready,true,'ACK resumes after partial queue rebuild');
+}
+{
+ const q=harness(),fresh=new Map();
+ // The queue object itself can be replaced before the old module stops.
+ q.W.KVPV_V8={
+  register(p){if(fresh.has(p.id))throw Error('Trung module ID');fresh.set(p.id,p);},
+  toggle(id,on){if(!fresh.has(id))throw Error('Khong tim thay module');fresh.get(id).enabled=on;}
+ };
+ q.load();
+ assert.equal(fresh.size,64,'reload repopulates a newly replaced shared queue');
+ assert.equal(q.timers.size,1,'only one worker timer remains');
+ q.W.KVPV_APPEARANCE_AUTO.stop('reload');
+ assert(fresh.values().every(p=>p.enabled===false),'registered modules disabled');
+}
+{
+ const q=harness(),previous=q.W.KVPV_APPEARANCE_AUTO;
+ q.W.KVPV_APPEARANCE_AUTO=Object.freeze({
+  _handoff:()=>previous._handoff(),
+  stop(){previous.stop('reload');throw Error('Khong tim thay module');}
+ });
+ // Simulate a real older FULL whose stop() throws before the new code installs.
+ q.load();
+ assert.equal(q.plugins.size,64,'legacy throwing stop cannot block new installer');
+ assert.equal(q.timers.size,1);
+ const missing=q.W.KVPV_APPEARANCE_AUTO.status();
+ assert.equal(missing.registered,true);
+ q.W.KVPV_APPEARANCE_AUTO.stop('reload');
+}
+{
+ const q=harness();
+ q.W.KVPV_V8=null;
+ assert.doesNotThrow(()=>q.W.KVPV_APPEARANCE_AUTO.stop('reload'),'missing queue can be stopped safely');
+ assert.equal(q.timers.size,0);
+}
+console.log('PASS appearance live update: missing V8 module, replacement queue, older throwing stop and absent V8 registry');
