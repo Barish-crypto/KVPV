@@ -25,40 +25,39 @@ function setup(){
 {
  const {q,setStage,setKind}=setup(),original=q.c.isCooldown;
  assert.equal(original(),true);
- let trial=q.mod.setTianQuan4100CooldownOverride(true,1000);
+ let trial=q.mod.setTianQuan4100CooldownOverride(true);
  assert.equal(trial.active,true);
  assert.equal(q.c.isCooldown(),false,'client hook returns false on stage 4100');
  assert.equal(q.mod.status(false).cooldown4100Trial.falseReturns>0,true);
- q.elapse(1001);q.mod.sync();
- assert.equal(q.c.isCooldown(),true,'expiration restores native');
- assert.equal(q.c.isCooldown,original,'native method identity restored');
- trial=q.mod.setTianQuan4100CooldownOverride(true,15000);
+ q.elapse(60000);q.mod.sync();
+ assert.equal(q.c.isCooldown(),false,'still overridden after 60 seconds');
+ assert.equal(q.mod.status(false).cooldown4100Trial.automaticExpiry,false);
+ trial=q.mod.setTianQuan4100CooldownOverride(true);
  assert.equal(trial.active,true);
  setStage(4101);
  assert.equal(q.c.isCooldown(),true,'outside stage call falls back to native immediately');
  q.mod.sync();
  assert.equal(q.c.isCooldown,original,'leaving floor restores');
  setStage(4100);
- q.mod.setTianQuan4100CooldownOverride(true,10000);
+ q.mod.setTianQuan4100CooldownOverride(true);
  setKind('LINH_LUNG');
  assert.equal(q.c.isCooldown(),true,'outside scope falls back to native');
  q.mod.sync();
  assert.equal(q.c.isCooldown,original);
  setKind('THIEN_QUAN');
- q.mod.setTianQuan4100CooldownOverride(true,10000);
+ q.mod.setTianQuan4100CooldownOverride(true);
  q.mod.setTianQuan4100BasicSolo(false);
  assert.equal(q.c.isCooldown,original,'disabling basic solo restores cooldown');
  q.mod.setTianQuan4100BasicSolo(true);
- q.mod.setTianQuan4100CooldownOverride(true,10000);
+ q.mod.setTianQuan4100CooldownOverride(true);
  q.mod.stop();
  assert.equal(q.c.isCooldown,original,'stop restores native');
  assert.equal(q.c.isCooldown(),true);
 }
 {
  const {q}=setup(),base=q.c.isCooldown;
- assert.throws(()=>q.mod.setTianQuan4100CooldownOverride(true,15001));
  assert.equal(q.c.isCooldown,base);
- q.mod.setTianQuan4100CooldownOverride(true,2000);
+ q.mod.setTianQuan4100CooldownOverride(true);
  const foreign=()=>true;
  q.c.isCooldown=foreign;
  q.mod.sync();
@@ -82,4 +81,14 @@ function setup(){
  assert.equal(q.mod.status(false).localLogCleanup.clears,1,'disabled stops cleanup');
  q.mod.stop();
 }
-console.log('PASS TQ4100 cooldown override: scoped opt-in false, expiry, stop, native restoration, foreign-hook, local log cleanup.');
+{
+ const {q}=setup(),original=q.c.isCooldown;
+ const oneClick=q.mod.startTianQuan4100CooldownExperiment(1000);
+ assert.equal(oneClick.trial.active,true,'single command enables experiment');
+ assert.equal(oneClick.cleanup.enabled,true,'single command enables local diagnostic cleanup');
+ assert.equal(oneClick.devToolsWsFramesCleared,false,'never misrepresent DevTools');
+ q.mod.setTianQuan4100CooldownOverride(false);
+ assert.equal(q.c.isCooldown,original,'manual off restores native method');
+ q.mod.stop();
+}
+console.log('PASS TQ4100 cooldown override: continuous 60s, scoped, manual stop, native restoration, foreign-hook, local log cleanup.');
