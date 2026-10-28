@@ -18,8 +18,11 @@ const component=(r,k)=>{const c=types()[k];return c?r?.getComponent?.(c):null;};
 const scene=()=>String(W._C?._Mn?._Cn?.currentID??W._Ba?._$a?._yo?.ins?.intoSce?.[0]??'');
 const owned=()=>!!actorId&&String(W._Ba?._rJ?._O$?.ins?.actorId??'')===actorId&&!W.__KVPV_UNIVERSAL_HALTED;
 const pos=r=>{const p=prop(r,'position')??r?.coords??r?.position;const x=Number(p?.x),y=Number(p?.y);return p&&Number.isFinite(x)&&Number.isFinite(y)?{x,y}:null;};
+const inTruTien=()=>{const s=W.KVPV_FAR_SCOPE?.status?.();return s?.inside===true&&s.kind==='TRU_TIEN';};
 const isEnemy=(enemy,actor)=>{if(!enemy||enemy===actor||enemy.isValid===false||!id(enemy)||id(enemy)===actorId)return false;
- const type=prop(enemy,'type');return type!=null&&[0,2].includes(Number(type))&&typeof enemy.on==='function'&&typeof enemy.off==='function';};
+ const type=Number(prop(enemy,'type'));
+ // Real player roles are type 4 in KVPV. Require validated Tru Tien scene for this addition.
+ return (inTruTien()?type===4:[0,2].includes(type))&&typeof enemy.on==='function'&&typeof enemy.off==='function';};
 const selected=()=>{const a=me(),t=component(a,'_Het')?.target;return owned()&&isEnemy(t,a)?{actor:a,enemy:t}:null;};
 function log(kind,extra={}){S.history.push({at:Date.now(),kind,...extra});if(S.history.length>cfg.maxHistory)S.history.shift();}
 function unlink(){const old=S.target;S.target=null;S.targetId='';S.scene='';
@@ -29,7 +32,7 @@ function blocked(actor,enemy){
  if(!owned())return 'actor_changed';
  if(W.document?.hidden===true||W.document?.hasFocus?.()===false)return 'unfocused';
  if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0))return 'manual_ui';
- if(W.KVPV_FAR_SCOPE?.status?.()?.inside===true)return 'dungeon_priority';
+ if(W.KVPV_FAR_SCOPE?.status?.()?.inside===true&&!inTruTien())return 'dungeon_priority';
  if(W.KVPV_TH300?.status?.(false)?.running===true||W.KVPV_HITRUN1?.status?.(false)?.running===true)return 'boss_owner';
  const mode=W.KVPV_MODE?.status?.(false)?.mode;if(mode&&mode!=='OFF')return 'combat_mode_owner';
  if(W.KVPV_BOSS_TEAM?.priority?.()===true||W.KVPV_BASIC10?.status?.()?.roadMelee?.active===true)return 'higher_priority';
