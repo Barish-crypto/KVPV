@@ -1,4 +1,32 @@
-# La Phong PK/PvP trong Tru Tiên Đại Chiến — thử nghiệm
+# Tru Tiên PvP — chỉ spam đòn tay native, hoạt ảnh x9999 (thử nghiệm)
+
+**Thay đổi mới chỉ cho Tru Tiên:** nhân vật KHÔNG còn tự tung Tuyệt Học 1001–1008. Chỉ xoay vòng **8001–8005** ở nhịp quét client 10ms, miễn là native cooldown, native target, range và selector hợp lệ. Tham chiếu đòn tay từ Thiên Quan nhưng không mang hook Boss sang PvP. 10ms không phải tốc độ hit server.
+
+**Khởi động có thể không có mục tiêu:** đang trong Tru Tiên có thể chạy `KVPV_TRUTIEN_PVP.start({autoDodge:false, companions:true})`; hệ thống sẽ `enabled:true`, `reason:'waiting_player_target'` cho tới khi người dùng chọn người chơi hợp lệ (type 4). Không tự chọn hay tấn công quái/đồng đội. Lệnh start nhả Boss mode đang giữ quyền, nên chỉ bật khi muốn chuyển hẳn từ PvE sang PvP.
+
+```js
+// Sau khi build và cập nhật FULL từ PR mới:
+KVPV_TRUTIEN_PVP.start({autoDodge:false,companions:true});
+KVPV_TRUTIEN_PVP.setVisualSpeed(9999);
+console.log(KVPV_TRUTIEN_PVP.status().visual);
+console.log(KVPV_TRUTIEN_PVP.status().skillIds); // th:[], basic:[8001..8005]
+
+// Nếu hình ảnh lỗi/khựng, trả clip về tốc độ native (không chạm cooldown):
+KVPV_TRUTIEN_PVP.setVisualSpeed(1);
+
+// Ngừng mode:
+KVPV_TRUTIEN_PVP.stop();
+```
+
+**Giới hạn x9999:** chỉ nhân hệ số timeScale của clip trong một lần gọi `combat(8001..8005)` đồng bộ, tạm wrap `_Qrt.getActionTween` khi action native khớp rồi khôi phục descriptor trong `finally`. Không chỉnh FPS, cooldown server, damage hoặc RPC. Nếu cấu trúc avatar/animation không tồn tại hoặc clip được tạo bất đồng bộ, `visual.unavailable` tăng hoặc `visual.applied` không tăng; x9999 khi đó **không có hiệu quả**. x9999 có thể khiến hoạt ảnh gần như không nhìn thấy hoặc gặp lỗi visual. Bật 1 để so sánh.
+
+Lệnh `status()` có `basicAttempts`, `attacks`, `visual.applied`, `visual.unavailable`, `reason`, `observedSkills`. Attempts không chứng minh server nhận đòn. Bộ trợ chiến pet/fuwa/ride vẫn dùng native như cũ; `companions:false` nếu muốn chỉ còn chủ đánh tay. Theo dõi/né Tuyệt Học **đối thủ** là tùy chọn riêng, không làm nhân vật chính tung Tuyệt Học.
+
+**Chưa live test PK hoặc full suite Windows.** Giữ bản đang chạy cho tới khi kiểm thử và chủ động merge.
+
+---
+
+# Tài liệu chế độ cũ (TH + tay), chỉ để tham khảo
 
 ## Kích hoạt
 - Vào Tru Tiên; KVPV_FAR_SCOPE.status() phải có inside=true và kind=TRU_TIEN (native scene type 52, entry khớp map).
