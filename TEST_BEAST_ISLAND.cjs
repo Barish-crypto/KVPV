@@ -58,6 +58,7 @@ let a=load();assert.equal(calls.length,0);assert.equal(stage.auto,true);busy=fal
 assert.deepEqual(calls.at(-1),['map',4902,2]);a.sync();assert.equal(calls.filter(r=>r[0]==='map').length,1);
 // [VI dòng gốc 30] gán map bằng 4902 | gán type bằng 49 | gọi a.sync() | gọi assert.deepEqual(calls.at(-1), ['move',101]) để kiểm tra cấu trúc hai giá trị tương đương
 map=4902;type=49;a.sync();assert.deepEqual(calls.at(-1),['move',101]);
+assert.equal(a.basicCombatReady({isValid:true,property:{get:()=>7500}}),false,'Gathering stage cannot start BASIC FORCE');
 // [VI dòng gốc 31] cập nhật bằng toán tử += now bằng 10000 | gọi a.sync() | gọi assert.equal(calls.filter(r=>r[0]==='move').length, 1, 'do not restart native walking') để kiểm tra hai giá trị bằng nhau
 now+=10000;a.sync();assert.equal(calls.filter(r=>r[0]==='move').length,1,'do not restart native walking');
 // [VI dòng gốc 32] gán gathering bằng true | gán point bằng null | cập nhật bằng toán tử += now bằng 10000 | gọi a.sync()
@@ -66,12 +67,18 @@ gathering=true;point=null;now+=10000;a.sync();assert.equal(a.status().reason,'na
 gathering=false;m._c_a[1]=[[101,20]];a.sync();assert.deepEqual(calls.at(-1),['move',102]);
 // [VI dòng gốc 34] gọi m._c_a[1].push([102,2]) để thêm phần tử vào cuối mảng | gán point bằng null | gọi a.sync() | gọi assert.deepEqual(calls.at(-1), ['target',7500,1,49]) để kiểm tra cấu trúc hai giá trị tương đương
 m._c_a[1].push([102,2]);point=null;a.sync();assert.deepEqual(calls.at(-1),['target',7500,1,49]);
+const beastBoss=(occ,type=1)=>({isValid:true,property:{get(k){return {occ,type,hp:[100,100]}[k];}}});
+assert.equal(a.basicCombatReady(beastBoss(7500)),true,'Boss phase authorizes BASIC FORCE');
+assert.equal(a.basicCombatReady(beastBoss(9999)),false,'Wrong target never authorized');
+assert.equal(a.basicCombatReady(beastBoss(7500,4)),false,'Player target excluded');
+gathering=true;assert.equal(a.basicCombatReady(beastBoss(7500)),false,'Crystal collection must suspend combat');gathering=false;
 // [VI dòng gốc 35] Khai báo biến không gán lại bằng const: n = đọc calls.length | gọi m.setTarget(8000, 1, 49) để đặt mục tiêu qua đối tượng đang gọi | gọi m.setTarget('enemy', 2, 49) để đặt mục tiêu qua đối tượng đang gọi | gọi m.MASequenceAutoFight()
 const n=calls.length;m.setTarget(8000,1,49);m.setTarget('enemy',2,49);m.MASequenceAutoFight();assert.equal(calls.length,n);
 // [VI dòng gốc 36] gọi assert.equal(a.status().quota.boss.remaining, 3, 'dispatch does not consume quota') để kiểm tra hai giá trị bằng nhau
 assert.equal(a.status().quota.boss.remaining,3,'dispatch does not consume quota');
 // [VI dòng gốc 37] gán m._c_a[0] bằng 3 | gọi a.sync() | gọi assert.deepEqual(calls.at(-1), ['map',0]) để kiểm tra cấu trúc hai giá trị tương đương
-m._c_a[0]=3;a.sync();assert.deepEqual(calls.at(-1),['map',0]);a.sync();assert.equal(calls.at(-1)[1],0);
+m._c_a[0]=3;a.sync();assert.deepEqual(calls.at(-1),['map',0]);
+assert.equal(a.basicCombatReady(beastBoss(7500)),false,'Server quota complete revokes BASIC FORCE');a.sync();assert.equal(calls.at(-1)[1],0);
 // [VI dòng gốc 38] gán type bằng 0 | gán map bằng 1 | gọi a.sync() | gọi assert.equal(lease, null) để kiểm tra hai giá trị bằng nhau
 type=0;map=1;a.sync();assert.equal(lease,null);assert.equal(stage.auto,true);assert.equal(a.status().phase,'DONE');
 // [VI dòng gốc 39] gọi assert.equal(m.setTarget, original) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(m.MASequenceAutoFight, autoOriginal) để kiểm tra hai giá trị bằng nhau
