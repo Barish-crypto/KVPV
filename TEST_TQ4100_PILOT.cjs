@@ -35,14 +35,14 @@ function make(){
  assert.equal(p.combo.durationMs,18000);
  assert.equal(p.combo.observedHpDps,1000);
  assert.equal(p.activeMode,'thOnly');
- x.q.elapse(1000);
+ x.q.elapse(2);
  for(const row of x.q.s._rtt)row[1]=0;
  assert([1001,1002].includes(x.q.s.selectSkill()),'TH-only phase excludes basics');
  x.hits(1800);
  p=x.status();
  assert.equal(p.phase,'chosen');
  assert.equal(p.selectedMode,'thOnly','stronger TH-only selected');
- assert.equal(p.thOnly.observedHpDps,1800);
+ assert(Math.abs(p.thOnly.observedHpDps-1800)<5,'measurement tolerates 2ms selector probe');
  x.stage(4101);
  assert.equal(x.status().active,false,'stage gated');
  assert.equal(x.status().activeMode,'combo','no TH-only outside stage 4100');
