@@ -176,6 +176,7 @@ function status(){
   reason:S.reason,error:S.error,
   note:'TRU_TIEN only native 8001-8005, no outgoing TH. 9999 is visual-only and may not affect native cast gating. A player must be selected for attacks; arm may wait without one. Native cooldown/range/target still required.'};
 }
+let lastOwnerReleaseAt=-Infinity;
 function tick(){
  try{
   if(!S.enabled)return;
@@ -197,7 +198,8 @@ function tick(){
   // A prior PvE owner can re-arm on scene ticks. Release it only while a
   // verified enemy player is selected, rather than leaving PvP idle forever.
   let owner=occupied();
-  if((owner==='combat_mode_owner'||owner==='boss_owner')&&typeof W.KVPV_MODE?.stop==='function'){
+  if((owner==='combat_mode_owner'||owner==='boss_owner')&&Date.now()-lastOwnerReleaseAt>=1000&&typeof W.KVPV_MODE?.stop==='function'){
+    lastOwnerReleaseAt=Date.now();
     W.KVPV_MODE.stop();
     owner=occupied();
   }
