@@ -191,6 +191,12 @@
     guardEntryMove();
 // [VI dòng gốc 98] Khai báo biến không gán lại bằng const: scope = gọi W.KVPV_FAR_SCOPE?.status() để trả trạng thái để kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     const scope=W.KVPV_FAR_SCOPE?.status?.();
+    // A PvP observer waits for player targets; dungeon auto must own monsters.
+    // Disable only when actually in Tru Tien, never on other maps.
+    if(scope?.inside===true&&scope.kind==='TRU_TIEN'&&
+       W.KVPV_TRUTIEN_PVP?.status?.()?.enabled===true)
+      W.KVPV_TRUTIEN_PVP.stop('auto_trutien_dungeon_pve');
+
 // [VI dòng gốc 99] Kiểm tra scope: đúng thì chạy nhánh sau if. | Khai báo biến không gán lại bằng const: key = tính biểu thức scope.kind+'/'+scope.current+'/'+(scope.floor??'')
     if(scope){const key=scope.kind+'/'+scope.current+'/'+(scope.floor??'');
 // [VI dòng gốc 100] Kiểm tra lastScopeKey!==null&&lastScopeKey!==key: đúng thì chạy nhánh sau if. | gọi stopOwners('Đổi phạm vi/map/tầng') | gán S.mode bằng MODE.OFF | gán towerAttempt bằng null
