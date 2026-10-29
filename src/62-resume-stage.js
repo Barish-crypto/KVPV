@@ -9,6 +9,8 @@ if(!actor||actor!==String(W._Ba?._rJ?._O$?.ins?.actorId??'')||W.__KVPV_UNIVERSAL
 // [VI dòng gốc 5] Kiểm tra typeof W.KVPV_DAILY?.tuVuotStart!=='function': đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
 if(typeof W.KVPV_DAILY?.tuVuotStart!=='function')return;
 // [VI dòng gốc 6] Khai báo biến không gán lại bằng const: work = đọc W.KVPV_QUEST_PRIORITY?._handoff?.()?.work nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kiểm tra work: đúng thì chạy nhánh sau if. | gán work.dailyEnabled bằng true
+const pendingEvent=W.KVPV_EVENT_PRIORITY?.hold?.();
+if(pendingEvent)return; // do not re-arm Tu Vuot during a major activity window
 const work=W.KVPV_QUEST_PRIORITY?._handoff?.()?.work;if(work)work.dailyEnabled=true;
 // [VI dòng gốc 7] gọi W.KVPV_DAILY.tuVuotStart() | gán W[key] bằng {actor,at:Date.now()} | gán W.__KVPV_STAGE_RESUME_20261024_USER bằng W[key]
 W.KVPV_DAILY.tuVuotStart();W[key]={actor,at:Date.now()};W.__KVPV_STAGE_RESUME_20261024_USER=W[key];

@@ -10,7 +10,7 @@ old?.stop?.('reload');
 const actor=String(W.__KVPV_OWN_ACTOR_ID||''),same=carry?.actor===actor;
 // Only manually attended large events verified in the existing Daily schedule.
 // This is a scene reservation, NOT an event-entry executor or a reward request.
-const C={enabled:true,pollMs:750,cacheMs:400,exitRetryMs:15000,exitStageForEvent:true,
+const C={enabled:true,pollMs:500,cacheMs:400,exitRetryMs:15000,exitStageForEvent:true,
  manualLeadMinutes:same?(carry?.manualLeadMinutes??5):5,
  manualPriorityKeys:same&&carry?.manualPriorityKeys?
    {...carry.manualPriorityKeys}:

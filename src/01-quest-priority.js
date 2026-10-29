@@ -112,6 +112,14 @@
 // [VI dòng gốc 57] Kiểm tra !S.enabled: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Kiểm tra W.KVPV_BOSS_TEAM?.priority?.(): đúng thì chạy nhánh sau if. | gán S.reason bằng 'private_boss_invitation_priority'
     if(!S.enabled)return;if(W.KVPV_BOSS_TEAM?.priority?.()){S.reason='private_boss_invitation_priority';return;}if(!owned()){stop();return;}
 // [VI dòng gốc 58] Kiểm tra hongOpen(): đúng thì chạy nhánh sau if. | gọi restore() | gán S.reason bằng 'yield_to_open_honghoang' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
+    // Timed large events outrank the quest EXP/Tu Vuot controller.
+    // Never re-enable stage while the authoritative planner reserves an event.
+    const eventHold=W.KVPV_EVENT_PRIORITY?.hold?.();
+    if(eventHold){
+      const stage=W._Ba?._Co?._Mo?.ins;
+      if(stage?.auto===true)W.KVPV_EVENT_PRIORITY?.yieldStage?.(eventHold);
+      S.reason='yield_to_scheduled_event_'+eventHold.key;return;
+    }
     if(hongOpen()){restore();S.reason='yield_to_open_honghoang';return;}
 // [VI dòng gốc 59] Khai báo biến không gán lại bằng const: q = gọi levelGoal() | Kiểm tra !q||q.current>=q.target: đúng thì chạy nhánh sau if. | gọi restore() | gán S.reason bằng q?'level_met_waiting_quest_ack':'quest_first'
     const q=levelGoal();if(!q||q.current>=q.target){restore();S.reason=q?'level_met_waiting_quest_ack':'quest_first';return;}
