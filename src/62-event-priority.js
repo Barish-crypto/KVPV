@@ -14,7 +14,7 @@ const C={enabled:true,pollMs:500,cacheMs:400,exitRetryMs:15000,exitStageForEvent
  manualLeadMinutes:same?(carry?.manualLeadMinutes??5):5,
  manualPriorityKeys:same&&carry?.manualPriorityKeys?
    {...carry.manualPriorityKeys}:
-   {tien_ma:true,tien_duyen_tac_chien:true,chien_doi:true,tranh_ba_tu_phuong:true}};
+   {tien_ma:true,tien_duyen_tac_chien:true,chien_doi:true,tranh_ba_tu_phuong:true,diet_tho_hao:true}};
 const S={timer:null,cachedAt:0,hold:null,lastHoldKey:'',paused:same?(carry.paused||0):0,
   resumed:same?(carry.resumed||0):0,exitRequests:same?(carry.exitRequests||0):0,
   pending:same?(carry.pending||null):null,watching:false,
