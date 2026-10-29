@@ -15,7 +15,7 @@
   W.KVPV_DESKTOP_CONTROL=Object.freeze({receive:()=>false,stop(){},scopeProfile:()=>null,distance:()=>302,stageAllowed:()=>true,status:()=>({reason:'javascript_daily_only',lastError:'',modules:{}}),_handoff:()=>({actor,desired:null,failedRevision:null})});
   const c=W.KVPV_DAILY.config;
   Object.assign(c,{enableTienDuyen:true,enableTinhThan:true,enableYeuVuong:true,enableHongHoang:true,enableEventSchedule:true,enableTuVuot:true,
-    enableVinhDu:false,enableDinhCao:false,enableTuLa:false,enableDaoTri:false,enableCompose:false,enableTienTonTrace:false,tienTonTraceConsole:false,eventConsoleNotices:false});
+    enableVinhDu:false,enableDinhCao:false,enableTuLa:false,enableDaoTri:true,enableCompose:false,enableTienTonTrace:false,tienTonTraceConsole:false,eventConsoleNotices:false});
   // Luôn dùng lượt/vé hiện có; không mua lượt hoặc cổ vũ KNB.
   W.KVPV_SPENDING_POLICY=Object.freeze({allowKNB:false,dailyInspireKNBMaps:Object.freeze([]),canDailyInspireKNB:()=>false,reason:'PB/Boss daily: không tự tiêu KNB.'});
   W.KVPV_ENTRY_POLICY=Object.freeze({manual:false,idleDaily:false});
