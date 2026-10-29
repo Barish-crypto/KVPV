@@ -204,7 +204,13 @@ function tick(){
   const ready=list.filter(row=>Number.isFinite(Number(row?.[1]))&&Number(row[1])<now);
   const basic=ranked(ready.filter(row=>isBasic(row?.[0])));
   if(!basic.length){S.reason='no_ready_basic';return;}
-  const skill=Number(s._f7t(basic,[],1));
+  // Try ranked basics first. If the native selector declines that ordering,
+  // retry the original ready basic order; never synthesize or force a cast.
+  let skill=Number(s._f7t(basic,[],1));
+  if(!isBasic(skill)||!basic.some(row=>Number(row?.[0])===skill)){
+    const original=ready.filter(row=>isBasic(row?.[0]));
+    if(original.length>1)skill=Number(s._f7t(original,[],1));
+  }
   if(!isBasic(skill)||!basic.some(row=>Number(row?.[0])===skill)){
     S.reason='native_basic_selector_rejected';return;
   }
