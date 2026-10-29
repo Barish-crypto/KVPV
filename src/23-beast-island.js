@@ -26,11 +26,12 @@
 // [VI dòng gốc 16] Kiểm tra carry?.actor===actor&&(carry.bossLevel===500||carry.bossLevel===600||carry.bossLevel===750): đúng thì chạy nhánh sau if. | gán bossLevel bằng carry.bossLevel===600?500:carry.bossLevel
   if(carry?.actor===actor&&(carry.bossLevel===500||carry.bossLevel===600||carry.bossLevel===750))bossLevel=carry.bossLevel===600?500:carry.bossLevel;
 // [VI dòng gốc 17] Kiểm tra actor==='10228867268946': đúng thì chạy nhánh sau if. | gán bossLevel bằng 800
-  if(actor==='10228867268946')bossLevel=800;
+  const adaptive=actor==='10228867268946';
+  if(adaptive)bossLevel=800;
 // [VI dòng gốc 18] Khai báo biến không gán lại bằng const: S = tạo đối tượng gồm enabled, timer, lease, phase, reason, lastError, lastRefresh, lastEntry, lastAction, idleSince, action, stageAuto, hooks
   const S={enabled:true,timer:null,lease:false,phase:'WAITING',reason:'starting',lastError:'',
 // [VI dòng gốc 19] Thuộc tính lastRefresh: áp dụng toán tử - lên Infinity | Thuộc tính lastEntry: áp dụng toán tử - lên Infinity | Thuộc tính lastAction: áp dụng toán tử - lên Infinity | Thuộc tính idleSince: null
-    lastRefresh:-Infinity,lastEntry:-Infinity,lastAction:-Infinity,idleSince:null,action:'',bossCombatOcc:null,stageAuto:null,hooks:[]};
+    lastRefresh:-Infinity,lastEntry:-Infinity,lastAction:-Infinity,idleSince:null,action:'',bossCombatOcc:null,stageAuto:null,hooks:[],bossTrialAt:0,bossQuotaSeen:null,bossFailures:0,bossCandidates:[]};
 // [VI dòng gốc 20] Kiểm tra carry?.actor===actor&&Number.isFinite(carry.lastEntry): đúng thì chạy nhánh sau if. | gán S.lastEntry bằng carry.lastEntry
   if(carry?.actor===actor&&Number.isFinite(carry.lastEntry))S.lastEntry=carry.lastEntry;
 // [VI dòng gốc 21] Khai báo biến không gán lại bằng const: model = tạo hàm với tham số (không có); mỗi lần gọi trả về đọc W._Ba?._dP?._P5t?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); cfg = tạo hàm với tham số (không có); mỗi lần gọi trả về đọc W._ft?._gci?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
@@ -54,7 +55,14 @@
 // [VI dòng gốc 30] Khai báo biến không gán lại bằng const: bossRows = tạo mảng gồm 2 vị trí: [...(c?.getMABosss?.(1)||[]),...rows]
     const bossRows=[...(c?.getMABosss?.(1)||[]),...rows];
 // [VI dòng gốc 31] Khai báo biến không gán lại bằng const: boss = gọi bossRows.find(r=>Number(r[1])===bossLayer()&&r[3]===1&&Number(W._ft?._tY?.ins?.getCfgById?.(r[4])?.[6])===bossLevel) để tìm phần tử đầu tiên thỏa điều kiện
-    const boss=bossRows.find(r=>Number(r[1])===bossLayer()&&r[3]===1&&Number(W._ft?._tY?.ins?.getCfgById?.(r[4])?.[6])===bossLevel);
+    const candidates=bossRows.filter(r=>Number(r?.[3])===1).map(row=>({
+      row,level:Number(W._ft?._tY?.ins?.getCfgById?.(row[4])?.[6])
+    })).filter(x=>Number.isFinite(x.level)&&x.level>0).sort((a,b)=>a.level-b.level);
+    S.bossCandidates=[...new Set(candidates.map(x=>x.level))];
+    const pool=adaptive?candidates.filter(x=>Number(x.row[1])===2):candidates.filter(x=>Number(x.row[1])===bossLayer());
+    const preferred=pool.find(x=>x.level===bossLevel)||[...pool].reverse().find(x=>x.level<bossLevel)||pool[0];
+    const boss=preferred?.row;
+    if(adaptive&&preferred)bossLevel=preferred.level;
 // [VI dòng gốc 32] Khai báo biến không gán lại bằng const: inside = type===49 và chỉ đánh giá vế phải khi vế trái truthy: (Number(m?.getCurMapLevel?.())===2&&rows.some(r=>Number(r[0])===map))|| !!boss&&Number(m?.getCurMapLevel?.())===Number(boss[1])&&Number(boss[0])===map
     // Scene ID and native configured map IDs are authoritative even if
     // the floor model has not synchronized after a manual teleport.
@@ -143,6 +151,25 @@
     if(!S.enabled||!owned()){stop();return;}
 // [VI dòng gốc 75] Khai báo biến không gán lại bằng const: d = gọi snapshot() để đọc ảnh chụp trạng thái hiện tại; now = gọi Date.now() | gọi refresh() để làm mới dữ liệu theo điều kiện của hàm
     const d=snapshot(),now=Date.now();refresh();
+    if(adaptive&&d.known&&d.boss.remaining!==null){
+      const count=d.boss.used;
+      if(S.bossQuotaSeen===null)S.bossQuotaSeen=count;
+      if(count>S.bossQuotaSeen){
+        S.bossQuotaSeen=count;S.bossFailures=0;S.bossTrialAt=0;
+        const higher=S.bossCandidates.find(level=>level>bossLevel);
+        if(higher)bossLevel=higher;
+      }else if(count<S.bossQuotaSeen){
+        S.bossQuotaSeen=count;S.bossFailures=0;S.bossTrialAt=0;
+      }
+      if(d.inside&&d.boss.remaining>0&&S.phase==='ACTIVE'){
+        if(S.bossTrialAt===0)S.bossTrialAt=now;
+        if(user()?.isDead===true||now-S.bossTrialAt>90000){
+          S.bossFailures++;S.bossTrialAt=now;
+          const lower=[...S.bossCandidates].reverse().find(level=>level<bossLevel);
+          if(lower)bossLevel=lower;
+        }
+      }else if(!d.inside)S.bossTrialAt=0;
+    }
 // [VI dòng gốc 76] Kiểm tra !d.inside&&S.lease: đúng thì chạy nhánh sau if.
     if(!d.inside&&S.lease){
 // [VI dòng gốc 77] Kiểm tra S.phase==='ENTERING'&&now-S.lastEntry<25000: đúng thì chạy nhánh sau if. | gọi arb()?.renew('combat') để gia hạn quyền đang giữ (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
@@ -302,6 +329,8 @@
       collectionLayer:2,
 // [VI dòng gốc 143] Thuộc tính bossLevel: dùng biến cùng tên
       bossLevel,
+      bossSelection:adaptive?'adaptive_server_outcome':'manual_level',
+      availableBossLevels:[...S.bossCandidates],bossFailures:S.bossFailures,
 // [VI dòng gốc 144] Thuộc tính bossLayer: gọi bossLayer() để tầng chứa boss được chọn
       bossLayer:bossLayer(),
 // [VI dòng gốc 145] Thuộc tính quota: gọi snapshot() để đọc ảnh chụp trạng thái hiện tại
