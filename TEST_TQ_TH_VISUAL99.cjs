@@ -157,6 +157,7 @@ for(const id of [8001,8002,8003,8004,8005]){
 }
 const startup=fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8');
 assert(startup.includes('setTianQuanVisualSpeed?.(9999)'),'auto startup enables Tian Quan-only x9999 visual');
-assert(startup.includes('setTianQuan4100BasicSolo?.(true)'),'4100 basic-only startup preserved');
+assert(startup.includes('setTianQuan4100BasicSolo?.(false)'),'4100 startup allows interleaved native TH while explicit basic-only mode remains testable');
+assert(startup.includes('setTianQuanTuyetHoc?.(true)'),'Tian Quan startup enables native TH alongside basic skills');
 console.log('PASS TQ visual 9999x: TH 1001-1008 and basics 8001-8005 incl 4100, native cooldown unchanged, no other scene, transient hooks, off restores visuals.');
 console.log('PASS TH visuals 99x: 1001-1008 native action only; user off, scoped map, unavailable action, restore, 310/1ms no heal');
