@@ -194,7 +194,14 @@ function tick(){
   if(!live(r)||W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='player_dead';return;}
   if(W.document?.hidden===true||W.document?.hasFocus?.()===false){S.reason='unfocused';return;}
   if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){S.reason='manual_ui';return;}
-  const owner=occupied();if(owner){S.reason=owner;return;}
+  // A prior PvE owner can re-arm on scene ticks. Release it only while a
+  // verified enemy player is selected, rather than leaving PvP idle forever.
+  let owner=occupied();
+  if((owner==='combat_mode_owner'||owner==='boss_owner')&&typeof W.KVPV_MODE?.stop==='function'){
+    W.KVPV_MODE.stop();
+    owner=occupied();
+  }
+  if(owner){S.reason=owner;return;}
   companionTick(r,t,Date.now()); // independent of master's native cooldown
   if(typeof c?.isCooldown!=='function'||c.isCooldown()!==false){S.blockedCooldown++;S.reason='native_cooldown';return;}
   if(typeof c?.isValidTarget!=='function'||c.isValidTarget()!==true){S.reason='native_target_invalid';return;}
