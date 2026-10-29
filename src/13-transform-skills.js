@@ -1,5 +1,5 @@
 // [VI dòng gốc 1] Chú thích gốc của tác giả; không được thực thi. Nội dung: Named transformation skills: experimental 10ms CLIENT selection cooldown. [đóng chú thích]
-/* Named transformation skills: experimental 10ms CLIENT selection cooldown. */
+/* Native transformation skills: no cooldown or animation acceleration. */
 // [VI dòng gốc 2] chạy ngay hàm bao để tạo phạm vi và khởi tạo phần chức năng bên trong
 (() => {
 // [VI dòng gốc 3] "use strict"
@@ -52,32 +52,14 @@
 // [VI dòng gốc 25] Khai báo biến không gán lại bằng const: has = tạo hàm với tham số id; mỗi lần gọi trả về gọi skills().some(x=>x.id===Number(id)) để kiểm tra có ít nhất một phần tử thỏa điều kiện
   const has=id=>skills().some(x=>x.id===Number(id));
 // [VI dòng gốc 26] Chú thích gốc của tác giả; không được thực thi. Nội dung: Lọc các hàng biến thân được phép, sao chép dữ liệu và xoay lượt chọn trước khi gọi bộ chọn native.
-  // Lọc các hàng biến thân được phép, sao chép dữ liệu và xoay lượt chọn trước khi gọi bộ chọn native.
-// [VI dòng gốc 27] Định nghĩa hàm select; tham số: native, selector, active, common, mode
+  // Biến Thân uses its native selector, native cooldown and native animation.
+  // Do not rewrite timestamps, cooldown duration, or skill order.
   function select(native,selector,active,common,mode){
-// [VI dòng gốc 28] Kiểm tra !enabled||mode!==2||!transformed(): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: gọi native.call(selector, active, common, mode).
-    if(!enabled||mode!==2||!transformed())return native.call(selector,active,common,mode);
-// [VI dòng gốc 29] Khai báo biến không gán lại bằng const: kit = gọi skills(); ids = gọi kit.map(x=>x.id) để biến đổi từng phần tử; offset = nếu ids.length thì lấy cursor%ids.length, ngược lại lấy 0; order = gọi ids.slice(offset).concat(ids.slice(0,offset))
-    const kit=skills(),ids=kit.map(x=>x.id),offset=ids.length?cursor%ids.length:0,order=ids.slice(offset).concat(ids.slice(0,offset));
-    // Native fallback: an empty or unmatched kit must never starve the combat selector.
-    if(!ids.length||![...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].some(row=>ids.includes(Number(row?.[0]))))return native.call(selector,active,common,mode);
-// [VI dòng gốc 30] Chú thích gốc của tác giả; không được thực thi. Nội dung: Chỉ sửa bản sao của hàng kỹ năng; giữ nguyên dữ liệu hồi chiêu native để có thể dừng/khôi phục.
-    // Chỉ sửa bản sao của hàng kỹ năng; giữ nguyên dữ liệu hồi chiêu native để có thể dừng/khôi phục.
-// [VI dòng gốc 31] Khai báo biến không gán lại bằng const: clone = tạo hàm với tham số rows; mỗi lần gọi trả về gọi (Array.isArray(rows)?rows:[]).filter(row=>ids.includes(Number(row?.[0]))).map(row=>{ const copy=row.slice();copy[1]=ready.get(Number(row[0]))??0;copy[2]=10;return copy; }).sort((a,b)=>order.indexOf(Number(a[0]))-order.indexOf(Number(b[0]))) để sắp xếp mảng tại chỗ
-    const clone=rows=>(Array.isArray(rows)?rows:[]).filter(row=>ids.includes(Number(row?.[0]))).map(row=>{
-// [VI dòng gốc 32] Khai báo biến không gán lại bằng const: copy = gọi row.slice() để lấy một đoạn dữ liệu | gán copy[1] bằng ready.get(Number(row[0]))??0 | gán copy[2] bằng 10 | Kết thúc hàm hiện tại và trả về: copy.
-      const copy=row.slice();copy[1]=ready.get(Number(row[0]))??0;copy[2]=10;return copy;
-// [VI dòng gốc 33] Định nghĩa hàm hàm không đặt tên; tham số: a, b
-    }).sort((a,b)=>order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])));
-// [VI dòng gốc 34] Khai báo biến không gán lại bằng const: a = gọi clone(active); b = gọi clone(common); id = gọi Number(native.call(selector,a,b,mode)) để chuyển sang số
-    const a=clone(active),b=clone(common),id=Number(native.call(selector,a,b,mode));
-// [VI dòng gốc 35] Kiểm tra ids.includes(id): đúng thì chạy nhánh sau if. | gọi ready.set(id, Date.now()+10) | gán cursor bằng ids.indexOf(id)+1 | tăng selections một đơn vị sau khi lấy giá trị
-    if(ids.includes(id)){ready.set(id,Date.now()+10);cursor=ids.indexOf(id)+1;selections++;}
-// [VI dòng gốc 36] Kết thúc hàm hiện tại và trả về: id.
+    if(typeof native!=='function')return -1;
+    const id=native.call(selector,active,common,mode);
+    if(enabled&&mode===2&&transformed()&&Number(id)>0)selections++;
     return id;
-// [VI dòng gốc 37] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
-// [VI dòng gốc 38] Chú thích gốc của tác giả; không được thực thi. Nội dung: Chỉ tạo một lịch đồng bộ cho bộ biến thân; việc đánh vẫn do bộ combat đang sở hữu quyết định.
   // Chỉ tạo một lịch đồng bộ cho bộ biến thân; việc đánh vẫn do bộ combat đang sở hữu quyết định.
 // [VI dòng gốc 39] Định nghĩa hàm activate; tham số: không có | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function activate(){try{
@@ -147,8 +129,8 @@
 // [VI dòng gốc 59] gán enabled bằng true | gọi schedule() | Kết thúc hàm hiện tại và trả về: gọi this.status() để trả trạng thái để kiểm tra. | gán enabled bằng false
     _handoff:()=>({actor,activation,chargedConsumed,lastRequestAt,nativeRequests}),start(){enabled=true;schedule();return this.status();},stop(){enabled=false;ready.clear();if(timer!=null){(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(timer);timer=null;}return this.status();},
 // [VI dòng gốc 60] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm enabled, activation, activationReason, nativeKitOnly, transformed, clientCooldownMs, selections, skillSource, matchedSkills, lastError, note.
-    status(){return {enabled,activation,activationReason,chargedConsumed,nativeRequests,lastRequestAt,nativeKitOnly:true,transformed:transformed(),clientCooldownMs:10,selections,skillSource:'current_native_model',matchedSkills:this.skills(),lastError,
-// [VI dòng gốc 61] Thuộc tính note: "Current native transformation kit only; free strength activation, no purchases. Client cooldown trial; server acceptance unverified. Missing/passive skills are not invented."
+    status(){return {enabled,activation,activationReason,chargedConsumed,nativeRequests,lastRequestAt,nativeKitOnly:true,transformed:transformed(),clientCooldownMs:null,selections,skillSource:'current_native_model',matchedSkills:this.skills(),lastError,
+// [VI dòng gốc 61] Thuộc tính note: "Current native transformation kit only; free strength activation, no purchases. Native cooldown and native animation preserved; no forced speed. Missing/passive skills are not invented."
       note:'Current native transformation kit only; free strength activation, no purchases. Client cooldown trial; server acceptance unverified. Missing/passive skills are not invented.'};}});
 // [VI dòng gốc 62] gọi schedule()
   schedule();
