@@ -53,7 +53,7 @@
 // [VI dòng gốc 30] Thuộc tính arrivalSample: null | Thuộc tính arrivalSnap: false | Thuộc tính positionSample: null | Thuộc tính positionRetries: 0
     arrivalSample:null,arrivalSnap:false,positionSample:null,positionRetries:0,positionOffset:0,positionCommands:0,positionPause:null,positionRecovery:0,movement:[],positioning:true,ownMove:false,moveGoal:null,lastInvocation:-Infinity,lastTHAt:-Infinity,fastCasts:0,blockedSteering:0,
 // [VI dòng gốc 31] Thuộc tính finishTarget: null | Thuộc tính lastBackgroundTick: áp dụng toán tử - lên Infinity | Thuộc tính skillCursor: 0 | Thuộc tính lastOwnerPhase: null
-    finishTarget:null,lastBackgroundTick:-Infinity,skillCursor:0,lastOwnerPhase:null,resumes:0,lastReason:'off',lastError:'',history:[]};
+    finishTarget:null,finishCursor:0,finishLastMove:-Infinity,finishMoveAttempts:0,lastBackgroundTick:-Infinity,skillCursor:0,lastOwnerPhase:null,resumes:0,lastReason:'off',lastError:'',history:[]};
 // [VI dòng gốc 32] Khai báo biến không gán lại bằng const: mixed = tạo đối tượng gồm enabled, primary, primaryStreak, hitQuota, confirmedSinceTH, thCycles, rotation, rotationCursor, wantBasic, suspended, unconfirmed, basicPaceMs, ready, attempts, hits, damage, examples
   const mixed={enabled:false,primary:false,primaryStreak:0,hitQuota:null,confirmedSinceTH:0,thCycles:0,rotation:[],rotationCursor:0,wantBasic:false,suspended:false,unconfirmed:0,basicPaceMs:null,ready:new Map(),attempts:0,hits:0,damage:0,examples:[]};
   let skillPriority='interleaved';
@@ -995,6 +995,39 @@
 // [VI dòng gốc 339] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 340] Chú thích gốc của tác giả; không được thực thi. Nội dung: Xử lý sự kiện sát thương để cập nhật bằng chứng; bộ lọc trong hàm quyết định mẫu nào thực sự phù hợp.
+  // At the last 2% HP of a native dungeon Boss, the far-ring selector
+  // cannot run. Cast learned native basics in melee through the owned combat
+  // method, without changing native cooldown rows or sending custom RPCs.
+  function dungeonFinishBasic(r){
+    if(!towerFinish()||!canFight()||!eligible(r.c?.target))return false;
+    if(typeof r.c?.isValidTarget==='function'&&r.c.isValidTarget()!==true){
+      ST.lastReason='dungeon_finish_invalid_target';return false;
+    }
+    if(typeof r.c?.isValidRange==='function'&&r.c.isValidRange()!==true){
+      ST.lastReason='dungeon_finish_out_of_native_range';return false;
+    }
+    const now=Date.now();
+    if(now-ST.lastInvocation<Math.max(1,currentPace())){
+      ST.lastReason='dungeon_finish_waiting_pace';return false;
+    }
+    if(!nativeReady(r.c)){
+      ST.lastReason='dungeon_finish_waiting_native_ready';return false;
+    }
+    const learned=[...(r.s?._rtt??[]),...(r.s?._wet??[])].filter(row=>
+      Array.isArray(row)&&Number.isSafeInteger(Number(row[0]))&&
+      Number(row[0])>=8001&&Number(row[0])<=8005&&
+      selectedBasic(Number(row[0]))&&
+      Number.isFinite(Number(row[1]))&&Number(row[1])<now);
+    if(!learned.length){
+      ST.lastReason='dungeon_finish_waiting_basic_ready';return false;
+    }
+    const id=Number(learned[ST.finishCursor%learned.length][0]);
+    ST.finishCursor=(ST.finishCursor+1)%5;
+    r.c.combat(id); // through the existing native finish combat wrapper
+    ST.lastInvocation=now;ST.fastCasts++;
+    ST.lastReason='dungeon_finish_basic_cast';
+    return true;
+  }
   // Xử lý sự kiện sát thương để cập nhật bằng chứng; bộ lọc trong hàm quyết định mẫu nào thực sự phù hợp.
 // [VI dòng gốc 341] Định nghĩa hàm onHit; tham số: source, marker, damage, flags, receiver
   function onHit(source,marker,damage,flags,receiver){
@@ -1401,34 +1434,44 @@
       }
 // [VI dòng gốc 514] Kiểm tra towerFinish()&&canFight(): đúng thì chạy nhánh sau if.
       if(towerFinish()&&canFight()){
-// [VI dòng gốc 515] gán ST.positioning bằng false | gán ST.moveGoal bằng null | gán ST.lastReason bằng 'dungeon_native_finish_2pct'
-        ST.positioning=false;ST.moveGoal=null;ST.lastReason='dungeon_native_finish_2pct';
-// [VI dòng gốc 516] Khai báo biến không gán lại bằng const: targetKey = tính biểu thức scene()+'/'+identity(r.c.target); a = gọi loc(r.a); b = gọi loc(r.c.target); d = gọi radius(r.a, r.c.target)
-        const targetKey=scene()+'/'+identity(r.c.target),a=loc(r.a),b=loc(r.c.target),d=radius(r.a,r.c.target);
-// [VI dòng gốc 517] Khai báo biến không gán lại bằng const: nativeRange = gọi Number(W._ft?._tY?.ins?.getCfgById?.(Number(prop(r.c.target,'occ')))?.[3]) để chuyển sang số
+        ST.positioning=false;ST.moveGoal=null;
+        const kind=W.KVPV_FAR_SCOPE?.status?.()?.kind,
+          targetKey=kind+'/'+scene()+'/'+identity(r.c.target),
+          a=loc(r.a),b=loc(r.c.target),d=radius(r.a,r.c.target);
         const nativeRange=Number(W._ft?._tY?.ins?.getCfgById?.(Number(prop(r.c.target,'occ')))?.[3]);
-// [VI dòng gốc 518] Kiểm tra ST.finishTarget!==targetKey&&a&&b&&d>0&&Number.isFinite(nativeRange)&&nativeRange>0: đúng thì chạy nhánh sau if.
-        if(ST.finishTarget!==targetKey&&a&&b&&d>0&&Number.isFinite(nativeRange)&&nativeRange>0){
-// [VI dòng gốc 519] gán ST.finishTarget bằng targetKey
-          ST.finishTarget=targetKey;
-// [VI dòng gốc 520] Kiểm tra d>nativeRange*.8: đúng thì chạy nhánh sau if.
-          if(d>nativeRange*.8){
-// [VI dòng gốc 521] Khai báo biến không gán lại bằng const: goal = tính biểu thức nativeRange*.8
-            const goal=nativeRange*.8;
-// [VI dòng gốc 522] gán ST.ownMove bằng true | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi r.m.stop() để dừng bộ điều khiển và dọn tài nguyên (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gọi r.m.moveTo(b.x+(a.x-b.x)/d*goal, b.y+(a.y-b.y)/d*goal)
-            ST.ownMove=true;try{r.m.stop?.();r.m.moveTo(b.x+(a.x-b.x)/d*goal,b.y+(a.y-b.y)/d*goal);ST.moves++;}
-// [VI dòng gốc 523] gán ST.ownMove bằng false
-            finally{ST.ownMove=false;}
-// [VI dòng gốc 524] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
-          }
-// [VI dòng gốc 525] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+        if(ST.finishTarget!==targetKey){
+          ST.finishTarget=targetKey;ST.finishCursor=0;
+          ST.finishLastMove=-Infinity;ST.finishMoveAttempts=0;
         }
-// [VI dòng gốc 526] Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-        return;
-// [VI dòng gốc 527] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+        if(!a||!b||!Number.isFinite(d)||!(Number.isFinite(nativeRange)&&nativeRange>0)){
+          ST.lastReason='dungeon_finish_waiting_position_or_native_range';return;
+        }
+        ST.lastDistance=+d.toFixed(2);
+        const validRange=typeof r.c.isValidRange==='function'?r.c.isValidRange()===true:true;
+        const goal=nativeRange*.8;
+        // Re-approach if the Boss moves, but never fight over HitRun recovery.
+        if(d>goal+CFG.tolerance||!validRange){
+          const now=Date.now(),moving=r.m.running?.()===true;
+          if(moving||now-ST.finishLastMove<600||ST.finishMoveAttempts>=6){
+            ST.lastReason=moving?'dungeon_finish_approaching':ST.finishMoveAttempts>=6?
+              'dungeon_finish_approach_paused':'dungeon_finish_move_wait';
+            return;
+          }
+          const nextGoal=!validRange&&d<=goal+CFG.tolerance?Math.max(1,d-20):goal;
+          if(typeof r.m.moveTo!=='function'){ST.lastReason='dungeon_finish_no_mover';return;}
+          ST.ownMove=true;
+          try{
+            r.m.stop?.();
+            r.m.moveTo(b.x+(a.x-b.x)/Math.max(d,1)*nextGoal,
+                       b.y+(a.y-b.y)/Math.max(d,1)*nextGoal);
+            ST.moves++;ST.finishMoveAttempts++;ST.finishLastMove=now;
+          }finally{ST.ownMove=false;}
+          ST.lastReason='dungeon_finish_approaching';return;
+        }
+        dungeonFinishBasic(r);return;
       }
-// [VI dòng gốc 528] gán ST.finishTarget bằng null
-      ST.finishTarget=null;
+// Finish phase ends only when native Boss HP rises above 2% or Boss changes.
+      ST.finishTarget=null;ST.finishCursor=0;ST.finishMoveAttempts=0;ST.finishLastMove=-Infinity;
 // [VI dòng gốc 529] Khai báo biến không gán lại bằng const: goal = gọi targetDistance()
       const goal=targetDistance();
 // [VI dòng gốc 530] Kiểm tra goal===null: đúng thì chạy nhánh sau if. | gán ST.lastReason bằng 'waiting_verified_skill' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
