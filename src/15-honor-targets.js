@@ -1,6 +1,6 @@
 // [VI dòng gốc 1] Chú thích gốc của tác giả; không được thực thi. Nội dung: CHÚ THÍCH V1 — Chọn mục tiêu Chiến Trường Vinh Dự.
 /* CHÚ THÍCH V1 — Chọn mục tiêu Chiến Trường Vinh Dự.
- * Chỉ chạy trong map sự kiện: ưu tiên người khác đội, tìm quái khi chưa có người phù hợp rồi định kỳ tìm người lại. Phản hồi tìm kiếm phải khớp yêu cầu đang chờ.
+ * Chỉ chạy trong map sự kiện: chỉ tìm người khác đội; không tự tìm quái. Phản hồi tìm kiếm phải khớp yêu cầu đang chờ.
  * Sửa nguồn tại đây rồi chạy node build.cjs; FULL và bản vá được sinh tự động. */
 // [VI dòng gốc 4] Chú thích gốc của tác giả; không được thực thi. Nội dung: Vinh Du scene 42: native Find Player first, Find Monster fallback.
 /* Vinh Du scene 42: native Find Player first, Find Monster fallback.
@@ -16,7 +16,7 @@
 // [VI dòng gốc 11] Khai báo biến không gán lại bằng const: actor = gọi String(W.__KVPV_OWN_ACTOR_ID||'') để chuyển sang chuỗi
   const actor=String(W.__KVPV_OWN_ACTOR_ID||'');
 // [VI dòng gốc 12] Khai báo biến không gán lại bằng const: S = tạo đối tượng gồm enabled, timer, inside, entryPlayerPending, lastPlayer, lastMonster, pending, playerSearches, monsterSearches, searchReplies, reason, lastError, listening
-  const S={enabled:true,timer:null,inside:false,entryPlayerPending:false,lastPlayer:-Infinity,lastMonster:-Infinity,pending:null,
+  const S={enabled:true,timer:null,inside:false,entryPlayerPending:false,lastPlayer:-Infinity,pending:null,
 // [VI dòng gốc 13] Thuộc tính playerSearches: 0 | Thuộc tính monsterSearches: 0 | Thuộc tính searchReplies: 0 | Thuộc tính reason: "waiting_scene_42"
     playerSearches:0,monsterSearches:0,searchReplies:0,reason:'waiting_scene_42',lastError:'',listening:false};
 // [VI dòng gốc 14] Khai báo biến không gán lại bằng const: model = tạo hàm với tham số (không có); mỗi lần gọi trả về đọc W._Ba?._Zpt?._Jpt?.inst nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
@@ -98,7 +98,7 @@
 // [VI dòng gốc 52] Kiểm tra !inside(): đúng thì chạy nhánh sau if. | gán S.inside bằng false | gán S.entryPlayerPending bằng false | gán S.pending bằng null
     if(!inside()){S.inside=false;S.entryPlayerPending=false;S.pending=null;S.reason='outside_vinh_du';return;}
 // [VI dòng gốc 53] Kiểm tra !S.inside: đúng thì chạy nhánh sau if. | gán S.inside bằng true | gán S.entryPlayerPending bằng true | gán S.lastPlayer bằng -Infinity
-    if(!S.inside){S.inside=true;S.entryPlayerPending=true;S.lastPlayer=-Infinity;S.lastMonster=-Infinity;}
+    if(!S.inside){S.inside=true;S.entryPlayerPending=true;S.lastPlayer=-Infinity;}
 // [VI dòng gốc 54] Kiểm tra player()?.isDead===true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_revive' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(player()?.isDead===true){S.reason='waiting_revive';return;}
 // [VI dòng gốc 55] Kiểm tra typeof player()?.selectTar!=='function': đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_native_target_api' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
@@ -115,12 +115,7 @@
     const now=Date.now();
 // [VI dòng gốc 61] Kiểm tra now-S.lastPlayer>=8000: đúng thì chạy nhánh sau if. | gọi findPlayer() | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(now-S.lastPlayer>=8000){findPlayer();return;}
-// [VI dòng gốc 62] Kiểm tra now-S.lastPlayer>=1500&&S.lastMonster<S.lastPlayer: đúng thì chạy nhánh sau if.
-    if(now-S.lastPlayer>=1500&&S.lastMonster<S.lastPlayer){
-// [VI dòng gốc 63] gán S.pending bằng null | gọi player().selectTar(1, -1) | gán S.lastMonster bằng now | tăng S.monsterSearches một đơn vị sau khi lấy giá trị
-      S.pending=null;player().selectTar(1,-1);S.lastMonster=now;S.monsterSearches++;S.reason='monster_fallback';
-// [VI dòng gốc 64] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
-    }
+    S.reason='waiting_enemy_player';
 // [VI dòng gốc 65] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán S.lastError bằng String(e?.message||e) | gán S.reason bằng 'error'
   }catch(e){S.lastError=String(e?.message||e);S.reason='error';}}
 // [VI dòng gốc 66] Khai báo biến không gán lại bằng const: observer = tạo đối tượng gồm

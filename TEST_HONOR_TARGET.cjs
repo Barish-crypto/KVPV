@@ -29,11 +29,11 @@ type=42;mod.sync();assert.deepEqual(selected,[[2,-1]]);
 // [VI dòng gốc 15] gán target bằng {property:{get:k=>k==='id'?'enemy':null}} | cập nhật bằng toán tử += now bằng 2000 | gọi mod.sync() | gọi assert.equal(selected.length, 1) để kiểm tra hai giá trị bằng nhau
 target={property:{get:k=>k==='id'?'enemy':null}};now+=2000;mod.sync();assert.equal(selected.length,1);assert.equal(mod.status().reason,'fighting_enemy_player');
 // [VI dòng gốc 16] gán target bằng null | gọi mod.sync() | gọi assert.deepEqual(selected.at(-1), [1,-1]) để kiểm tra cấu trúc hai giá trị tương đương
-target=null;mod.sync();assert.deepEqual(selected.at(-1),[1,-1]);
+target=null;mod.sync();assert.equal(selected.length,1,'no monster fallback');
 // [VI dòng gốc 17] cập nhật bằng toán tử += now bằng 6000 | gọi mod.sync() | gọi assert.deepEqual(selected.at(-1), [2,-1]) để kiểm tra cấu trúc hai giá trị tương đương
 now+=6000;mod.sync();assert.deepEqual(selected.at(-1),[2,-1]);
 // [VI dòng gốc 18] gán target bằng {property:{get:k=>k==='id'?'ally':null}} | cập nhật bằng toán tử += now bằng 1600 | gọi mod.sync() | gọi assert.deepEqual(selected.at(-1), [1,-1]) để kiểm tra cấu trúc hai giá trị tương đương
-target={property:{get:k=>k==='id'?'ally':null}};now+=1600;mod.sync();assert.deepEqual(selected.at(-1),[1,-1]);
+target={property:{get:k=>k==='id'?'ally':null}};now+=1600;mod.sync();assert.deepEqual(selected.at(-1),[2,-1]);
 // [VI dòng gốc 19] gán target bằng null | gán model.fireGodInfo bằng [1,'god-player',2] | cập nhật bằng toán tử += now bằng 8000 | gọi mod.sync()
 target=null;model.fireGodInfo=[1,'god-player',2];now+=8000;mod.sync();assert.deepEqual(remote,[[1,'god-player']]);
 // [VI dòng gốc 20] gọi callback(['god-player',[10,20],1]) | gọi assert.equal(applied.length, 1) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(mod.status().searchReplies, 1) để kiểm tra hai giá trị bằng nhau
@@ -45,7 +45,8 @@ user.isDead=false;type=0;mod.sync();assert.equal(selected.length,count);
 // [VI dòng gốc 23] gán target bằng {property:{get:k=>k==='id'?'enemy':null}} | gán type bằng 42 | gọi mod.sync() | gọi assert.equal(selected.length, count+1) để kiểm tra hai giá trị bằng nhau
 target={property:{get:k=>k==='id'?'enemy':null}};type=42;mod.sync();assert.equal(selected.length,count+1);assert.deepEqual(selected.at(-1),[2,-1]);assert.equal(mod.status().reason,'entry_find_player_first');mod.sync();assert.equal(selected.length,count+1);
 // [VI dòng gốc 24] gọi mod.stop() để dừng bộ điều khiển và dọn tài nguyên | gọi assert.equal(callback, null) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(mod.status().enabled, false) để kiểm tra hai giá trị bằng nhau
+assert.equal(selected.some(row=>row[0]===1),false,'never search monsters');
 mod.stop();assert.equal(callback,null);assert.equal(mod.status().enabled,false);
-// [VI dòng gốc 25] gọi console.log('PASS Honor targets: scene42 only, player-first, keep valid enemy, monster fallback, retry players, ally exclusion, nati…)
+// [VI dòng gốc 25] gọi console.log('PASS Honor targets: scene42 only, player-first, keep valid enemy, no monster fallback, retry players, ally exclusion, nati…)
 console.log('PASS Honor targets: scene42 only, player-first, keep valid enemy, monster fallback, retry players, ally exclusion, native remote reply, death and stop');
 // [VI dòng gốc 26] Dòng trống để tách các phần, không có lệnh thực thi.
