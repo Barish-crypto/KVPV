@@ -24,35 +24,35 @@ vm.runInNewContext(fs.readFileSync(__dirname+'/src/12-basic-outside.js','utf8').
 assert.equal(timers[0].ms,16);assert.deepEqual(calls,[8001]);
 assert.equal(W.KVPV_BASIC10.status().skillPriority,'interleaved');
 // Legacy TH-first and interleaved modes remain explicitly selectable.
-W.KVPV_BASIC10.setSkillPriority('tuyet_hoc_first');now+=2;W.KVPV_BASIC10.sync();
+W.KVPV_BASIC10.setSkillPriority('tuyet_hoc_first');now+=250;W.KVPV_BASIC10.sync();
 assert.equal(calls.at(-1),1001);
 // Ready TH chain before basic filler; original TH cooldowns remain native.
-s._rtt.push([1002,0,1000]);now+=2;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),1002);
-now+=2;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),8001);
+s._rtt.push([1002,0,1000]);now+=250;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),1002);
+now+=250;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),8001);
 now+=1001;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),1001);
-cooldown=true;s._rtt[1][1]=0;const priorityCalls=calls.length;now+=2;W.KVPV_BASIC10.sync();assert.equal(calls.length,priorityCalls);assert.equal(s._rtt[1][1],0);cooldown=false;
+cooldown=true;s._rtt[1][1]=0;const priorityCalls=calls.length;now+=250;W.KVPV_BASIC10.sync();assert.equal(calls.length,priorityCalls);assert.equal(s._rtt[1][1],0);cooldown=false;
 assert.throws(()=>W.KVPV_BASIC10.setSkillPriority('invalid'));assert.equal(W.KVPV_BASIC10.status().skillPriority,'tuyet_hoc_first');
-W.KVPV_TERRITORY_LOOT={shouldBlock:()=>true};now+=2;const lootCalls=calls.length,lootRows=JSON.stringify(s._rtt);assert.equal(s.selectSkill(),-1);c.combat(1001);assert.equal(calls.length,lootCalls);assert.equal(JSON.stringify(s._rtt),lootRows);delete W.KVPV_TERRITORY_LOOT;
-W.KVPV_BASIC10.stop();W.KVPV_BASIC10.setSkillPriority('interleaved');s._rtt=[[1001,0,1000],[8001,0,1]];calls.length=0;now+=2;W.KVPV_BASIC10.start();
+W.KVPV_TERRITORY_LOOT={shouldBlock:()=>true};now+=250;const lootCalls=calls.length,lootRows=JSON.stringify(s._rtt);assert.equal(s.selectSkill(),-1);c.combat(1001);assert.equal(calls.length,lootCalls);assert.equal(JSON.stringify(s._rtt),lootRows);delete W.KVPV_TERRITORY_LOOT;
+W.KVPV_BASIC10.stop();W.KVPV_BASIC10.setSkillPriority('interleaved');s._rtt=[[1001,0,1000],[8001,0,1]];calls.length=0;now+=250;W.KVPV_BASIC10.start();
 assert.deepEqual(calls,[8001]);
 // [VI dòng gốc 13] gọi c.combat(1001) | gọi assert.deepEqual(calls, [8001]) để kiểm tra cấu trúc hai giá trị tương đương | gọi assert.equal(s._rtt[0][1], 0) để kiểm tra hai giá trị bằng nhau | gọi c.combat(3012)
 c.combat(1001);assert.deepEqual(calls,[8001]);assert.equal(s._rtt[0][1],0);c.combat(3012);assert.deepEqual(calls,[8001]);
 // [VI dòng gốc 14] gọi W.KVPV_BASIC10.sync() | gọi assert.equal(calls.length, 1) để kiểm tra hai giá trị bằng nhau
 W.KVPV_BASIC10.sync();assert.equal(calls.length,1);
 // [VI dòng gốc 15] cập nhật bằng toán tử += now bằng 1 | gọi W.KVPV_BASIC10.sync() | gọi assert.equal(calls.length, 2) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(calls.at(-1), 1001) để kiểm tra hai giá trị bằng nhau
-now+=1;W.KVPV_BASIC10.sync();assert.equal(calls.length,2);assert.equal(calls.at(-1),1001);now+=1;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),8001);assert.equal(s._rtt[0][1],now-1+1000);assert.equal(s._rtt[1][1],0);assert.equal(s._rtt[1][2],1);
+now+=250;W.KVPV_BASIC10.sync();assert.equal(calls.length,2);assert.equal(calls.at(-1),1001);now+=250;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),8001);assert.equal(s._rtt[0][1],now-250+1000);assert.equal(s._rtt[1][1],0);assert.equal(s._rtt[1][2],1);
 // [VI dòng gốc 16] gán cooldown bằng true | cập nhật bằng toán tử += now bằng 10 | gọi W.KVPV_BASIC10.sync() | gọi assert.equal(calls.length, 3) để kiểm tra hai giá trị bằng nhau
-cooldown=true;now+=10;W.KVPV_BASIC10.sync();assert.equal(calls.length,3);
+cooldown=true;now+=250;W.KVPV_BASIC10.sync();assert.equal(calls.length,3);
 // [VI dòng gốc 17] gán cooldown bằng false | gán inRange bằng false | cập nhật bằng toán tử += now bằng 10 | gọi W.KVPV_BASIC10.sync()
-cooldown=false;inRange=false;now+=10;W.KVPV_BASIC10.sync();assert.equal(calls.length,3);
+cooldown=false;inRange=false;now+=250;W.KVPV_BASIC10.sync();assert.equal(calls.length,3);
 // [VI dòng gốc 18] gán inside bằng true | gọi W.KVPV_BASIC10.sync() | gọi assert.equal(s._f7t, nativeSelector) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(c.combat, nativeCombat) để kiểm tra hai giá trị bằng nhau
 inside=true;W.KVPV_BASIC10.sync();assert.equal(s._f7t,nativeSelector);assert.equal(c.combat,nativeCombat);assert.equal(W.KVPV_BASIC10.status().active,false);
 // [VI dòng gốc 19] gọi c.combat(1001) | gọi assert.equal(calls.at(-1), 1001) để kiểm tra hai giá trị bằng nhau
 c.combat(1001);assert.equal(calls.at(-1),1001);
 // [VI dòng gốc 20] gán inside bằng false | gán inRange bằng true | cập nhật bằng toán tử += now bằng 10 | gọi W.KVPV_BASIC10.sync()
-inside=false;inRange=true;now+=10;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),8001);
+inside=false;inRange=true;now+=250;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),8001);
 // [VI dòng gốc 21] gán W.document bằng {hidden:true} | cập nhật bằng toán tử += now bằng 20 | Khai báo biến không gán lại bằng const: beforeHidden = đọc calls.length | gọi W.KVPV_BASIC10.sync()
-W.document={hidden:true};now+=20;const beforeHidden=calls.length;W.KVPV_BASIC10.sync();assert.equal(calls.length,beforeHidden+1);assert.notEqual(W.KVPV_BASIC10.status().reason,'hidden_tab');
+W.document={hidden:true};now+=250;const beforeHidden=calls.length;W.KVPV_BASIC10.sync();assert.equal(calls.length,beforeHidden+1);assert.notEqual(W.KVPV_BASIC10.status().reason,'hidden_tab');
 // [VI dòng gốc 22] gọi W.KVPV_BASIC10.stop() để dừng bộ điều khiển và dọn tài nguyên | gọi assert.equal(c.combat, nativeCombat) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(s._f7t, nativeSelector) để kiểm tra hai giá trị bằng nhau
 W.KVPV_BASIC10.stop();assert.equal(c.combat,nativeCombat);assert.equal(s._f7t,nativeSelector);
 // [VI dòng gốc 23] Khai báo biến không gán lại bằng const: transformRows = tạo mảng gồm 1 vị trí: [[90001,0,5000]]
@@ -64,7 +64,7 @@ W._ft={_nY:{ins:{getCfgBySkillIdAndLv:()=>[0,0,'Huyết Ma Đại Pháp']}}};
 // [VI dòng gốc 26] gọi vm.runInNewContext(fs.readFileSync(__dirname+'/src/13-transform-skills.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''), {windo…) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử
 vm.runInNewContext(fs.readFileSync(__dirname+'/src/13-transform-skills.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:W,Date:Clock});
 // [VI dòng gốc 27] gán s.selectSkill bằng function(){return this._f7t(transformRows,[],2);} | Kết thúc hàm hiện tại và trả về: gọi this._f7t(transformRows, [], 2); chức năng nội bộ chưa xác minh từ tên hàm. | cập nhật bằng toán tử += now bằng 20 | gọi W.KVPV_BASIC10.start() để khởi động bộ điều khiển
-s.selectSkill=function(){return this._f7t(transformRows,[],2);};now+=20;W.KVPV_BASIC10.start();
+s.selectSkill=function(){return this._f7t(transformRows,[],2);};now+=250;W.KVPV_BASIC10.start();
 // [VI dòng gốc 28] gọi assert.equal(calls.at(-1), 90001) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(transformRows[0][2], 5000) để kiểm tra hai giá trị bằng nhau
 assert.equal(calls.at(-1),90001);assert.equal(transformRows[0][2],5000);
 // [VI dòng gốc 29] gọi W.KVPV_BASIC10.stop() để dừng bộ điều khiển và dọn tài nguyên | gọi W.KVPV_TRANSFORM10.stop() để dừng bộ điều khiển và dọn tài nguyên
@@ -78,9 +78,9 @@ console.log('PASS outside combo: 1ms throttle, basic/TH alternation, native cool
 // [VI dòng gốc 33] gán s.selectSkill bằng function(){return this._f7t(this._rtt,this._wet,1);} | Kết thúc hàm hiện tại và trả về: gọi this._f7t(this._rtt, this._wet, 1); chức năng nội bộ chưa xác minh từ tên hàm.
 s.selectSkill=function(){return this._f7t(this._rtt,this._wet,1);};
 // [VI dòng gốc 34] gán s._rtt[0][1] bằng now+1000 | cập nhật bằng toán tử += now bằng 20 | gọi W.KVPV_BASIC10.start() để khởi động bộ điều khiển | gọi assert.equal(calls.at(-1), 8001) để kiểm tra hai giá trị bằng nhau
-s._rtt[0][1]=now+1000;now+=20;W.KVPV_BASIC10.start();assert.equal(calls.at(-1),8001);
+s._rtt[0][1]=now+1000;now+=250;W.KVPV_BASIC10.start();assert.equal(calls.at(-1),8001);
 // [VI dòng gốc 35] cập nhật bằng toán tử += now bằng 2 | Khai báo biến không gán lại bằng const: beforeFallback = đọc calls.length | gọi W.KVPV_BASIC10.sync() | gọi assert.equal(calls.length, beforeFallback+1) để kiểm tra hai giá trị bằng nhau
-now+=2;const beforeFallback=calls.length;W.KVPV_BASIC10.sync();assert.equal(calls.length,beforeFallback+1);assert.equal(calls.at(-1),8001);
+now+=250;const beforeFallback=calls.length;W.KVPV_BASIC10.sync();assert.equal(calls.length,beforeFallback+1);assert.equal(calls.at(-1),8001);
 // [VI dòng gốc 36] cập nhật bằng toán tử += now bằng 1100 | gọi W.KVPV_BASIC10.sync() | gọi assert.equal(calls.at(-1), 1001) để kiểm tra hai giá trị bằng nhau
 now+=1100;W.KVPV_BASIC10.sync();assert.equal(calls.at(-1),1001);
 // [VI dòng gốc 37] Chú thích gốc của tác giả; không được thực thi. Nội dung: Không tiêu thụ hồi chiêu TH qua bộ chọn khi cổng combat đang khóa.
@@ -96,9 +96,9 @@ cooldown=false;W.KVPV_BASIC10.stop();
 // [VI dòng gốc 42] gán s._rtt bằng [[1001,0,1000],[1002,0,1000],[8001,0,1],[8002,0,1],[8003,0,1]]
 s._rtt=[[1001,0,1000],[1002,0,1000],[8001,0,1],[8002,0,1],[8003,0,1]];
 // [VI dòng gốc 43] cập nhật bằng toán tử += now bằng 10 | Khai báo biến không gán lại bằng const: rotationStart = đọc calls.length | gọi W.KVPV_BASIC10.start() để khởi động bộ điều khiển
-now+=10;const rotationStart=calls.length;W.KVPV_BASIC10.start();
+now+=250;const rotationStart=calls.length;W.KVPV_BASIC10.start();
 // [VI dòng gốc 44] Lặp for: khởi tạo let i=0; tiếp tục khi i<9; sau mỗi vòng i++. | Khai báo biến có thể gán lại bằng let: i = 0 | cập nhật bằng toán tử += now bằng 2 | gọi W.KVPV_BASIC10.sync()
-for(let i=0;i<9;i++){now+=2;W.KVPV_BASIC10.sync();}
+for(let i=0;i<9;i++){now+=250;W.KVPV_BASIC10.sync();}
 // [VI dòng gốc 45] Khai báo biến không gán lại bằng const: rotation = gọi calls.slice(rotationStart) để lấy một đoạn dữ liệu | gọi assert(rotation.includes(8001)) để kiểm tra điều kiện của bài test | gọi assert(rotation.includes(8002)) để kiểm tra điều kiện của bài test | gọi assert(rotation.includes(8003)) để kiểm tra điều kiện của bài test
 const rotation=calls.slice(rotationStart);assert(rotation.includes(8001));assert(rotation.includes(8002));assert(rotation.includes(8003));assert(rotation.includes(1001));assert(rotation.includes(1002));
 // [VI dòng gốc 46] gọi W.KVPV_BASIC10.stop() để dừng bộ điều khiển và dọn tài nguyên
