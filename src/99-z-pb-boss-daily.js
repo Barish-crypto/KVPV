@@ -10,6 +10,9 @@
  function start(){if(!own())throw Error('Acc đã đổi: mở tab và nạp lại cho acc mới.');if(S.enabled)return status();S.errors=[];S.started=[];
   // Quyền tác vụ và pending vẫn thuộc các bộ hiện có, không reset hay phát lại RPC.
   W.KVPV_QUEST_PRIORITY?.stop?.();W.KVPV_V866?.stop?.();
+  // Disconnect isolation: restore native cooldown/animation owned hooks before Daily combat.
+  W.KVPV_TQ_BASIC_FORCE?.setEnabled?.(false);
+  W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.setEnabled?.(false);
   for(const name of ['KVPV_EIGHT_FLOOR','KVPV_MARRY_ARENA','KVPV_KIEM_KHIEU'])try{W[name]?.stop?.();}catch(e){S.errors.push(name+': '+String(e?.message??e));}
   W.KVPV_DESKTOP_CONTROL?.stop?.();
   W.KVPV_DESKTOP_CONTROL=Object.freeze({receive:()=>false,stop(){},scopeProfile:()=>null,distance:()=>302,stageAllowed:()=>true,status:()=>({reason:'javascript_daily_only',lastError:'',modules:{}}),_handoff:()=>({actor,desired:null,failedRevision:null})});
