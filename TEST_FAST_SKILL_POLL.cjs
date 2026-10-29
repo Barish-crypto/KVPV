@@ -22,7 +22,7 @@ vm.runInNewContext(fs.readFileSync(__dirname+'/src/12-basic-outside.js','utf8'),
 const api=W.KVPV_BASIC10;
 assert.equal(api.status().intervalMs,16,'safe BASIC10 polling stays at 16ms');
 assert.equal(api.status().rapidPoll,true);
-assert.deepEqual(intervals.slice(0,2),[16,16],'never requests 1ms polling');
+assert.deepEqual(intervals,[16],'stable cadence reuses the existing 16ms timer');
 assert.equal(casts.length,1);
 valid=false;now+=10;api.sync();
 assert.equal(api.status().intervalMs,16,'lost target falls back to idle cadence');
