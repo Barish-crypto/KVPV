@@ -84,7 +84,10 @@ const occupied=()=>{
  if(mode&&mode!=='OFF')return 'combat_mode_owner';
  if(W.KVPV_TH300?.status?.(false)?.running===true||W.KVPV_HITRUN1?.status?.(false)?.running===true)
    return 'boss_owner';
- const job=W.KVPV_DAILY?.quickState?.()?.job;
+ const daily=W.KVPV_DAILY?.quickState?.();
+ // Active Auto Daily always owns the scene before optional Tru Tien PvP.
+ if(daily?.running===true)return 'daily_priority';
+ const job=daily?.job;
  if(job&&!['rảnh','ranh','idle'].includes(String(job).toLowerCase()))return 'daily_job';
  return null;
 };
@@ -240,7 +243,8 @@ function start(opts={}){
    throw Error('Native player combat/selector/cooldown unavailable');
  if(!W.KVPV_PVP_LUOFENG?.start)throw Error('La Phong PvP observer from PR #2 is not loaded');
  const owner=occupied();
- if(owner&&owner!=='daily_job'){
+ if(owner==='daily_priority'||owner==='daily_job')throw Error('Auto Daily has priority; PvP will not interrupt it');
+ if(owner){
    if(typeof W.KVPV_MODE?.stop!=='function')throw Error('Cannot release Boss combat owner; use KVPV_MODE.stop() first');
    W.KVPV_MODE.stop(); // Explicit PvP start takes over, disables auto reacquire monsters.
  }
