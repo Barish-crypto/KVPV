@@ -38,7 +38,7 @@ assert.equal(basic.status().skillPriority,'interleaved');
 assert.equal(road.enabled,true);
 assert.equal(road.combatMode,'native');
 assert.equal(ids.length,0);
-assert.equal(moves.length,1,'Road native approach remains active');
+assert.equal(moves.length,0,'Road waits for native cooldown before approaching');
 assert.equal(basic.status().defaultBasicForce.active,false);
 range=true;now+=250;basic.sync();
 assert.equal(combat.isCooldown(),true,'native cooldown preserved');
