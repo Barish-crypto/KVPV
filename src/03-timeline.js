@@ -128,6 +128,12 @@
   }
 // [VI dòng gốc 67] Định nghĩa hàm isReady; tham số: key
   function isReady(key){
+    // An exhausted native Tien Ton quota must not reserve the scene until closing time.
+    if(key==='tien_ton'){
+      const score=W._Ba?._Xit?._nst?.inst?.ttiScore;
+      const left=Array.isArray(score)?Number(score[3]):NaN;
+      if(Number.isFinite(left)&&left<=0)return false;
+    }
 // [VI dòng gốc 68] Kiểm tra !readiness: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: true.
     if(!readiness)return true;
 // [VI dòng gốc 69] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | Kết thúc hàm hiện tại và trả về: tính biểu thức readiness(key)!==false.
