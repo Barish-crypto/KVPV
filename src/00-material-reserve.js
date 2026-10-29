@@ -1,33 +1,29 @@
-/* Legacy So Tai material reservation removed by user request.
- * Keep a compatibility API so older callers do not crash after hot reload.
- * Existing lock timers are stopped and saved upgrade preferences restored.
+/* User policy: disable ALL automatic upgrading; So Tai feature is removed.
+ * Manual upgrades and free claims remain available. Never restore old auto flags.
  */
 (() => {
-  'use strict';
-  const W=window,previous=W.KVPV_MATERIAL_RESERVE;
-  const carry=previous?._handoff?.();
-  previous?.stop?.();
-  const groups={
-    upgrades:W.KVPV_UPGRADES?.config,
-    resources:W.KVPV_BG_RESOURCES?.config?.enabled,
-    weaponWingArm:W.KVPV_V880?.config,
-    pet:W.KVPV_V875?.config,
-    mount:W.KVPV_V877?.config
-  };
-  const actor=String(W.__KVPV_OWN_ACTOR_ID||'');
-  const sameActor=carry?.actor===actor;
-  if(sameActor){
-    for(const [name,flags] of Object.entries(carry.saved||{})){
-      const target=groups[name];
-      if(!target||typeof target!=='object')continue;
-      for(const [key,value] of Object.entries(flags)){
-        if(typeof value==='boolean'&&target[key]===false)target[key]=value;
-      }
-    }
-  }
-  const status=()=>({active:false,actor,reason:'so_tai_removed',timerActive:false});
-  W.KVPV_MATERIAL_RESERVE=Object.freeze({
-    active:false,apply:()=>false,start:status,stop:()=>{},status,
-    _handoff:()=>({actor,saved:{}})
-  });
+ 'use strict';
+ const W=window,prev=W.KVPV_MATERIAL_RESERVE;
+ prev?.stop?.();
+ const actor=String(W.__KVPV_OWN_ACTOR_ID||'');
+ const S={active:true,timer:null,applications:0};
+ const owned=()=>!!actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
+ function disable(obj,keys){
+   if(!obj||typeof obj!=='object')return;
+   for(const key of keys??Object.keys(obj))if(typeof obj[key]==='boolean')obj[key]=false;
+ }
+ function apply(){
+   if(!owned())return false;
+   disable(W.KVPV_UPGRADES?.config);
+   disable(W.KVPV_BG_RESOURCES?.config?.enabled);
+   disable(W.KVPV_V880?.config,['autoWeapon','autoWing','autoArm']);
+   disable(W.KVPV_V875?.config,['autoFeed']);
+   disable(W.KVPV_V877?.config,['autoFeed']);
+   S.applications++;return true;
+ }
+ function stop(){if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(S.timer);S.timer=null;}
+ function status(){return {active:true,actor,reason:'all_auto_upgrades_disabled_by_user',timerActive:S.timer!==null,applications:S.applications};}
+ function start(){if(S.timer===null)S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(apply,1000);apply();return status();}
+ W.KVPV_MATERIAL_RESERVE=Object.freeze({active:true,apply,start,stop,status,_handoff:()=>({actor,saved:{}})});
+ if(owned())start();
 })();
