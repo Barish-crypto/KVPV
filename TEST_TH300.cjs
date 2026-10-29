@@ -1213,6 +1213,51 @@ test('Linh Lung and Rune close at <=2% Boss HP while recovery retains priority',
 // [VI dòng gốc 596] Dòng trống để tách các phần, không có lệnh thực thi.
 
 // [VI dòng gốc 597] gọi test('Tian Quan stays ranged at 5% and 1% and retains retreat priority', ()=>{ const opt={bossHp:[51,1000],fastReady:true};co…)
+test('Rune and Linh Lung finish last 2pct with automatic 8001-8005 native attacks',()=>{
+ for(const kind of ['rune','tower']){
+  const opts={[kind]:true,fastReady:true,defaultDistance:true,newDefault:true,startX:310.4,bossHp:[21,1000]};
+  const q=harness(opts);
+  q.s._rtt=[[8001,0,50],[8002,0,50],[8003,0,50],[8004,0,50],[8005,0,50],[1001,0,100]];
+  q.s._wet=[];
+  q.mod.setTianQuanFiveBasics(true,1);
+  q.mod.setTianQuanTuyetHoc(false);
+  q.mod.start('SCAN');
+  opts.bossHp=[20,1000];
+  q.advance(1);assert.equal(q.actor.coords.x,192,'native melee approach should execute');
+  const before=q.calls.length;
+  q.advance(1);
+  assert(q.calls.length>before,kind+' should automatically cast after arrival');
+  assert.equal(q.mod.report().lastReason,'dungeon_finish_basic_cast');
+  const n=q.calls.length;
+  for(let i=0;i<6;i++)q.advance(1);
+  assert(q.calls.length>n,'melee casts keep running after first one');
+  assert(q.calls.slice(before).every(id=>id>=8001&&id<=8005),'no TH in last 2pct');
+  const rowBefore=JSON.stringify(q.s._rtt);
+  q.cooldown(true);const pending=q.calls.length;q.advance(30);
+  assert.equal(q.calls.length,pending,'native cooldown still controls finish without the force hook');
+  q.cooldown(false);
+  q.phase('RETREAT');q.advance(30);
+  assert.equal(q.calls.length,pending,'HP recovery phase stops last-2pct attacks');
+  q.phase('FIGHT');q.advance(30);assert(q.calls.length>pending,'finish resumes after recovery');
+  assert.equal(JSON.stringify(q.s._rtt),rowBefore,'native cooldown rows are not rewritten');
+  const preDead=q.calls.length;opts.bossHp=[0,1000];q.advance(30);
+  assert.equal(q.calls.length,preDead,'dead Boss must not receive finishing casts');
+  q.mod.stop();
+ }
+});
+test('Rune finish reapproaches a moving Boss only while native range is invalid',()=>{
+ const opts={rune:true,fastReady:true,defaultDistance:true,newDefault:true,startX:310.4,bossHp:[20,1000]};
+ const q=harness(opts);
+ q.s._rtt=[8001,8002,8003,8004,8005].map(id=>[id,0,50]);q.s._wet=[];
+ q.mod.setTianQuanFiveBasics(true,1);q.mod.setTianQuanTuyetHoc(false);
+ q.c.isValidRange=()=>false;
+ q.mod.start('SCAN');assert.equal(q.actor.coords.x,192);
+ const n=q.calls.length;q.advance(600);assert.equal(q.actor.coords.x,172);
+ assert.equal(q.calls.length,n);
+ q.c.isValidRange=()=>true;q.advance(1);
+ assert(q.calls.length>n,'native range confirmed and auto finish continues');
+ q.mod.stop();
+});
 test('Tian Quan stays ranged at 5% and 1% and retains retreat priority',()=>{
 // [VI dòng gốc 598] Khai báo biến không gán lại bằng const: opt = tạo đối tượng gồm bossHp, fastReady | Khai báo biến không gán lại bằng const: q = gọi harness(opt)
  const opt={bossHp:[51,1000],fastReady:true};const q=harness(opt);
