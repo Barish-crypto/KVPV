@@ -199,9 +199,21 @@
     const scope=W.KVPV_FAR_SCOPE?.status?.();
     // A PvP observer waits for player targets; dungeon auto must own monsters.
     // Disable only when actually in Tru Tien, never on other maps.
-    if(scope?.inside===true&&scope.kind==='TRU_TIEN'&&
-       W.KVPV_TRUTIEN_PVP?.status?.()?.enabled===true)
-      W.KVPV_TRUTIEN_PVP.stop('auto_trutien_dungeon_pve');
+    if(scope?.inside===true&&scope.kind==='TRU_TIEN'){
+      // Tru Tien uses the ordinary native attack rotation, not an optional
+      // player-PvP controller. No native cooldown override or fabricated RPC.
+      if(W.KVPV_TRUTIEN_PVP?.status?.()?.enabled===true)
+        W.KVPV_TRUTIEN_PVP.stop('trutien_native_basic_auto');
+      if(lastScopeKey!==scope.kind+'/'+scope.current+'/'+(scope.floor??'')){
+        W.KVPV_TH300?.setTianQuanFiveBasics?.(true,1);
+        W.KVPV_TH300?.setTianQuanTuyetHoc?.(false);
+        W.KVPV_TH300?.setTianQuanTHGapBasics?.(false);
+        W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
+        W.KVPV_TH300?.setBasicRotation?.([8001,8002,8003,8004,8005]);
+        W.KVPV_TH300?.setPrimaryBasic?.(true);
+        W.KVPV_TH300?.setBasicOnly?.(false);
+      }
+    }
 
 // [VI dòng gốc 99] Kiểm tra scope: đúng thì chạy nhánh sau if. | Khai báo biến không gán lại bằng const: key = tính biểu thức scope.kind+'/'+scope.current+'/'+(scope.floor??'')
     if(scope){const key=scope.kind+'/'+scope.current+'/'+(scope.floor??'');
