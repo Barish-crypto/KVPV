@@ -25,7 +25,7 @@
 // [VI dòng gốc 17] Thuộc tính history: tạo mảng gồm 0 vị trí: []
     history:[]};
 // [VI dòng gốc 18] Khai báo biến có thể gán lại bằng let: scopedMode = null; mapTimer = null; towerAttempt = null; lastScopeKey = null; lastMaintenanceAt = áp dụng toán tử - lên Infinity; lastTianQuanKey = null; lastTruAcquire = áp dụng toán tử - lên Infinity
-  let scopedMode=null,mapTimer=null,towerAttempt=null,lastScopeKey=null,lastMaintenanceAt=-Infinity,lastTianQuanKey=null,lastTruAcquire=-Infinity;
+  let scopedMode=null,mapTimer=null,towerAttempt=null,lastScopeKey=null,lastMaintenanceAt=-Infinity,lastTianQuanKey=null,lastTruAcquire=-Infinity,lastTowerRetryAt=-Infinity;
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: inFarMap = tạo hàm với tham số (không có); mỗi lần gọi trả về tính biểu thức (W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false
   const inFarMap=()=>(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false;
   const tqNoHeal=()=>W.KVPV_TQ_POSITION_ONLY?.enabled===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
@@ -118,11 +118,11 @@
     // Re-arm only after a bounded delay, never every 75ms scheduler tick.
     const existing=W.KVPV_HITRUN1?.status?.(false);
     if(towerAttempt===key&&existing?.running===true)return;
-    if(towerAttempt===key&&Date.now()-lastTruAcquire<3000)return;
+    if(towerAttempt===key&&Date.now()-lastTowerRetryAt<3000)return;
 // [VI dòng gốc 61] Khai báo biến không gán lại bằng const: hr = gọi W.KVPV_HITRUN1?.status(false) để trả trạng thái để kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     const hr=W.KVPV_HITRUN1?.status?.(false);
 // [VI dòng gốc 62] gán towerAttempt bằng key | gán S.lastError bằng ''
-    towerAttempt=key;if(scope.kind==='TRU_TIEN')lastTruAcquire=Date.now();S.lastError='';
+    towerAttempt=key;lastTowerRetryAt=Date.now();S.lastError='';
 // [VI dòng gốc 63] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
     try{
 // [VI dòng gốc 64] Kiểm tra hr?.running: đúng thì chạy nhánh sau if. | gọi W.KVPV_HITRUN1.stop('Chuyển Boss phó bản: '+id) để dừng bộ điều khiển và dọn tài nguyên
