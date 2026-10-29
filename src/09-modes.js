@@ -112,11 +112,17 @@
 // [VI dòng gốc 59] Khai báo biến không gán lại bằng const: id = gọi String(target.property?.get?.('id')??target.id??'') để chuyển sang chuỗi | Kiểm tra !id: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     const id=String(target.property?.get?.('id')??target.id??'');if(!id)return;
 // [VI dòng gốc 60] Khai báo biến không gán lại bằng const: key = tính biểu thức scope.current+'/'+scope.floor+'/'+id | Kiểm tra towerAttempt===key: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-    const key=scope.current+'/'+scope.floor+'/'+id;if(towerAttempt===key)return;
+    const key=scope.current+'/'+scope.floor+'/'+id;
+    // A native boss/HitRun controller may stop while the same monster stays
+    // selected. Previous code treated this as completed forever and froze PvE.
+    // Re-arm only after a bounded delay, never every 75ms scheduler tick.
+    const existing=W.KVPV_HITRUN1?.status?.(false);
+    if(towerAttempt===key&&existing?.running===true)return;
+    if(towerAttempt===key&&Date.now()-lastTruAcquire<3000)return;
 // [VI dòng gốc 61] Khai báo biến không gán lại bằng const: hr = gọi W.KVPV_HITRUN1?.status(false) để trả trạng thái để kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     const hr=W.KVPV_HITRUN1?.status?.(false);
 // [VI dòng gốc 62] gán towerAttempt bằng key | gán S.lastError bằng ''
-    towerAttempt=key;S.lastError='';
+    towerAttempt=key;if(scope.kind==='TRU_TIEN')lastTruAcquire=Date.now();S.lastError='';
 // [VI dòng gốc 63] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
     try{
 // [VI dòng gốc 64] Kiểm tra hr?.running: đúng thì chạy nhánh sau if. | gọi W.KVPV_HITRUN1.stop('Chuyển Boss phó bản: '+id) để dừng bộ điều khiển và dọn tài nguyên
