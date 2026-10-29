@@ -359,7 +359,7 @@
 // [VI dòng gốc 180] Định nghĩa hàm probe; tham số: key
   function probe(key){
 // [VI dòng gốc 181] Kiểm tra !S.enabled||!owned(): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm ready. | gọi observe()
-    if(!S.enabled||W.KVPV_MATERIAL_RESERVE?.active===true||!owned())return {ready:false};observe();
+    if(!S.enabled||!owned())return {ready:false};observe();
 // [VI dòng gốc 182] Kiểm tra S.pending||!safe()||W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true||!takeover(): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm ready.
     if(S.pending||!safe()||W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true||!takeover())return {ready:false};
 // [VI dòng gốc 183] Khai báo biến không gán lại bằng const: d = gọi definitions.find(x=>x.key===key) để tìm phần tử đầu tiên thỏa điều kiện | Kết thúc hàm hiện tại và trả về: nếu d thì lấy snapshot(d), ngược lại lấy {ready:false}.
@@ -424,7 +424,7 @@
 // [VI dòng gốc 211] Định nghĩa hàm start; tham số: không có. Mục đích: khởi động bộ điều khiển
   function start(){
 // [VI dòng gốc 212] Khai báo biến không gán lại bằng const: queue = đọc W.KVPV_V8 | Kiểm tra !queue?.register||!queue?.toggle: đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_shared_queue' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-    if(W.KVPV_MATERIAL_RESERVE?.active===true){S.enabled=false;S.reason='materials_reserved_for_so_tai';return;}
+    // So Tai material reservation removed; normal appearance progression is available.
     const queue=W.KVPV_V8;if(!queue?.register||!queue?.toggle){S.reason='waiting_shared_queue';return;}
 // [VI dòng gốc 213] gán S.enabled bằng true
     S.enabled=true;
