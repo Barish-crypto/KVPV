@@ -6,7 +6,7 @@
   'use strict';
 // [VI dòng gốc 4] Khai báo biến không gán lại bằng const: W = window | gọi W.KVPV_BASIC10?.stop() để dừng bộ điều khiển và dọn tài nguyên (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
   const W=window;W.KVPV_BASIC10?.stop?.();
-  let skillPriority='basic_force_default';
+  let skillPriority='interleaved';
   let forcedTween=null;
   const pveBasic=id=>Number.isInteger(Number(id))&&Number(id)>=8001&&Number(id)<=8005;
 // [VI dòng gốc 5] Khai báo biến không gán lại bằng const: actor = gọi String(W.__KVPV_OWN_ACTOR_ID||'') để chuyển sang chuỗi
@@ -28,7 +28,7 @@
   const road=()=>sceneType()===41&&W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true;
 // [VI dòng gốc 12] Khai báo biến không gán lại bằng const: castGap = tạo hàm với tham số (không có); mỗi lần gọi trả về nếu road() thì lấy 250, ngược lại lấy 1
   const roadForce=()=>road()&&skillPriority==='basic_force_default'&&W.KVPV_ROAD_CADENCE?.enabled===true&&W.KVPV_ROAD_CADENCE?.combatMode!=='basic8001';
-  const castGap=()=>road()&&!roadForce()?250:1;
+  const castGap=()=>skillPriority==='interleaved'?250:road()&&!roadForce()?250:1;
   // Poll faster only for an actionable target, never multiply native cast calls.
   const pollInterval=()=>road()&&!roadForce()?100:Math.max(S.rapidPoll&&skillPriority==='basic_force_default'?1:S.rapidPoll?4:16,Number(W.KVPV_ACCOUNT_POLICY?.pollingGap?.()??0)||0);
 // [VI dòng gốc 13] Khai báo biến có thể gán lại bằng let: roadSelector = null
@@ -240,7 +240,7 @@
 // [VI dòng gốc 69] Kiểm tra !S.basicReady.has(id): đúng thì chạy nhánh sau if. | gọi S.basicReady.set(id, road()?0:Number(row[1])<now?0:now+1)
             if(!S.basicReady.has(id))S.basicReady.set(id,road()&&!roadForce()?0:Number(row[1])<now?0:now+1);
 // [VI dòng gốc 70] Kiểm tra !road(): đúng thì chạy nhánh sau if. | gán copy[1] bằng S.basicReady.get(id) | gán copy[2] bằng castGap() | Kết thúc hàm hiện tại và trả về: copy.
-            if(!road()||roadForce()){copy[1]=S.basicReady.get(id);copy[2]=castGap();}return copy;
+            if(skillPriority==='basic_force_default'&&(!road()||roadForce())){copy[1]=S.basicReady.get(id);copy[2]=castGap();}return copy;
 // [VI dòng gốc 71] Định nghĩa hàm hàm không đặt tên; tham số: row
           }).filter(row=>Number(row[1])<now)
 // [VI dòng gốc 72] Định nghĩa hàm hàm không đặt tên; tham số: a, b
