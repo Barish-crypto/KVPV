@@ -61,7 +61,7 @@ function make(){
  q.cooldown(false);q.mod.stop();
 }
 {
- // Startup must auto-arm stage 4100 native basics while preserving other floors.
+ // Startup now enables native mixed TH + basics at 4100 while preserving an explicit basic-solo override.
  const q=ctx.make({fastReady:true,defaultDistance:true,newDefault:true,startX:310});
  q.W.FAKE=null;
  q.W._Ba._Co._Mo.ins.curLv=4100;
@@ -72,11 +72,11 @@ function make(){
    window:q.W,console:{info(){},warn(){}}
  });
  const st=q.mod.status(false);
- assert.equal(st.luoFeng.basicSolo4100.active,true,'auto startup enables basic solo 4100');
+ assert.equal(st.luoFeng.basicSolo4100.active,false,'auto startup does not force basic solo 4100');
  assert.equal(st.luoFeng.dpsPilot4100.enabled,false,'experimental pilot stays disabled');
- assert.equal(st.skillPriority,'4100_native_basics_only');
+ assert.equal(st.skillPriority,'five_basics_plus_tuyet_hoc_10ms');
  q.elapse(100);
- assert([8001,8002,8003,8004,8005].includes(q.s.selectSkill()),'auto startup must select basic');
+ assert([8001,8002,8003,8004,8005,1001].includes(q.s.selectSkill()),'auto startup may select native basic or ready TH');
  q.mod.stop();
 }
 {
