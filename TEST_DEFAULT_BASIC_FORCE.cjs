@@ -28,7 +28,7 @@ vm.runInNewContext(fs.readFileSync(__dirname+'/src/12-basic-outside.js','utf8').
 const api=W.KVPV_BASIC10;
 assert.equal(api.status().skillPriority,'interleaved');
 assert.equal(api.status().intervalMs,16,'poll never accelerates to 1ms');
-assert.equal(api.status().basicClientWaitMs,250);
+assert.equal(api.status().basicClientWaitMs,200);
 assert.deepEqual(hits,[],'native cooldown prevents requests');
 assert.equal(c.isCooldown(),true,'native cooldown is not overridden');
 assert.equal(c._jh.isPlaying,true,'native animation is unchanged');
@@ -54,4 +54,4 @@ assert.equal(c.isCooldown(),false);
 api.stop();assert.equal(c.isCooldown,nativeCooldown);
 assert.equal(c.combat,nativeCombat);
 assert.equal(s._f7t,nativeSelector);
-console.log('PASS default BASIC10: native cooldown and animation, stable 250ms cast interval, interleaved TH, map and PvP handoff, cleanup');
+console.log('PASS default BASIC10: native cooldown and animation, stable 200ms cast interval, interleaved TH, map and PvP handoff, cleanup');
