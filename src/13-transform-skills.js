@@ -59,6 +59,8 @@
     if(!enabled||mode!==2||!transformed())return native.call(selector,active,common,mode);
 // [VI dòng gốc 29] Khai báo biến không gán lại bằng const: kit = gọi skills(); ids = gọi kit.map(x=>x.id) để biến đổi từng phần tử; offset = nếu ids.length thì lấy cursor%ids.length, ngược lại lấy 0; order = gọi ids.slice(offset).concat(ids.slice(0,offset))
     const kit=skills(),ids=kit.map(x=>x.id),offset=ids.length?cursor%ids.length:0,order=ids.slice(offset).concat(ids.slice(0,offset));
+    // Native fallback: an empty or unmatched kit must never starve the combat selector.
+    if(!ids.length||![...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].some(row=>ids.includes(Number(row?.[0]))))return native.call(selector,active,common,mode);
 // [VI dòng gốc 30] Chú thích gốc của tác giả; không được thực thi. Nội dung: Chỉ sửa bản sao của hàng kỹ năng; giữ nguyên dữ liệu hồi chiêu native để có thể dừng/khôi phục.
     // Chỉ sửa bản sao của hàng kỹ năng; giữ nguyên dữ liệu hồi chiêu native để có thể dừng/khôi phục.
 // [VI dòng gốc 31] Khai báo biến không gán lại bằng const: clone = tạo hàm với tham số rows; mỗi lần gọi trả về gọi (Array.isArray(rows)?rows:[]).filter(row=>ids.includes(Number(row?.[0]))).map(row=>{ const copy=row.slice();copy[1]=ready.get(Number(row[0]))??0;copy[2]=10;return copy; }).sort((a,b)=>order.indexOf(Number(a[0]))-order.indexOf(Number(b[0]))) để sắp xếp mảng tại chỗ
