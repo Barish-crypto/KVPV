@@ -505,7 +505,7 @@ test('290 interleaving alternates native Tuyet Hoc and basics with independent d
 // [VI dòng gốc 252] gọi test('FULL startup selects 310 and only 8001 with no TH fallback', ()=>{ const q=harness({fastReady:true,tower:true});q.W.__K…)
 test('FULL startup selects 310 and enables native Tuyet Hoc plus basics in Tian Quan',()=>{
  const q=harness({fastReady:true,tower:true});q.W.__KVPV_BASIC_RANGE_TEST_20261023={status:'complete'};q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
- vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\\/\\/ \\[VI dòng gốc \\d+\\].*\\r?\\n/gm,''),{window:q.W});
+ vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:q.W});
  q.pump();
  assert.equal(q.mod.report().goalDistance,310);
  assert(Math.abs(q.actor.coords.x-310)<=5);
