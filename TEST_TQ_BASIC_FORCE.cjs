@@ -173,9 +173,9 @@ function setup(){
  const startup=fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8');
  vm.runInNewContext(startup,{window:q.W,console:{info(){},warn(){}}});
  assert.equal(armed,1,'startup installs original map watcher once');
- assert.equal(q.mod.status(false).basicOnly,true,'FULL startup selects 8001..8005 only');
- assert.equal(force.status().enabled,true,'FULL startup automatically enables force without Console');
- assert.equal(force.status().active,true,'already inside Tian Quan activates immediately');
+ assert.equal(q.mod.status(false).basicOnly,false,'FULL startup enables mixed basics and native TH');
+ assert.equal(force.status().enabled,false,'FULL startup disables legacy BASIC FORCE for mixed TH');
+ assert.equal(force.status().active,false,'mixed TH never enables forced cooldown hooks');
  assert.equal(q.mod.status(false).paceMs,1,'1ms client cadence retained');
  q.mod.stop();
 }
@@ -187,10 +187,10 @@ function setup(){
  vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8'),{
    window:q.W,console:{info(){},warn(){}}});
  assert.equal(armed,1);
- assert.equal(force.status().enabled,true,'FULL auto arms even before entering Tian Quan');
+ assert.equal(force.status().enabled,false,'FULL startup keeps force disabled before Tian Quan');
  assert.equal(force.status().active,false,'no force applied to outside-map combat');
  setKind('THIEN_QUAN');q.mod.sync();
- assert.equal(force.status().active,true,'map entry starts force automatically');
+ assert.equal(force.status().active,false,'map entry keeps native mixed TH without force');
  q.mod.stop();
 }
 {
