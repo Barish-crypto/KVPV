@@ -72,7 +72,7 @@
 // [VI dòng gốc 38] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function tick(){try{
 // [VI dòng gốc 39] Kiểm tra !S.enabled: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Kiểm tra !owned(): đúng thì chạy nhánh sau if. | gọi stop() để dừng bộ điều khiển và dọn tài nguyên
-    if(!S.enabled)return;if(W.KVPV_MATERIAL_RESERVE?.active===true){S.reason='materials_reserved_for_so_tai';return;}
+    if(!S.enabled)return;// Explicit Fa Bao opt-in; native panel must still validate sufficient owned materials.
     if(!owned()){stop();return;}
 // [VI dòng gốc 40] Kiểm tra W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'priority_popup' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true){S.reason='priority_popup';return;}
@@ -145,7 +145,7 @@
 // [VI dòng gốc 74] Định nghĩa hàm start; tham số: không có. Mục đích: khởi động bộ điều khiển | Kiểm tra S.timer!==null: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | gán S.enabled bằng true
   function start(){if(S.timer!==null)return;S.enabled=true;
 // [VI dòng gốc 75] gán S.timer bằng (W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,500) | gọi tick() để xử lý một nhịp kiểm tra
-    S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,500);tick();}
+    S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,350);tick();}
 // [VI dòng gốc 76] gán W.KVPV_FABAO_FAST bằng Object.freeze({start,stop,sync:tick,inspect:items, status:()=>({enabled:S.enabled,actor,reason:S.reason,requests:S.requests,confirmed:S.confirmed, pending:S.pending?{at:S.pending.a…
   W.KVPV_FABAO_FAST=Object.freeze({start,stop,sync:tick,inspect:items,
 // [VI dòng gốc 77] Thuộc tính status: tạo hàm với tham số (không có); mỗi lần gọi trả về tạo đối tượng gồm enabled, actor, reason, requests, confirmed, pending, eligible, lastError, allowKNB | Thuộc tính enabled: đọc S.enabled | Thuộc tính actor: dùng biến cùng tên | Thuộc tính reason: đọc S.reason
