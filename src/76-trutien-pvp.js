@@ -11,7 +11,7 @@ const S={enabled:false,timer:null,role:null,target:null,scene:null,attacks:0,sig
   visual:{factor:9999,calls:0,applied:0,unavailable:0,conflicts:0,lastAction:null,lastTimeScale:null},
   companions:true,lastCompanionPoll:-Infinity,companionAttempts:{pet:0,fuwa:0,ride:0},companionRetryAfter:{pet:0,fuwa:0,ride:0},
   companionLastSkill:null,companionLastTarget:null,companionBlocked:0,companionErrors:0,
-  reason:'off',error:'',lastSkill:null,lastCastAt:null,autoDodge:false};
+  reason:'off',error:'',lastSkill:null,lastCastAt:null,lastOwnerRecoveryAt:-Infinity,autoDodge:false};
 const prop=(r,k)=>r?.property?.get?.(k);
 const id=r=>String(r?.id??prop(r,'id')??'');
 const components=()=>W._d?._Yct??{};
@@ -80,15 +80,15 @@ function ranked(rows){
  });
 }
 const occupied=()=>{
+ const daily=W.KVPV_DAILY?.quickState?.();
+ // Daily must be tested before PvE ownership, or PvP may stop Daily's combat.
+ if(daily?.running===true)return 'daily_priority';
+ const job=daily?.job;
+ if(job&&!['rảnh','ranh','idle'].includes(String(job).toLowerCase()))return 'daily_job';
  const mode=W.KVPV_MODE?.status?.(false)?.mode;
  if(mode&&mode!=='OFF')return 'combat_mode_owner';
  if(W.KVPV_TH300?.status?.(false)?.running===true||W.KVPV_HITRUN1?.status?.(false)?.running===true)
    return 'boss_owner';
- const daily=W.KVPV_DAILY?.quickState?.();
- // Active Auto Daily always owns the scene before optional Tru Tien PvP.
- if(daily?.running===true)return 'daily_priority';
- const job=daily?.job;
- if(job&&!['rảnh','ranh','idle'].includes(String(job).toLowerCase()))return 'daily_job';
  return null;
 };
 function castSignal(targetId,skill){if(S.enabled&&S.target&&String(targetId)===id(S.target)&&isBasic(skill))S.signals++;}
@@ -197,15 +197,17 @@ function tick(){
   if(!live(r)||W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='player_dead';return;}
   if(W.document?.hidden===true||W.document?.hasFocus?.()===false){S.reason='unfocused';return;}
   if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){S.reason='manual_ui';return;}
-  // Explicit start() releases the prior PvE owner once. If another controller
-  // subsequently reclaims combat, yield instead of repeatedly tearing it down.
-  const owner=occupied();
-  if(owner==='combat_mode_owner'||owner==='boss_owner'){
-    S.reason='pvp_yield_to_rearmed_pve_owner';
-    return;
+  // Recover a rearmed PvE owner at most once per 5 seconds, only when
+  // Auto Daily is idle. Never spin-stop the owner on the 10ms attack timer.
+  let owner=occupied();
+  if((owner==='combat_mode_owner'||owner==='boss_owner')&&
+     Date.now()-S.lastOwnerRecoveryAt>=5000&&typeof W.KVPV_MODE?.stop==='function'){
+    S.lastOwnerRecoveryAt=Date.now();
+    W.KVPV_MODE.stop('Tru Tien PvP selected player; transfer combat ownership');
+    owner=occupied();
   }
   if(owner){
-    S.reason=owner;
+    S.reason=owner==='combat_mode_owner'||owner==='boss_owner'?'pvp_wait_owner_release':owner;
     return;
   }
   companionTick(r,t,Date.now()); // independent of master's native cooldown
@@ -250,7 +252,7 @@ function start(opts={}){
  }
  if(occupied())throw Error('Combat owner or Daily is still active; not taking over');
  if(S.enabled)stop('restart');
- S.enabled=true;S.scene=scene();S.autoDodge=opts.autoDodge===true;
+ S.enabled=true;S.scene=scene();S.autoDodge=opts.autoDodge===true;S.lastOwnerRecoveryAt=Date.now();
  S.focusLock=opts.focusLock!==false;S.companions=opts.companions!==false;S.lastCompanionPoll=-Infinity;S.companionRetryAfter={pet:0,fuwa:0,ride:0};
  if(enemy(t,r))resetFocus(t);else{S.focusTarget=null;S.focusId='';S.lastGroup=null;}
  try{
