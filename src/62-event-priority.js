@@ -62,7 +62,13 @@ function manualReservation(daily,now){
  const lead=Math.max(0,Math.min(10,Number(C.manualLeadMinutes)||0));
  const wallMinute=now/60000+420; // VN is UTC+7, no DST; Daily uses VN wall-clock minutes.
  const eligible=(e,phase)=>{
-  if(!e||C.manualPriorityKeys?.[e.key]!==true||e.action==='auto'||e.instant===true||e.unlock)return null;
+  if(!e||e.action==='auto'||e.instant===true||e.unlock)return null;
+  // Native Daily calendar is authoritative. Besides the known large events,
+  // a currently OPEN high-priority event may preempt stage if Daily supplies
+  // an explicit priority (1-3); never guess from a screen icon alone.
+  const known=C.manualPriorityKeys?.[e.key]===true;
+  const highPriority=phase==='opening'&&Number.isInteger(e.priority)&&e.priority>=1&&e.priority<=3;
+  if(!known&&!highPriority)return null;
   const start=Number(e.start),end=Number(e.end);
   if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start)return null;
   const until=start-wallMinute;
@@ -75,6 +81,18 @@ function manualReservation(daily,now){
  active.sort((a,b)=>a.minutesUntil-b.minutesUntil||a.key.localeCompare(b.key));
  next.sort((a,b)=>a.minutesUntil-b.minutesUntil||a.key.localeCompare(b.key));
  return active[0]||next[0]||null;
+}
+function observedActivities(){
+ const daily=W.KVPV_DAILY;
+ if(typeof daily?.lichData!=='function')return [];
+ try{
+  const c=daily.lichData(),active=Array.isArray(c?.active)?c.active:[];
+  return active.slice(0,20).filter(e=>e&&typeof e.key==='string').map(e=>({
+   key:e.key,name:String(e.name||e.key),action:e.action||'notice',
+   priority:Number.isFinite(e.priority)?Number(e.priority):null,
+   state:'calendar_active',autoEntryConfirmed:e.action==='auto'
+  }));
+ }catch(_){return [];}
 }
 function chooseReservation(auto,manual){
  if(!manual)return auto;
@@ -166,7 +184,7 @@ function stop(reason='manual'){
  S.timer=null;unwatch();if(reason!=='reload')cancel('manual_stop');
  return status();
 }
-function status(){return {enabled:C.enabled,actor,hold:hold(),reason:S.reason,paused:S.paused,
+function status(){return {enabled:C.enabled,actor,hold:hold(),observedActivities:observedActivities(),reason:S.reason,paused:S.paused,
  resumed:S.resumed,pendingResume:S.pending?{map:S.pending.map,eventKey:S.pending.eventKey,at:S.pending.at}:null,
  exitRequests:S.exitRequests,stageEnabled:W.KVPV_DAILY?.config?.enableTuVuot??null,
  nativeStageAuto:model()?.auto===true,timerActive:S.timer!=null,lastError:S.lastError,history:S.history.slice(-20),
