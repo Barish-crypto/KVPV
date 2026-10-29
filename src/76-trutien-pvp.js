@@ -194,16 +194,17 @@ function tick(){
   if(!live(r)||W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='player_dead';return;}
   if(W.document?.hidden===true||W.document?.hasFocus?.()===false){S.reason='unfocused';return;}
   if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){S.reason='manual_ui';return;}
-  // A prior PvE owner can re-arm on scene ticks. Release it only while a
-  // verified enemy player is selected, rather than leaving PvP idle forever.
-  let owner=occupied();
-  // Never repeatedly tear down a PvE controller from the 10ms PvP tick.
-  // A single explicit start() already releases its owner. If another controller
-  // reclaims the scene, yield and report the conflict rather than oscillating.
+  // Explicit start() releases the prior PvE owner once. If another controller
+  // subsequently reclaims combat, yield instead of repeatedly tearing it down.
+  const owner=occupied();
   if(owner==='combat_mode_owner'||owner==='boss_owner'){
-    S.reason='pvp_yield_to_rearmed_pve_owner';return;
+    S.reason='pvp_yield_to_rearmed_pve_owner';
+    return;
   }
-  if(owner){S.reason=owner;return;}
+  if(owner){
+    S.reason=owner;
+    return;
+  }
   companionTick(r,t,Date.now()); // independent of master's native cooldown
   if(typeof c?.isCooldown!=='function'||c.isCooldown()!==false){S.blockedCooldown++;S.reason='native_cooldown';return;}
   if(typeof c?.isValidTarget!=='function'||c.isValidTarget()!==true){S.reason='native_target_invalid';return;}
