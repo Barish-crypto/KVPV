@@ -28,9 +28,9 @@
   const road=()=>sceneType()===41&&W._Ba?._cm?._q3t?.ins?.getHasTeamByType?.(1)===true;
 // [VI dòng gốc 12] Khai báo biến không gán lại bằng const: castGap = tạo hàm với tham số (không có); mỗi lần gọi trả về nếu road() thì lấy 250, ngược lại lấy 1
   const roadForce=()=>road()&&skillPriority==='basic_force_default'&&W.KVPV_ROAD_CADENCE?.enabled===true&&W.KVPV_ROAD_CADENCE?.combatMode!=='basic8001';
-  const castGap=()=>skillPriority==='interleaved'?250:road()&&!roadForce()?250:1;
+  const castGap=()=>250; // Always cap our own native cast calls at >=250ms.
   // Poll faster only for an actionable target, never multiply native cast calls.
-  const pollInterval=()=>road()&&!roadForce()?100:Math.max(S.rapidPoll&&skillPriority==='basic_force_default'?1:S.rapidPoll?4:16,Number(W.KVPV_ACCOUNT_POLICY?.pollingGap?.()??0)||0);
+  const pollInterval=()=>road()&&!roadForce()?100:Math.max(16,Number(W.KVPV_ACCOUNT_POLICY?.pollingGap?.()??0)||0);
 // [VI dòng gốc 13] Khai báo biến có thể gán lại bằng let: roadSelector = null
   let roadSelector=null;
 // [VI dòng gốc 14] Khai báo biến có thể gán lại bằng let: roadCast = null; lastRoadCast = áp dụng toán tử - lên Infinity
@@ -96,7 +96,7 @@
   const liveScene=()=>String(W._Ba?._$a?._yo?.ins?.intoSce?.[0]??'');
   // Wrapper callbacks only read cached primitive eligibility. Never call
   // isCooldown/status/sync or scope.status from the forced getters.
-  const forceReady=c=>S.forceActive&&S.forceCombat===c&&c?.target===S.forceTarget&&
+  const forceReady=c=>false&&S.forceActive&&S.forceCombat===c&&c?.target===S.forceTarget&&
     skillPriority==='basic_force_default'&&
     String(W._Ba?._rJ?._O$?.ins?.actorId??'')===actor&&
     !W.__KVPV_UNIVERSAL_HALTED&&W.document?.hidden!==true&&
@@ -163,7 +163,7 @@
     const t=c?.target;
     // Force only native PvE monsters, never players (type 4), Road,
     // hidden tabs, UI interaction, recovery or another combat owner.
-    const can=S.enabled&&skillPriority==='basic_force_default'&&owner()&&outside()&&beastReady(c)&&(!road()||roadForce()&&roadClose(S.role,c))&&
+    const can=false&&S.enabled&&skillPriority==='basic_force_default'&&owner()&&outside()&&beastReady(c)&&(!road()||roadForce()&&roadClose(S.role,c))&&
       W.document?.hidden!==true&&W._Ba?._rJ?._O$?.ins?.isDead!==true&&
       !W.KVPV_BOSS_TEAM?.priority?.()&&
       Date.now()>=Number(W.__KVPV_USER_UI_UNTIL||0)&&
