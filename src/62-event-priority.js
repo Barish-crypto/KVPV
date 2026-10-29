@@ -110,13 +110,21 @@ function yieldStage(event=hold()){
  if(!m)return false;
  const map=stageMap(),inside=sc?.SceneUtil?.isCommonScene===false&&
    Number.isSafeInteger(map)&&map>0&&currentMap()===map;
+ // Tian Quan may be running with native stage-auto disabled. It must still
+ // relinquish combat ownership and leave on a verified timed reservation.
+ const tqInside=W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&
+   W.KVPV_FAR_SCOPE?.status?.()?.inside===true;
+ if(tqInside){
+   try{W.KVPV_MODE?.stop?.('yield_to_scheduled_event_'+event.key);}
+   catch(e){S.lastError=String(e);note('tq_combat_stop_error',event.key);}
+ }
  const wasAuto=m.auto===true;
  if(wasAuto){
   // No cross-scene restoration: only a native stage-auto that we actually paused.
   if(inside){S.pending={actor,map,eventKey:event.key,at:Date.now()};if(!watch())cancel('cannot_monitor_manual_input');}
   m.auto=false;NS.core?.scene?.release?.('stage');S.paused++;note('stage_auto_paused',event.key);
  }
- if(inside&&C.exitStageForEvent){
+ if((inside||tqInside)&&C.exitStageForEvent){
   const now=Date.now(),tag=event.key+'/'+map;
   if(now-S.lastExitAt>=Math.max(5000,C.exitRetryMs)||S.lastExitKey!==tag){
    const exit=sc?._Gr?.ins?.exitDungeon;
@@ -128,7 +136,7 @@ function yieldStage(event=hold()){
   }
  }
  S.reason='yield_to_'+event.key;
- return wasAuto||inside;
+ return wasAuto||inside||tqInside;
 }
 function resumeIfSafe(){
  if(!guardPending()){if(!S.pending&&S.reason==='waiting')S.reason='stage_can_resume_when_idle';return false;}
