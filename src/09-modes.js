@@ -210,12 +210,18 @@
         W.KVPV_TH300?.setTianQuanTHGapBasics?.(false);
         W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
         W.KVPV_TH300?.setBasicRotation?.([8001,8002,8003,8004,8005]);
+        W.KVPV_TH300?.setBasicHitQuota?.(null);
+        W.KVPV_TH300?.setBasicPace?.(0);
+        // Bound client retries: 80ms minimum to avoid 1ms cast floods/disconnects.
+        W.KVPV_TH300?.setClientPace?.(80);
         W.KVPV_TH300?.setPrimaryBasic?.(true);
         W.KVPV_TH300?.setBasicOnly?.(false);
       }
     }
 
 // [VI dòng gốc 99] Kiểm tra scope: đúng thì chạy nhánh sau if. | Khai báo biến không gán lại bằng const: key = tính biểu thức scope.kind+'/'+scope.current+'/'+(scope.floor??'')
+    if(lastScopeKey?.startsWith('TRU_TIEN/')&&scope?.kind!=='TRU_TIEN')
+      W.KVPV_TH300?.setClientPace?.(1); // restore original default for other modes
     if(scope){const key=scope.kind+'/'+scope.current+'/'+(scope.floor??'');
 // [VI dòng gốc 100] Kiểm tra lastScopeKey!==null&&lastScopeKey!==key: đúng thì chạy nhánh sau if. | gọi stopOwners('Đổi phạm vi/map/tầng') | gán S.mode bằng MODE.OFF | gán towerAttempt bằng null
       if(lastScopeKey!==null&&lastScopeKey!==key){stopOwners('Đổi phạm vi/map/tầng');S.mode=MODE.OFF;towerAttempt=null;lastTianQuanKey=null;}
