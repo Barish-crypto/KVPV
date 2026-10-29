@@ -41,13 +41,13 @@
 // [VI dòng gốc 19] gọi W.KVPV_TH300?.setBasicOnly(true) để bật/tắt chế độ nhân vật chỉ dùng đòn tay 8001 trong Thiên Quan, Linh Lung, Phù Văn và Tru Tiên (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     W.KVPV_TH300?.setBasicOnly?.(false);
     W.KVPV_TH300?.setTianQuanFiveBasics?.(true,1);
-    W.KVPV_TH300?.setTianQuanTuyetHoc?.(false);
+    W.KVPV_TH300?.setTianQuanTuyetHoc?.(true);
     W.KVPV_TH300?.setTianQuanTHGapBasics?.(false);
     W.KVPV_TH300?.setTianQuanCosmic?.(true);
     W.KVPV_TH300?.setTianQuanLuoFeng?.(true);
     W.KVPV_TH300?.setTianQuanIdleFill?.(false);
     // Thiên Quan dùng năm đòn tay native tại mọi tầng, không xen Tuyệt Học.
-    W.KVPV_TH300?.setTianQuan4100BasicSolo?.(true);
+    W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
 // [VI dòng gốc 20] gọi W.KVPV_MODE.armTianQuan() để đăng ký bộ theo dõi map để tự bật bộ combat khi vào phó bản phù hợp
     W.KVPV_MODE.armTianQuan();
     // User opt-in: auto-arm persistent BASIC FORCE after the map watcher is ready.
