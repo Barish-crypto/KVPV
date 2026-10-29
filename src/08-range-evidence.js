@@ -273,7 +273,7 @@
     rows.sort((a,b)=>(apexRobustDamage(b)??0)-(apexRobustDamage(a)??0)||a.id-b.id);return rows[0]?.id??null;}
 
   const tqFive=W.KVPV_TQ_BASIC_PROFILE?.create?.({scope:()=>W.KVPV_FAR_SCOPE?.status?.()?.kind??(W.KVPV_TQ_SCOPE?.inside?.()===true?'THIEN_QUAN':'OUTSIDE'),context:()=>scene()+'/'+identity(role().c?.target),phase:()=>combatOwner()?.phase,hp:()=>{const h=prop(role().a,'hp');return Array.isArray(h)&&Number(h[1])>0?Number(h[0])/Number(h[1])*100:null;},learned:()=>[...(role().s?._rtt??[]),...(role().s?._wet??[])].map(r=>Number(r?.[0]))})??null;
-  for(const key of ['goal','min','max','scanMs']){const descriptor=Object.getOwnPropertyDescriptor(CFG,key);let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){const d=tqFive?.goal();if(key==='scanMs'&&tqFive?.active())return tqFive.wait();if(d!==null&&d!==undefined)return key==='goal'?d:key==='min'?Math.max(0,d-15):key==='max'?d+10:base;return descriptor.get?descriptor.get():base;},set(value){if(descriptor.set)descriptor.set(value);else base=value;}});}
+  for(const key of ['goal','min','max','scanMs']){const descriptor=Object.getOwnPropertyDescriptor(CFG,key);let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){if(tqDistanceOnly()&&key!=='scanMs')return key==='goal'?310:key==='min'?300:320;const d=tqFive?.goal();if(key==='scanMs'&&tqFive?.active())return tqFive.wait();if(d!==null&&d!==undefined)return key==='goal'?d:key==='min'?Math.max(0,d-15):key==='max'?d+10:base;return descriptor.get?descriptor.get():base;},set(value){if(descriptor.set)descriptor.set(value);else base=value;}});}
 // [VI dòng gốc 33] Khai báo biến không gán lại bằng const: basicProbe = tạo đối tượng gồm enabled, dispatch, context, attempts, hits, damage, startedAt, nextAt, examples
   const basicProbe={enabled:false,dispatch:false,context:null,attempts:0,hits:0,damage:0,startedAt:null,nextAt:0,examples:[]};
 // [VI dòng gốc 34] Khai báo biến không gán lại bằng const: isBasic = tạo hàm với tham số id; mỗi lần gọi trả về Number.isSafeInteger(Number(id))&&Number(id)>=8001 và chỉ đánh giá vế phải khi vế trái truthy: Number(id)<=8009
@@ -714,6 +714,7 @@
   // Trong STRICT giới hạn vị trí theo tầm đã có bằng chứng; SCAN dùng khoảng cách cấu hình.
 // [VI dòng gốc 208] Định nghĩa hàm targetDistance; tham số: không có
   function targetDistance(){
+    if(tqDistanceOnly())return 310;
     if(tqFive?.active())return CFG.goal;
 // [VI dòng gốc 209] Kiểm tra ST.mode!=='STRICT': đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: đọc CFG.goal.
     if(ST.mode!=='STRICT')return CFG.goal;
