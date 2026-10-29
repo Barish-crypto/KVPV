@@ -14,10 +14,15 @@ const {saveDiagnostics}=require('../../live/diagnostics.cjs');
 const {packet,payloadPackets,Parser}=require('./protocol.cjs');
 // [VI dòng gốc 8] Khai báo biến không gán lại bằng const: {readArtifact,extensionId,watchSources} = gọi require('../../live/project.cjs') để nạp module Node.js
 const {readArtifact,extensionId,watchSources}=require('../../live/project.cjs');
+const {update:gitAutoUpdate}=require('../../live/git-autoupdate.cjs');
 // [VI dòng gốc 9] Khai báo biến không gán lại bằng const: root = gọi path.resolve(__dirname, '../..'); manifest = gọi JSON.parse(fs.readFileSync(path.join(root,'edge-addon','manifest.json'),'utf8')) để phân tích dữ liệu đầu vào theo API đang gọi
 const root=path.resolve(__dirname,'../..'),manifest=JSON.parse(fs.readFileSync(path.join(root,'edge-addon','manifest.json'),'utf8'));
 // [VI dòng gốc 10] Khai báo biến không gán lại bằng const: id = gọi extensionId(manifest.key)
 const id=extensionId(manifest.key);
+// Pull only fast-forward commits that pass isolated build + full regression tests.
+// The existing source watcher then safely verifies and hot-loads the new FULL.
+let updateTimer=null;
+function checkGit(){void gitAutoUpdate().then(r=>{if(r.status==='updated')state('GitHub: updated '+r.head+'; validating FULL');else if(r.status==='kept_current')state('GitHub update skipped; current FULL retained: '+r.error);}).catch(e=>console.error('Git auto update: '+e.message));}
 // [VI dòng gốc 11] Kiểm tra process.argv[2]!=='chrome-extension://'+id+'/': đúng thì chạy nhánh sau if. | gọi process.exit(2)
 if(process.argv[2]!=='chrome-extension://'+id+'/')process.exit(2);
 // [VI dòng gốc 12] Khai báo biến có thể gán lại bằng let: active = false; building = false; queued = false; debounce = null; current = null; watchers = tạo mảng gồm 0 vị trí: []; relayTimer = null
@@ -43,11 +48,11 @@ function changed(){clearTimeout(debounce);debounce=setTimeout(()=>{debounce=null
 // [VI dòng gốc 22] Định nghĩa hàm start; tham số: không có. Mục đích: khởi động bộ điều khiển | Kiểm tra active: đúng thì chạy nhánh sau if. | Kiểm tra current&&!building: đúng thì chạy nhánh sau if. | gọi emitFull()
 function start(){if(active){if(current&&!building)emitFull();return;}active=true;
 // [VI dòng gốc 23] gán watchers bằng watchSources(root,changed) | gán relayTimer bằng setInterval(()=>{try{send({type:'partyPeers',peers:readPartyPeers(root)});send({type:'desktopControls',profiles:readDesktopControls(root)});}catch(_){}},1000) | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi send({type:'partyPeers',peers:readPartyPeers(root)})
- watchers=watchSources(root,changed);relayTimer=setInterval(()=>{try{send({type:'partyPeers',peers:readPartyPeers(root)});send({type:'desktopControls',profiles:readDesktopControls(root)});}catch(_){}},1000);build();}
+ watchers=watchSources(root,changed);updateTimer=setInterval(checkGit,300000);setTimeout(checkGit,15000);relayTimer=setInterval(()=>{try{send({type:'partyPeers',peers:readPartyPeers(root)});send({type:'desktopControls',profiles:readDesktopControls(root)});}catch(_){}},1000);build();}
 // [VI dòng gốc 24] Khai báo biến không gán lại bằng const: parser = tạo đối tượng bằng Parser(message=>{if(message.type==='diagnostics'&&active){try{saveDiagnostics(root,message.report);}catch(e){console.error('Dia…) | Kiểm tra message.type==='diagnostics'&&active: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi saveDiagnostics(root, message.report)
 const parser=new Parser(message=>{if(message.type==='diagnostics'&&active){try{saveDiagnostics(root,message.report);}catch(e){console.error('Diagnostics: '+e.message);}}else if(message.type==='watch')start();else if(message.type==='sync'&&active){if(current&&!building)emitFull();else if(!building)build();}});
 // [VI dòng gốc 25] gọi process.stdin.on('data', bytes=>{try{parser.push(bytes);}catch(e){console.error(e.message);process.exit(2);}}) | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi parser.push(bytes) để thêm phần tử vào cuối mảng | Nhận lỗi bằng e và chạy phần xử lý lỗi.
 process.stdin.on('data',bytes=>{try{parser.push(bytes);}catch(e){console.error(e.message);process.exit(2);}});
-// [VI dòng gốc 26] gọi process.stdin.on('end', ()=>{active=false;clearInterval(relayTimer);clearTimeout(debounce);for(const w of watchers)w.close();process.exit…) | gán active bằng false | gọi clearInterval(relayTimer) để hủy tác vụ lặp | gọi clearTimeout(debounce) để hủy lịch thực hiện một lần
+// [VI dòng gốc 26] gọi process.stdin.on('end', ()=>{active=false;clearInterval(relayTimer);clearInterval(updateTimer);clearTimeout(debounce);for(const w of watchers)w.close();process.exit…) | gán active bằng false | gọi clearInterval(relayTimer) để hủy tác vụ lặp | gọi clearTimeout(debounce) để hủy lịch thực hiện một lần
 process.stdin.on('end',()=>{active=false;clearInterval(relayTimer);clearTimeout(debounce);for(const w of watchers)w.close();process.exit(0);});
 // [VI dòng gốc 27] Dòng trống để tách các phần, không có lệnh thực thi.
