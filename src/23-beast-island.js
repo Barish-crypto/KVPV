@@ -56,9 +56,9 @@
 // [VI dòng gốc 31] Khai báo biến không gán lại bằng const: boss = gọi bossRows.find(r=>Number(r[1])===bossLayer()&&r[3]===1&&Number(W._ft?._tY?.ins?.getCfgById?.(r[4])?.[6])===bossLevel) để tìm phần tử đầu tiên thỏa điều kiện
     const boss=bossRows.find(r=>Number(r[1])===bossLayer()&&r[3]===1&&Number(W._ft?._tY?.ins?.getCfgById?.(r[4])?.[6])===bossLevel);
 // [VI dòng gốc 32] Khai báo biến không gán lại bằng const: inside = type===49 và chỉ đánh giá vế phải khi vế trái truthy: (Number(m?.getCurMapLevel?.())===2&&rows.some(r=>Number(r[0])===map))|| !!boss&&Number(m?.getCurMapLevel?.())===Number(boss[1])&&Number(boss[0])===map
-    const inside=type===49&&((Number(m?.getCurMapLevel?.())===2&&rows.some(r=>Number(r[0])===map))||
-// [VI dòng gốc 33] gọi Number(m?.getCurMapLevel?.()) để chuyển sang số | gọi m?.getCurMapLevel() | gọi Number(boss[1]) để chuyển sang số | gọi Number(boss[0]) để chuyển sang số
-      !!boss&&Number(m?.getCurMapLevel?.())===Number(boss[1])&&Number(boss[0])===map);
+    // Scene ID and native configured map IDs are authoritative even if
+    // the floor model has not synchronized after a manual teleport.
+    const inside=type===49&&bossRows.some(r=>Number(r?.[0])===map&&[1,2].includes(Number(r?.[1])));
 // [VI dòng gốc 34] Khai báo biến không gán lại bằng const: nodes = gọi rows.filter(r=>r[3]===2) để giữ phần tử thỏa điều kiện
     const nodes=rows.filter(r=>r[3]===2);
 // [VI dòng gốc 35] Khai báo biến không gán lại bằng const: phoenix = gọi nodes.find(r=>norm(W._ft?._Xpt?.ins?.getCfgById?.(r[4])?.[4]).includes('phuong huyet')) để tìm phần tử đầu tiên thỏa điều kiện
