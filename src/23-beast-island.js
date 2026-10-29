@@ -159,6 +159,18 @@
     }
 // [VI dòng gốc 83] Khai báo biến không gán lại bằng const: collections = gọi [d.phoenix,d.dragon].filter(q=>q.remaining>0) để giữ phần tử thỏa điều kiện
     const collections=[d.phoenix,d.dragon].filter(q=>q.remaining>0);
+    // Main account: only a server-confirmed 3/3 boss quota completes this objective.
+    // Exit once, then release the scene so the remaining Daily queue can proceed.
+    if(actor==='10228867268946'&&d.boss.used>=3&&d.boss.remaining===0){
+      if(d.inside){
+        if(S.phase!=='EXITING')exit('three_server_confirmed_boss_kills');
+        else S.reason='waiting_exit_confirmation';
+      }else{
+        if(S.lease)release();
+        S.phase='DONE';S.reason='three_server_confirmed_boss_kills_daily_continue';
+      }
+      return;
+    }
 // [VI dòng gốc 84] Chú thích gốc của tác giả; không được thực thi. Nội dung: Clone hoàn thành thu thập tầng 2 trước, rồi ra map và vào tầng 1.
     // Clone hoàn thành thu thập tầng 2 trước, rồi ra map và vào tầng 1.
 // [VI dòng gốc 85] Khai báo biến không gán lại bằng const: todo = gọi (bossLevel===500&&collections.length?collections:[d.phoenix,d.dragon,d.boss]).filter(q=>q.remaining>0) để giữ phần tử thỏa điều kiện
