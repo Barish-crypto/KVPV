@@ -46,20 +46,20 @@
     W.KVPV_TH300?.setTianQuanCosmic?.(true);
     W.KVPV_TH300?.setTianQuanLuoFeng?.(true);
     W.KVPV_TH300?.setTianQuanIdleFill?.(false);
-    // Thiên Quan dùng năm đòn tay native tại mọi tầng, không xen Tuyệt Học.
+    // Stage 4100 also uses the native TH/basic mixed profile.
     W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
 // [VI dòng gốc 20] gọi W.KVPV_MODE.armTianQuan() để đăng ký bộ theo dõi map để tự bật bộ combat khi vào phó bản phù hợp
     W.KVPV_MODE.armTianQuan();
-    // User opt-in: auto-arm persistent BASIC FORCE after the map watcher is ready.
+    // Restore native cooldown for mixed TH/basic: no BASIC FORCE hooks.
     // Wait for verified Tian Quan/selected native Boss; never affect other maps.
-    W.KVPV_TQ_BASIC_FORCE?.setEnabled?.(true);
+    W.KVPV_TQ_BASIC_FORCE?.setEnabled?.(false); // Mixed TH and basics must not retain forced cooldown hooks.
 // [VI dòng gốc 21] Chú thích gốc của tác giả; không được thực thi. Nội dung: Khôi phục tốc độ hoạt ảnh gốc (1) theo yêu cầu; không tăng tốc hoạt ảnh 8001.
     // Khôi phục tốc độ hoạt ảnh gốc (1) theo yêu cầu; không tăng tốc hoạt ảnh 8001.
 // [VI dòng gốc 22] Kiểm tra String(W.__KVPV_OWN_ACTOR_ID)==='10228867268946': đúng thì chạy nhánh sau if. | gọi W.KVPV_TH300?.setBasicAnimationSpeed(1) để đặt hệ số phát hoạt ảnh 8001 phía client; không phải hệ số sát thương server (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     if(String(W.__KVPV_OWN_ACTOR_ID)==='10228867268946')W.KVPV_TH300?.setBasicAnimationSpeed?.(1);
     W.KVPV_TH300?.setTianQuanVisualSpeed?.(9999); // 13 skills, Tian Quan only, client visuals
 // [VI dòng gốc 23] gọi console.info('[KVPV V1] Ba phó bản chỉ dùng 8001; kiểm tra 1 ms, chờ thêm 0 ms; tốc độ server chưa xác minh.')
-    console.info('[KVPV V1] Thiên Quan: auto BASIC FORCE 8001–8005 mọi tầng; tầm 310, client pace 1ms.');
+    console.info('[KVPV V1] Thiên Quan: xen native TH 1001–1008 + BASIC 8001–8005; tầm 310.');
 // [VI dòng gốc 24] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gọi W.KVPV_V1?.diagnostics?.record(e) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gọi console.warn('[KVPV V1] Auto Thiên Quan:', String(e))
   }catch(e){W.KVPV_V1?.diagnostics?.record?.(e);console.warn('[KVPV V1] Auto Thiên Quan:',String(e));}
 // [VI dòng gốc 25] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
