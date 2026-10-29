@@ -161,9 +161,9 @@
       }else if(count<S.bossQuotaSeen){
         S.bossQuotaSeen=count;S.bossFailures=0;S.bossTrialAt=0;
       }
-      if(d.inside&&d.boss.remaining>0&&S.phase==='ACTIVE'&&S.bossCombatOcc!==null){
+      if(d.inside&&d.boss.remaining>0&&S.phase==='ACTIVE'&&S.action.startsWith('1/')){
         if(S.bossTrialAt===0)S.bossTrialAt=now;
-        if(user()?.isDead===true||now-S.bossTrialAt>90000){
+        if((user()?.isDead===true&&now-S.bossTrialAt>10000)||now-S.bossTrialAt>90000){
           S.bossFailures++;S.bossTrialAt=now;
           const lower=[...S.bossCandidates].reverse().find(level=>level<bossLevel);
           if(lower)bossLevel=lower;
