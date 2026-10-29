@@ -5,12 +5,12 @@
  if(!W.KVPV_DAILY?.config)throw Error('Thiếu bộ FULL. Dùng file KVPV_PB_BOSS_DAILY.js.');
  const previous=W.KVPV_PB_BOSS_DAILY,carry=previous?._handoff?.();
  const S={enabled:false,actor,startedAt:null,errors:[],started:[]};
- const starters=[['KVPV_DAILY','start'],['KVPV_DAILY','tuVuotStart'],['KVPV_DAILY_TRIAL','start'],['KVPV_BEAST_ISLAND','start'],['KVPV_SUMMON_BOSS','start'],['KVPV_RUNE_BOSS','start'],['KVPV_BASIC10','start']];
+ const starters=[['KVPV_DAILY','start'],['KVPV_DAILY','tuVuotStart'],['KVPV_DAILY_TRIAL','start'],['KVPV_BEAST_ISLAND','start'],['KVPV_SUMMON_BOSS','start'],['KVPV_RUNE_BOSS','start'],['KVPV_HONOR_TARGET','start'],['KVPV_BASIC10','start']];
  const own=()=>actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
  function start(){if(!own())throw Error('Acc đã đổi: mở tab và nạp lại cho acc mới.');if(S.enabled)return status();S.errors=[];S.started=[];
   // Quyền tác vụ và pending vẫn thuộc các bộ hiện có, không reset hay phát lại RPC.
   W.KVPV_QUEST_PRIORITY?.stop?.();W.KVPV_V866?.stop?.();
-  for(const name of ['KVPV_EIGHT_FLOOR','KVPV_HONOR_TARGET','KVPV_MARRY_ARENA','KVPV_KIEM_KHIEU'])try{W[name]?.stop?.();}catch(e){S.errors.push(name+': '+String(e?.message??e));}
+  for(const name of ['KVPV_EIGHT_FLOOR','KVPV_MARRY_ARENA','KVPV_KIEM_KHIEU'])try{W[name]?.stop?.();}catch(e){S.errors.push(name+': '+String(e?.message??e));}
   W.KVPV_DESKTOP_CONTROL?.stop?.();
   W.KVPV_DESKTOP_CONTROL=Object.freeze({receive:()=>false,stop(){},scopeProfile:()=>null,distance:()=>302,stageAllowed:()=>true,status:()=>({reason:'javascript_daily_only',lastError:'',modules:{}}),_handoff:()=>({actor,desired:null,failedRevision:null})});
   const c=W.KVPV_DAILY.config;
