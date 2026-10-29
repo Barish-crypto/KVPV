@@ -73,9 +73,8 @@
       for(const [key,type,on] of [['pet',2,true],['fuwa',9,true],['ride',7,p.rideFollow!==false]]){
         if(!on)continue;
         try{
-          if(Date.now()<(nextAutonomousScan[key]||0))continue;
           const before=S.attempts;follow(key,type,role,target);
-          if(S.attempts>before){S.nativeAutoAttempts++;nextAutonomousScan[key]=Date.now()+150;}
+          if(S.attempts>before)S.nativeAutoAttempts++;
         }
         catch(e){S.lastError=String(e?.message??e);S.reason='error';}
       }
@@ -83,7 +82,6 @@
   }
   let lastRoadDispatch=-Infinity;
   function dispatchRoad(role,target){if(W._Ba?._rJ?._O$?.ins?.isDead===true||S.dispatching||Date.now()-lastRoadDispatch<1||!live(role)||Number(prop(role,'type'))!==4||!live(target)||Number(prop(target,'type'))!==1||component(role,'_Het')?.isValidTarget?.()!==true)return;lastRoadDispatch=Date.now();S.dispatching=true;try{const p=settings();for(const [key,type,on] of [['pet',2,true],['fuwa',9,true],['ride',7,p.rideFollow!==false]])if(on)try{follow(key,type,role,target);}catch(e){S.lastError=String(e?.message??e);S.reason='error';}}finally{S.dispatching=false;}}
-  const nextAutonomousScan=Object.create(null);
   function follow(key,type,role,target){
 // [VI dòng gốc 33] Khai báo biến không gán lại bằng const: ride = gọi prop(role, key+'Context') | Kiểm tra key==='ride': đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gọi setRide(ride) | gọi setMansion(ride)
     const ride=prop(role,key+'Context');if(key==='ride')setRide(ride);else if(key==='mansion')setMansion(ride);
