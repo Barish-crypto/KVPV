@@ -379,3 +379,24 @@ KVPV_QUICK_USE.start()
 
 
 `KVPV_CONFIRM_POPUPS` tự Đồng ý bất đồng bộ cho thông báo không có callback hành động và kết quả trận nhận diện được; hỗ trợ nhãn đếm ngược. Popup có callback khác giữ nguyên khi chưa bật phạm vi `confirmAll`. Hook giữ nguyên hàm mở native; mỗi lần mở chỉ xử lý một lần, không chờ Daily. Xem/dừng: `KVPV_CONFIRM_POPUPS.status()` / `.stop()`.
+
+
+## Thu nghiem Xa Menh Nhat Kich Lv2 (client only)
+
+Module `src/32-xa-menh-lv2-cd0.js` duoc dong goi vao FULL va ban cap nhat nong,
+**mac dinh tat**. Chi khi goi `enable()` moi doi `skill[6]` cua record
+`30310002` tu `30000` thanh `0` trong bo nho client. Khong thay doi
+WebSocket/server va khong khang dinh bo duoc hoi chieu server.
+
+Trong Console cua **dung game frame**, sau khi nap FULL/build moi:
+
+```js
+KVPV_XA_MENH_LV2.status();  // xem gia tri hien tai
+KVPV_XA_MENH_LV2.enable();  // thu 0ms tren client
+KVPV_XA_MENH_LV2.restore(); // tra ve gia tri goc
+```
+
+Module chi thao tac neu row dung `30310002` va cooldown goc dung
+`30000`. Neu config khac, module dung va khong ghi de. Khoi dong lai
+module se giu trang thai bat/tat do nguoi dung chon. Kiem thu:
+`node TEST_XA_MENH_LV2.cjs` (duoc goi tu `node test.cjs`).
