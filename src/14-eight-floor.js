@@ -55,6 +55,7 @@
       unlocked:W._Ba?._Do?._Ho?.inst?.getFcIsOpen?.(903)===true,
 // [VI dòng gốc 31] Thuộc tính cooldownReady: Number.isFinite(serverTime)&&Number.isFinite(next) và chỉ đánh giá vế phải khi vế trái truthy: next<=serverTime
       cooldownReady:Number.isFinite(serverTime)&&Number.isFinite(next)&&next<=serverTime,
+      serverTime:Number.isFinite(serverTime)?serverTime:null,nextEnterTime:Number.isFinite(next)?next:null,
 // [VI dòng gốc 32] Thuộc tính floor: Number(m?.curLayer) hoặc dùng vế phải khi vế trái falsy: null | Thuộc tính score: m?.score hoặc dùng vế phải khi vế trái là null/undefined: null | Thuộc tính passed: tính biểu thức m?.isPass===true | Thuộc tính rank: m?.getRankInfo?.() hoặc dùng vế phải khi vế trái là null/undefined: null
       floor:Number(m?.curLayer)||null,score:m?.score??null,passed:m?.isPass===true,rank:m?.getRankInfo?.()??null};}
 // [VI dòng gốc 33] Chú thích gốc của tác giả; không được thực thi. Nội dung: Ghi diễn biến vào lịch sử nội bộ có giới hạn để truy vết quyết định.
@@ -154,7 +155,8 @@
 // [VI dòng gốc 80] Khai báo biến không gán lại bằng const: quick = gọi W.KVPV_DAILY?.quickState() (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); job = đọc quick?.job nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     const quick=W.KVPV_DAILY?.quickState?.(),job=quick?.job;
 // [VI dòng gốc 81] Khai báo biến không gán lại bằng const: idle = !job||job==='rảnh' hoặc dùng vế phải khi vế trái falsy: job==='ranh'
-    const idle=!job||job==='rảnh'||job==='ranh';
+    // Daily reports idle in Vietnamese or English depending on its controller.
+    const idle=job==null||['','rảnh','ranh','idle'].includes(String(job).trim().toLowerCase());
 // [VI dòng gốc 82] Kiểm tra !idle||W.KVPV_TQ_SCOPE?.inside?.()===true||W.KVPV_HITRUN1?.status?.(false)?.running: đúng thì chạy nhánh sau if. | gán S.reason bằng 'other_job_active' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(!idle||W.KVPV_TQ_SCOPE?.inside?.()===true||W.KVPV_HITRUN1?.status?.(false)?.running){S.reason='other_job_active';return;}
 // [VI dòng gốc 83] Kiểm tra W._Ba?._$a?.SceneUtil?.isCommonScene!==true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'outside_common_scene' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
@@ -183,6 +185,11 @@
   // Trả trạng thái hiện tại để kiểm tra; ý nghĩa từng bộ đếm thuộc phạm vi module này.
 // [VI dòng gốc 95] Định nghĩa hàm status; tham số: không có. Mục đích: trả trạng thái để kiểm tra | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm các thuộc tính của data(), enabled, phase, reason, entryAttempts, completedDay, doneToday, confirmedEntries, rewardPending, rewardConfirmed, lastError, history.
   function status(){return {...data(),enabled:C.enabled,phase:S.phase,reason:S.reason,entryAttempts:S.attempts,
+      dailyJob:W.KVPV_DAILY?.quickState?.()?.job??null,
+      commonScene:W._Ba?._$a?.SceneUtil?.isCommonScene===true,
+      manualPolicy:W.KVPV_ENTRY_POLICY?.manual===true,
+      inTeam:!!W._Ba?._cm?._q3t?.ins?.getHasTeams?.(),
+      bossRunning:W.KVPV_HITRUN1?.status?.(false)?.running===true,
 // [VI dòng gốc 96] Thuộc tính completedDay: dùng biến cùng tên | Thuộc tính doneToday: tính biểu thức completedDay===data().day | Thuộc tính confirmedEntries: đọc S.entries | Thuộc tính rewardPending: đảo giá trị đúng/sai của !S.claimPending
     completedDay,doneToday:completedDay===data().day,confirmedEntries:S.entries,rewardPending:!!S.claimPending,rewardConfirmed:S.rewardConfirmed,lastError:S.lastError,history:S.history.slice()};}
 // [VI dòng gốc 97] Chú thích gốc của tác giả; không được thực thi. Nội dung: Dừng bộ điều khiển, hủy lịch và giải phóng tài nguyên do module này sở hữu.
