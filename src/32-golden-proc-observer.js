@@ -139,12 +139,23 @@
       add('native_cast_signal',{skillId:id,targetId:s.selectedTargetId});
   }
   function hit(targetId,source,marker,damage,flags,receiver){
-    if(!valid()||String(source)!==actor||String(receiver)!==targetId)return;
+    if(!valid())return;
+    const s=session;
+    s.nativeDamageSignals++;
+    if(String(receiver)!==targetId){s.receiverMismatchSignals++;return;}
+    if(String(source)!==actor){s.otherSourceSignals++;return;}
+    s.ownedDamageSignals++;
     const m=Number(marker),amount=Number(damage);
     if(!Number.isFinite(m)||!Number.isFinite(amount)||amount<=0)return;
+    const id=Number.isSafeInteger(m/10000)?String(m/10000):'other';
+    if(s.markerHistogram.has(id)||s.markerHistogram.size<24)
+      s.markerHistogram.set(id,(s.markerHistogram.get(id)||0)+1);
+    else s.otherMarkerCount++;
+    if(s.ownedDamageSignals<=8||s.ownedDamageSignals%50===0)
+      add('owned_damage_marker_sample',{targetId,marker:m,markerSkillId:m/10000,amount});
     const skill=m/10000, spec=PROCS.find(p=>p.damage===skill);
     if(!spec)return;
-    const t=now(),entry=session.stats[spec.damage];
+    const t=now(),entry=s.stats[spec.damage];
     entry.rawDamageEvents++;entry.totalObservedDamage+=amount;
     const distinct=entry.lastAt==null||t-entry.lastAt>=MERGE_MS;
     if(distinct){
@@ -174,6 +185,8 @@
     session={active:true,reason:'observing',startedAt:now(),scene:currentScene(),
       me,selectedTargetId:null,lastDistinctTargetId:null,lastTargetName:null,seenTargetIds:new Set(),
       castSignals:0,commonAttackSignals:0,buffChangeEvents:0,
+      nativeDamageSignals:0,ownedDamageSignals:0,otherSourceSignals:0,
+      receiverMismatchSignals:0,markerHistogram:new Map(),otherMarkerCount:0,
       targetSwitches:0,targetBindings:0,unobservableTargets:0,lastError:'',
       dropped:0,events:[],owner:{},listeners:[],targets:[],
       stats:Object.fromEntries(PROCS.map(p=>[p.damage,{
@@ -210,12 +223,19 @@
       trackedTargetIds:s?.targets.map(t=>t.id)??[],targetSwitches:s?.targetSwitches??0,
       targetsSeen:s?.seenTargetIds.size??0,targetBindings:s?.targetBindings??0,
       unobservableTargets:s?.unobservableTargets??0,lastError:s?.lastError??'',
+      nativeDamageSignals:s?.nativeDamageSignals??0,
+      ownedDamageSignals:s?.ownedDamageSignals??0,
+      otherSourceSignals:s?.otherSourceSignals??0,
+      receiverMismatchSignals:s?.receiverMismatchSignals??0,
+      markerHistogram:s?Object.fromEntries(s.markerHistogram):{},
+      otherMarkerCount:s?.otherMarkerCount??0,
       startedAt:s?.startedAt??null,elapsedMs:s?now()-s.startedAt:0,
       maxObserveMs:MAX_MS,commonAttackSignals:s?.commonAttackSignals??0,
       allNativeCastSignals:s?.castSignals??0,buffPropertyChangeEvents:s?.buffChangeEvents??0,
       procs,config:config(),events:s?.events.slice(-MAX_LOG)??[],dropped:s?.dropped??0,
       interpretation:'Supports native target changes within one scene. 1039 is client cast signal; 1012 marker may be 3022/3032. '+
         'At most six previously selected monsters are observed, NOT all AoE victims. '+
+        'Owned damage marker histogram can show whether 1012 events are received at all; absence does not prove proc failure. '+
         '350ms merged damage bursts are not verified independent procs. '+
         'Burst/cast ratio is NOT the 8% server RNG probability. '+
         'No 100% override, no server formula or Hữu Thần Trợ amplification claim.',
