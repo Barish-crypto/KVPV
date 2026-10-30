@@ -316,24 +316,24 @@ test('native inward path is redirected before first entry poll; retreat and outs
 // [VI dòng gốc 157] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 158] gọi console.log('PASSED', passed, '/26') | Kiểm tra passed!==26: đúng thì chạy nhánh sau if. | gán process.exitCode bằng 1
-test('Tian Quan 310 never rearms HitRun while other Boss modes retain HP recovery',()=>{
- const q=harness();let kind='THIEN_QUAN',distances=[];
- q.W.KVPV_FAR_SCOPE={inside:()=>true,status:()=>({kind,inside:true,current:2051,floor:2000}),eligible:()=>false};
- q.W.KVPV_TQ_POSITION_ONLY={enabled:true,distance:310,heal:false};
- q.W.KVPV_TH300.setDistance=v=>distances.push(v);
- q.W.KVPV_MODE.armTianQuan();
- assert.equal(q.W.KVPV_MODE.status(false).mode,'BOSS_TH300_SCAN');
- assert.equal(q.state().auto,false);assert.equal(q.state().boss,false);
- assert.equal(q.W.KVPV.combat.config.autoArm,false);
- assert.deepEqual(distances,[310]);
- const rearmed=q.state().rearms;
- q.W.KVPV_MODE.syncMap();
- assert.equal(q.state().rearms,rearmed);
- assert.equal(q.state().auto,false);
- q.W.KVPV_MODE.stop();
- kind='OUTSIDE';q.W.KVPV_MODE.start('BOSS');
- assert.equal(q.state().auto,true);
- assert.equal(q.W.KVPV.combat.config.autoArm,true);
+test('Tian Quan keeps 310 and restores HitRun HP recovery',()=>{
+  const q=harness();let kind='THIEN_QUAN',distances=[];
+  q.W.KVPV_FAR_SCOPE={inside:()=>true,status:()=>({kind,inside:true,current:2051,floor:2000}),eligible:()=>false};
+  q.W.KVPV_TQ_POSITION_ONLY={enabled:false,distance:310,heal:true};
+  q.W.KVPV_TH300.setDistance=v=>distances.push(v);
+  q.W.KVPV_MODE.armTianQuan();
+  assert.equal(q.W.KVPV_MODE.status(false).mode,'BOSS_TH300_SCAN');
+  assert.equal(q.state().auto,true,'HitRun recovery stays armed');
+  assert.equal(q.W.KVPV.combat.config.autoArm,true);
+  assert.deepEqual(distances,[310],'set TQ range once per floor');
+  const rearmed=q.state().rearms;
+  q.W.KVPV_MODE.syncMap();
+  assert.equal(q.state().rearms,rearmed,'do not continually rearm recovery');
+  assert.equal(q.state().auto,true);
+  q.W.KVPV_MODE.stop();
+  kind='OUTSIDE';q.W.KVPV_MODE.start('BOSS');
+  assert.equal(q.state().auto,true);
+  assert.equal(q.W.KVPV.combat.config.autoArm,true);
 });
 console.log('PASSED',passed,'/27');if(passed!==27)process.exitCode=1;
 // [VI dòng gốc 159] Dòng trống để tách các phần, không có lệnh thực thi.

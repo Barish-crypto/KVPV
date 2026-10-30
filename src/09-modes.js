@@ -29,6 +29,7 @@
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: inFarMap = tạo hàm với tham số (không có); mỗi lần gọi trả về tính biểu thức (W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false
   const inFarMap=()=>(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false;
   const tqNoHeal=()=>W.KVPV_TQ_POSITION_ONLY?.enabled===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
+  const tqDistance=()=>Number(W.KVPV_TQ_POSITION_ONLY?.distance??310);
 // [VI dòng gốc 20] Khai báo biến có thể gán lại bằng let: entryMoveHook = null
   let entryMoveHook=null;
 // [VI dòng gốc 21] Định nghĩa hàm releaseEntryMove; tham số: không có | Khai báo biến không gán lại bằng const: h = entryMoveHook | Kiểm tra h&&h.m.moveTo===h.fn: đúng thì chạy nhánh sau if. | Kiểm tra h.own: đúng thì chạy nhánh sau if, sai thì chạy nhánh else.
@@ -50,7 +51,7 @@
 // [VI dòng gốc 29] Khai báo biến không gán lại bằng const: target = đọc me?.getComponent?.(W._d?._Yct?._Het)?.target nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); hp = gọi me?.property?.get('hp') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
       const target=me?.getComponent?.(W._d?._Yct?._Het)?.target,hp=me?.property?.get?.('hp');
 // [VI dòng gốc 30] Khai báo biến không gán lại bằng const: a = gọi me?.property?.get('position') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); b = gọi target?.property?.get('position') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); entryGoal = W.KVPV_DESKTOP_CONTROL?.distance?.() hoặc dùng vế phải khi vế trái là null/undefined: 302
-      const a=me?.property?.get?.('position'),b=target?.property?.get?.('position'),entryGoal=tqNoHeal()?310:(W.KVPV_DESKTOP_CONTROL?.distance?.()??310);
+      const a=me?.property?.get?.('position'),b=target?.property?.get?.('position'),entryGoal=tqDistance();
 // [VI dòng gốc 31] Kiểm tra scopedMode&&valid()&&scope?.inside&&scope.kind==='THIEN_QUAN'&& (!hr?.running||hr.phase==='FIGHT')&&Array.isArray(hp)&&Number(hp[1])>0&&Number(hp[0])/Number(hp[1])*100>35&& W.KVPV_…: đúng thì chạy nhánh sau if.
       if(scopedMode&&valid()&&scope?.inside&&scope.kind==='THIEN_QUAN'&&W.KVPV_TH300?.basicRangeProbeGoal?.()==null&&
 // [VI dòng gốc 32] gọi Array.isArray(hp) | gọi Number(hp[1]) để chuyển sang số | gọi Number(hp[0]) để chuyển sang số
@@ -226,7 +227,7 @@
 // [VI dòng gốc 100] Kiểm tra lastScopeKey!==null&&lastScopeKey!==key: đúng thì chạy nhánh sau if. | gọi stopOwners('Đổi phạm vi/map/tầng') | gán S.mode bằng MODE.OFF | gán towerAttempt bằng null
       if(lastScopeKey!==null&&lastScopeKey!==key){stopOwners('Đổi phạm vi/map/tầng');S.mode=MODE.OFF;towerAttempt=null;lastTianQuanKey=null;}
 // [VI dòng gốc 101] Kiểm tra lastScopeKey!==key&&scope.kind==='THIEN_QUAN'&&scope.inside: đúng thì chạy nhánh sau if. | gọi W.KVPV_TH300?.setDistance(W.KVPV_DESKTOP_CONTROL?.distance?.()??310) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
-      if(lastScopeKey!==key&&scope.kind==='THIEN_QUAN'&&scope.inside)W.KVPV_TH300?.setDistance?.(tqNoHeal()?310:(W.KVPV_DESKTOP_CONTROL?.distance?.()??310));
+      if(lastScopeKey!==key&&scope.kind==='THIEN_QUAN'&&scope.inside)W.KVPV_TH300?.setDistance?.(tqDistance());
 // [VI dòng gốc 102] gán lastScopeKey bằng key
       lastScopeKey=key;}
 // [VI dòng gốc 103] Kiểm tra !inFarMap(): đúng thì chạy nhánh sau if.
