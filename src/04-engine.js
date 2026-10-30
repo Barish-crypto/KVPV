@@ -28201,7 +28201,9 @@ const V1271HEALCFG={enabled:true,resumePct:100,stalledWarnEveryMs:30000};
 // [VI dòng gốc 14277] Định nghĩa hàm v1271Floor; tham số: không có
 function v1271Floor(){
 // [VI dòng gốc 14278] Kết thúc hàm hiện tại và trả về: 100.
-  return 100;
+  const scope=W.KVPV_FAR_SCOPE?.status?.();
+  // TQ only: report effective 45%-HP gate; other maps retain 100%.
+  return scope?.kind==='THIEN_QUAN'&&scope.inside===true?45:100;
 // [VI dòng gốc 14279] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 }
 // [VI dòng gốc 14280] Định nghĩa hàm v1271PrepareRecovery; tham số: hpPct
@@ -28275,7 +28277,8 @@ W.KVPV_V127_HEAL=Object.freeze({version:'12.7.1',config:V1271HEALCFG,
 // [VI dòng gốc 14314] Thuộc tính healObserved: đảo giá trị đúng/sai của !S.healObserved | Thuộc tính running: đọc S.running
       healObserved:!!S.healObserved,running:S.running,
 // [VI dòng gốc 14315] Thuộc tính note: "HP <=35%: orbit outside Boss client range; resume only at 100% HP after stable confirmation."
-      note:'HP <=35%: orbit outside Boss client range; resume only at 100% HP after stable confirmation.'};
+      note:goal===45?'Thiên Quan: release after HP recovers at least 5 percentage points, is at least 45%, and outside native Boss range; TH300 then positions to 310. Other maps retain 100%.':
+        'HP <=35%: orbit outside Boss client range; resume only at 100% HP after stable confirmation.'};
 // [VI dòng gốc 14316] Kiểm tra print: đúng thì chạy nhánh sau if. | gọi console.table([out]) | Kết thúc hàm hiện tại và trả về: out.
     if(print)console.table([out]);return out;}
 // [VI dòng gốc 14317] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
