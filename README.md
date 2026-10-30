@@ -469,3 +469,24 @@ KVPV_THAC_AN_CD0.status(); // enabled=false, suspended=true, đọc các cooldow
 KVPV_XA_MENH_LV2.status(); // enabled=false, suspended=true
 ```
 Giá trị MPACK gốc: Bát Hoang Phá Thế Lv1/Lv2 30000ms, Lv3 25000ms; Xá Mệnh Nhất Kích Lv2 30000ms; Quẻ Thượng Lv2 30000ms; Ma Hóa Lv2 vốn 0ms. Các điều kiện mở khóa vẫn giữ nguyên. **Không khẳng định 0ms client bỏ qua cooldown server; lần thử đã gây mất chiến đấu.**
+
+
+## Khôi phục Thác Ấn sau khi 0ms gây ngưng skill (2026-10-31)
+
+Trên một phiên game thật, người dùng báo nhân vật đứng yên và ngừng tung skill sau khi bật Thác Ấn client 0ms. Không có bằng chứng đã xác nhận liệu đó là đợi hoạt ảnh, hồi chiêu server, bộ tự đánh mất quyền hay lỗi khác. Thử nghiệm 0ms vẫn **bị khóa**.
+
+**Bản sửa bổ sung:** Ngay cả khi closure của module 0ms cũ đã mất, module mới cố gắng khôi phục các hàng `skill[6]` còn 0ms về MPACK gốc (khi ID, level, record khớp hoàn toàn):
+- Bát Hoang Phá Thế Lv1/2: `30000`, Lv3: `25000` ms.
+- Xá Mệnh Nhất Kích Lv2: `30000` ms.
+- Quẻ Thượng Lv2: `30000` ms.
+- Ma Hóa Lv2 vốn `0` ms nên **không thay đổi**.
+- Hàng không khớp record hoặc có giá trị khác 0 sẽ **không bị ghi đè**.
+
+Mọi thao tác đều chỉ trên dữ liệu cấu hình client của **đúng skill**, không ép skill, không tạo packet, không thao tác phó bản, không mở khóa hoặc tiêu KNB.
+
+Sau khi đồng bộ và nạp FULL mới, kiểm tra/khôi phục bằng:
+```js
+KVPV_COMBAT_STALL.recover();  // khôi phục đúng cooldown client nếu còn 0ms
+KVPV_COMBAT_STALL.status();   // snapshot lý do tự đánh chờ, chỉ đọc
+```
+Trường `thac.unresolved` phải là `[]`. Nếu đã là `[]` mà nhân vật vẫn không tung skill, 0ms cấu hình còn sót **không phải nguyên nhân hiện tại đã chứng minh được**. Đọc `outside.reason`, `long.reason`, `mode.reason`, `native.targetType` và `hints` để xác định bước kiểm tra tiếp theo. Bản sửa **không** tự khởi động lại combat mode mà người dùng đã dừng, và **không** can thiệp `isCooldown`/hoạt ảnh.
