@@ -113,7 +113,8 @@
     }
     const id=identify(target);
     if(s.selectedTargetId!==id){
-      if(s.selectedTargetId!==null)s.targetSwitches++;
+      if(s.lastDistinctTargetId!=null&&s.lastDistinctTargetId!==id)s.targetSwitches++;
+      s.lastDistinctTargetId=id;
       s.selectedTargetId=id;s.lastTargetName=String(prop(target,'name')??'').slice(0,100);
       s.seenTargetIds.add(id);
       add('native_target_selected',{targetId:id,targetName:s.lastTargetName,
@@ -171,7 +172,7 @@
     if(!me||!eligible(target))throw Error('Select a living native monster/Boss first');
     stop('restarted');
     session={active:true,reason:'observing',startedAt:now(),scene:currentScene(),
-      me,selectedTargetId:null,lastTargetName:null,seenTargetIds:new Set(),
+      me,selectedTargetId:null,lastDistinctTargetId:null,lastTargetName:null,seenTargetIds:new Set(),
       castSignals:0,commonAttackSignals:0,buffChangeEvents:0,
       targetSwitches:0,targetBindings:0,unobservableTargets:0,lastError:'',
       dropped:0,events:[],owner:{},listeners:[],targets:[],
