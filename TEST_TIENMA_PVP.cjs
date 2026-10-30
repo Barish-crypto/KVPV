@@ -8,8 +8,7 @@ function harness(){
  const casts=[],moves=[],timers=new Map();
  const actor='10228867268946',rows=[[8001,0,100],[8005,0,200],[1001,0,900]];
  class FakeDate extends Date{static now(){return now;}}
- function Obj(id,type,camp,x,y){this.id=id;this.type=type;this.camp=camp;this.hp=[100,100];this.position={x,y};this.isValid=true;}
- Obj.prototype.property={get:function(k){return ({id:this.id,type:this.type,campType:this.camp,hp:this.hp,position:this.position,status:1})[k];}};
+ function Obj(id,type,camp,x,y){this.id=id;this.type=type;this.camp=camp;this.hp=[100,100];this.position={x,y};this.isValid=true;this.property={get:key=>({id:this.id,type:this.type,campType:this.camp,hp:this.hp,position:this.position,status:1})[key]};}
  function Combat(){}function Selector(){}function Move(){}
  const me=new Obj(actor,4,0,500,0),enemy=new Obj('enemy',4,1,450,0),
   nearer=new Obj('nearer',4,1,490,20),friend=new Obj('friend',4,0,470,0),
