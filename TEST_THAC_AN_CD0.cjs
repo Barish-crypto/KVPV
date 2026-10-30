@@ -50,7 +50,7 @@ function env({orphaned=false,legacy=false}={}){
  q.rows.get('3021/1')[6]=0;
  q.W.KVPV_COMBAT_STALL.recover();
  assert.equal(q.ms(3021,1),30000,'on-demand rollback after later orphan');
- assert.deepEqual(q.W.KVPV_COMBAT_STALL.snapshot().thac.unresolved,[]);
+ assert.equal(q.W.KVPV_COMBAT_STALL.snapshot().thac.unresolved.length,0,'recovery clears unresolved list');
 }
 {
  const q=env();
