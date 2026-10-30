@@ -51,5 +51,27 @@ try{
 // [VI dòng gốc 26] gọi assert(path.resolve(root).startsWith(path.resolve(os.tmpdir())+path.sep)) để kiểm tra điều kiện của bài test | gọi fs.rmSync(root, {recursive:true,force:true})
 }finally{assert(path.resolve(root).startsWith(path.resolve(os.tmpdir())+path.sep));fs.rmSync(root,{recursive:true,force:true});}
 // [VI dòng gốc 27] gọi console.log('PASS executor diagnostics: bounded cached read-only missing-task report, fixed local path, actor/path/size guards and a…)
+{
+ const user=W._Ba._rJ._O$.ins;
+ const read=()=>{now+=5000;return W.KVPV_EXECUTOR_REPORT.snapshot().economy;};
+ let e=read();assert.equal(e.gold,null);assert.equal(e.inventoryReady,false);
+ assert(e.goldChests.every(r=>r.count===null),'uninitialized bag is unknown, not empty');
+ Object.assign(user,{isInitedMoney:true,copper:1234567,ingot:50});
+ const inventory=[[20320001,2,11],[20320001,3,12],[20340001,1,13],[999,100,14]];
+ const original=JSON.stringify(inventory);
+ W._Ba._Ic={_aQ:{ins:{isBagInited:true,getItemsByBagType:type=>{assert.equal(type,0);return inventory;}}}};
+ e=read();assert.equal(e.gold,1234567);assert.equal(e.ingot,50);assert.equal(e.actor,'123456');
+ assert.equal(e.goldChests.find(r=>r.id===20320001).count,5);
+ assert.equal(e.goldChests.find(r=>r.id===20340001).goldPerChest,1000000);
+ assert.equal(e.goldChests.find(r=>r.id===20340005).count,0);
+ assert.equal(JSON.stringify(inventory),original,'diagnostics must not mutate inventory');
+ user.copper=NaN;user.ingot=-1;inventory.push([20320001,-1,15]);
+ e=read();assert.equal(e.gold,null);assert.equal(e.ingot,null);
+ assert.equal(e.goldChests.find(r=>r.id===20320001).count,null);
+ W._Ba._Ic._aQ.ins.getItemsByBagType=()=>{throw Error('bag unavailable');};
+ assert.equal(read().error,'bag unavailable','read failure is contained');
+ user.actorId='other';now+=5000;assert.equal(W.KVPV_EXECUTOR_REPORT.snapshot(),null);
+}
+console.log('PASS executor economy: actor isolation, initialization gates, stack totals, unknown/invalid values and read-only inventory');
 console.log('PASS executor diagnostics: bounded cached read-only missing-task report, fixed local path, actor/path/size guards and atomic JSON');
 // [VI dòng gốc 28] Dòng trống để tách các phần, không có lệnh thực thi.

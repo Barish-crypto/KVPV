@@ -13,6 +13,28 @@
 // [VI dòng gốc 7] Khai báo biến không gán lại bằng const: str = tạo hàm với tham số x; mỗi lần gọi trả về gọi String(x??'').slice(0, 300) để lấy một đoạn dữ liệu
   const str=x=>String(x??'').slice(0,300);
 // [VI dòng gốc 8] Định nghĩa hàm snapshot; tham số: không có. Mục đích: đọc ảnh chụp trạng thái hiện tại
+  function economySnapshot(){
+    const ids=[20320001,20330001,20330002,20340001,20340002,20340003,20340004,20340005];
+    const amounts=[20000,250000,500000,1000000,2000000,5000000,10000000,20000000];
+    const integer=x=>typeof x==='number'&&Number.isSafeInteger(x)&&x>=0?x:null;
+    try{
+      const user=W._Ba?._rJ?._O$?.ins,bag=W._Ba?._Ic?._aQ?.ins;
+      if(String(user?.actorId??'')!==actor)return null;
+      const items=bag?.isBagInited===true?bag.getItemsByBagType?.(0):null;
+      const inventoryReady=Array.isArray(items),counts=new Map(ids.map(id=>[id,0]));
+      if(inventoryReady)for(const item of items){
+        if(!Array.isArray(item)||!counts.has(item[0]))continue;
+        const count=integer(item[1]),previous=counts.get(item[0]);
+        counts.set(item[0],count===null||previous===null?null:integer(previous+count));
+      }
+      return {actor,at:Date.now(),source:'client_state_only',
+        moneyReady:user.isInitedMoney===true,
+        gold:user.isInitedMoney===true?integer(user.copper):null,
+        ingot:user.isInitedMoney===true?integer(user.ingot):null,
+        inventoryReady,
+        goldChests:ids.map((id,i)=>({id,count:inventoryReady?counts.get(id):null,goldPerChest:amounts[i]}))};
+    }catch(e){return {actor,at:Date.now(),source:'client_state_only',error:str(e.message)};}
+  }
   function snapshot(){
 // [VI dòng gốc 9] Kiểm tra !actor||actor!==String(W._Ba?._rJ?._O$?.ins?.actorId??'')||W.__KVPV_UNIVERSAL_HALTED: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: null.
     if(!actor||actor!==String(W._Ba?._rJ?._O$?.ins?.actorId??'')||W.__KVPV_UNIVERSAL_HALTED)return null;
@@ -185,6 +207,7 @@
 // [VI dòng gốc 93] Thuộc tính modulePresence: gọi (typeof __KVPV_V1_BUILD==='undefined'?[]:__KVPV_V1_BUILD.modules??[]).slice(0,160).map(m=>({file:m.file,present:m.apis.filter(name=>W[name]!=null)})) để biến đổi từng phần tử | Thuộc tính file: đọc m.file | Thuộc tính present: gọi m.apis.filter(name=>W[name]!=null) để giữ phần tử thỏa điều kiện
       modulePresence:(typeof __KVPV_V1_BUILD==='undefined'?[]:__KVPV_V1_BUILD.modules??[]).slice(0,160).map(m=>({file:m.file,present:m.apis.filter(name=>W[name]!=null)})),
 // [VI dòng gốc 94] Thuộc tính bagOpenSession: W.KVPV_BAG_OPEN_SESSION?.status?.() hoặc dùng vế phải khi vế trái là null/undefined: null
+      economy:economySnapshot(),
       bagOpenSession:W.KVPV_BAG_OPEN_SESSION?.status?.()??null,
 // [VI dòng gốc 95] Thuộc tính bagInspection: nếu actor==='10158939833447' thì lấy (()=>{ try { const bag=W._Ba?._Ic?._aQ?.ins,items=bag?.getItemsByBagType?.(0); return {at:Date.now(),ready:bag?.isBagInited===true,used:items?.length??null, free:bag?.getBagLeftNum…, ngược lại lấy null
       bagInspection:actor==='10158939833447'?(()=>{
