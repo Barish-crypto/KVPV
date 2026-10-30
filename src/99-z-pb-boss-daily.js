@@ -13,7 +13,11 @@
   // Disconnect isolation: restore native cooldown/animation owned hooks before Daily combat.
   W.KVPV_TQ_BASIC_FORCE?.setEnabled?.(false);
   W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.setEnabled?.(false);
-  for(const name of ['KVPV_EIGHT_FLOOR','KVPV_MARRY_ARENA','KVPV_KIEM_KHIEU'])try{W[name]?.stop?.();}catch(e){S.errors.push(name+': '+String(e?.message??e));}
+  // Eight Floor is an independent, schedule-gated event controller.
+  // Do not stop it after src/14-eight-floor.js has auto-armed it: on FULL/hot
+  // reload this PB/Boss profile runs later and previously left Eight Floor OFF.
+  // The Eight Floor scheduler already yields to active Daily/Boss ownership.
+  for(const name of ['KVPV_MARRY_ARENA','KVPV_KIEM_KHIEU'])try{W[name]?.stop?.();}catch(e){S.errors.push(name+': '+String(e?.message??e));}
   W.KVPV_DESKTOP_CONTROL?.stop?.();
   W.KVPV_DESKTOP_CONTROL=Object.freeze({receive:()=>false,stop(){},scopeProfile:()=>null,distance:()=>302,stageAllowed:()=>true,status:()=>({reason:'javascript_daily_only',lastError:'',modules:{}}),_handoff:()=>({actor,desired:null,failedRevision:null})});
   const c=W.KVPV_DAILY.config;
