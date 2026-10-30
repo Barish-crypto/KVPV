@@ -126,6 +126,7 @@ const liveModules = [
   "32-xa-menh-lv2-cd0.js",
   "32-thac-an-cd0.js",
   "32-combat-stall.js",
+  "32-golden-proc-observer.js",
 // [VI dòng gốc 61] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "33-progress-planner.js",
   "33-progress-planner.js",
 // [VI dòng gốc 62] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "34-fabao-treasure.js",
