@@ -28201,7 +28201,9 @@ const V1271HEALCFG={enabled:true,resumePct:100,stalledWarnEveryMs:30000};
 // [VI dòng gốc 14277] Định nghĩa hàm v1271Floor; tham số: không có
 function v1271Floor(){
 // [VI dòng gốc 14278] Kết thúc hàm hiện tại và trả về: 100.
-  return 100;
+  const scope=W.KVPV_FAR_SCOPE?.status?.();
+  // TQ only: report effective 45%-HP gate; other maps retain 100%.
+  return scope?.kind==='THIEN_QUAN'&&scope.inside===true?45:100;
 // [VI dòng gốc 14279] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 }
 // [VI dòng gốc 14280] Định nghĩa hàm v1271PrepareRecovery; tham số: hpPct
@@ -28275,7 +28277,8 @@ W.KVPV_V127_HEAL=Object.freeze({version:'12.7.1',config:V1271HEALCFG,
 // [VI dòng gốc 14314] Thuộc tính healObserved: đảo giá trị đúng/sai của !S.healObserved | Thuộc tính running: đọc S.running
       healObserved:!!S.healObserved,running:S.running,
 // [VI dòng gốc 14315] Thuộc tính note: "HP <=35%: orbit outside Boss client range; resume only at 100% HP after stable confirmation."
-      note:'HP <=35%: orbit outside Boss client range; resume only at 100% HP after stable confirmation.'};
+      note:goal===45?'Thiên Quan: release after HP recovers at least 5 percentage points, is at least 45%, and outside native Boss range; TH300 then positions to 310. Other maps retain 100%.':
+        'HP <=35%: orbit outside Boss client range; resume only at 100% HP after stable confirmation.'};
 // [VI dòng gốc 14316] Kiểm tra print: đúng thì chạy nhánh sau if. | gọi console.table([out]) | Kết thúc hàm hiện tại và trả về: out.
     if(print)console.table([out]);return out;}
 // [VI dòng gốc 14317] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
@@ -32762,6 +32765,21 @@ function tick(){
 // [VI dòng gốc 16581] Chú thích gốc của tác giả; không được thực thi. Nội dung: Hold the native guard until current HP is truly full, never rounded to 100.
     // Hold the native guard until current HP is truly full, never rounded to 100.
 // [VI dòng gốc 16582] gọi v1271PrepareRecovery(h.pct)
+    // Tian Quan only: returning at a safely recovered HP level restores
+    // native FIGHT ownership; TH300 subsequently repositions to its 310 goal.
+    // Avoid global 100% override and never release at/below 35% emergency HP.
+    // Require actual healing (+5 points) and the existing retreat dwell time.
+    // Other scenes retain the original stable 100% HP policy.
+    const tqEarlyScope=W.KVPV_FAR_SCOPE?.status?.();
+    const tqEarlyResume=tqEarlyScope?.kind==='THIEN_QUAN'&&tqEarlyScope.inside===true&&
+      Number.isFinite(h.pct)&&h.pct>=45&&h.pct-S.minObservedPct>=5&&
+      spent>=C.minRetreatMs&&Number.isFinite(recoveryDistance)&&
+      recoveryDistance>=Math.max(300,recoveryGeometry().range+20);
+    if(tqEarlyResume){
+      leaveRetreat('THIEN_QUAN resume at '+h.pct.toFixed(1)+
+        '% HP after real healing; native TH300 positions to 310');
+      return;
+    }
     v1271PrepareRecovery(h.pct);
 // [VI dòng gốc 16583] Khai báo biến không gán lại bằng const: decision = gọi S._bossSurvival.retreat({ at:t,hpPct:h.pct,minObservedPct:S.minObservedPct, retreatAt:S.retreatAt,orbitLaps:S.orbitLaps })
     const decision=S._bossSurvival.retreat({

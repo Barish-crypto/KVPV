@@ -562,3 +562,20 @@ KVPV_TH300.status(false).playerSkillIds
 Trường `learnedSource` là `native_vX` khi tìm được danh sách gốc, hoặc `player_model_fallback` khi chưa thấy. Kết quả `ids` chỉ là các skill **đủ điều kiện được chọn**, chưa chứng minh đã tung và gây sát thương trên server.
 
 **Khác với kích hoạt nội tại Thánh Trang**: Bát Hoang 3021, Xá Mệnh 3031, Cuồng Long 3061 do server/native gameplay kích hoạt theo điều kiện riêng; không nằm trong danh sách chiêu đánh tay. So sánh proc cần đo riêng với `KVPV_GOLDEN_PROC` ở bộ đánh native và bộ TQ trên cùng Boss/điều kiện. Không suy luận 0% từ vắng mã 3022/3032 trong listener của một mục tiêu.
+
+## Thiên Quan: hồi phục xong không cần 100% HP (2026-10-31)
+
+User's observed Tian Quan trace: distance 310.664, Boss range config 280, 0 cast attempts, 0 confirmed hits, lastReason `position_stalled_bounded`. This reflects a blocked positioning/combat state, **not evidence that Thánh Trang's 8% passive proc failed**. Another real test has 7/8 Tuyệt Học with matched damage around distance 307.766; skill 1008 had 5 attempts without a matched hit.
+
+The old HitRun core required **100% HP in all scenes** to return from `RETREAT`. For a confirmed `THIEN_QUAN` scene (`KVPV_FAR_SCOPE.status().inside===true`), it now allows early release of its native attack/movement guard when all are true: HP is **at least 45%**, HP has **actually risen at least 5 percentage points** since retreat minimum, the original `minRetreatMs=1200` has elapsed, actor is a finite distance at least `max(300, Boss native range+20)` away from the Boss, and the actor has not changed or died (preexisting safety guards). `TH300` then repositions to its goal **310** and dispatches skills through existing native cooldown/range gates. This **does not attack while HitRun is RETREAT** and does not force client/server hit chance.
+
+For all other maps, the 100% HP release policy stays unchanged. HP at or below 35% still triggers RETREAT; if HP does not recover enough, retreat remains active. No item upgrades, KNB spending, new network requests, cooldown or animation bypass.
+
+Inspect after syncing:
+```js
+KVPV_HITRUN1.status(false)
+KVPV_V127_HEAL.status(false)
+KVPV_TH300.status(false)
+```
+
+For the previous positioning pause, check `KVPV_TH300.status(false).goalDistance` and `positioning` alongside `hitrunPhase`; `position_stalled_bounded` can be stale when the HitRun owner is in RETREAT, since TH300's position-correction loop does not own movement in that phase. This update releases ownership earlier when healthy enough, allowing TH300 to reposition rather than overriding the native movement gate.

@@ -229,5 +229,31 @@ test('immobilization still permits native stop during retreat',()=>{
 // [VI dòng gốc 115] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 116] gọi console.log('PASSED', passed+'/18')
-console.log('PASSED',passed+'/18');
+
+test('Tian Quan resumes native combat at 45% healed HP without waiting for 100%',()=>{
+ const q=harness();q.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN',inside:true})};
+ retreat(q);
+ assert.equal(q.combat.combat(8001),undefined);
+ q.hp(44);q.tick(1600);assert.equal(q.status().phase,'RETREAT','less than 45% remains protected');
+ q.hp(45);q.tick(400);
+ assert.equal(q.status().phase,'FIGHT','45% healed HP releases owner');
+ assert.equal(q.combat.combat(8001),'native attack','native combat resumes without fabricated RPC');
+ assert.equal(q.status().completedRetreats,1);
+});
+test('Tian Quan does not resume if too close to Boss even at 45%',()=>{
+ const q=harness();q.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN',inside:true})};retreat(q);
+ q.values.position={x:285,y:0};q.hp(45);q.tick(1500);
+ assert.equal(q.status().phase,'RETREAT','at 285 within unsafe range');
+ q.values.position={x:310,y:0};q.tick(200);
+ assert.equal(q.status().phase,'FIGHT','at 310 safely returns without full HP');
+});
+test('Tian Quan scope must be confirmed inside; other scope still requires full HP',()=>{
+ const q=harness();q.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN',inside:false})};retreat(q);
+ q.hp(85);for(let i=0;i<5;i++)q.tick(800);
+ assert.equal(q.status().phase,'RETREAT','inside false must preserve full HP gate');
+ q.W.KVPV_FAR_SCOPE={status:()=>({kind:'LINH_LUNG',inside:true})};
+ q.tick(800);assert.equal(q.status().phase,'RETREAT','other map never early-return');
+});
+
+console.log('PASSED',passed+'/21');
 // [VI dòng gốc 117] Dòng trống để tách các phần, không có lệnh thực thi.
