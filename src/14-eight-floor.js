@@ -111,7 +111,10 @@
 // [VI dòng gốc 58] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Kiểm tra W.KVPV_ENTRY_POLICY?.manual===true: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function tick(){if(W.KVPV_ENTRY_POLICY?.manual===true)return;try{
 // [VI dòng gốc 59] Kiểm tra !C.enabled||!owned(): đúng thì chạy nhánh sau if. | gọi stop() để dừng bộ điều khiển và dọn tài nguyên | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-    if(!C.enabled||!owned()){stop();return;}
+    if(!C.enabled)return;
+    // Session may momentarily be unavailable while the game reconnects.
+    // Wait without sending commands; never permanently disable scheduled entry.
+    if(!owned()){S.reason='actor_session_unavailable';return;}
 // [VI dòng gốc 60] Khai báo biến không gán lại bằng const: d = gọi data(); time = gọi Date.now() | Kiểm tra S.day!==d.day: đúng thì chạy nhánh sau if. | gán S.day bằng d.day | gán S.attempts bằng 0
     const d=data(),time=Date.now();if(S.day!==d.day){S.day=d.day;S.attempts=0;S.claimKeys.clear();}
 // [VI dòng gốc 61] Khai báo biến không gán lại bằng const: top = d.inside và chỉ đánh giá vế phải khi vế trái truthy: Number(W._Ba?._$a?._yo?.ins?.intoSce?.[3])===9||d.floor===9; chestDone = tính biểu thức W.KVPV_EIGHT_CHEST?.status?.()?.doneToday===true
@@ -185,6 +188,7 @@
   // Trả trạng thái hiện tại để kiểm tra; ý nghĩa từng bộ đếm thuộc phạm vi module này.
 // [VI dòng gốc 95] Định nghĩa hàm status; tham số: không có. Mục đích: trả trạng thái để kiểm tra | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm các thuộc tính của data(), enabled, phase, reason, entryAttempts, completedDay, doneToday, confirmedEntries, rewardPending, rewardConfirmed, lastError, history.
   function status(){return {...data(),enabled:C.enabled,phase:S.phase,reason:S.reason,entryAttempts:S.attempts,
+      actorMatches:!!owned(),timerActive:S.timer!==null,
       dailyJob:W.KVPV_DAILY?.quickState?.()?.job??null,
       commonScene:W._Ba?._$a?.SceneUtil?.isCommonScene===true,
       manualPolicy:W.KVPV_ENTRY_POLICY?.manual===true,
