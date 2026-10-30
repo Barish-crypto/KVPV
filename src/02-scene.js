@@ -105,6 +105,20 @@
 // [VI dòng gốc 54] Chú thích gốc của tác giả; không được thực thi. Nội dung: Xét xung đột Daily, combat, Tự Vượt và lịch sắp mở trước khi cấp quyền.
   // Xét xung đột Daily, combat, Tự Vượt và lịch sắp mở trước khi cấp quyền.
 // [VI dòng gốc 55] Định nghĩa hàm conflict; tham số: who, tag=''
+  // Only a real, open Eight Floor window may outrank the overlapping
+  // Tranh Ba Dinh Cao timetable reservation. Do NOT bypass actual scene
+  // owners, an active Daily job, native stage combat, or server entry gates.
+  function eightEntryReady(who,tag){
+    if(who!=='combat'||tag!=='thien-the-8-tang')return false;
+    try{
+      const d=W.KVPV_EIGHT_FLOOR?.status?.();
+      return d?.enabled===true&&d?.scheduled===true&&d?.open===true&&
+        d?.unlocked===true&&d?.cooldownReady===true&&
+        d?.inside===false&&d?.doneToday!==true&&
+        W._Ba?._$a?.SceneUtil?.isCommonScene===true&&
+        W.KVPV_DAILY_TRIAL?.status?.()?.inFlight!==true;
+    }catch(_){return false;}
+  }
   function conflict(who,tag=''){
 // [VI dòng gốc 56] Kiểm tra !actorValid(): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: "actor/session unavailable".
     if(!actorValid())return 'actor/session unavailable';
@@ -113,7 +127,7 @@
 // [VI dòng gốc 58] Kiểm tra who==='combat': đúng thì chạy nhánh sau if. | gọi yieldStageForCombat()
     if(who==='combat')yieldStageForCombat();
 // [VI dòng gốc 59] Khai báo biến không gán lại bằng const: j = gọi dailyJob(); s = gọi stageState(); l = gọi lease()
-    const j=dailyJob(),s=stageState(),l=lease();
+    const j=dailyJob(),s=stageState(),l=lease(),eight=eightEntryReady(who,tag);
 // [VI dòng gốc 60] Chú thích gốc của tác giả; không được thực thi. Nội dung: Thí Luyện Ngày được ưu tiên nhận việc trước Daily/Tự Vượt/sự kiện mới.
     // Thí Luyện Ngày được ưu tiên nhận việc trước Daily/Tự Vượt/sự kiện mới.
 // [VI dòng gốc 61] Chú thích gốc của tác giả; không được thực thi. Nội dung: Không tranh quyền với job, HitRun hoặc một trận đã ở trong map.
@@ -135,7 +149,7 @@
 // [VI dòng gốc 69] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
       });
 // [VI dòng gốc 70] Kiểm tra hold: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: tính biểu thức 'upcoming event '+hold.key+' ('+hold.time+')'.
-      if(hold)return 'upcoming event '+hold.key+' ('+hold.time+')';
+      if(hold&&!(eight&&hold.key==='tranh_ba_dinh_cao'))return 'upcoming event '+hold.key+' ('+hold.time+')';
 // [VI dòng gốc 71] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
     }
 // [VI dòng gốc 72] Kiểm tra who==='combat': đúng thì chạy nhánh sau if, sai thì chạy nhánh else.
@@ -175,7 +189,7 @@
 // [VI dòng gốc 89] Thuộc tính can: tạo hàm với tham số who; mỗi lần gọi trả về tính biểu thức conflict(who)===null
     can:(who)=>conflict(who)===null,
 // [VI dòng gốc 90] Thuộc tính reason: tạo hàm với tham số who; mỗi lần gọi trả về gọi conflict(who)
-    reason:(who)=>conflict(who),
+    reason:(who,tag='')=>conflict(who,tag),
 // [VI dòng gốc 91] Thuộc tính acquire: tạo hàm với tham số who, tag=''
     acquire(who,tag=''){
 // [VI dòng gốc 92] Kiểm tra W.KVPV_CONFIRM_POPUPS?.beforeTask?.()===true: đúng thì chạy nhánh sau if. | tăng state.denied một đơn vị sau khi lấy giá trị | gọi log('denied', who, 'priority: agree popup') | Kết thúc hàm hiện tại và trả về: false.
