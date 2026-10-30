@@ -508,3 +508,22 @@ Cơ chế: sự kiện `1039` nhân vật tung skill (đếm các skill native 8
 **Rất quan trọng:** `observedBursts` không phải số proc server được xác thực độc lập. `burstCountPer100ObservedBasicTH` **không phải tỷ lệ kích hoạt 8%** vì skill có cooldown, crit, đa hit, kỹ năng khác và sự kiện game có thể không được quan sát đủ. Nếu có `shortestBurstGapMs` thấp hơn cooldown gốc, đó chỉ là dữ liệu cần phân tích kỹ, không chứng minh bypass cooldown hoặc RNG 100%. Chưa biết Hữu Thần Trợ tác động vào xác suất hay sát thương của proc.
 
 Bằng chứng cần từ game thật: chọn một Boss lâu chết, dùng combat gốc, thu JSON và đối chiếu `commonAttackSignals`, `procs[].observedBursts`, `gapsMs`, `config` và `events`. Không có giá trị nào tự ý bị sửa.
+
+
+## Golden Proc v2 — xác minh log 2998 (2026-10-31)
+
+Hai lần đo thực tế ở map 2998: (1) Ma Oa Quái chạy 20,685 giây, 4 cast basic/TH, observer tự dừng khi đổi mục tiêu; (2) Thiên Tai Tà Thần chạy 35,499 giây, 134 tín hiệu cast (79 basic/TH), 28 thay đổi buff, nhưng 0 hit marker `3022` / `3032` trong listener của mục tiêu đã chọn. Điều này **không xác minh xác suất server 0% hay chứng minh có thể ép 100%**. Cả hai skill có cooldown config 30000ms, và hit AoE có thể ở đối tượng khác hoặc marker khác.
+
+Bản v2 giữ một phiên quan sát tối đa 3 phút trong **cùng map** kể cả khi quái chết/đổi target; có thể gắn listener vào tối đa 6 quái native từng được chọn, nhận cả hit đến trễ trên quái cũ. Không quét cả map, không tự chọn mục tiêu, không gửi RPC và không đo toàn bộ AoE.
+
+Có thêm phần đếm chẩn đoán: `nativeDamageSignals` (tổng sự kiện 1012 nhận được), `ownedDamageSignals` (sát thương có source là nhân vật và receiver khớp quái), `otherSourceSignals`, `receiverMismatchSignals`, `markerHistogram` (tối đa 24 loại mã nhận diện), `targetSwitches` và `trackedTargetIds`. Dữ liệu giúp phân biệt **không có sự kiện 1012** với **sự kiện có nhưng mang ID khác 3022/3032**.
+
+Sau khi đồng bộ FULL mới:
+```js
+KVPV_GOLDEN_PROC.start()
+KVPV_GOLDEN_PROC.status()
+copy(KVPV_GOLDEN_PROC.export())
+KVPV_GOLDEN_PROC.stop()
+```
+
+Nếu `ownedDamageSignals===0` sau khi đánh nhiều đòn, điểm cần khảo sát tiếp là đường event 1012 của client chứ không phải tự kết luận nội tại không kích hoạt. Nếu `ownedDamageSignals>0` nhưng `markerHistogram` không chứa `3022`/`3032`, cần đối chiếu ID sát thương theo client thực tế trước khi suy luận xác suất. Dù có tín hiệu, `observedBursts` chỉ là nhóm hit quan sát, **không phải số lần server thử RNG**, và `burstCountPer100ObservedBasicTH` không phải xác suất kích hoạt.
