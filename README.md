@@ -490,3 +490,21 @@ KVPV_COMBAT_STALL.recover();  // khôi phục đúng cooldown client nếu còn 
 KVPV_COMBAT_STALL.status();   // snapshot lý do tự đánh chờ, chỉ đọc
 ```
 Trường `thac.unresolved` phải là `[]`. Nếu đã là `[]` mà nhân vật vẫn không tung skill, 0ms cấu hình còn sót **không phải nguyên nhân hiện tại đã chứng minh được**. Đọc `outside.reason`, `long.reason`, `mode.reason`, `native.targetType` và `hints` để xác định bước kiểm tra tiếp theo. Bản sửa **không** tự khởi động lại combat mode mà người dùng đã dừng, và **không** can thiệp `isCooldown`/hoạt ảnh.
+
+## Kiểm thử nội tại 8%: Bát Hoang + Xá Mệnh (2026-10-31)
+
+**Không giả vờ ép 8% thành 100%.** 8% được thấy trong chuỗi mô tả kỹ năng; chưa có bằng chứng client sở hữu phép thử RNG của server. Sau sự cố 0ms làm combat đứng yên, không chỉnh `skill[6]`, mô tả, animation, socket hoặc RPC.
+
+Có module đọc sự kiện gốc `KVPV_GOLDEN_PROC` trong FULL, mặc định **không theo dõi** và không tạo timer/hook điều khiển. Chọn **Boss/quái đang sống** trong đúng game-frame, để combat chạy bình thường và gọi:
+```javascript
+KVPV_GOLDEN_PROC.start()   // bắt đầu quan sát mục tiêu hiện tại; không tự đánh
+KVPV_GOLDEN_PROC.status()  // xem kết quả sau khoảng 1–3 phút
+copy(KVPV_GOLDEN_PROC.export()) // copy JSON quan sát để phân tích
+KVPV_GOLDEN_PROC.stop()    // tháo listener gốc
+```
+
+Cơ chế: sự kiện `1039` nhân vật tung skill (đếm các skill native 8001–8009, 1001–1008), `1012` sát thương từ chính nhân vật lên mục tiêu với marker `30220000` (Bát Hoang Phá Thế — damage 3022) hoặc `30320000` (Xá Mệnh Nhất Kích — damage 3032), và sự kiện thay đổi `buffs` nếu có. Một nhóm tín hiệu sát thương cùng kỹ năng trong 350ms được gộp thành **một burst quan sát** để giảm tính nhầm hit liên tiếp thành proc riêng. Ghi tối đa 180 sự kiện, 3 phút, tự dừng khi đổi actor/map/target (kiểm tra khi có sự kiện hoặc gọi status). Nạp lại bản FULL sẽ gỡ listener cũ và yêu cầu bật thủ công.
+
+**Rất quan trọng:** `observedBursts` không phải số proc server được xác thực độc lập. `burstCountPer100ObservedBasicTH` **không phải tỷ lệ kích hoạt 8%** vì skill có cooldown, crit, đa hit, kỹ năng khác và sự kiện game có thể không được quan sát đủ. Nếu có `shortestBurstGapMs` thấp hơn cooldown gốc, đó chỉ là dữ liệu cần phân tích kỹ, không chứng minh bypass cooldown hoặc RNG 100%. Chưa biết Hữu Thần Trợ tác động vào xác suất hay sát thương của proc.
+
+Bằng chứng cần từ game thật: chọn một Boss lâu chết, dùng combat gốc, thu JSON và đối chiếu `commonAttackSignals`, `procs[].observedBursts`, `gapsMs`, `config` và `events`. Không có giá trị nào tự ý bị sửa.
