@@ -598,6 +598,43 @@
 // [VI dòng gốc 167] Chú thích gốc của tác giả; không được thực thi. Nội dung: Lấy tầm Boss từ cấu hình và bán kính nguy hiểm đã quan sát, chọn giá trị lớn hơn.
   // Lấy tầm Boss từ cấu hình và bán kính nguy hiểm đã quan sát, chọn giá trị lớn hơn.
 // [VI dòng gốc 168] Định nghĩa hàm bossRange; tham số: không có | Khai báo biến không gán lại bằng const: cfg = Number(W._ft?._tY?.ins?.getCfgById?.(Number(prop(role().c?.target,'occ')))?.[3]) hoặc dùng vế phải khi vế trái falsy: 0
+  // MPACK is a game-wide database, NOT a list of equippable player skills.
+  // Only select learned player active skills already offered by native selector.
+  // Passive 3021/3031 and their proc-generated 3022/3032 are not manual casts.
+  const tqMpack={enabled:true};
+  function tqMpackExtraAllowed(value){
+    const id=Number(value);
+    if(!tqMpack.enabled||!tqFive?.active()||!tqFive.allowsTuyetHoc()||
+       basicSolo4100Active()||transforming()||
+       W.KVPV_FAR_SCOPE?.status?.()?.kind!=='THIEN_QUAN'||
+       !Number.isSafeInteger(id)||id<1||isBasic(id)||id>=1001&&id<=1008)return false;
+    if(!candidate(id))return false;
+    const learned=W._Ba?._rJ?._O$?.ins?.skills;
+    const entry=Array.isArray(learned)?learned.find(row=>Number(row?.[0])===id):null;
+    const lv=Number(entry?.[1]);
+    if(!entry||!Number.isSafeInteger(lv)||lv<1)return false;
+    let cfg;
+    try{cfg=W._ft?._nY?.ins?.getCfgBySkillIdAndLv?.(id,lv);}catch(_){return false;}
+    if(!Array.isArray(cfg)||Number(cfg[1])!==id||Number(cfg[4])!==1||
+       /chủ động\s*$/i.test(String(cfg[2]??'')))return false;
+    const maps=cfg[17];
+    if(Array.isArray(maps)&&maps.length&&
+       !maps.some(m=>Number(m)===Number(scene())))return false;
+    return true;
+  }
+  function tqActiveExtraIds(){
+    if(!tqMpack.enabled||!tqFive?.active()||!tqFive.allowsTuyetHoc()||
+       W.KVPV_FAR_SCOPE?.status?.()?.kind!=='THIEN_QUAN')return [];
+    const r=role();
+    const ids=[...new Set([r.s?._rtt,r.s?._wet].flatMap(rows=>
+       Array.isArray(rows)?rows.map(row=>Number(row?.[0])):[]))];
+    return ids.filter(tqMpackExtraAllowed).sort((a,b)=>a-b);
+  }
+  const tqSelectableNative=id=>Number(id)>=1001&&Number(id)<=1008||tqMpackExtraAllowed(id);
+  function setTianQuanMpackExtras(enabled=true){
+    tqMpack.enabled=enabled===true;
+    return {enabled:tqMpack.enabled,extraIds:tqActiveExtraIds(),nativeOnly:true};
+  }
   function bossRange(){const cfg=Number(W._ft?._tY?.ins?.getCfgById?.(Number(prop(role().c?.target,'occ')))?.[3])||0;
 // [VI dòng gốc 169] Khai báo biến không gán lại bằng const: observed = Number(W.KVPV_HITRUN1?.status?.(false)?.observedDangerRadius) hoặc dùng vế phải khi vế trái falsy: 0 | Kết thúc hàm hiện tại và trả về: gọi Math.max(cfg, observed).
     const observed=Number(W.KVPV_HITRUN1?.status?.(false)?.observedDangerRadius)||0;return Math.max(cfg,observed);}
@@ -669,7 +706,7 @@
 // [VI dòng gốc 202] Định nghĩa hàm allowed; tham số: id, occ, d | Kiểm tra isBasic(id): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: selectedBasic(id)&&!(rangeTest?.status==='running'&&rangeTest.rows[rangeTest.index]?.id===Number(id)&&rangeTest.rows[rangeTest.index].attempts.length>=2)&&(basicProbe.dispatch||mix… và chỉ đánh giá vế phải khi vế trái truthy: !ST.casts.some(c=>!c.used&&c.basicTrial&&basicPendingBlocks(c)&&c.id===Number(id)&&c.targetId===identity(role().c?.target)&&c.scene===scene()&&Date.now()-c.time<=CFG.castTtlMs).
   // Khi đánh tay đã tạm ngưng vì thiếu xác nhận, không chặn Tuyệt Học bằng quota đánh tay.
   const basicQuotaSatisfied=id=>mixed.suspended||mixed.hitQuota===null||Number(id)<1001||Number(id)>1008||mixed.confirmedSinceTH>=mixed.hitQuota;
-  function allowed(id,occ,d){if(trial1008?.blocks(id))return false;if(tqFive?.active()&&(isBasic(id)?!tqFive.ids().includes(Number(id))||!tqFive.canAttempt(Number(id)):!tqFive.allowsTuyetHoc()||Number(id)<1001||Number(id)>1008))return false;if(isBasic(id))return selectedBasic(id)&&!(rangeTest?.status==='running'&&rangeTest.rows[rangeTest.index]?.id===Number(id)&&rangeTest.rows[rangeTest.index].attempts.length>=2)&&(tqFive?.active()||basicProbe.dispatch||mixed.enabled&&!mixed.suspended)&&[role().s?._rtt,role().s?._wet].some(rows=>Array.isArray(rows)&&rows.some(row=>Number(row?.[0])===Number(id)))&&
+  function allowed(id,occ,d){if(trial1008?.blocks(id))return false;if(tqFive?.active()&&(isBasic(id)?!tqFive.ids().includes(Number(id))||!tqFive.canAttempt(Number(id)):!tqFive.allowsTuyetHoc()||!tqSelectableNative(id)))return false;if(isBasic(id))return selectedBasic(id)&&!(rangeTest?.status==='running'&&rangeTest.rows[rangeTest.index]?.id===Number(id)&&rangeTest.rows[rangeTest.index].attempts.length>=2)&&(tqFive?.active()||basicProbe.dispatch||mixed.enabled&&!mixed.suspended)&&[role().s?._rtt,role().s?._wet].some(rows=>Array.isArray(rows)&&rows.some(row=>Number(row?.[0])===Number(id)))&&
 // [VI dòng gốc 203] Định nghĩa hàm hàm không đặt tên; tham số: c
     !ST.casts.some(c=>!c.used&&c.basicTrial&&basicPendingBlocks(c)&&c.id===Number(id)&&c.targetId===identity(role().c?.target)&&c.scene===scene()&&Date.now()-c.time<=CFG.castTtlMs);
 // [VI dòng gốc 204] Kết thúc hàm hiện tại và trả về: (mixed.hitQuota===null||Number(id)<1001||Number(id)>1008||mixed.confirmedSinceTH>=mixed.hitQuota)&&candidate(Number(id))&& !((burst.enabled||pacer)&&!transforming()&&ST.casts.some(… và chỉ đánh giá vế phải khi vế trái truthy: ST.mode==='SCAN'||(verified(occ,id)&&Number.isFinite(d)&&d<=supportedDistance(occ,id)+0.01).
@@ -1179,17 +1216,17 @@
         const all=[...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])],occ=Number(prop(r.c.target,'occ')),d=radius(r.a,r.c.target);
         const pickBasic=()=>selectBasic(native,this,all,mode,occ,d);
         if(basicSolo4100Active()||!tqFive.allowsTuyetHoc()||thGap.picking)return pickBasic();
-        const roster=skillNames().map(x=>x.id).filter(id=>id>=1001&&id<=1008),offset=roster.length?ST.skillCursor%roster.length:0,order=roster.slice(offset).concat(roster.slice(0,offset));
+        const roster=skillNames().map(x=>x.id).filter(tqSelectableNative),offset=roster.length?ST.skillCursor%roster.length:0,order=roster.slice(offset).concat(roster.slice(0,offset));
         const pickTH=()=>{
           ST.tqSelectedNative=null;
-          const rows=cosmicRank(all.filter(row=>Number(row?.[0])>=1001&&Number(row?.[0])<=1008&&Number.isFinite(Number(row[1]))&&Number(row[1])<Date.now()&&allowed(Number(row[0]),occ,d)),'th',(a,b)=>order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])));
+          const rows=cosmicRank(all.filter(row=>tqSelectableNative(Number(row?.[0]))&&Number.isFinite(Number(row[1]))&&Number(row[1])<Date.now()&&allowed(Number(row[0]),occ,d)),'th',(a,b)=>order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])));
           const id=Number(native.call(this,rows,[],mode));
           if(rows.some(row=>Number(row?.[0])===id))
             ST.tqSelectedNative={id,at:Date.now(),targetId:identity(r.c?.target),scene:scene()};
           return id;
         };
         if(pilot4100THOnly())return pickTH();
-        const first=mixed.wantBasic?pickBasic:pickTH,second=mixed.wantBasic?pickTH:pickBasic,id=first();return isBasic(id)||id>=1001&&id<=1008?id:second();
+        const first=mixed.wantBasic?pickBasic:pickTH,second=mixed.wantBasic?pickTH:pickBasic,id=first();return isBasic(id)||tqSelectableNative(id)?id:second();
       }
 // [VI dòng gốc 401] Kiểm tra CFG.basicOnly&&ST.running&&this===r.s&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false: đúng thì chạy nhánh sau if.
       if(CFG.basicOnly&&ST.running&&this===r.s&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false){
@@ -1658,7 +1695,7 @@
 // [VI dòng gốc 620] Định nghĩa hàm status; tham số: show=true. Mục đích: trả trạng thái để kiểm tra | Khai báo biến không gán lại bằng const: occ = gọi stageOcc(); ready = gọi skillNames(); proved = gọi ready.filter(x=>verified(occ,x.id)).map(x=>({...x,confirmations:ST.proofs.get(key(occ,x.id))?.size||0})) để biến đổi từng phần tử
   function status(show=true){const occ=stageOcc(),ready=skillNames(),proved=ready.filter(x=>verified(occ,x.id)).map(x=>({...x,confirmations:ST.proofs.get(key(occ,x.id))?.size||0}));
 // [VI dòng gốc 621] Khai báo biến không gán lại bằng const: ret = tạo đối tượng gồm basicAnimationSpeed, scaledBasicAnimations, basicSpeedTrial, basicOnly, playerSkillIds, interleavedBasic, basicProbeActive, version, running, operation, goalDistance, requestedDistance, requireDistanceGreaterThan, clientTrialRadius, nativeTuyetHoc, confirmedSkills, confirmedOver300, bossClientRange, minimumDistance, skills, afterTHWaitMs, basicHitQuota, confirmedSinceTH, thCycles, primaryBasic…
-    const tqIds=tqFive?.active()?[...basicRotation(),...(!basicSolo4100Active()&&tqFive.allowsTuyetHoc()?ready.filter(x=>x.id>=1001&&x.id<=1008).map(x=>x.id):[])]:null;
+    const tqIds=tqFive?.active()?[...basicRotation(),...(!basicSolo4100Active()&&tqFive.allowsTuyetHoc()?ready.filter(x=>tqSelectableNative(x.id)).map(x=>x.id):[])]:null;
     const ret={basicAnimationSpeed:CFG.basicAnimationSpeed,
        tqTuyetHocVisualSpeed:CFG.tqTuyetHocVisualSpeed,
         tqBasicVisualSpeed:CFG.tqBasicVisualSpeed,tqBasicVisualCalls,tqBasicVisualScaled,tqBasicVisualUnavailable,tqBasicVisualLastSkill,
@@ -1668,7 +1705,7 @@
 // [VI dòng gốc 622] Thuộc tính requireDistanceGreaterThan: đọc CFG.min | Thuộc tính clientTrialRadius: đọc CFG.max
       requireDistanceGreaterThan:CFG.min,clientTrialRadius:CFG.max,
 // [VI dòng gốc 623] Thuộc tính nativeTuyetHoc: ready | Thuộc tính confirmedSkills: proved | Thuộc tính confirmedOver300: gọi proved.filter(x=>supportedDistance(occ,x.id)>300) để giữ phần tử thỏa điều kiện
-      nativeTuyetHoc:ready,confirmedSkills:proved,confirmedOver300:proved.filter(x=>supportedDistance(occ,x.id)>300),
+      nativeTuyetHoc:ready,tianQuanMpackExtras:{enabled:tqMpack.enabled,ids:tqActiveExtraIds(),source:'learned player + native selector + MPACK active category; no passive/proc/scene bypass'},confirmedSkills:proved,confirmedOver300:proved.filter(x=>supportedDistance(occ,x.id)>300),
 // [VI dòng gốc 624] Thuộc tính bossClientRange: gọi bossRange() | Thuộc tính minimumDistance: đọc CFG.min
       bossClientRange:bossRange(),minimumDistance:CFG.min,
 // [VI dòng gốc 625] Thuộc tính skills: gọi ready.map(x=>({...x,...stats(occ,x.id),verifiedDistance:supportedDistance(occ,x.id),verified:verified(occ,x.id)})) để biến đổi từng phần tử | Thuộc tính verifiedDistance: gọi supportedDistance(occ, x.id) | Thuộc tính verified: gọi verified(occ, x.id)
@@ -1958,7 +1995,7 @@
     if(!['tuyet_hoc_first','interleaved'].includes(value))throw Error('Skill priority must be tuyet_hoc_first or interleaved');
     skillPriority=value;return {skillPriority};
   }
-  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,startTianQuan4100CooldownExperiment,setTianQuan4100CooldownOverride,setLocalLogAutoClear,tianQuan4100CooldownEligible:c=>ST.running&&basicSolo4100Active()&&ST.target===c?.target&&eligible(c?.target)&&role().c===c,tianQuan4100Diagnosis,setTianQuan4100BasicSolo,setTianQuan4100Pilot,setTianQuanLuoFeng,setTianQuanCosmic,setTianQuanIdleFill,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanBasicVisualSpeed,setTianQuanVisualSpeed,setTianQuanTuyetHoc,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
+  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,startTianQuan4100CooldownExperiment,setTianQuan4100CooldownOverride,setLocalLogAutoClear,tianQuan4100CooldownEligible:c=>ST.running&&basicSolo4100Active()&&ST.target===c?.target&&eligible(c?.target)&&role().c===c,tianQuan4100Diagnosis,setTianQuan4100BasicSolo,setTianQuan4100Pilot,setTianQuanLuoFeng,setTianQuanCosmic,setTianQuanIdleFill,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanBasicVisualSpeed,setTianQuanVisualSpeed,setTianQuanTuyetHoc,setTianQuanMpackExtras,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
 // [VI dòng gốc 702] gán W.KVPV_TH300 bằng api
   W.KVPV_TH300=api;
 // [VI dòng gốc 703] gọi console.info(TAG, 'READY/OFF. START: KVPV_MODE.start("BOSS_TH300_SCAN") then KVPV_MODE.start("BOSS_TH300")')
