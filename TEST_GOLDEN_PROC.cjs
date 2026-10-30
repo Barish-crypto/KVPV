@@ -101,7 +101,7 @@ function env(){
 }
 {
  const t=env(),o=t.load();o.start();
- for(let i=0;i<450;i++){t.meE.emit(1039,'boss123',8001);time+=1;}
+ for(let i=0;i<450;i++){t.target.emit(1012,'12345',30220000,1,0,'boss123');time+=1;}
  assert(o.status().events.length<=180,'bounded events');
  assert(o.status().dropped>0,'bounded dropped count');
 }
