@@ -84,6 +84,17 @@ assert.equal(mpack.s._rtt[0][2],35000,'native cooldown remains unchanged');
 assert.deepEqual(Array.from(mpack.mod.setTianQuanMpackExtras(false).extraIds),[],'manual disable restores prior 13-skill policy');
 assert.equal(mpack.mod.status(false).tianQuanMpackExtras.enabled,false);
 assert.deepEqual(Array.from(mpack.mod.setTianQuanMpackExtras(true).extraIds),[3907]);
+// Native _c7t() reads _vX.ins.skills. The parallel model can be stale.
+mpack.W._vX={ins:{skills:[[3907,1]]}};
+mpack.W._Ba._rJ._O$.ins.skills=[];
+assert.deepEqual(Array.from(mpack.mod.status(false).tianQuanMpackExtras.ids),[3907],
+ 'native learned list takes precedence over an empty shadow account list');
+assert.equal(mpack.mod.status(false).tianQuanMpackExtras.learnedSource,'native_vX');
+mpack.W._Ba._rJ._O$.ins.skills=[[3907,1]];
+mpack.W._vX.ins.skills=[];
+assert.deepEqual(Array.from(mpack.mod.status(false).tianQuanMpackExtras.ids),[],
+ 'stale shadow model never authorizes an unlearned native skill');
+mpack.W._vX.ins.skills=[[3907,1]];
 mpackKind='LINH_LUNG';
 assert.deepEqual(Array.from(mpack.mod.status(false).tianQuanMpackExtras.ids),[],'MPACK extras never enabled in other maps');
 mpack.mod.stop();
