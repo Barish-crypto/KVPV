@@ -527,3 +527,22 @@ KVPV_GOLDEN_PROC.stop()
 ```
 
 Nếu `ownedDamageSignals===0` sau khi đánh nhiều đòn, điểm cần khảo sát tiếp là đường event 1012 của client chứ không phải tự kết luận nội tại không kích hoạt. Nếu `ownedDamageSignals>0` nhưng `markerHistogram` không chứa `3022`/`3032`, cần đối chiếu ID sát thương theo client thực tế trước khi suy luận xác suất. Dù có tín hiệu, `observedBursts` chỉ là nhóm hit quan sát, **không phải số lần server thử RNG**, và `burstCountPer100ObservedBasicTH` không phải xác suất kích hoạt.
+
+
+## Thiên Quan: bổ sung kỹ năng chủ động MPACK đã học (2026-10-31)
+
+Kiểm kê trực tiếp file `configs_yuenan.mpacks`, bản `20261014002`: `skill` có **4.172 dòng cấu hình**, **1.278 skill ID** riêng, trong đó **352 ID có ít nhất một dòng `skill[4]===1` (chủ động)**. Con số 352 gồm cả skill triệu hồi/phát sinh nội tại, NPC, theo hệ và theo cảnh, không phải 352 skill có thể gắn lên nhân vật.
+
+**Thiên Quan mặc định vẫn dùng 5 đánh thường `8001..8005` + 8 Tuyệt Học `1001..1008`**. Bản bổ sung sẽ xét **tất cả ID còn lại đủ điều kiện** trong native selector thay vì thêm cứng một dải ID: cần vừa được nhân vật học trong `user.skills`, vừa có trong `_rtt`/`_wet`, vừa trùng hàng `getCfgBySkillIdAndLv` phân loại chủ động `skill[4]===1`, lại phải hợp lệ theo `skill[17]` của bản đồ hiện tại. Không lấy các skill kết thúc tên `-Chủ Động` là phần hiệu ứng phát sinh từ nội tại (vd 3022/3032). Những kỹ năng thường của quái/đồng hành, nội tại/thuộc tính vĩnh viễn hay chưa học **không được gọi thay người chơi**.
+
+**Chỉ ở Thiên Quan**: các ID ngoài 13 chiêu gốc nằm trong cùng bộ chọn native, chỉ được gọi khi hàng trong selector báo sẵn sàng và điều kiện phòng thủ/cooldown/di chuyển của TH300 đều cho phép. Kích hoạt tự động khi TQ đánh theo bộ hỗn hợp mặc định. Không mở khóa, không tăng tốc server, không thay `skill[6]`, không RPC hay tiêu KNB. Đặc biệt **không tự kích hoạt** những nội tại Thánh Trang như Bát Hoang Phá Thế 3021, Xá Mệnh 3031, Cuồng Long 3061.
+
+Kiểm tra ngay trên đúng frame sau khi FULL cập nhật:
+```js
+KVPV_TH300.status(false).playerSkillIds
+KVPV_TH300.status(false).tianQuanMpackExtras
+KVPV_TH300.setTianQuanMpackExtras(false) // tùy chọn quay về chỉ 13 chiêu
+KVPV_TH300.setTianQuanMpackExtras(true)  // bật lại xét mọi skill native hợp lệ
+```
+
+`tianQuanMpackExtras.ids` là các ID bổ sung **thực tế có trên nhân vật và được native selector đưa ra**, không phải tất cả 352 ID trong tệp MPACK. Nếu `ids: []`, có thể nhân vật chỉ có 13 skill gốc trong selector, không có extra phù hợp. `TEST_TQ_FIVE_BASICS.cjs` có bài test phân loại 3907 với các ID kỹ năng nội tại/khóa/theo cảnh và xác nhận không động cooldown.
