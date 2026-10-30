@@ -400,3 +400,25 @@ Module chi thao tac neu row dung `30310002` va cooldown goc dung
 `30000`. Neu config khac, module dung va khong ghi de. Khoi dong lai
 module se giu trang thai bat/tat do nguoi dung chon. Kiem thu:
 `node TEST_XA_MENH_LV2.cjs` (duoc goi tu `node test.cjs`).
+
+
+## Tiên Ma Quyết Chiến PvP — 8005 / chạy xa ở HP 10%
+
+Module `src/80-tienma-quyetchien-pvp.js` tự đăng ký khi FULL được nạp, nhưng **chỉ điều khiển** trong bản đồ Tiên Ma 2191–2194 và khi mô hình Camp War xác nhận trạng thái giao tranh (`status=3`, `fightTime>0`). Không vào sự kiện, không chọn đối thủ hay gửi gói mạng tự chế.
+
+- Chỉ gửi kỹ năng **8005** qua bộ `combat.combat()` native nếu kỹ năng đã học, hết hồi chiêu, mục tiêu và tầm đánh hợp lệ.
+- Chỉ đánh **người chơi phe đối địch**: dùng `campType` của cả hai bên đối chiếu với `myCampType`. Không đánh cùng phe/quái.
+- HP **≤10%**: ngừng đánh và dùng `moveTo` native để rút ra xa **người địch gần nhất**, mục tiêu khoảng **600 đơn vị tọa độ**.
+- Nếu địch đuổi và khoảng cách giảm dưới 580, sẽ tính lại điểm chạy, tối đa 260 đơn vị/lệnh và giãn cách 450ms; không thay đổi tốc độ server, không bảo đảm vượt vật cản.
+- HP hồi **>15%**: thoát chế độ rút và trở lại chỉ dùng 8005 (tránh bật/tắt liên tục).
+- Scan mỗi 150ms trong giao tranh; khi ngoài sự kiện mỗi 800ms. Nhường khi người dùng thao tác, game mất focus, hoặc controller khác đang giữ quyền.
+
+Lệnh trong **game frame**:
+```js
+KVPV_TIENMA_PVP.status(); // kiểm tra scene, HP, khoảng cách, số lần cast/move
+KVPV_TIENMA_PVP.start();  // bật thủ công nếu trước đó đã stop
+KVPV_TIENMA_PVP.stop();   // tắt cho tới khi bật lại (kể cả qua live reload)
+```
+
+`node TEST_TIENMA_PVP.cjs` kiểm thử logic mô phỏng và được gọi trong `node test.cjs`.
+**Giới hạn:** Mốc 600 là khoảng cách mục tiêu, không bảo đảm đường đi hay mức sát thương server. Những module khác không thuộc bộ này có thể có hành vi riêng.
