@@ -422,3 +422,16 @@ KVPV_TIENMA_PVP.stop();   // tắt cho tới khi bật lại (kể cả qua live
 
 `node TEST_TIENMA_PVP.cjs` kiểm thử logic mô phỏng và được gọi trong `node test.cjs`.
 **Giới hạn:** Mốc 600 là khoảng cách mục tiêu, không bảo đảm đường đi hay mức sát thương server. Những module khác không thuộc bộ này có thể có hành vi riêng.
+
+
+## Khôi phục an toàn Thiên Quan (2026-10-30)
+
+Phát hiện thiết lập `KVPV_TQ_POSITION_ONLY={enabled:true,distance:310,heal:false}` đã vô hiệu hoá bộ HitRun chạy ra ngoài khi HP thấp. Bản sửa thay bằng `enabled:false,heal:true,distance:310`, **bật lại HitRun hồi máu 35% → 100%**, đồng thời cố định mục tiêu 310 cho Thiên Quan, không lấy nhầm khoảng cách của các map khác.
+
+- Tại Thiên Quan: thử giữ khoảng cách 310 với Boss; đường di chuyển native vào gần Boss được chặn/định hướng lại trong pha FIGHT khi đủ điều kiện.
+- Khi HP ≤35%: bộ HitRun native có quyền rút lui, không chặn đường rút; quay lại sau khi HP đạt 100%.
+- Không sửa PvP Tiên Ma, Tu La, Tru Tiên hoặc Đường Thí Luyện.
+- Không thay tầm đánh phía server. Khoảng cách 310 có thể không trúng nếu server giới hạn; ưu tiên sinh tồn, không ép tiếp cận.
+- Nếu còn áp sát, dừng an toàn bằng `KVPV_MODE.stop()` và xuất `KVPV_MODE.status(false)`, `KVPV_HITRUN1.status(false)`, `KVPV_TH300.status(false)` để kiểm tra. Chỉ test trên boss có đủ máu, không nhận định kết quả PvE từ mock.
+
+Kiểm thử `node TEST_TQ_SAFE_RANGE.cjs` được gọi trong `node test.cjs`.
