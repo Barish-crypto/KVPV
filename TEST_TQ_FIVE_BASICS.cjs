@@ -45,3 +45,46 @@ vm.runInNewContext(fs.readFileSync(__dirname+'/KVPV_THIEN_QUAN_CHI_DANH_TAY.js',
 const fast310=ctx.make({fastReady:true,defaultDistance:true,newDefault:true,startX:310});fast310.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN'}),inside:()=>true,eligible:()=>true};fast310.s._rtt=[8001,8002,8003,8004,8005,1008].map(id=>[id,0,500]);fast310.s._wet=[];fast310.mod.setInterleaved(true,310);fast310.mod.setTianQuanFiveBasics(true,1);fast310.mod.setTianQuanTuyetHoc(false);fast310.mod.start('SCAN');fast310.pump();for(let i=0;i<8;i++)fast310.advance(8);assert.equal(fast310.mod.status(false).requestedDistance,310);assert.equal(fast310.mod.status(false).paceMs,1);assert(fast310.calls.length>=5);assert(fast310.calls.every(id=>id>=8001&&id<=8005));fast310.mod.stop();const startup310=fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8');assert(startup310.includes('setInterleaved?.(true,310)'));assert(startup310.includes('setTianQuanFiveBasics?.(true,1)'));console.log('PASS requested 310/1ms profile: five basics, no TH, requested range and wait preserved.');
 
 const mixed310=ctx.make({fastReady:true,defaultDistance:true,newDefault:true,startX:310});mixed310.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN'}),inside:()=>true,eligible:()=>true};mixed310.s._rtt=[8001,8002,8003,8004,8005,1001,1008].map(id=>[id,0,500]);mixed310.s._wet=[];mixed310.W.KVPV_MODE={armTianQuan(){mixed310.mod.start('SCAN');}};vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8'),{window:mixed310.W});mixed310.pump();for(let i=0;i<9;i++)mixed310.advance(8);assert.equal(mixed310.mod.status(false).requestedDistance,310);assert.equal(mixed310.mod.status(false).paceMs,1);assert.equal(mixed310.mod.rangeReport().tuyetHocActive,true);assert.equal(mixed310.mod.status(false).basicOnly,false);assert(mixed310.calls.every(id=>(id>=8001&&id<=8005)||(id>=1001&&id<=1008)));assert(mixed310.calls.some(id=>id>=8001&&id<=8005));mixed310.mod.stop();console.log('PASS startup MIXED 310/1ms: five basics with native TH, native cooldown kept when force module absent.');
+
+
+const mpack=ctx.make({fastReady:true,defaultDistance:true,newDefault:true,startX:302});
+let mpackKind='THIEN_QUAN';
+mpack.W.KVPV_FAR_SCOPE={status:()=>({kind:mpackKind}),inside:()=>true,eligible:()=>true};
+mpack.W.KVPV_TQ_SCOPE={inside:()=>true};
+const mkCfg=(id,lvl,type,name,maps=[])=>{
+  const row=Array(18).fill(null);
+  row[0]=id*10000+lvl;row[1]=id;row[2]=name;row[3]=lvl;row[4]=type;
+  row[6]=type===1?30000:0;row[17]=maps;return row;
+};
+const configs=new Map([
+  [3907,mkCfg(3907,1,1,'Tinh Đấu Pháp Quyết')],
+  [3022,mkCfg(3022,2,1,'Bát Hoang Phá Thế Lv2-Chủ Động')],
+  [3032,mkCfg(3032,2,1,'Xá Mệnh Nhất Kích Lv2-Chủ Động')],
+  [3061,mkCfg(3061,2,4,'Cuồng Long Lv2')],
+  [2001,mkCfg(2001,1,2,'Thiên Lao Địa Võng')],
+  [8012,mkCfg(8012,1,0,'Thú Cưng Đánh Thường')],
+  [3908,mkCfg(3908,1,1,'Thương Hải Đoạn Không',[2191])]
+]);
+mpack.W._ft._nY.ins.getCfgBySkillIdAndLv=(id,lv)=>configs.get(Number(id))??null;
+mpack.W._Ba._rJ._O$.ins.skills=[[3907,1],[3022,2],[3032,2],[3061,2],[2001,1],[8012,1],[3908,1]];
+mpack.s._rtt=[[3907,0,35000],[3022,0,0],[3032,0,0],[3061,0,0],[2001,0,0],[8012,0,200],[3908,0,35000]];
+mpack.s._wet=[];
+mpack.mod.setInterleaved(true,302);
+mpack.mod.setTianQuanFiveBasics(true,10);
+mpack.mod.setTianQuanTuyetHoc(true);
+let extraStatus=mpack.mod.status(false);
+assert.deepEqual(Array.from(extraStatus.tianQuanMpackExtras.ids),[3907],'only learned native active MPACK extras (no passive/proc/scene/companion)');
+assert.equal(extraStatus.tianQuanMpackExtras.enabled,true,'new Tian Quan extras enabled by default');
+assert(extraStatus.playerSkillIds.includes(3907),'extra active skill in runtime TQ roster');
+assert(!extraStatus.playerSkillIds.includes(3022),'proc damage child never cast manually');
+mpack.mod.start('SCAN');mpack.pump();
+assert(mpack.calls.includes(3907),'native 3907 may be selected and cast if already ready');
+assert(!mpack.calls.some(id=>[3022,3032,3061,2001,8012,3908].includes(id)),'passive, proc child and restricted skills excluded');
+assert.equal(mpack.s._rtt[0][2],35000,'native cooldown remains unchanged');
+assert.deepEqual(Array.from(mpack.mod.setTianQuanMpackExtras(false).extraIds),[],'manual disable restores prior 13-skill policy');
+assert.equal(mpack.mod.status(false).tianQuanMpackExtras.enabled,false);
+assert.deepEqual(Array.from(mpack.mod.setTianQuanMpackExtras(true).extraIds),[3907]);
+mpackKind='LINH_LUNG';
+assert.deepEqual(Array.from(mpack.mod.status(false).tianQuanMpackExtras.ids),[],'MPACK extras never enabled in other maps');
+mpack.mod.stop();
+console.log('PASS MPACK Tian Quan native extras: 3907 included when learned and ready, all other skill types excluded, no cooldown edits, no other-map leakage.');
