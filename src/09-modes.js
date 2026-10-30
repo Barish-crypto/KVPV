@@ -521,8 +521,6 @@
         // All Boss safety decisions remain with the original HitRun controller.
 // [VI dòng gốc 243] Kiểm tra target!==MODE.BOSS: đúng thì chạy nhánh sau if.
         if(target!==MODE.BOSS){
-          if(W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN')
-            W.KVPV_TH300?.setDistance?.(tqDistance());
 // [VI dòng gốc 244] gọi W.KVPV_RANGE281.setTrialRange([MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(target)?Number(W.KVPV_TH300.status(false).requestedDistance??W.KVPV_TH30…)
           W.KVPV_RANGE281.setTrialRange([MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(target)?Number(W.KVPV_TH300.status(false).requestedDistance??W.KVPV_TH300.status(false).goalDistance??302)+10:281);
 // [VI dòng gốc 245] gọi W.KVPV_RANGE281.enable(true)
