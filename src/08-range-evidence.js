@@ -609,7 +609,11 @@
        W.KVPV_FAR_SCOPE?.status?.()?.kind!=='THIEN_QUAN'||
        !Number.isSafeInteger(id)||id<1||isBasic(id)||id>=1001&&id<=1008)return false;
     if(!candidate(id))return false;
-    const learned=W._Ba?._rJ?._O$?.ins?.skills;
+    // Real native _c7t() builds selector rows from _vX.ins.skills, not
+    // the parallel player model which can be incomplete or stale.
+    const nativeList=(typeof _vX!=='undefined'?_vX?.ins?.skills:null)??W._vX?.ins?.skills;
+    const playerList=W._Ba?._rJ?._O$?.ins?.skills;
+    const learned=Array.isArray(nativeList)?nativeList:playerList;
     const entry=Array.isArray(learned)?learned.find(row=>Number(row?.[0])===id):null;
     const lv=Number(entry?.[1]);
     if(!entry||!Number.isSafeInteger(lv)||lv<1)return false;
@@ -1705,7 +1709,7 @@
 // [VI dòng gốc 622] Thuộc tính requireDistanceGreaterThan: đọc CFG.min | Thuộc tính clientTrialRadius: đọc CFG.max
       requireDistanceGreaterThan:CFG.min,clientTrialRadius:CFG.max,
 // [VI dòng gốc 623] Thuộc tính nativeTuyetHoc: ready | Thuộc tính confirmedSkills: proved | Thuộc tính confirmedOver300: gọi proved.filter(x=>supportedDistance(occ,x.id)>300) để giữ phần tử thỏa điều kiện
-      nativeTuyetHoc:ready,tianQuanMpackExtras:{enabled:tqMpack.enabled,ids:tqActiveExtraIds(),source:'learned player + native selector + MPACK active category; no passive/proc/scene bypass'},confirmedSkills:proved,confirmedOver300:proved.filter(x=>supportedDistance(occ,x.id)>300),
+      nativeTuyetHoc:ready,tianQuanMpackExtras:{enabled:tqMpack.enabled,ids:tqActiveExtraIds(),source:'native _vX.ins.skills (fallback player model) + native selector + MPACK active category; no passive/proc/scene bypass',learnedSource:Array.isArray((typeof _vX!=='undefined'?_vX?.ins?.skills:null)??W._vX?.ins?.skills)?'native_vX':'player_model_fallback'},confirmedSkills:proved,confirmedOver300:proved.filter(x=>supportedDistance(occ,x.id)>300),
 // [VI dòng gốc 624] Thuộc tính bossClientRange: gọi bossRange() | Thuộc tính minimumDistance: đọc CFG.min
       bossClientRange:bossRange(),minimumDistance:CFG.min,
 // [VI dòng gốc 625] Thuộc tính skills: gọi ready.map(x=>({...x,...stats(occ,x.id),verifiedDistance:supportedDistance(occ,x.id),verified:verified(occ,x.id)})) để biến đổi từng phần tử | Thuộc tính verifiedDistance: gọi supportedDistance(occ, x.id) | Thuộc tính verified: gọi verified(occ, x.id)
