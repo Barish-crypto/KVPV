@@ -435,3 +435,18 @@ Phát hiện thiết lập `KVPV_TQ_POSITION_ONLY={enabled:true,distance:310,hea
 - Nếu còn áp sát, dừng an toàn bằng `KVPV_MODE.stop()` và xuất `KVPV_MODE.status(false)`, `KVPV_HITRUN1.status(false)`, `KVPV_TH300.status(false)` để kiểm tra. Chỉ test trên boss có đủ máu, không nhận định kết quả PvE từ mock.
 
 Kiểm thử `node TEST_TQ_SAFE_RANGE.cjs` được gọi trong `node test.cjs`.
+
+
+## Thiên Thê 8 Tầng vs Tranh Bá Đỉnh Cao (2026-10-30)
+
+Khi cả hai lịch trùng 21:00–21:30, `KVPV.core.scene.acquire('combat','thien-the-8-tang')` từng bị `upcoming event tranh_ba_dinh_cao` từ chối dù `KVPV_EIGHT_FLOOR.status()` cho thấy server mở, đã mở khóa, hết cooldown, Daily rảnh và nhân vật không ở trong đội. Đây là lỗi lịch giữ chỗ, **không phải lỗi API native**.
+
+Bản sửa chỉ cho yêu cầu Thiên Thê có tag `thien-the-8-tang` đi qua reservation `tranh_ba_dinh_cao` **khi chính Thiên Thê đang bật, đúng lịch, server mở, mở khóa, cooldown hợp lệ, chưa hoàn tất và đang ở map thường**, không có yêu cầu Thí Luyện Ngày chưa được xác nhận. Nó không vượt quyền các tác vụ đã có owner, Daily đang làm việc, combat đang chạy, Tự Vượt trong cảnh, hay các lịch sự kiện khác. Không gọi gói mạng mới.
+
+`KVPV_EIGHT_FLOOR.status().reason` giờ phân biệt `native_entry_api_unavailable` với `scene_denied:<reason>`. Để kiểm tra **đúng tag** của Thiên Thê:
+```js
+KVPV.core.scene.reason('combat', 'thien-the-8-tang')
+KVPV_EIGHT_FLOOR.status()
+```
+Nếu sau cập nhật hiện `waiting_scene_71` cùng `entryAttempts > 0`, yêu cầu vào 7101 đã được phát, còn phải đợi xác nhận cảnh từ server.
+Kiểm thử riêng `node TEST_EIGHT_SCENE_OVERLAP.cjs` và kiểm thử đầy đủ qua `node test.cjs`.

@@ -179,7 +179,13 @@
 // [VI dòng gốc 90] Kiểm tra !d.cooldownReady||time-S.lastEntry<C.entryRetryMs||S.attempts>=C.maxEntriesPerDay: đúng thì chạy nhánh sau if. | gán S.reason bằng 'entry_cooldown_or_limit' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(!d.cooldownReady||time-S.lastEntry<C.entryRetryMs||S.attempts>=C.maxEntriesPerDay){S.reason='entry_cooldown_or_limit';return;}
 // [VI dòng gốc 91] Kiểm tra typeof sceneRpc()?.rqEtScene!=='function'||!reserve(): đúng thì chạy nhánh sau if. | gán S.reason bằng 'entry_api_or_scene_unavailable' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-    if(typeof sceneRpc()?.rqEtScene!=='function'||!reserve()){S.reason='entry_api_or_scene_unavailable';return;}
+    if(typeof sceneRpc()?.rqEtScene!=='function'){
+      S.reason='native_entry_api_unavailable';return;
+    }
+    if(!reserve()){
+      S.reason='scene_denied:'+String(W.KVPV?.core?.scene?.reason?.('combat','thien-the-8-tang')??'arbiter_unavailable');
+      return;
+    }
 // [VI dòng gốc 92] gán S.lastEntry bằng time | tăng S.attempts một đơn vị sau khi lấy giá trị | gán S.phase bằng 'ENTERING' | gán S.reason bằng 'waiting_scene_71'
     S.lastEntry=time;S.attempts++;S.phase='ENTERING';S.reason='waiting_scene_71';note('ENTRY-REQUEST');sceneRpc().rqEtScene(7101);
 // [VI dòng gốc 93] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán S.lastError bằng String(e?.message||e) | gán S.reason bằng 'error'
