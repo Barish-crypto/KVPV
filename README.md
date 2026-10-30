@@ -450,3 +450,23 @@ KVPV_EIGHT_FLOOR.status()
 ```
 Nếu sau cập nhật hiện `waiting_scene_71` cùng `entryAttempts > 0`, yêu cầu vào 7101 đã được phát, còn phải đợi xác nhận cảnh từ server.
 Kiểm thử riêng `node TEST_EIGHT_SCENE_OVERLAP.cjs` và kiểm thử đầy đủ qua `node test.cjs`.
+
+
+## Thác Ấn — thử nghiệm hồi chiêu client 0ms (2026-10-31)
+
+Đối chiếu `configs_yuenan.mpacks` bản `20261014002` với ảnh màn hình Thác Ấn:
+- **Bát Hoang Phá Thế** ID 3021: Lv1/Lv2 `30000ms`, Lv3 `25000ms`. Ảnh không hiện đủ cấp nên thử thay ba hàng Lv1–3, không tự nâng cấp.
+- **Xá Mệnh Nhất Kích Lv2** ID 3031: `30000ms`, dùng lại module độc lập `KVPV_XA_MENH_LV2` để tránh tranh quyền.
+- **Quẻ Thượng Lv2** ID 3041: `30000ms`.
+- **Ma Hóa Lv2** ID 3121: `0ms` ngay từ cấu hình gốc; không sửa và **vẫn đòi HP<50%** để có cơ hội kích hoạt.
+- Các ô khóa theo SVIP/bậc vật phẩm trong ảnh **không được mở khóa**; script cũng không trang bị hoặc học thêm kỹ năng.
+
+Module `src/32-thac-an-cd0.js` được đưa vào FULL và hot reload, **mặc định TẮT** để tránh xung đột khi đang chơi. Chỉ sau khi người dùng bật trong đúng game-frame:
+```js
+KVPV_THAC_AN_CD0.status();  // tra cứu các hàng cấu hình và tình trạng
+KVPV_THAC_AN_CD0.start();   // 30/25 giây -> 0ms chỉ trong bộ nhớ client
+KVPV_THAC_AN_CD0.stop();    // khôi phục giá trị mà module thực sự đã sửa
+```
+Module tiền kiểm toàn bộ bản ghi và giá trị trước khi sửa, dừng nếu dữ liệu không khớp; giữ lựa chọn bật qua hot reload, không ghi đè thay đổi của module khác, và không khôi phục Xá Mệnh nếu người dùng đã bật Xá Mệnh độc lập từ trước.
+**Không giả định sửa `skill[6]` sẽ bỏ hồi chiêu server hoặc tạo thêm sát thương.** Các phép thử chỉ xác minh giá trị client, không gửi packet mới, không ép nhận thưởng và không tự tiêu KNB.
+Kiểm thử: `node TEST_THAC_AN_CD0.cjs` (đã đưa vào `node test.cjs`).
