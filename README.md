@@ -546,3 +546,19 @@ KVPV_TH300.setTianQuanMpackExtras(true)  // bật lại xét mọi skill native 
 ```
 
 `tianQuanMpackExtras.ids` là các ID bổ sung **thực tế có trên nhân vật và được native selector đưa ra**, không phải tất cả 352 ID trong tệp MPACK. Nếu `ids: []`, có thể nhân vật chỉ có 13 skill gốc trong selector, không có extra phù hợp. `TEST_TQ_FIVE_BASICS.cjs` có bài test phân loại 3907 với các ID kỹ năng nội tại/khóa/theo cảnh và xác nhận không động cooldown.
+
+
+## Sửa trường hợp skill native đánh mặc định được nhưng bộ Thiên Quan không chọn (2026-10-31)
+
+Client gốc 17MB đoạn `_Bkh._c7t` (37131–37138) lấy các kỹ năng đã học từ `_vX.ins.skills`, lọc `skill[17]` theo cảnh rồi nạp vào native selector `_rtt/_wet` ở `_$tt` (37140–37161). Bản mở rộng MPACK trước đó lại xác minh lần nữa bằng `_Ba._rJ._O$.ins.skills` — đây là một mô hình song song, chưa được chứng minh đồng bộ. Nếu danh sách thứ hai thiếu/muộn, chiêu đánh mặc định được nhưng bộ TQ từ chối.
+
+Bản sửa: **ưu tiên đúng `_vX.ins.skills` như client gốc**, chỉ fallback sang `_Ba._rJ._O$.ins.skills` khi nguồn gốc không sẵn có. Vẫn bắt buộc ID hiện diện trong native selector, cấu hình MPACK chủ động, cấp kỹ năng và cảnh hợp lệ; không gọi nội tại/skill child, không bỏ native cooldown.
+
+Kiểm tra sau khi nạp bản FULL mới trong Thiên Quan:
+```js
+KVPV_TH300.status(false).tianQuanMpackExtras
+KVPV_TH300.status(false).playerSkillIds
+```
+Trường `learnedSource` là `native_vX` khi tìm được danh sách gốc, hoặc `player_model_fallback` khi chưa thấy. Kết quả `ids` chỉ là các skill **đủ điều kiện được chọn**, chưa chứng minh đã tung và gây sát thương trên server.
+
+**Khác với kích hoạt nội tại Thánh Trang**: Bát Hoang 3021, Xá Mệnh 3031, Cuồng Long 3061 do server/native gameplay kích hoạt theo điều kiện riêng; không nằm trong danh sách chiêu đánh tay. So sánh proc cần đo riêng với `KVPV_GOLDEN_PROC` ở bộ đánh native và bộ TQ trên cùng Boss/điều kiện. Không suy luận 0% từ vắng mã 3022/3032 trong listener của một mục tiêu.
