@@ -8,8 +8,9 @@
 (() => {
 // [VI dòng gốc 6] Khai báo biến không gán lại bằng const: W = window
   const W=window;
-  // Thiên Quan only: hold 310 from Boss and skip HP-based retreat.
-  W.KVPV_TQ_POSITION_ONLY=Object.freeze({enabled:true,distance:310,heal:false});
+  // Thiên Quan: retain far goal 310, but restore native HitRun recovery (35/100).
+  // Old position-only mode disabled the emergency HP retreat and was unsafe.
+  W.KVPV_TQ_POSITION_ONLY=Object.freeze({enabled:false,distance:310,heal:true});
 // [VI dòng gốc 7] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   try{
 // [VI dòng gốc 8] gọi W.KVPV_BOSS_LOG?.start() để khởi động bộ điều khiển (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
