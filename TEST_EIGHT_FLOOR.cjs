@@ -24,12 +24,21 @@ const W={__KVPV_OWN_ACTOR_ID:'12345',_Ba:{_rJ:{_O$:{ins:{actorId:'12345'}}},_Co:
 vm.runInNewContext(fs.readFileSync(__dirname+'/src/14-eight-floor.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:W,Intl,Date:Clock});
 // [VI dòng gốc 13] Khai báo biến không gán lại bằng const: auto = đọc W.KVPV_EIGHT_FLOOR | gọi assert.equal(entries.length, 0) để kiểm tra hai giá trị bằng nhau
 const auto=W.KVPV_EIGHT_FLOOR;assert.equal(entries.length,0);
+const updater=fs.readFileSync(__dirname+'/build.cjs','utf8');
+assert(updater.includes('"14-eight-floor.js"'),'module must be present in hot reload');
+assert(!updater.includes('W.KVPV_EIGHT_FLOOR?.stop?.();'),'pre-update must never kill scheduled entry');
+const originalActor=W._Ba._rJ._O$.ins.actorId;
+W._Ba._rJ._O$.ins.actorId='reconnecting';
+auto.sync();
+assert.equal(auto.status().enabled,true,'temporary actor mismatch must not permanently disable entry');
+assert.equal(auto.status().reason,'actor_session_unavailable');
+W._Ba._rJ._O$.ins.actorId=originalActor;
 // [VI dòng gốc 14] gán open bằng true | gán unlocked bằng false | gọi auto.sync() | gọi assert.equal(entries.length, 0) để kiểm tra hai giá trị bằng nhau
 open=true;unlocked=false;auto.sync();assert.equal(entries.length,0);
 // [VI dòng gốc 15] gán unlocked bằng true | gán busy bằng true | gọi auto.sync() | gọi assert.equal(entries.length, 0) để kiểm tra hai giá trị bằng nhau
 unlocked=true;busy=true;auto.sync();assert.equal(entries.length,0);
 // [VI dòng gốc 16] gán busy bằng false | gọi auto.sync() | gọi assert.deepEqual(entries, [7101]) để kiểm tra cấu trúc hai giá trị tương đương | gọi assert.equal(stage.auto, false) để kiểm tra hai giá trị bằng nhau
-busy=false;auto.sync();assert.deepEqual(entries,[7101]);assert.equal(stage.auto,false);assert.equal(auto.status().confirmedEntries,0);
+busy=false;W.KVPV_DAILY.quickState=()=>({job:'idle'});auto.sync();assert.deepEqual(entries,[7101],'English idle counts as available');assert.equal(stage.auto,false);assert.equal(auto.status().confirmedEntries,0);
 // [VI dòng gốc 17] gọi auto.sync() | gọi assert.equal(entries.length, 1) để kiểm tra hai giá trị bằng nhau
 auto.sync();assert.equal(entries.length,1);
 // [VI dòng gốc 18] gán type bằng 71 | gọi auto.sync() | gọi assert.equal(auto.status().confirmedEntries, 1) để kiểm tra hai giá trị bằng nhau | gọi assert.deepEqual(targets, [1]) để kiểm tra cấu trúc hai giá trị tương đương
