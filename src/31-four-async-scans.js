@@ -37,6 +37,7 @@
  adapters.tui={inspect:()=>{
    const model=W._Ba?._aJ?._hJ?.ins;
    return model?{available:true,quickUse:W.KVPV_QUICK_USE?.status?.()??null,
+     freeDailyBag:W.KVPV_FREE_DAILY_BAG?.status?.()??null,
      note:'quick-use controller is independent; no bag-wide executor verified',tasks:[]}:null;
  }};
  adapters.phap_thuat={inspect:()=>{
@@ -61,7 +62,18 @@
    const adapter=adapters[key];if(!adapter){lane.reason='waiting_verified_adapter';return;}
    lane.busy=true;const token=generation;
    try{
-     const observed=await adapter.inspect();
+     // Delegate only to already-enabled, verified no-spend controllers. Their own
+   // pending/ACK state remains authoritative; never register a second sender.
+   if(key==='tui'){
+     const bag=W.KVPV_FREE_DAILY_BAG;
+     if(bag?.status?.()?.enabled===true&&bag.status().allowKNB===false)bag.sync?.();
+     const quick=W.KVPV_QUICK_USE;
+     if(quick?.status?.()?.enabled===true)quick.sync?.();
+   }else if(key==='phap_thuat'){
+     const rewards=W.KVPV_SKILL_REWARDS;
+     if(rewards?.status?.()?.enabled===true&&rewards.status().allowKNB===false)rewards.sync?.();
+   }
+   const observed=await adapter.inspect();
      if(!enabled||token!==generation)return;
      lane.count++;lane.updatedAt=Date.now();
      lane.value=copy(observed);lane.error='';
