@@ -47,6 +47,8 @@ const metadata=JSON.stringify({id:buildId,release:'1.0.0',recovery:'35-100-obser
 // [VI dòng gốc 24] Khai báo biến không gán lại bằng const: liveModules = tạo mảng gồm 76 vị trí: [ "00-daily-clock.js", "00-manual-entry-policy.js", "00-spending-policy.js", "00-account-policy.js", "00-far-scope.js", "00-thienquan-scope.js", "00-combat-metrics.js", "00-skill-p…
 const liveModules = [
 // [VI dòng gốc 25] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-daily-clock.js",
+  "00-boss-session.js",
+  "00-preflight.js",
   "00-daily-clock.js",
 // [VI dòng gốc 26] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-manual-entry-policy.js",
   "00-manual-entry-policy.js",
