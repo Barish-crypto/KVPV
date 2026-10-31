@@ -65,7 +65,7 @@ hr=true;assert.equal(hr,true,'same Rune Boss preserves HitRun recovery');
 // [VI dòng gốc 33] gán targetId bằng 'boss2' | gán finished bằng 11 | gọi W.KVPV_MODE.syncMap() | gọi assert(far) để kiểm tra điều kiện của bài test
 targetId='boss2';finished=11;assert.equal(far,false,'no legacy far sender');
 // [VI dòng gốc 34] gán current bằng 1002 | gán common bằng true | gán mission bằng false | gán blocked bằng true
-current=1002;common=true;mission=false;blocked=true;W.KVPV_RUNE_BOSS.sync();assert.equal(sent.length,1);
+current=1002;common=true;mission=false;hr=false;blocked=true; // native recovery is no longer owned by the removed KVPV_MODEW.KVPV_RUNE_BOSS.sync();assert.equal(sent.length,1);
 // [VI dòng gốc 35] gán blocked bằng false | gọi W.KVPV_RUNE_BOSS.sync() | gọi assert.deepEqual(sent[1], [2201,12]) để kiểm tra cấu trúc hai giá trị tương đương
 blocked=false;W.KVPV_RUNE_BOSS.sync();assert.deepEqual(sent[1],[2201,12]);
 // [VI dòng gốc 36] gán current bằng 2201 | gán common bằng false | gán mission bằng true | gọi W.KVPV_RUNE_BOSS.sync()
