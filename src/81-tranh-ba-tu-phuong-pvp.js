@@ -7,8 +7,8 @@
   const W=window,KEY='KVPV_TRANH_BA_TU_PHUONG',old=W[KEY];
   try{old?.stop?.('reload');}catch(_){}
   const actor=String(W.__KVPV_OWN_ACTOR_ID||'');
-  const C={pollMs:150,mapId:null,enabled:true};
-  const S={timer:null,casts:0,th:0,basic:0,blocked:0,reason:'map_not_calibrated',error:'',lastSkill:null};
+  const C={pollMs:150,mapId:null,enabled:true,moveGapMs:700,step:90,stopDistance:220,maxChaseDistance:500};
+  const S={timer:null,casts:0,th:0,basic:0,blocked:0,reason:'map_not_calibrated',error:'',lastSkill:null,moves:0,lastMoveAt:0};
   const prop=(r,k)=>r?.property?.get?.(k);
   const id=r=>String(r?.id??prop(r,'id')??'');
   const own=()=>!!actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
@@ -36,6 +36,21 @@
     return Number.isInteger(skill)&&(skill>=8001&&skill<=8005)&&
       Number.isFinite(time)&&time<now;
   });
+  // Throttled native walking; never alter player movement speed.
+  function approach(self,target){
+    const p=prop(self,'position'),q=prop(target,'position');
+    if(!p||!q||![p.x,p.y,q.x,q.y].every(Number.isFinite))return false;
+    const dx=q.x-p.x,dy=q.y-p.y,d=Math.hypot(dx,dy);
+    if(d<=C.stopDistance||d>C.maxChaseDistance)return false;
+    const now=Date.now();
+    if(now-S.lastMoveAt<C.moveGapMs)return false;
+    const mover=comp(self,'_zet');
+    if(typeof mover?.moveTo!=='function')return false;
+    const step=Math.min(C.step,d-C.stopDistance);
+    mover.moveTo(Math.round(p.x+dx/d*step),Math.round(p.y+dy/d*step));
+    S.lastMoveAt=now;S.moves++;S.reason='native_walk_toward_enemy';
+    return true;
+  }
   function tick(){
     if(!C.enabled){S.reason='disabled';return;}
     if(!inside()){S.reason=C.mapId===null?'map_not_calibrated':'outside_verified_event';return;}
@@ -54,7 +69,8 @@
     if(typeof combat?.combat!=='function'||typeof combat?.isCooldown!=='function'||
        typeof combat?.isValidTarget!=='function'||typeof combat?.isValidRange!=='function'||
        typeof selector?._f7t!=='function'){S.reason='native_combat_missing';return;}
-    if(combat.isCooldown()!==false||combat.isValidTarget()!==true||combat.isValidRange()!==true){
+    if(combat.isValidRange()!==true){approach(self,target);S.reason=S.reason==='native_walk_toward_enemy'?S.reason:'target_out_of_range';return;}
+    if(combat.isCooldown()!==false||combat.isValidTarget()!==true){
       S.blocked++;S.reason='native_cooldown_range_or_target';return;
     }
     const pool=ready(selector,Date.now());
@@ -80,7 +96,7 @@
   }
   function status(){return {actor,enabled:C.enabled,eventActive:liveEvent(),inside:inside(),
     map:map(),verifiedMap:C.mapId,casts:S.casts,thCasts:S.th,basicCasts:S.basic,
-    blocked:S.blocked,lastSkill:S.lastSkill,reason:S.reason,error:S.error};}
+    blocked:S.blocked,moves:S.moves,lastSkill:S.lastSkill,reason:S.reason,error:S.error};}
   W[KEY]=Object.freeze({start,stop,status,tick:safeTick,calibrateHere});
   if(own())start();
 })();
