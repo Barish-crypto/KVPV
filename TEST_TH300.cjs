@@ -503,12 +503,12 @@ test('290 interleaving alternates native Tuyet Hoc and basics with independent d
 // [VI dòng gốc 251] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 252] gọi test('FULL startup selects 310 and only 8001 with no TH fallback', ()=>{ const q=harness({fastReady:true,tower:true});q.W.__K…)
-test('FULL startup selects 310 and enables native Tuyet Hoc plus basics in Tian Quan',()=>{
+test('FULL startup selects 300 and only basic 8005 in Tian Quan',()=>{
  const q=harness({fastReady:true,tower:true});q.W.__KVPV_BASIC_RANGE_TEST_20261023={status:'complete'};q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
  vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:q.W});
  q.pump();
- assert.equal(q.mod.report().goalDistance,310);
- assert(Math.abs(q.actor.coords.x-310)<=5);
+ assert.equal(q.mod.report().goalDistance,300);
+ assert(Math.abs(q.actor.coords.x-300)<=5);
  assert.equal(q.mod.report().interleaved.enabled,true);
  assert.equal(q.mod.report().basicOnly,true,'Tian Quan defaults to native basic only');
  assert.equal(q.mod.report().basicHitQuota,null);

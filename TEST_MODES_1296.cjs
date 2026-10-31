@@ -267,8 +267,8 @@ test('continuous stage maintenance restores missing far module and only repairs 
  const starts=r.state().rearms;r.W.KVPV_MODE.syncMap();assert.equal(repairs,1);assert.equal(r.state().rearms,starts);
 // [VI dòng gốc 133] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
-// [VI dòng gốc 134] gọi test('Tian Quan restores 310 once per entry or floor, never on every polling tick', ()=>{ const q=harness();let inside=false,…)
-test('Tian Quan restores 310 once per entry or floor, never on every polling tick',()=>{
+// [VI dòng gốc 134] gọi test('Tian Quan restores 300 once per entry or floor, never on every polling tick', ()=>{ const q=harness();let inside=false,…)
+test('Tian Quan restores 300 once per entry or floor, never on every polling tick',()=>{
 // [VI dòng gốc 135] Khai báo biến không gán lại bằng const: q = gọi harness() | Khai báo biến có thể gán lại bằng let: inside = false; floor = 1 | Khai báo biến không gán lại bằng const: distances = tạo mảng gồm 0 vị trí: []
  const q=harness();let inside=false,floor=1;const distances=[];
 // [VI dòng gốc 136] gán q.W.KVPV_FAR_SCOPE bằng {eligible:()=>false,inside:()=>inside,status:()=>({kind:inside?'THIEN_QUAN':'OUTSIDE',inside,current:100,floor})}
@@ -277,14 +277,14 @@ test('Tian Quan restores 310 once per entry or floor, never on every polling tic
  q.W.KVPV_TH300.setDistance=d=>distances.push(d);
 // [VI dòng gốc 138] gọi q.W.KVPV_MODE.armTianQuan() để đăng ký bộ theo dõi map để tự bật bộ combat khi vào phó bản phù hợp | gọi assert.deepEqual(distances, []) để kiểm tra cấu trúc hai giá trị tương đương
  q.W.KVPV_MODE.armTianQuan();assert.deepEqual(distances,[]);
-// [VI dòng gốc 139] gán inside bằng true | gọi q.W.KVPV_MODE.syncMap() | gọi assert.deepEqual(distances, [310]) để kiểm tra cấu trúc hai giá trị tương đương
- inside=true;q.W.KVPV_MODE.syncMap();assert.deepEqual(distances,[310]);
-// [VI dòng gốc 140] gọi q.W.KVPV_MODE.syncMap() | gọi assert.deepEqual(distances, [310]) để kiểm tra cấu trúc hai giá trị tương đương
- q.W.KVPV_MODE.syncMap();assert.deepEqual(distances,[310]);
-// [VI dòng gốc 141] tăng floor một đơn vị sau khi lấy giá trị | gọi q.W.KVPV_MODE.syncMap() | gọi assert.deepEqual(distances, [310,310]) để kiểm tra cấu trúc hai giá trị tương đương
- floor++;q.W.KVPV_MODE.syncMap();assert.deepEqual(distances,[310,310]);
+// [VI dòng gốc 139] gán inside bằng true | gọi q.W.KVPV_MODE.syncMap() | gọi assert.deepEqual(distances, [300]) để kiểm tra cấu trúc hai giá trị tương đương
+ inside=true;q.W.KVPV_MODE.syncMap();assert.deepEqual(distances,[300]);
+// [VI dòng gốc 140] gọi q.W.KVPV_MODE.syncMap() | gọi assert.deepEqual(distances, [300]) để kiểm tra cấu trúc hai giá trị tương đương
+ q.W.KVPV_MODE.syncMap();assert.deepEqual(distances,[300]);
+// [VI dòng gốc 141] tăng floor một đơn vị sau khi lấy giá trị | gọi q.W.KVPV_MODE.syncMap() | gọi assert.deepEqual(distances, [300,300]) để kiểm tra cấu trúc hai giá trị tương đương
+ floor++;q.W.KVPV_MODE.syncMap();assert.deepEqual(distances,[300,300]);
 // [VI dòng gốc 142] gán inside bằng false | gọi q.W.KVPV_MODE.syncMap() | gán inside bằng true
- inside=false;q.W.KVPV_MODE.syncMap();inside=true;q.W.KVPV_MODE.syncMap();assert.deepEqual(distances,[310,310,310]);
+ inside=false;q.W.KVPV_MODE.syncMap();inside=true;q.W.KVPV_MODE.syncMap();assert.deepEqual(distances,[300,300,300]);
 // [VI dòng gốc 143] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 144] gọi test('native inward path is redirected before first entry poll; retreat and outside paths preserved', ()=>{ const q=harness()…)
@@ -304,7 +304,7 @@ test('native inward path is redirected before first entry poll; retreat and outs
 // [VI dòng gốc 151] gọi q.W.KVPV_MODE.armTianQuan() để đăng ký bộ theo dõi map để tự bật bộ combat khi vào phó bản phù hợp | gán inside bằng true
  q.W.KVPV_MODE.armTianQuan();inside=true;
 // [VI dòng gốc 152] gọi assert.equal(mover.moveTo(0,0), 17) để kiểm tra hai giá trị bằng nhau | gọi assert.deepEqual(moves.pop(), [302,0]) để kiểm tra cấu trúc hai giá trị tương đương
- assert.equal(mover.moveTo(0,0),17);assert.deepEqual(moves.pop(),[310,0]);
+ assert.equal(mover.moveTo(0,0),17);assert.deepEqual(moves.pop(),[300,0]);
 // [VI dòng gốc 153] gán q.W.KVPV_HITRUN1.status bằng ()=>({running:true,phase:'RETREAT'})
  q.W.KVPV_HITRUN1.status=()=>({running:true,phase:'RETREAT'});
 // [VI dòng gốc 154] gọi mover.moveTo(0, 0) | gọi assert.deepEqual(moves.pop(), [0,0]) để kiểm tra cấu trúc hai giá trị tương đương

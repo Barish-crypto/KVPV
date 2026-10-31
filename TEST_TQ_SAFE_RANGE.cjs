@@ -21,15 +21,15 @@ const W={
 vm.runInNewContext(startup,{window:W,console},{timeout:1500});
 assert.equal(W.KVPV_TQ_POSITION_ONLY.enabled,false,'must NOT disable HP recovery');
 assert.equal(W.KVPV_TQ_POSITION_ONLY.heal,true,'HitRun recovery must remain available');
-assert.equal(W.KVPV_TQ_POSITION_ONLY.distance,310,'TQ far goal 310');
+assert.equal(W.KVPV_TQ_POSITION_ONLY.distance,300,'TQ far goal 300');
 assert(calls.some(row=>row[0]==='arm'),'native dungeon watcher remains armed');
-assert(calls.some(row=>row[0]==='setInterleaved'&&row[2]===310));
-assert(modes.includes("const tqDistance=()=>Number(W.KVPV_TQ_POSITION_ONLY?.distance??310)"));
-assert(modes.includes("entryGoal=tqDistance()"),'native inward path protected at 310');
+assert(calls.some(row=>row[0]==='setInterleaved'&&row[2]===300));
+assert(modes.includes("const tqDistance=()=>Number(W.KVPV_TQ_POSITION_ONLY?.distance??300)"));
+assert(modes.includes("entryGoal=tqDistance()"),'native inward path protected at 300');
 assert(modes.includes("W.KVPV_TH300?.setDistance?.(tqDistance())"),
  'TQ distance must not be replaced by another dungeon profile');
 assert(modes.includes("if(lastScopeKey!==key&&scope.kind==='THIEN_QUAN'&&scope.inside)"),
  'TQ controller must pin goal once on new stage/floor entry');
 assert(modes.includes("W.KVPV_HITRUN_AUTO.rearm()"),'HitRun recovery auto arm retained');
 assert(modes.includes("W.KVPV_HITRUN1.start()"),'native HitRun start retained');
-console.log('PASS Tian Quan safe 310 range: restore 35/100 HP recovery, pin independent TQ goal, native inward-move gate');
+console.log('PASS Tian Quan safe 300 range: restore 35/100 HP recovery, pin independent TQ goal, native inward-move gate');

@@ -29,7 +29,7 @@
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: inFarMap = tạo hàm với tham số (không có); mỗi lần gọi trả về tính biểu thức (W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false
   const inFarMap=()=>(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false;
   const tqNoHeal=()=>W.KVPV_TQ_POSITION_ONLY?.enabled===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
-  const tqDistance=()=>Number(W.KVPV_TQ_POSITION_ONLY?.distance??310);
+  const tqDistance=()=>Number(W.KVPV_TQ_POSITION_ONLY?.distance??300);
 // [VI dòng gốc 20] Khai báo biến có thể gán lại bằng let: entryMoveHook = null
   let entryMoveHook=null;
 // [VI dòng gốc 21] Định nghĩa hàm releaseEntryMove; tham số: không có | Khai báo biến không gán lại bằng const: h = entryMoveHook | Kiểm tra h&&h.m.moveTo===h.fn: đúng thì chạy nhánh sau if. | Kiểm tra h.own: đúng thì chạy nhánh sau if, sai thì chạy nhánh else.

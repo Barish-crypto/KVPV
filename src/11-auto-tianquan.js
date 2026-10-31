@@ -4,9 +4,9 @@
 /* User-requested startup: arm map watcher, leave other maps to native combat. */
 (() => {
   const W=window;
-  // Thiên Quan: retain far goal 310, but restore native HitRun recovery (35/100).
+  // Thiên Quan: target far goal 300, but restore native HitRun recovery (35/100).
   // Old position-only mode disabled the emergency HP retreat and was unsafe.
-  W.KVPV_TQ_POSITION_ONLY=Object.freeze({enabled:false,distance:310,heal:true});
+  W.KVPV_TQ_POSITION_ONLY=Object.freeze({enabled:false,distance:300,heal:true});
   try{
     W.KVPV_BOSS_LOG?.start?.();
     W.KVPV_TH300?.setBurst?.(false);
@@ -15,7 +15,7 @@
     W.KVPV_TH300?.setClientPace?.(1);
     W.KVPV_FAR_SCOPE?.setAllBosses?.(false);
     W.KVPV_TQ115?.stop?.();
-    W.KVPV_TH300?.setInterleaved?.(true,310);
+    W.KVPV_TH300?.setInterleaved?.(true,300);
     W.KVPV_TH300?.setPrimaryBasic?.(false);
     W.KVPV_TH300?.setBasicRotation?.([8005]);
     W.KVPV_TH300?.setBasicHitQuota?.(null);
@@ -42,6 +42,6 @@
     // Khôi phục tốc độ hoạt ảnh gốc (1) theo yêu cầu; không tăng tốc hoạt ảnh 8001.
     if(String(W.__KVPV_OWN_ACTOR_ID)==='10228867268946')W.KVPV_TH300?.setBasicAnimationSpeed?.(1);
     W.KVPV_TH300?.setTianQuanVisualSpeed?.(9999); // 13 skills, Tian Quan only, client visuals
-    console.info('[KVPV V1] Thiên Quan: basic native 8005 only; tam 310.');
+    console.info('[KVPV V1] Thiên Quan: basic native 8005 only; tam 300.');
   }catch(e){W.KVPV_V1?.diagnostics?.record?.(e);console.warn('[KVPV V1] Auto Thiên Quan:',String(e));}
 })();
