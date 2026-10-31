@@ -55,3 +55,19 @@ jobs:
             MANIFEST.json
           if-no-files-found: error
           retention-days: 14
+      - name: Publish verified FULL build receipt
+        if: success() && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo "Commit: ${{ github.sha }}"
+            echo "Tests: PASS"
+            echo "Build: PASS"
+            echo "Artifact: KVPV-verified-full-${{ github.sha }}"
+            echo "Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "Contains: KVPV_V1_FULL.js, KVPV_SCAN_LIVE_PATCH.js, MANIFEST.json"
+            echo "Not deployed to any game browser."
+          } > "$RUNNER_TEMP/kvpv-build-receipt.md"
+          gh issue create --repo "${{ github.repository }}" --title "[KVPV FULL READY] ${{ github.sha }}" --body-file "$RUNNER_TEMP/kvpv-build-receipt.md"
