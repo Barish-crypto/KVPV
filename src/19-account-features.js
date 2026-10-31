@@ -17,7 +17,7 @@
   const dailyConfig=W.KVPV_DAILY?.config;
   if(dailyConfig){
     const clone=String(dailyConfig.tinhThanCloneId??'');
-    if(clone && (!/^[1-9]\\d{4,24}$/.test(clone)||clone===actor))
+    if(clone && (!/^[1-9]\d{4,24}$/.test(clone)||clone===actor))
       dailyConfig.tinhThanCloneId='';
   }
 // [VI dòng gốc 10] Định nghĩa hàm install; tham số: name, fn | Khai báo biến không gán lại bằng const: old = đọc W[name]
