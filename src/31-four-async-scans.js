@@ -36,14 +36,19 @@
  // Report the actual verified controllers, without claiming ownership of their actions.
  adapters.tui={inspect:()=>{
    const model=W._Ba?._aJ?._hJ?.ins;
-   return model?{available:true,quickUse:W.KVPV_QUICK_USE?.status?.()??null,
-     freeDailyBag:W.KVPV_FREE_DAILY_BAG?.status?.()??null,
-     note:'quick-use controller is independent; no bag-wide executor verified',tasks:[]}:null;
+   const quickUse=W.KVPV_QUICK_USE?.status?.()??null;
+   const freeDailyBag=W.KVPV_FREE_DAILY_BAG?.status?.()??null;
+   const soulStone=W.KVPV_SOUL_STONE_FAST?.status?.()??null;
+   return (model||quickUse||freeDailyBag||soulStone)?{available:!!model,quickUse,
+     freeDailyBag,soulStone,
+     note:'screens show Dung Luyen/Cuong Hoa/Da Hon/Ghep; native status only, no new paid actions',tasks:[]}:null;
  }};
  adapters.phap_thuat={inspect:()=>{
    const handbook=W.KVPV_SKILL_REWARDS?.status?.();
-   return handbook?{available:true,skillHandbookRewards:handbook,
-     note:'existing skill handbook executor runs independently',tasks:[]}:null;
+   const fabao=W.KVPV_FABAO_FAST?.status?.();
+   return (handbook||fabao)?{available:true,skillHandbookRewards:handbook??null,
+     fabao:fabao??null,
+     note:'Tuyet Hoc and Phap Bao UI confirmed; only existing verified rewards/fabao status observed',tasks:[]}:null;
  }};
  adapters.luyen_khi={inspect:()=>{
    const craft=W.KVPV_CRAFT_LOW?.status?.(),reserve=W.KVPV_MATERIAL_RESERVE;
