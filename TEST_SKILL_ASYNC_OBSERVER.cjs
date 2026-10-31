@@ -17,5 +17,10 @@ vm.runInNewContext(fs.readFileSync(__dirname+'/src/00-skill-async-observer.js','
  const empty={};
  assert.doesNotThrow(()=>vm.runInNewContext(fs.readFileSync(__dirname+'/src/00-skill-async-observer.js','utf8'),{window:empty,Promise,Date,Number,Object,Array,String}));
  assert.equal(empty.KVPV_SKILL_ASYNC_OBSERVER.status().reason,'waiting_actor');
+ const virtual={__KVPV_OWN_ACTOR_ID:'42',_Ba:{_rJ:{_O$:{ins:{actorId:'42'}}}},
+  KVPV_V1:{timers:{setInterval(){throw Error('underlying browser timer missing');}}}};
+ assert.doesNotThrow(()=>vm.runInNewContext(fs.readFileSync(__dirname+'/src/00-skill-async-observer.js','utf8'),{window:virtual,Promise,Date,Number,Object,Array,String}));
+ assert.equal(virtual.KVPV_SKILL_ASYNC_OBSERVER.status().reason,'waiting_timer_api');
+
  console.log('PASS 13-skill async passive observer; no cast, stop cleanup');
 })().catch(e=>{console.error(e);process.exitCode=1;});
