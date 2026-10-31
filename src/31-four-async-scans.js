@@ -11,7 +11,7 @@
  const timers=new Map(),adapters=Object.create(null),lanes=Object.fromEntries(keys.map(key=>[key,{
    count:0,updatedAt:0,reason:'waiting_adapter',error:'',value:null,busy:false,
    pending:same?carry.pending?.[key]??null:null,requests:same?carry.requests?.[key]??0:0,
-   confirmed:same?carry.confirmed?.[key]??0:0
+   confirmed:same?carry.confirmed?.[key]??0:0,lastCompletedKey:same?carry.completed?.[key]??null:null
  }]));
  let enabled=true,generation=0;
  const owned=()=>!!actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&
@@ -42,7 +42,17 @@
  adapters.phap_thuat={inspect:()=>{
    const handbook=W.KVPV_SKILL_REWARDS?.status?.();
    return handbook?{available:true,skillHandbookRewards:handbook,
-     note:'skill handbook rewards only; not the entire phap thuat system',tasks:[]}:null;
+     note:'existing skill handbook executor runs independently',tasks:[]}:null;
+ }};
+ adapters.luyen_khi={inspect:()=>{
+   const craft=W.KVPV_CRAFT_LOW?.status?.(),reserve=W.KVPV_MATERIAL_RESERVE;
+   return craft?{available:true,craftStatus:craft,materialsReserved:reserve?.active===true,
+     note:'existing crafting executor; do not start or spend resources',tasks:[]}:null;
+ }};
+ adapters.tien_phu={inspect:()=>{
+   const daily=W.KVPV_DAILY?.quickState?.();
+   return daily?{available:true,dailyStatus:{running:daily.running,job:daily.job},
+     note:'no verified Tien Phu-specific native executor',tasks:[]}:null;
  }};
  async function scan(key){
    if(!keys.includes(key))throw Error('Unknown scan lane');
@@ -60,7 +70,7 @@
        if(typeof adapter.confirm!=='function'){lane.reason='pending_waiting_verified_confirmation';return;}
        const confirmed=await adapter.confirm(lane.pending.key,observed);
        if(!enabled||token!==generation)return;
-       if(confirmed===true){lane.confirmed++;lane.pending=null;}
+       if(confirmed===true){lane.confirmed++;lane.lastCompletedKey=lane.pending.key;lane.pending=null;}
        else {lane.reason='pending_waiting_confirmation';return;}
      }
      if(typeof adapter.execute!=='function'||typeof adapter.confirm!=='function'){
@@ -69,8 +79,9 @@
      if(W.KVPV_ENTRY_POLICY?.manual===true||W.KVPV_EVENT_PRIORITY?.hold?.()){
        lane.reason='yield_to_priority';return;
      }
-     const task=tasks.find(safeTask);
-     if(!task){lane.reason=tasks.length?'no_verified_free_action':'no_tasks';return;}
+     const task=tasks.find(t=>safeTask(t)&&t.key!==lane.lastCompletedKey);
+     if(!task){if(!tasks.some(t=>t.key===lane.lastCompletedKey))lane.lastCompletedKey=null;
+       lane.reason=tasks.length?'no_verified_free_action':'no_tasks';return;}
      // Keep a pending latch before calling native executor; never replay unknown result.
      lane.pending={key:task.key,action:task.action,at:Date.now()};
      lane.requests++;
@@ -94,6 +105,7 @@
  W.KVPV_FOUR_SCANS=Object.freeze({start,stop,scan,status,registerReader,registerAdapter,
    _handoff:()=>({actor,pending:Object.fromEntries(keys.map(k=>[k,lanes[k].pending])),
      requests:Object.fromEntries(keys.map(k=>[k,lanes[k].requests])),
-     confirmed:Object.fromEntries(keys.map(k=>[k,lanes[k].confirmed]))})});
+     confirmed:Object.fromEntries(keys.map(k=>[k,lanes[k].confirmed])),
+     completed:Object.fromEntries(keys.map(k=>[k,lanes[k].lastCompletedKey]))})});
  start();
 })();
