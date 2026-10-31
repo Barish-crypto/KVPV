@@ -13,6 +13,8 @@ async function main(){
  assert.equal(a.status().lanes.luyen_khi.adapterReady,true);
  assert.equal(a.status().lanes.tui.adapterReady,true);
  assert.equal(new Set([...callbacks.values()].map(x=>x.ms)).size,4,'independent intervals');
+ // start() launches four async scans; allow their initial awaits to release busy flags.
+ await Promise.resolve();await Promise.resolve();
  let bagSync=0,skillSync=0,quickSync=0;
  W.KVPV_FREE_DAILY_BAG={status:()=>({enabled:true,allowKNB:false}),sync:()=>{bagSync++;}};
  W.KVPV_QUICK_USE={status:()=>({enabled:true,allowKNB:false}),sync:()=>{quickSync++;}};
@@ -31,6 +33,7 @@ async function main(){
  W.KVPV_EVENT_PRIORITY={hold:()=>({key:'event'})};
  await a.scan('tui');await a.scan('phap_thuat');
  assert.equal(quickSync,2,'event priority must not delegate quick use');
+ W.KVPV_EVENT_PRIORITY=null;
  let executions=0,ack=false,observed=0;
  a.registerAdapter('luyen_khi',{inspect:async()=>{observed++;return {tasks:[
    {key:'pay',action:'upgrade',free:true,costVerified:true},
