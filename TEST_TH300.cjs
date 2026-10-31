@@ -503,6 +503,22 @@ test('290 interleaving alternates native Tuyet Hoc and basics with independent d
 // [VI dòng gốc 251] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 252] gọi test('FULL startup selects 310 and only 8001 with no TH fallback', ()=>{ const q=harness({fastReady:true,tower:true});q.W.__K…)
+test('Tian Quan Basic Only casts 8005 despite learned 8001 and stale desktop range 302',()=>{
+ const q=harness({fastReady:true,startX:300});
+ q.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN',inside:true}),inside:()=>true,eligible:()=>true};
+ q.W.KVPV_TQ_POSITION_ONLY={enabled:false,distance:300,heal:true};
+ q.W.KVPV_DESKTOP_CONTROL={scopeProfile:scope=>scope==='THIEN_QUAN'?{mode:'basic8001',distance:302,intervalMs:0}:null};
+ q.s._rtt=[[8001,0,50],[8005,0,50]];q.s._wet=[];
+ q.mod.setInterleaved(true,300);q.mod.setBasicOnly(true);q.mod.setBasicRotation([8005]);
+ q.mod.start('SCAN');q.pump();q.advance(80);
+ const st=q.mod.status(false);
+ assert.equal(st.goalDistance,300,'explicit Tian Quan preference must beat stale desktop 302');
+ assert.equal(st.basicOnly,true);
+ assert.deepEqual(Array.from(st.playerSkillIds),[8005]);
+ assert(q.calls.length>0,'ready 8005 should actually cast; 8001 must not take its slot');
+ assert(q.calls.every(id=>id===8005),'all calls are 8005');
+ q.mod.stop();
+});
 test('FULL startup selects 300 and only basic 8005 in Tian Quan',()=>{
  const q=harness({fastReady:true,tower:true});q.W.__KVPV_BASIC_RANGE_TEST_20261023={status:'complete'};q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
  vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:q.W});
@@ -932,7 +948,7 @@ for(const scope of [{},{tower:true},{rune:true},{rune:true,bossHp:[1,100]}])test
 // [VI dòng gốc 456] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 457] gọi console.log('PASSED', passed, '/78') | Kiểm tra passed!==78: đúng thì chạy nhánh sau if. | gán process.exitCode bằng 1
-console.log('PASSED',passed,'/83');if(passed!==83)process.exitCode=1;
+console.log('PASSED',passed,'/84');if(passed!==84)process.exitCode=1;
 // [VI dòng gốc 458] Dòng trống để tách các phần, không có lệnh thực thi.
 
 // [VI dòng gốc 459] gọi test('native dispatch distinguishes silent calls from actual actor signals and detaches on stop', ()=>{ const q=harness({fast…)

@@ -31,8 +31,11 @@
 // [VI dòng gốc 20] Khai báo biến không gán lại bằng const: scopedCombat = tạo hàm với tham số (không có); mỗi lần gọi trả về W.KVPV_DESKTOP_CONTROL?.scopeProfile?.(W.KVPV_FAR_SCOPE?.status?.()?.kind) hoặc dùng vế phải khi vế trái là null/undefined: null
   const scopedCombat=()=>W.KVPV_DESKTOP_CONTROL?.scopeProfile?.(W.KVPV_FAR_SCOPE?.status?.()?.kind)??null;
   const tqDistanceOnly=()=>W.KVPV_TQ_POSITION_ONLY?.enabled===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
+  // Honor the explicitly configured Tian Quan goal even when an older desktop
+  // combat profile still supplies distance 302; leave its mode/pace settings alone.
+  const tqConfiguredGoal=()=>{const p=W.KVPV_TQ_POSITION_ONLY,d=Number(p?.distance);return p?.enabled===false&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&Number.isFinite(d)&&d>280&&d<=600?d:null;};
 // [VI dòng gốc 21] Duyệt từng giá trị trong ['goal','min','max','basicOnly'] bằng const key. | Khai báo biến không gán lại bằng const: key (chưa gán giá trị) | Khai báo biến có thể gán lại bằng let: base = đọc CFG[key] | gọi Object.defineProperty(CFG, key, {enumerable:true,configurable:true,get(){const p=scopedCombat();if(!p)return base;if(key==='basicOnly')return …)
-  for(const key of ['goal','min','max','basicOnly']){let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){if(tqDistanceOnly()){if(key==='goal')return 310;if(key==='min')return 300;if(key==='max')return 320;}const p=scopedCombat();if(!p)return base;if(key==='basicOnly')return p.mode==='basic8001';if(key==='goal')return p.distance;if(key==='max')return p.distance+10;return p.distance===300?295:p.distance>300?300:280;},set(value){base=value;}});}
+  for(const key of ['goal','min','max','basicOnly']){let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){if(tqDistanceOnly()){if(key==='goal')return 310;if(key==='min')return 300;if(key==='max')return 320;}const fixed=tqConfiguredGoal();if(fixed!==null&&key!=='basicOnly'){if(key==='goal')return fixed;if(key==='max')return fixed+10;return fixed===300?295:fixed>300?300:280;}const p=scopedCombat();if(!p)return base;if(key==='basicOnly')return p.mode==='basic8001';if(key==='goal')return p.distance;if(key==='max')return p.distance+10;return p.distance===300?295:p.distance>300?300:280;},set(value){base=value;}});}
 // [VI dòng gốc 22] Khai báo biến không gán lại bằng const: metrics = W.KVPV_COMBAT_METRICS?.create?.() hoặc dùng vế phải khi vế trái là null/undefined: null
   const metrics=W.KVPV_COMBAT_METRICS?.create?.()??null;
 // [VI dòng gốc 23] Khai báo biến không gán lại bằng const: pacer = W.KVPV_SKILL_PACING?.create?.() hoặc dùng vế phải khi vế trái là null/undefined: null
@@ -1033,7 +1036,7 @@
 // [VI dòng gốc 337] Kiểm tra allowed(skill,Number(prop(r.c.target,'occ')),radius(r.a,r.c.target)): đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gọi r.c.combat(skill) | tăng ST.fastCasts một đơn vị sau khi lấy giá trị | gán ST.lastReason bằng 'casting_native_skill'
     if(allowed(skill,Number(prop(r.c.target,'occ')),radius(r.a,r.c.target))){r.c.combat(skill);ST.fastCasts++;ST.lastReason='casting_native_skill';}
 // [VI dòng gốc 338] gán ST.lastReason bằng 'waiting_ready_tuyet_hoc'
-    else ST.lastReason=basicSolo4100Active()?'waiting_ready_basic':'waiting_ready_tuyet_hoc';
+    else ST.lastReason=CFG.basicOnly?'waiting_ready_basic_'+String(basicRotation()[0]??mixed.rotation[0]??8001):basicSolo4100Active()?'waiting_ready_basic':'waiting_ready_tuyet_hoc';
 // [VI dòng gốc 339] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 340] Chú thích gốc của tác giả; không được thực thi. Nội dung: Xử lý sự kiện sát thương để cập nhật bằng chứng; bộ lọc trong hàm quyết định mẫu nào thực sự phù hợp.
@@ -1237,7 +1240,7 @@
 // [VI dòng gốc 402] Kiểm tra !eligible(r.c?.target)||!(towerFinish()?canFight():castReady())||!nativeReady(r.c): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: áp dụng toán tử - lên 1.
         if(!eligible(r.c?.target)||!(towerFinish()?canFight():castReady())||!nativeReady(r.c))return -1;
 // [VI dòng gốc 403] Khai báo biến không gán lại bằng const: rows = gọi [...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].filter(row=>Number(row?.[0])===(basicRotation()[0]??8001)) để giữ phần tử thỏa điều kiện
-        const rows=[...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].filter(row=>Number(row?.[0])===8001);
+        const rows=[...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].filter(row=>Number(row?.[0])===(basicRotation()[0]??mixed.rotation[0]??8001));
 // [VI dòng gốc 404] Kết thúc hàm hiện tại và trả về: gọi selectBasic(native, this, rows, mode, Number(prop(r.c.target,'occ')), radius(r.a,r.c.target)).
         return selectBasic(native,this,rows,mode,Number(prop(r.c.target,'occ')),radius(r.a,r.c.target));
 // [VI dòng gốc 405] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
