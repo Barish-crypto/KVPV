@@ -54,6 +54,19 @@
    S.checks++;
    await Promise.resolve();
    if(!S.enabled||!valid()||combat.target!==target)return;
+   // Scene, event and recovery may change during the async skill-readiness boundary.
+   if(!far()||W.KVPV_ENTRY_POLICY?.manual===true||W.KVPV_EVENT_PRIORITY?.hold?.()||
+      W.KVPV_BOSS_TEAM?.priority?.()===true){
+     S.reason='yield_changed_priority';return;
+   }
+   const recoveryNow=W.KVPV_HITRUN1?.status?.(false);
+   if(recoveryNow?.running===true&&recoveryNow.phase!=='FIGHT'){S.reason='yield_recovery';return;}
+   if(W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='dead';return;}
+   const typeNow=Number(target?.property?.get?.('type'));
+   const hpNowFinal=target?.property?.get?.('hp');
+   if(typeNow===4||(Number.isFinite(typeNow)&&typeNow!==0&&typeNow!==1)||
+     (Array.isArray(hpNowFinal)&&Number(hpNowFinal[0])<=0)){S.reason='target_changed_or_dead';return;}
+   if(typeof combat.isValidRange==='function'&&combat.isValidRange()===false){S.reason='native_out_of_range';return;}
    if(typeof combat.isCooldown==='function'&&combat.isCooldown()!==false){S.reason='native_cooldown';return;}
    combat.combat(chosen);S.lastSkill=chosen;S.casts++;S.reason='native_cast_requested';
   }catch(e){S.reason='error';S.error=String(e?.message??e);}
