@@ -21,7 +21,7 @@
   S.busy=true;
   try{
    if(!far()){S.reason='outside_boss_scope';return;}
-   if(W.KVPV_ENTRY_POLICY?.manual===true||W.KVPV_EVENT_PRIORITY?.hold?.()){S.reason='yield_priority';return;}
+   if(W.KVPV_ENTRY_POLICY?.manual===true||W.KVPV_EVENT_PRIORITY?.hold?.()||W.KVPV_BOSS_TEAM?.priority?.()===true){S.reason='yield_priority';return;}
    if(W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='dead';return;}
    const recovery=W.KVPV_HITRUN1?.status?.(false);
    if(recovery?.running===true&&recovery.phase!=='FIGHT'){S.reason='yield_recovery';return;}
@@ -38,7 +38,7 @@
      }
      S.reason='waiting_native_boss_target';return;
    }
-   if(type!==1&&type!==0&&Number.isFinite(type)){S.reason='non_monster_target';return;}
+   if(!Number.isFinite(type)||(type!==1&&type!==0)){S.reason='non_monster_target';return;}
    if(typeof combat.isValidRange==='function'&&combat.isValidRange()===false){S.reason='native_out_of_range';return;}
    if(typeof combat.isCooldown==='function'&&combat.isCooldown()!==false){S.reason='native_cooldown';return;}
    const target=combat.target;
@@ -64,7 +64,7 @@
    if(W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='dead';return;}
    const typeNow=Number(target?.property?.get?.('type'));
    const hpNowFinal=target?.property?.get?.('hp');
-   if(typeNow===4||(Number.isFinite(typeNow)&&typeNow!==0&&typeNow!==1)||
+   if(!Number.isFinite(typeNow)||(typeNow!==0&&typeNow!==1)||
      (Array.isArray(hpNowFinal)&&Number(hpNowFinal[0])<=0)){S.reason='target_changed_or_dead';return;}
    if(typeof combat.isValidRange==='function'&&combat.isValidRange()===false){S.reason='native_out_of_range';return;}
    if(typeof combat.isCooldown==='function'&&combat.isCooldown()!==false){S.reason='native_cooldown';return;}
