@@ -56,4 +56,6 @@
    S.timer=owner.setInterval(()=>{void tick();},100);}
   S.reason='armed';return state();}
  W.KVPV_COMBAT_ENGINE=Object.freeze({start,stop,tick,status:state,skillIds:ids.slice()});
+ // Startup is timerless in preflight; in the real game, arm once and wait for boss scope.
+ start();
 })();
