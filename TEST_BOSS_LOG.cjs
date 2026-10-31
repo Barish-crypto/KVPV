@@ -81,10 +81,10 @@ test('actual bundle installs readiness check before entering legacy engine',()=>
 // [VI dòng gốc 41] Khai báo biến không gán lại bằng const: bundle = gọi fs.readFileSync(__dirname+'/KVPV_V1_FULL.js', 'utf8') để đọc tệp đồng bộ
  const bundle=fs.readFileSync(__dirname+'/KVPV_V1_FULL.js','utf8');
 // [VI dòng gốc 42] Khai báo biến không gán lại bằng const: engineStart = gọi bundle.indexOf('// Source: src/04-engine.js') | gọi assert(engineStart>0) để kiểm tra điều kiện của bài test
- const engineStart=bundle.indexOf('// Source: src/04-engine.js');assert(engineStart>0);
+ const engineStart=bundle.indexOf('// Source: src/09-combat-engine.js');assert(engineStart>0);
 // [VI dòng gốc 43] Khai báo biến không gán lại bằng const: W = tạo đối tượng gồm | Khai báo biến không gán lại bằng const: context = tạo đối tượng gồm window, _Ba, _ft, _Sa, console
  const W={};const context={window:W,_Ba:{_rJ:{_O$:{ins:{actorId:'123456'}}}},_ft:{},_Sa:{},console:{info(){},error(){}}};
-// [VI dòng gốc 44] gọi assert.throws(()=>vm.runInNewContext(bundle.replace('__KVPV_INSTALL_04_engine_js();', 'throw Error("ENGINE_BOUNDARY");'),context,{time…) để kiểm tra đoạn mã có ném lỗi như dự kiến
+// [VI dòng gốc 44] gọi assert.throws(()=>vm.runInNewContext(bundle.replace('__KVPV_INSTALL_00_daily_clock_js();', 'throw Error("ENGINE_BOUNDARY");'),context,{time…) để kiểm tra đoạn mã có ném lỗi như dự kiến
  assert.throws(()=>vm.runInNewContext(bundle.replace('__KVPV_INSTALL_04_engine_js();', 'throw Error("ENGINE_BOUNDARY");'),context,{timeout:5000}),/ENGINE_BOUNDARY/);
 // [VI dòng gốc 45] gọi assert.equal(typeof W.KVPV_CHECK, 'function') để kiểm tra hai giá trị bằng nhau | gọi assert.equal(W.KVPV_CHECK().ready, false) để kiểm tra hai giá trị bằng nhau
  assert.equal(typeof W.KVPV_CHECK,'function');assert.equal(W.KVPV_CHECK().ready,false);
