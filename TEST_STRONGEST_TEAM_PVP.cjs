@@ -6,7 +6,7 @@ const build=fs.readFileSync(__dirname+'/build.cjs','utf8');
 assert(build.includes('"77-strongest-team-pvp.js"'),'event PK must be hot-reloadable');
 function harness(){
  const actor='10228867268946',enemyId='pvp-enemy-1';
- let now=200000,inside=true,open=true,phase='ACTIVE',enemyColor='red',enemy2Color='red',manual=false,selected,hidden=false,skillRows=[[1001,0,50],[8001,0,50]];
+ let now=200000,inside=true,open=true,phase='ACTIVE',enemyColor='red',enemy2Color='red',manual=false,selected,hidden=false,skillRows=[[1001,0,50],[8005,0,50]];
  let cooldown=false,range=true,busy=false;
  const moves=[],casts=[],timers=new Map();
  class Clock extends Date{static now(){return now;}}
@@ -51,7 +51,7 @@ function harness(){
  assert.equal(h.casts.length,0,'no target must not cast');
  assert.equal(h.dodge().status().enabled,false,'no enemy means no dodge observer');
  h.select(h.enemy);h.tick();
- assert.deepEqual(h.casts,[1001],'ready TH preferred to native basic');
+ assert.deepEqual(h.casts,[8005],'only 8005 selected even when TH ready');
  assert.equal(h.pk().status().autoDodgeOwned,true);
  assert.equal(h.dodge().status().attached,true);
  h.enemy.emit(1039,h.actor,1005);
@@ -60,8 +60,8 @@ function harness(){
  assert.equal(h.pk().status().dodge.nativeDodgeAttempts,1);
  h.enemy.emit(1039,h.actor,1005);
  assert.equal(h.moves.length,1,'dodge cooldown');
- h.setRows([[8001,0,50]]);h.advance(1500);h.tick();
- assert.deepEqual(h.casts,[1001,8001],'fallback to ready native basic');
+ h.setRows([[8005,0,50]]);h.advance(1500);h.tick();
+ assert.deepEqual(h.casts,[8005,8005],'fallback to ready native basic');
  h.setCooldown(true);h.tick();assert.equal(h.casts.length,2,'native cooldown gate');
  h.setCooldown(false);h.setRange(false);h.tick();assert.equal(h.casts.length,2,'native range gate');
  h.setRange(true);h.setHidden(true);h.tick();assert.equal(h.casts.length,2,'manual/background safety');
@@ -87,7 +87,7 @@ function harness(){
  h.setOpen(true);h.setPhase('WAITING');h.tick();
  assert.equal(h.casts.length,0,'unconfirmed event phase blocks combat');
  h.setPhase('ACTIVE');h.tick();
- assert.deepEqual(h.casts,[1001],'confirmed scene allows native cast');
+ assert.deepEqual(h.casts,[8005],'confirmed scene allows 8005 native cast');
  h.pk().config.nativeAttack=false;h.tick();
  assert.equal(h.casts.length,1,'dodge-only switch disables outgoing combat');
  h.pk().stop();

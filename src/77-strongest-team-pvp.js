@@ -47,7 +47,7 @@ const readySkills=(selector,at)=>{
              ...(Array.isArray(selector?._wet)?selector._wet:[])];
  return rows.filter(row=>{
   const k=Number(row?.[0]),until=Number(row?.[1]);
-  return Number.isSafeInteger(k)&&((k>=1001&&k<=1008)||(k>=8001&&k<=8005))&&
+  return Number.isSafeInteger(k)&&k===8005&&
          Number.isFinite(until)&&until<at;
  });
 };

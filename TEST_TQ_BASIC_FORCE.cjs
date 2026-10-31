@@ -173,10 +173,10 @@ function setup(){
  const startup=fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8');
  vm.runInNewContext(startup,{window:q.W,console:{info(){},warn(){}}});
  assert.equal(armed,1,'startup installs original map watcher once');
- assert.equal(q.mod.status(false).basicOnly,false,'FULL startup enables mixed basics and native TH');
+ assert.equal(q.mod.status(false).basicOnly,true,'FULL startup uses 8005-only basic mode');
  assert.equal(force.status().enabled,false,'FULL startup disables legacy BASIC FORCE for mixed TH');
  assert.equal(force.status().active,false,'mixed TH never enables forced cooldown hooks');
- assert.equal(q.mod.status(false).paceMs,1,'1ms client cadence retained');
+ assert.equal(q.mod.status(false).paceMs,0,'basic-only mode has zero extra client delay');
  q.mod.stop();
 }
 {

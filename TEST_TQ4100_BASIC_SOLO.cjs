@@ -74,9 +74,9 @@ function make(){
  const st=q.mod.status(false);
  assert.equal(st.luoFeng.basicSolo4100.active,false,'auto startup does not force basic solo 4100');
  assert.equal(st.luoFeng.dpsPilot4100.enabled,false,'experimental pilot stays disabled');
- assert.equal(st.skillPriority,'five_basics_plus_tuyet_hoc_10ms');
+ assert.equal(st.skillPriority,'basic8001');
  q.elapse(100);
- assert([8001,8002,8003,8004,8005,1001].includes(q.s.selectSkill()),'auto startup may select native basic or ready TH');
+ assert.deepEqual(Array.from(q.mod.status(false).playerSkillIds??[]),[8005],'configured startup exposes 8005 only');
  q.mod.stop();
 }
 {

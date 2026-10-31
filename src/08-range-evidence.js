@@ -1236,7 +1236,7 @@
       if(CFG.basicOnly&&ST.running&&this===r.s&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false){
 // [VI dòng gốc 402] Kiểm tra !eligible(r.c?.target)||!(towerFinish()?canFight():castReady())||!nativeReady(r.c): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: áp dụng toán tử - lên 1.
         if(!eligible(r.c?.target)||!(towerFinish()?canFight():castReady())||!nativeReady(r.c))return -1;
-// [VI dòng gốc 403] Khai báo biến không gán lại bằng const: rows = gọi [...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].filter(row=>Number(row?.[0])===8001) để giữ phần tử thỏa điều kiện
+// [VI dòng gốc 403] Khai báo biến không gán lại bằng const: rows = gọi [...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].filter(row=>Number(row?.[0])===(basicRotation()[0]??8001)) để giữ phần tử thỏa điều kiện
         const rows=[...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].filter(row=>Number(row?.[0])===8001);
 // [VI dòng gốc 404] Kết thúc hàm hiện tại và trả về: gọi selectBasic(native, this, rows, mode, Number(prop(r.c.target,'occ')), radius(r.a,r.c.target)).
         return selectBasic(native,this,rows,mode,Number(prop(r.c.target,'occ')),radius(r.a,r.c.target));
@@ -1331,7 +1331,7 @@
       if(ST.running&&this===r.c&&basicSolo4100Active()&&Number(skillId)>=1001&&Number(skillId)<=1008){basicSolo4100.blockedTH++;ST.blocked++;return undefined;}
       if(ST.running&&this===r.c&&Number(skillId)===1008&&trial1008?.blocks(skillId))return undefined;
 // [VI dòng gốc 449] Kiểm tra CFG.basicOnly&&ST.running&&this===r.c&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false&&Number(skillId)!==8001: đúng thì chạy nhánh sau if. | tăng ST.blocked một đơn vị sau khi lấy giá trị | Kết thúc hàm hiện tại và trả về: undefined.
-      if(CFG.basicOnly&&!tqFive?.active()&&ST.running&&this===r.c&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false&&Number(skillId)!==8001){ST.blocked++;return undefined;}
+      if(CFG.basicOnly&&!tqFive?.active()&&ST.running&&this===r.c&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false&&Number(skillId)!==(basicRotation()[0]??8001)){ST.blocked++;return undefined;}
 // [VI dòng gốc 450] Kiểm tra ST.running&&this===r.c&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false&&Date.now()-ST.lastTHAt<CFG.afterTHWaitMs: đúng thì chạy nhánh sau if. | tăng ST.blocked một đơn vị sau khi lấy giá trị | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       if(ST.running&&this===r.c&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false&&Date.now()-ST.lastTHAt<CFG.afterTHWaitMs){ST.blocked++;return;}
 // [VI dòng gốc 451] Kiểm tra ST.running&&this===r.c&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false&&isBasic(skillId)&&!selectedBasic(skillId): đúng thì chạy nhánh sau if. | tăng ST.blocked một đơn vị sau khi lấy giá trị | Kết thúc hàm hiện tại và trả về: undefined.
@@ -1705,7 +1705,7 @@
         tqBasicVisualSpeed:CFG.tqBasicVisualSpeed,tqBasicVisualCalls,tqBasicVisualScaled,tqBasicVisualUnavailable,tqBasicVisualLastSkill,
        tqTuyetHocVisualCalls:thVisualCalls,tqTuyetHocVisualScaled:thVisualScaled,
        tqTuyetHocVisualUnavailable:thVisualUnavailable,tqTuyetHocVisualLastSkill:thVisualLastSkill,
-       scaledBasicAnimations:ST.scaledBasicAnimations??0,basicSpeedTrial:speedTrial??W[speedKey]??null,basicOnly:tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,playerSkillIds:tqFive?.active()?tqIds:CFG.basicOnly?[8001]:null,interleavedBasic:tqFive?.active()||mixed.enabled,basicProbeActive:ST.running&&probeActive(),version:'1.0.0',running:ST.running,operation:ST.mode,goalDistance:targetDistance()??CFG.goal,requestedDistance:CFG.goal,
+       scaledBasicAnimations:ST.scaledBasicAnimations??0,basicSpeedTrial:speedTrial??W[speedKey]??null,basicOnly:tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,playerSkillIds:tqFive?.active()?tqIds:CFG.basicOnly?[basicRotation()[0]??8001]:null,interleavedBasic:tqFive?.active()||mixed.enabled,basicProbeActive:ST.running&&probeActive(),version:'1.0.0',running:ST.running,operation:ST.mode,goalDistance:targetDistance()??CFG.goal,requestedDistance:CFG.goal,
 // [VI dòng gốc 622] Thuộc tính requireDistanceGreaterThan: đọc CFG.min | Thuộc tính clientTrialRadius: đọc CFG.max
       requireDistanceGreaterThan:CFG.min,clientTrialRadius:CFG.max,
 // [VI dòng gốc 623] Thuộc tính nativeTuyetHoc: ready | Thuộc tính confirmedSkills: proved | Thuộc tính confirmedOver300: gọi proved.filter(x=>supportedDistance(occ,x.id)>300) để giữ phần tử thỏa điều kiện

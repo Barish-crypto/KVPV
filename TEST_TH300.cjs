@@ -510,11 +510,11 @@ test('FULL startup selects 310 and enables native Tuyet Hoc plus basics in Tian 
  assert.equal(q.mod.report().goalDistance,310);
  assert(Math.abs(q.actor.coords.x-310)<=5);
  assert.equal(q.mod.report().interleaved.enabled,true);
- assert.equal(q.mod.report().basicOnly,false,'Tian Quan must allow Tuyet Hoc when not in a native basic-only exception');
+ assert.equal(q.mod.report().basicOnly,true,'Tian Quan defaults to native basic only');
  assert.equal(q.mod.report().basicHitQuota,null);
  assert.equal(q.mod.report().afterTHWaitMs,1);
- assert.equal(q.mod.report().interleaved.basicClientWaitMs,1);
- assert(q.calls.every(id=>(id>=8001&&id<=8005)||(id>=1001&&id<=1008)),'only learned BASIC or TH skills may be selected');
+ assert.equal(q.mod.report().interleaved.basicClientWaitMs,0,'basic-only mode has no TH interleave delay');
+ assert(q.calls.every(id=>id===8005),'Tian Quan startup selects only basic 8005');
  const n=q.calls.length;q.cooldown(true);q.advance(500);assert.equal(q.calls.length,n);
  q.cooldown(false);q.hp(0);q.advance(500);assert.equal(q.calls.length,n);
 });
