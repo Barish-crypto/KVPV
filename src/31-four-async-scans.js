@@ -111,6 +111,28 @@
      lane.error=String(e?.message??e);lane.reason=lane.pending?'action_error_pending_no_retry':'reader_error';
    }}finally{lane.busy=false;}
  }
+ // Classify red-dot work without implying permission to spend resources.
+ function opportunities(){
+   const state=status().lanes;
+   const fabao=state.phap_thuat.value?.fabao;
+   const rewards=state.phap_thuat.value?.skillHandbookRewards;
+   const craft=state.luyen_khi.value?.craftStatus;
+   const bag=state.tui.value;
+   const groups={
+     tuyet_hoc:{state:'awaiting_verified_native_reader',spendAllowed:false},
+     phap_bao:{state:fabao?.eligible?.length?'upgrade_available_blocked_by_reserve':'observing',count:fabao?.eligible?.length??0,spendAllowed:false},
+     bi_thuat:{state:'awaiting_verified_native_reader',spendAllowed:false},
+     skill_rewards:{state:rewards?.ready?.length?'free_rewards_detected':'observing',count:rewards?.ready?.length??0,spendAllowed:false},
+     luyen_khi:{state:craft?.recipes?.length?'craft_available_blocked_by_reserve':'observing',count:craft?.recipes?.length??0,spendAllowed:false},
+     cuong_hoa:{state:'awaiting_verified_native_reader',spendAllowed:false},
+     da_hon:{state:bag?.soulStone?'existing_controller_observed':'awaiting_verified_native_reader',spendAllowed:false},
+     dung_luyen:{state:'awaiting_verified_native_reader',spendAllowed:false},
+     ghep:{state:'awaiting_verified_native_reader',spendAllowed:false},
+     ra:{state:'awaiting_verified_native_reader',spendAllowed:false},
+     tien_phu:{state:'awaiting_verified_native_reader',spendAllowed:false}
+   };
+   return groups;
+ }
  function status(){return {enabled,actor,readOnly:false,allowKNB:false,autoUpgrades:false,
    lanes:Object.fromEntries(keys.map(k=>[k,{...lanes[k],intervalMs:intervals[k],
      adapterReady:!!adapters[k],executorReady:typeof adapters[k]?.execute==='function'}]))};}
@@ -122,7 +144,7 @@
    for(const key of keys){timers.set(key,set(()=>{void scan(key);},intervals[key]));void scan(key);}
    return status();
  }
- W.KVPV_FOUR_SCANS=Object.freeze({start,stop,scan,status,registerReader,registerAdapter,
+ W.KVPV_FOUR_SCANS=Object.freeze({start,stop,scan,status,opportunities,registerReader,registerAdapter,
    _handoff:()=>({actor,pending:Object.fromEntries(keys.map(k=>[k,lanes[k].pending])),
      requests:Object.fromEntries(keys.map(k=>[k,lanes[k].requests])),
      confirmed:Object.fromEntries(keys.map(k=>[k,lanes[k].confirmed])),
