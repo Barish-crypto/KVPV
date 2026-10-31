@@ -9,6 +9,8 @@ async function main(){
  const timerless={__KVPV_OWN_ACTOR_ID:'1',_Ba:{_rJ:{_O$:{ins:{actorId:'1'}}}}};
  assert.doesNotThrow(()=>vm.runInNewContext(fs.readFileSync(__dirname+'/src/31-four-async-scans.js','utf8'),{window:timerless,Promise,Date}));
  assert.equal(timerless.KVPV_FOUR_SCANS.status().enabled,true);
+ const virtual={__KVPV_OWN_ACTOR_ID:'1',_Ba:{_rJ:{_O$:{ins:{actorId:'1'}}}},KVPV_V1:{timers:{setInterval(){throw Error('must not call virtual timer');}}}};
+ assert.doesNotThrow(()=>vm.runInNewContext(fs.readFileSync(__dirname+'/src/31-four-async-scans.js','utf8'),{window:virtual,Promise,Date}));
  const a=W.KVPV_FOUR_SCANS;
  assert.equal(callbacks.size,4,'four independent timers');
  assert.equal(a.status().autoUpgrades,false);
