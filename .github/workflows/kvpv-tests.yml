@@ -38,3 +38,20 @@ jobs:
             gh issue create --repo "${{ github.repository }}" --title "[KVPV CI] ${{ github.sha }}" --body-file "$RUNNER_TEMP/kvpv-report.md" || true
           fi
           exit "$code"
+      - name: Build FULL only after tests pass
+        if: success()
+        run: |
+          node build.cjs
+          node --check KVPV_V1_FULL.js
+          node --check KVPV_SCAN_LIVE_PATCH.js
+      - name: Upload verified FULL and live patch
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: KVPV-verified-full-${{ github.sha }}
+          path: |
+            KVPV_V1_FULL.js
+            KVPV_SCAN_LIVE_PATCH.js
+            MANIFEST.json
+          if-no-files-found: error
+          retention-days: 14
