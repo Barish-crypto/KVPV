@@ -33,7 +33,17 @@
    if(!keys.includes(key)||typeof reader!=='function')throw Error('Verified reader required');
    adapters[key]={inspect:reader};lanes[key].reason='reader_registered';return status();
  }
- adapters.tui={inspect:()=>W._Ba?._aJ?._hJ?.ins?{available:true,tasks:[]}:null};
+ // Report the actual verified controllers, without claiming ownership of their actions.
+ adapters.tui={inspect:()=>{
+   const model=W._Ba?._aJ?._hJ?.ins;
+   return model?{available:true,quickUse:W.KVPV_QUICK_USE?.status?.()??null,
+     note:'quick-use controller is independent; no bag-wide executor verified',tasks:[]}:null;
+ }};
+ adapters.phap_thuat={inspect:()=>{
+   const handbook=W.KVPV_SKILL_REWARDS?.status?.();
+   return handbook?{available:true,skillHandbookRewards:handbook,
+     note:'skill handbook rewards only; not the entire phap thuat system',tasks:[]}:null;
+ }};
  async function scan(key){
    if(!keys.includes(key))throw Error('Unknown scan lane');
    const lane=lanes[key];if(!enabled||lane.busy)return;
