@@ -16,9 +16,10 @@ vm.runInNewContext(src,{window:W,Promise,Date,Number,String,Object,Array,Set});
  assert.equal(e.status().lastCooldown,true);
  assert.equal(e.status().reason,'native_cooldown');
  castCooldown=false;dead=true;await e.tick();assert.equal(casts.length,0,'no attack on death');
- // Legacy HitRun cannot gate the one native sender.
  W.KVPV_HITRUN1={status(){return {running:true,phase:'RETREAT'};}};
- dead=false;await e.tick();assert.deepEqual(casts,[8001],'single native cast');
+ dead=false;await e.tick();assert.equal(casts.length,0,'never attack during active retreat');
+ W.KVPV_HITRUN1={status(){return {running:true,phase:'FIGHT'};}};
+ await e.tick();assert.deepEqual(casts,[8001],'single native cast');
  assert(e.status().knownSkillIds.includes(8001));
  assert.equal(e.status().reasonCounts.native_cast_requested,1,'native cast reasons counted');
  assert(e.status().lastCastAt>0,'native cast timestamp captured');
