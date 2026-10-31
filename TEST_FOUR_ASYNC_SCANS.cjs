@@ -15,7 +15,7 @@ async function main(){
  assert.equal(new Set([...callbacks.values()].map(x=>x.ms)).size,4,'independent intervals');
  let bagSync=0,skillSync=0,quickSync=0;
  W.KVPV_FREE_DAILY_BAG={status:()=>({enabled:true,allowKNB:false}),sync:()=>{bagSync++;}};
- W.KVPV_QUICK_USE={status:()=>({enabled:true}),sync:()=>{quickSync++;}};
+ W.KVPV_QUICK_USE={status:()=>({enabled:true,allowKNB:false}),sync:()=>{quickSync++;}};
  W.KVPV_SKILL_REWARDS={status:()=>({enabled:true,allowKNB:false}),sync:()=>{skillSync++;}};
  await a.scan('tui');await a.scan('phap_thuat');
  assert.equal(bagSync,1);assert.equal(quickSync,1);assert.equal(skillSync,1);
@@ -24,6 +24,13 @@ async function main(){
  await a.scan('tui');await a.scan('phap_thuat');
  assert.equal(bagSync,1,'disabled free bag is never reenabled');
  assert.equal(skillSync,1,'disabled skill rewards is never reenabled');
+ W.KVPV_ENTRY_POLICY={manual:true};
+ await a.scan('tui');await a.scan('phap_thuat');
+ assert.equal(quickSync,2,'manual mode must not delegate quick use again');
+ W.KVPV_ENTRY_POLICY.manual=false;
+ W.KVPV_EVENT_PRIORITY={hold:()=>({key:'event'})};
+ await a.scan('tui');await a.scan('phap_thuat');
+ assert.equal(quickSync,2,'event priority must not delegate quick use');
  let executions=0,ack=false,observed=0;
  a.registerAdapter('luyen_khi',{inspect:async()=>{observed++;return {tasks:[
    {key:'pay',action:'upgrade',free:true,costVerified:true},
