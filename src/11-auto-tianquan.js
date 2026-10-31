@@ -24,7 +24,7 @@
     // TH and 5 native basics share the Tian Quan-only visual scale configured below.
     W.KVPV_TH300?.setConfirmedTailCut?.(true);
     W.KVPV_TH300?.setBasicOnly?.(true);
-    W.KVPV_TH300?.setTianQuanFiveBasics?.(false,1);
+    W.KVPV_TH300?.setTianQuanFiveBasics?.(true,1);
     W.KVPV_TH300?.setTianQuanTuyetHoc?.(false);
     W.KVPV_TH300?.setTianQuanTHGapBasics?.(false);
     W.KVPV_TH300?.setTianQuanCosmic?.(false);
