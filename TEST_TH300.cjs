@@ -529,7 +529,7 @@ test('FULL startup selects 300 and enables all five native basics in Tian Quan',
  assert.equal(q.mod.report().basicOnly,true,'Tian Quan defaults to native basic only');
  assert.equal(q.mod.report().basicHitQuota,null);
  assert.equal(q.mod.report().afterTHWaitMs,1);
- assert.equal(q.mod.report().interleaved.basicClientWaitMs,0,'basic-only mode has no TH interleave delay');
+ assert.equal(q.mod.report().interleaved.basicClientWaitMs,1,'five-basic mode uses 1ms client polling');
  assert(q.calls.length>0,'Tian Quan startup casts a ready basic');assert(q.calls.every(id=>id>=8001&&id<=8005),'Tian Quan startup selects only its five basics');
  const n=q.calls.length;q.cooldown(true);q.advance(500);assert.equal(q.calls.length,n);
  q.cooldown(false);q.hp(0);q.advance(500);assert.equal(q.calls.length,n);
