@@ -79,6 +79,7 @@ const liveModules = [
   "08-range-evidence.js",
 // [VI dòng gốc 38] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "09-modes.js",
   "09-modes.js",
+  "09-boss-unified.js",
 // [VI dòng gốc 39] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "10-experimental-boost.js",
   "10-tq-basic-force.js",
   "10-experimental-boost.js",
