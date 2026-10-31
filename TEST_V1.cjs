@@ -175,11 +175,12 @@ test('FULL stores each module once and preserves both install orders',()=>{
 // [VI dòng gốc 88] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 89] Khai báo biến không gán lại bằng const: initial = gọi manifest.modules.map(name=>nameOf(name)+'();').join('\n')
-  const initial=manifest.modules.map(name=>nameOf(name)+'();').join('\n');
+  const initial=manifest.liveModules.map(name=>nameOf(name)+'();').join('\n');
 // [VI dòng gốc 90] Khai báo biến không gán lại bằng const: live = gọi manifest.liveModules.map(name=>nameOf(name)+'();').join('\n')
   const live=manifest.liveModules.map(name=>nameOf(name)+'();').join('\n');
 // [VI dòng gốc 91] gọi assert(code.includes(initial), 'initial order') để kiểm tra điều kiện của bài test
-  assert(code.includes(initial),'initial order');
+  assert(code.includes(initial),'initial live-only order');
+  assert(!manifest.liveModules.includes('12-basic-outside.js'),'retired BASIC10 must not auto install');
 // [VI dòng gốc 92] gọi assert(code.includes(live), 'live update order') để kiểm tra điều kiện của bài test
   assert(code.includes(live),'live update order');
 // [VI dòng gốc 93] Khai báo biến không gán lại bằng const: sourceLength = gọi manifest.modules.reduce((n,name)=>n+fs.readFileSync(__dirname+'/src/'+name,'utf8').length, 0) để gộp các phần tử thành một kết quả
