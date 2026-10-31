@@ -520,7 +520,7 @@ test('Tian Quan Basic Only casts 8005 despite learned 8001 and stale desktop ran
  q.mod.stop();
 });
 test('FULL startup selects 300 and enables all five native basics in Tian Quan',()=>{
- const q=harness({fastReady:true,tower:true,startX:300});q.s._rtt=[8001,8002,8003,8004,8005].map(id=>[id,0,50]);q.s._wet=[];q.W.__KVPV_BASIC_RANGE_TEST_20261023={status:'complete'};q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
+ const q=harness({fastReady:true,startX:300});q.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN',inside:true}),inside:()=>true,eligible:()=>true};q.W.KVPV_TQ_SCOPE={inside:()=>true};q.s._rtt=[8001,8002,8003,8004,8005].map(id=>[id,0,50]);q.s._wet=[];q.W.__KVPV_BASIC_RANGE_TEST_20261023={status:'complete'};q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
  vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:q.W});
  q.pump();
  assert.equal(q.mod.report().goalDistance,300);
@@ -529,6 +529,7 @@ test('FULL startup selects 300 and enables all five native basics in Tian Quan',
  assert.equal(q.mod.report().basicOnly,true,'Tian Quan defaults to native basic only');
  assert.equal(q.mod.report().basicHitQuota,null);
  assert.equal(q.mod.report().afterTHWaitMs,1);
+ assert.equal(q.mod.report().tianQuanFiveBasics.active,true,'Tian Quan five-basic profile must be active at startup');
  assert.equal(q.mod.report().interleaved.basicClientWaitMs,1,'five-basic mode uses 1ms client polling');
  assert.deepEqual(Array.from(q.mod.report().basicRotation),[8001,8002,8003,8004,8005],'startup registers the full five-basic rotation');
  assert.deepEqual(Array.from(q.mod.report().playerSkillIds),[8001,8002,8003,8004,8005],'startup exposes all learned basics');
