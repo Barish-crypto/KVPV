@@ -61,12 +61,12 @@ const liveModules = [
   "00-thienquan-scope.js",
 // [VI dòng gốc 31] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-combat-metrics.js",
   "00-combat-metrics.js",
-  "00-skill1008-trial.js",
+  // retired skill sender: 00-skill1008-trial.js
 // [VI dòng gốc 32] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-skill-pacing.js",
   "00-skill-async-observer.js",
-  "00-skill-pacing.js",
+  // retired skill sender: 00-skill-pacing.js
   "00-territory-loot.js",
-  "00-tq-basic-profile.js",
+  // retired skill sender: 00-tq-basic-profile.js
 // [VI dòng gốc 33] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "01-parallel-actions.js",
   "01-parallel-actions.js",
 // [VI dòng gốc 34] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "01-quest-priority.js",
@@ -78,13 +78,13 @@ const liveModules = [
 // [VI dòng gốc 37] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "08-range-evidence.js",
 // [VI dòng gốc 38] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "09-modes.js",
 // [VI dòng gốc 39] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "10-experimental-boost.js",
-  "10-tq-basic-force.js",
-  "10-experimental-boost.js",
+  // retired skill sender: 10-tq-basic-force.js
+  // retired skill sender: 10-experimental-boost.js
 // [VI dòng gốc 40] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "11-auto-tianquan.js",
 // [VI dòng gốc 41] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "12-basic-outside.js",
-  "12-basic-outside.js",
+  // retired skill sender: 12-basic-outside.js
 // [VI dòng gốc 42] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "13-transform-skills.js",
-  "13-transform-skills.js",
+  // retired skill sender: 13-transform-skills.js
 // [VI dòng gốc 43] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "14-eight-floor.js",
   "14-eight-floor.js",
 // [VI dòng gốc 44] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "15-honor-targets.js",
@@ -124,8 +124,8 @@ const liveModules = [
   "31-map-task-radar.js",
   "31-cuu-tieu-lenh.js",
   "31-skill-rewards.js",
-  "32-xa-menh-lv2-cd0.js",
-  "32-thac-an-cd0.js",
+  // retired skill sender: 32-xa-menh-lv2-cd0.js
+  // retired skill sender: 32-thac-an-cd0.js
   "32-combat-stall.js",
   "32-golden-proc-observer.js",
 // [VI dòng gốc 61] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "33-progress-planner.js",
