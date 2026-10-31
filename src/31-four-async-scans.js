@@ -14,6 +14,7 @@
    confirmed:same?carry.confirmed?.[key]??0:0,lastCompletedKey:same?carry.completed?.[key]??null:null
  }]));
  let enabled=true,generation=0;
+ const observer={busy:false,updatedAt:0,reason:'waiting',error:'',snapshot:null,count:0};
  const owned=()=>!!actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&
    W.__KVPV_UNIVERSAL_HALTED!==true&&W.document?.hidden!==true;
  const copy=v=>{try{return v===undefined?null:JSON.parse(JSON.stringify(v));}catch(_){return {unserializable:true};}};
@@ -109,10 +110,10 @@
      lane.reason='action_requested_waiting_server_confirmation';
    }catch(e){if(enabled&&token===generation){
      lane.error=String(e?.message??e);lane.reason=lane.pending?'action_error_pending_no_retry':'reader_error';
-   }}finally{lane.busy=false;}
+   }}finally{lane.busy=false;void refreshOpportunities();}
  }
  // Classify red-dot work without implying permission to spend resources.
- function opportunities(){
+ function computeOpportunities(){
    const state=status().lanes;
    const fabao=state.phap_thuat.value?.fabao;
    const rewards=state.phap_thuat.value?.skillHandbookRewards;
@@ -133,7 +134,21 @@
    };
    return groups;
  }
+ async function refreshOpportunities(){
+   if(!enabled||observer.busy)return;
+   if(!owned()){observer.reason='waiting_own_visible_actor';return;}
+   observer.busy=true;const token=generation;
+   try{
+     // Let active native scan lanes finish first; do not block the event loop.
+     await Promise.resolve();
+     const next=computeOpportunities();
+     if(enabled&&token===generation){observer.snapshot=copy(next);observer.updatedAt=Date.now();observer.count++;observer.reason='observed';observer.error='';}
+   }catch(e){if(enabled&&token===generation){observer.error=String(e?.message??e);observer.reason='error';}}
+   finally{observer.busy=false;}
+ }
+ function opportunities(){return observer.snapshot??computeOpportunities();}
  function status(){return {enabled,actor,readOnly:false,allowKNB:false,autoUpgrades:false,
+   observer:{busy:observer.busy,count:observer.count,updatedAt:observer.updatedAt,reason:observer.reason,error:observer.error},
    lanes:Object.fromEntries(keys.map(k=>[k,{...lanes[k],intervalMs:intervals[k],
      adapterReady:!!adapters[k],executorReady:typeof adapters[k]?.execute==='function'}]))};}
  function stop(){enabled=false;generation++;for(const id of timers.values())
@@ -142,9 +157,9 @@
    const set=W.KVPV_V1?.timers?.setInterval??W.setInterval;
    if(typeof set!=='function')return status();
    for(const key of keys){timers.set(key,set(()=>{void scan(key);},intervals[key]));void scan(key);}
-   return status();
+   void refreshOpportunities();return status();
  }
- W.KVPV_FOUR_SCANS=Object.freeze({start,stop,scan,status,opportunities,registerReader,registerAdapter,
+ W.KVPV_FOUR_SCANS=Object.freeze({start,stop,scan,status,opportunities,refreshOpportunities,registerReader,registerAdapter,
    _handoff:()=>({actor,pending:Object.fromEntries(keys.map(k=>[k,lanes[k].pending])),
      requests:Object.fromEntries(keys.map(k=>[k,lanes[k].requests])),
      confirmed:Object.fromEntries(keys.map(k=>[k,lanes[k].confirmed])),
