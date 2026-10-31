@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  issues: write
 jobs:
   regression:
     runs-on: ubuntu-latest
@@ -15,5 +16,25 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '22'
-      - name: Full regression suite
-        run: node test.cjs
+      - name: Full regression and public-to-owner result
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set +e
+          node test.cjs > "$RUNNER_TEMP/kvpv-test.log" 2>&1
+          code=$?
+          tail -n 100 "$RUNNER_TEMP/kvpv-test.log"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            {
+              echo "Commit: ${{ github.sha }}"
+              echo "Runner: Node $(node -v)"
+              echo "Exit code: $code"
+              echo
+              echo '~~~'
+              tail -n 110 "$RUNNER_TEMP/kvpv-test.log"
+              echo '~~~'
+            } > "$RUNNER_TEMP/kvpv-report.md"
+            gh issue create --repo "${{ github.repository }}" --title "[KVPV CI] ${{ github.sha }}" --body-file "$RUNNER_TEMP/kvpv-report.md" || true
+          fi
+          exit "$code"
