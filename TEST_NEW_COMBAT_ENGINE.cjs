@@ -26,6 +26,14 @@ vm.runInNewContext(src,{window:W,Promise,Date,Number,String,Object,Array,Set});
  combat.target=null;await e.tick();await e.tick();
  assert.equal(selections,1,'stale target search throttled');
  combat.target=saved;
+ // Revalidation after a pending microtask: the boss scene may disappear mid-cast.
+ const prior=casts.length;
+ const pending=e.tick();inside=false;await pending;
+ assert.equal(casts.length,prior,'cannot cast after the boss scene changes');
+ inside=true;
+ W.KVPV_EVENT_PRIORITY={hold(){return true;}};
+ await e.tick();assert.equal(casts.length,prior,'timed event preempts boss combat');
+ W.KVPV_EVENT_PRIORITY={hold(){return false;}};
  e.stop();assert.equal(timer,null);
  const empty={};assert.doesNotThrow(()=>vm.runInNewContext(src,{window:empty,Promise,Date,Number,String,Object,Array,Set}));
  const build=fs.readFileSync(__dirname+'/build.cjs','utf8');
