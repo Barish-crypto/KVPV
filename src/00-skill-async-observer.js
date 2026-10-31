@@ -27,7 +27,7 @@
    finally{S.busy=false;}
  }
  function stop(){S.enabled=false;if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)?.(S.timer);S.timer=null;}
- function start(){S.enabled=true;if(S.timer===null){const owner=W.KVPV_V1?.timers?.setInterval?W.KVPV_V1.timers:W;const set=owner?.setInterval;if(typeof set==='function')S.timer=set.call(owner,()=>{void scan();},100);else S.reason='waiting_timer_api';}void scan();return status();}
+ function start(){S.enabled=true;if(S.timer===null){const owner=W.KVPV_V1?.timers?.setInterval?W.KVPV_V1.timers:W;const set=owner?.setInterval;if(typeof W.setInterval==='function'&&typeof set==='function')S.timer=set.call(owner,()=>{void scan();},100);else S.reason='waiting_timer_api';}void scan();return status();}
  function status(){return {enabled:S.enabled,actor,observerOnly:true,castsByObserver:0,pollMs:100,checks:S.checks,updatedAt:S.updatedAt,reason:S.reason,error:S.error,skills:S.skills.slice()};}
  W.KVPV_SKILL_ASYNC_OBSERVER=Object.freeze({scan,start,stop,status});
  start();
