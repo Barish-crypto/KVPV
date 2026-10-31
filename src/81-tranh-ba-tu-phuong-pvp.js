@@ -7,7 +7,7 @@
   const W=window,KEY='KVPV_TRANH_BA_TU_PHUONG',old=W[KEY];
   try{old?.stop?.('reload');}catch(_){}
   const actor=String(W.__KVPV_OWN_ACTOR_ID||'');
-  const C={pollMs:150,mapId:null,enabled:true,moveGapMs:700,step:90,stopDistance:220,maxChaseDistance:500};
+  const C={pollMs:150,mapId:null,enabled:true,moveGapMs:700,stopDistance:220,maxChaseDistance:500};
   const S={timer:null,casts:0,th:0,basic:0,blocked:0,reason:'map_not_calibrated',error:'',lastSkill:null,moves:0,lastMoveAt:0};
   const prop=(r,k)=>r?.property?.get?.(k);
   const id=r=>String(r?.id??prop(r,'id')??'');
@@ -36,7 +36,7 @@
     return Number.isInteger(skill)&&(skill>=8001&&skill<=8005)&&
       Number.isFinite(time)&&time<now;
   });
-  // Throttled native walking; never alter player movement speed.
+  // Native walking at the game's default speed; avoid repeated path resets.
   function approach(self,target){
     const p=prop(self,'position'),q=prop(target,'position');
     if(!p||!q||![p.x,p.y,q.x,q.y].every(Number.isFinite))return false;
@@ -46,8 +46,8 @@
     if(now-S.lastMoveAt<C.moveGapMs)return false;
     const mover=comp(self,'_zet');
     if(typeof mover?.moveTo!=='function')return false;
-    const step=Math.min(C.step,d-C.stopDistance);
-    mover.moveTo(Math.round(p.x+dx/d*step),Math.round(p.y+dy/d*step));
+    const travel=d-C.stopDistance;
+    mover.moveTo(Math.round(p.x+dx/d*travel),Math.round(p.y+dy/d*travel));
     S.lastMoveAt=now;S.moves++;S.reason='native_walk_toward_enemy';
     return true;
   }
