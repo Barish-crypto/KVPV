@@ -7,7 +7,7 @@
  const W=window,old=W.KVPV_COMBAT_ENGINE;old?.stop?.();
  const actor=String(W.__KVPV_OWN_ACTOR_ID??'');
  const ids=[8001,8002,8003,8004,8005,1001,1002,1003,1004,1005,1006,1007,1008];
- const S={enabled:false,armed:false,busy:false,timer:null,casts:0,checks:0,lastSkill:null,reason:'off',error:'',cursor:0,lastTargetSearchAt:0,targetSearches:0};
+ const S={enabled:false,armed:false,busy:false,timer:null,casts:0,checks:0,lastSkill:null,reason:'off',error:'',cursor:0,lastTargetSearchAt:0,targetSearches:0,reasonCounts:Object.create(null),lastCastAt:0};
  const valid=()=>actor!==''&&String(W._Ba?._rJ?._O$?.ins?.actorId??'')===actor&&W.__KVPV_UNIVERSAL_HALTED!==true;
  const far=()=>{const x=(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE);return x?.inside?.()===true&&x?.status?.()?.kind!=='TRU_TIEN';};
  const components=()=>{
@@ -15,7 +15,8 @@
   const c=W._d?._Yct;
   return {a,skill:a?.getComponent?.(c?._Eet),combat:a?.getComponent?.(c?._Het)};
  };
- function state(){return {enabled:S.enabled,armed:S.armed,busy:S.busy,actor,casts:S.casts,checks:S.checks,lastSkill:S.lastSkill,reason:S.reason,error:S.error,singleSender:true,legacyModes:false,targetSearches:S.targetSearches};}
+ function state(){return {enabled:S.enabled,armed:S.armed,busy:S.busy,actor,casts:S.casts,checks:S.checks,lastSkill:S.lastSkill,reason:S.reason,error:S.error,singleSender:true,legacyModes:false,targetSearches:S.targetSearches,lastCastAt:S.lastCastAt,reasonCounts:{...S.reasonCounts}};}
+ function recordReason(){S.reasonCounts[S.reason]=(S.reasonCounts[S.reason]||0)+1;}
  async function tick(){
   if(S.busy||!S.enabled||!valid())return;
   S.busy=true;
@@ -70,9 +71,9 @@
      (Array.isArray(hpNowFinal)&&Number(hpNowFinal[0])<=0)){S.reason='target_changed_or_dead';return;}
    if(typeof combat.isValidRange==='function'&&combat.isValidRange()===false){S.reason='native_out_of_range';return;}
    if(typeof combat.isCooldown==='function'&&combat.isCooldown()!==false){S.reason='native_cooldown';return;}
-   combat.combat(chosen);S.lastSkill=chosen;S.casts++;S.reason='native_cast_requested';
+   combat.combat(chosen);S.lastSkill=chosen;S.casts++;S.lastCastAt=Date.now();S.reason='native_cast_requested';
   }catch(e){S.reason='error';S.error=String(e?.message??e);}
-  finally{S.busy=false;}
+  finally{recordReason();S.busy=false;}
  }
  function stop(){S.enabled=false;S.armed=false;
   if(S.timer!==null){const owner=W.KVPV_V1?.timers?.clearInterval?W.KVPV_V1.timers:W;owner?.clearInterval?.(S.timer);S.timer=null;}
