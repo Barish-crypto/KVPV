@@ -10,6 +10,9 @@ async function main(){
  assert.equal(callbacks.size,4,'four independent timers');
  assert.equal(a.status().autoUpgrades,false);
  assert.equal(a.status().allowKNB,false);
+ assert.equal(a.opportunities().tuyet_hoc.spendAllowed,false);
+ assert.equal(a.opportunities().phap_bao.spendAllowed,false);
+ assert.equal(a.opportunities().dung_luyen.spendAllowed,false);
  assert.equal(a.status().lanes.luyen_khi.adapterReady,true);
  assert.equal(a.status().lanes.tui.adapterReady,true);
  assert.equal(new Set([...callbacks.values()].map(x=>x.ms)).size,4,'independent intervals');
