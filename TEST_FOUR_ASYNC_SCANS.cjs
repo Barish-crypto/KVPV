@@ -10,7 +10,7 @@ async function main(){
  assert.equal(callbacks.size,4,'four independent timers');
  assert.equal(a.status().autoUpgrades,false);
  assert.equal(a.status().allowKNB,false);
- assert.equal(a.status().lanes.luyen_khi.adapterReady,false);
+ assert.equal(a.status().lanes.luyen_khi.adapterReady,true);
  assert.equal(a.status().lanes.tui.adapterReady,true);
  assert.equal(new Set([...callbacks.values()].map(x=>x.ms)).size,4,'independent intervals');
  let executions=0,ack=false,observed=0;
@@ -21,7 +21,7 @@ async function main(){
  await a.scan('luyen_khi');assert.equal(executions,1);
  await a.scan('luyen_khi');assert.equal(executions,1,'pending prevents duplicate execution');
  ack=true;await a.scan('luyen_khi');assert.equal(a.status().lanes.luyen_khi.confirmed,1);
- assert.equal(a.status().lanes.luyen_khi.requests,2,'new confirmed cycle may request again with repeated fixture');
+ assert.equal(a.status().lanes.luyen_khi.requests,1,'confirmed action must not replay while task remains listed');
  assert(observed>=3);
  a.stop();assert.equal(callbacks.size,0,'stop removes all timers');
  assert.equal(a.status().enabled,false);
