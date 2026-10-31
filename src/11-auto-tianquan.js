@@ -19,7 +19,7 @@
     W.KVPV_TH300?.setPrimaryBasic?.(false);
     W.KVPV_TH300?.setBasicRotation?.([8005]);
     W.KVPV_TH300?.setBasicHitQuota?.(null);
-    W.KVPV_TH300?.setSkillPriority?.('basic_first');
+    W.KVPV_TH300?.setSkillPriority?.('interleaved');
     W.KVPV_TH300?.setAfterTHWait?.(1);
     // TH and 5 native basics share the Tian Quan-only visual scale configured below.
     W.KVPV_TH300?.setConfirmedTailCut?.(true);
@@ -33,8 +33,8 @@
     // Stage 4100 also uses the native TH/basic mixed profile.
     W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
     // Apply the final 8005-only policy after mode-specific profiles.
-    W.KVPV_TH300?.setBasicRotation?.([8005]);
     W.KVPV_TH300?.setBasicOnly?.(true);
+    W.KVPV_TH300?.setBasicRotation?.([8005]);
     W.KVPV_MODE.armTianQuan();
     // Restore native cooldown for mixed TH/basic: no BASIC FORCE hooks.
     // Wait for verified Tian Quan/selected native Boss; never affect other maps.
