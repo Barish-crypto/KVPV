@@ -12,6 +12,12 @@ const radar=W.KVPV_MAP_TASK_RADAR;
 assert.equal(radar.status().map,1002);
 for(const scene of [2201,2995,2371,1002]){current=scene;callback();assert.equal(radar.status().map,scene);}
 assert.equal(radar.status().snapshot.task.id,42);
+assert.equal(radar.status().stats.scans,radar.status().scans);
+assert.equal(radar.status().priority,'daily_running');
+assert.equal(radar.status().stats.mapChanges,5);
+assert.equal(radar.status().stats.completed,0);
+assert.equal(radar.status().readOnly,true);
+
 assert.equal(radar.status().readOnly,true);
 assert.equal(executions,0,'no action sender');
 W._Ba._rJ._O$.ins.actorId='9';current=9999;callback();assert.equal(radar.status().map,1002,'wrong actor cannot scan');
