@@ -36,7 +36,7 @@
    }catch(e){S.lastError=String(e?.message??e);S.reason='adapter_error_no_retry';}
  }
  function stop(){S.enabled=false;if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)?.(S.timer);S.timer=null;}
- function start(){S.enabled=true;if(S.timer!==null)return status();const owner=W.KVPV_V1?.timers?.setInterval?W.KVPV_V1.timers:W;const set=owner?.setInterval;if(typeof set==='function')S.timer=set.call(owner,tick,500);else S.reason='waiting_timer_api';return status();}
+ function start(){S.enabled=true;if(S.timer!==null)return status();const owner=W.KVPV_V1?.timers?.setInterval?W.KVPV_V1.timers:W;const set=owner?.setInterval;if(typeof W.setInterval==='function'&&typeof set==='function')S.timer=set.call(owner,tick,500);else S.reason='waiting_timer_api';return status();}
  W.KVPV_CUU_TIEU_LENH=Object.freeze({start,stop,tick,status,registerNativeAdapter});
  start();
 })();
