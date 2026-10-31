@@ -18,7 +18,7 @@
    W.__KVPV_UNIVERSAL_HALTED!==true&&W.document?.hidden!==true;
  const copy=v=>{try{return v===undefined?null:JSON.parse(JSON.stringify(v));}catch(_){return {unserializable:true};}};
  // A task is actionable only after its native adapter attests free/no-spend.
- const allowed=new Set(['claim_free_reward','collect_free','accept_free_quest','use_free_consumable']);
+ const allowed=new Set(['claim_free_reward','collect_free','accept_free_quest']);
  const forbidden=new Set(['upgrade','enhance','purchase','buy','spend','reforge','synthesize','auto_level']);
  const safeTask=t=>t&&typeof t.key==='string'&&t.key.length>0&&t.key.length<=180&&
    allowed.has(t.action)&&!forbidden.has(t.action)&&t.free===true&&t.costVerified===true&&
@@ -105,6 +105,7 @@
      lane.pending={key:task.key,action:task.action,at:Date.now()};
      lane.requests++;
      await adapter.execute(task.key,task);
+     if(!enabled||token!==generation)return;
      lane.reason='action_requested_waiting_server_confirmation';
    }catch(e){if(enabled&&token===generation){
      lane.error=String(e?.message??e);lane.reason=lane.pending?'action_error_pending_no_retry':'reader_error';
