@@ -32769,7 +32769,7 @@ function tick(){
     // Retain emergency retreat at 35% and the native controller on other maps.
     const tqEarlyScope=W.KVPV_FAR_SCOPE?.status?.();
     const tqEarlyResume=tqEarlyScope?.kind==='THIEN_QUAN'&&tqEarlyScope.inside===true&&
-      Number.isFinite(h.pct)&&h.pct>35&&spent>=C.minRetreatMs&&
+      Number.isFinite(h.pct)&&h.pct>=45&&spent>=C.minRetreatMs&&
       Number.isFinite(recoveryDistance)&&
       recoveryDistance>=Math.max(310,recoveryGeometry().range+20);
     if(tqEarlyResume){
