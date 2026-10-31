@@ -32,6 +32,9 @@
     W.KVPV_TH300?.setTianQuanIdleFill?.(false);
     // Stage 4100 also uses the native TH/basic mixed profile.
     W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
+    // Apply the final 8005-only policy after mode-specific profiles.
+    W.KVPV_TH300?.setBasicRotation?.([8005]);
+    W.KVPV_TH300?.setBasicOnly?.(true);
     W.KVPV_MODE.armTianQuan();
     // Restore native cooldown for mixed TH/basic: no BASIC FORCE hooks.
     // Wait for verified Tian Quan/selected native Boss; never affect other maps.
