@@ -28,7 +28,8 @@
    const {a,skill,combat}=components();
    if(!a||!skill||typeof combat?.combat!=='function'){S.reason='waiting_native_components';return;}
    const nativeTarget=combat.target;
-   const type=Number(nativeTarget?.property?.get?.('type'));
+   const rawType=nativeTarget?.property?.get?.('type');
+   const type=rawType==null?NaN:Number(rawType);
    const hpNow=nativeTarget?.property?.get?.('hp');
    const stale=!nativeTarget||type===4||(Array.isArray(hpNow)&&Number(hpNow[0])<=0);
    if(stale){
@@ -62,7 +63,8 @@
    const recoveryNow=W.KVPV_HITRUN1?.status?.(false);
    if(recoveryNow?.running===true&&recoveryNow.phase!=='FIGHT'){S.reason='yield_recovery';return;}
    if(W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='dead';return;}
-   const typeNow=Number(target?.property?.get?.('type'));
+   const rawTypeNow=target?.property?.get?.('type');
+   const typeNow=rawTypeNow==null?NaN:Number(rawTypeNow);
    const hpNowFinal=target?.property?.get?.('hp');
    if(!Number.isFinite(typeNow)||(typeNow!==0&&typeNow!==1)||
      (Array.isArray(hpNowFinal)&&Number(hpNowFinal[0])<=0)){S.reason='target_changed_or_dead';return;}
