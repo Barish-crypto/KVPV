@@ -48,7 +48,7 @@
   if(!S.enabled||!owned())return;if(W.KVPV_GUILD_BOSS?.active?.()){S.reason='guild_boss_priority';return;}restore();const peers=W.KVPV_TEAM_COORDINATOR?.status?.()?.accounts??[];
 // [VI dòng gốc 25] Kiểm tra peers.length!==4: đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_four_known_tool_accounts' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
   const clone=String(W.KVPV_DAILY?.config?.tinhThanCloneId??'');
-  const pair=/^[1-9]\\d{4,24}$/.test(clone)&&clone!==actor&&peers.length===2&&peers.some(p=>p.actor===actor)&&peers.some(p=>p.actor===clone);
+  const pair=/^[1-9]\d{4,24}$/.test(clone)&&clone!==actor&&peers.length===2&&peers.some(p=>p.actor===actor)&&peers.some(p=>p.actor===clone);
   if(!pair&&peers.length!==4){S.reason='waiting_verified_pair_or_four_accounts';return;}
 // [VI dòng gốc 26] Kiểm tra !S.leader: đúng thì chạy nhánh sau if. | gán S.leader bằng peers[0].actor | gán S.roster bằng peers.map(p=>p.actor)
   if(pair){S.leader=actor;S.roster=[actor,clone];}else if(!S.leader){S.leader=peers[0].actor;S.roster=peers.map(p=>p.actor);}
