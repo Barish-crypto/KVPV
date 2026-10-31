@@ -33,7 +33,7 @@
   };
   const ready=(selector,now)=>[...(selector?._rtt??[]),...(selector?._wet??[])].filter(x=>{
     const skill=Number(x?.[0]),time=Number(x?.[1]);
-    return Number.isInteger(skill)&&((skill>=1001&&skill<=1008)||(skill>=8001&&skill<=8005))&&
+    return Number.isInteger(skill)&&(skill>=8001&&skill<=8005)&&
       Number.isFinite(time)&&time<now;
   });
   function tick(){
@@ -57,14 +57,13 @@
     if(combat.isCooldown()!==false||combat.isValidTarget()!==true||combat.isValidRange()!==true){
       S.blocked++;S.reason='native_cooldown_range_or_target';return;
     }
-    const rows=ready(selector,Date.now()),th=rows.filter(x=>Number(x[0])<8000);
-    const pool=th.length?th:rows.filter(x=>Number(x[0])>=8000);
+    const pool=ready(selector,Date.now());
     if(!pool.length){S.reason='skills_not_ready';return;}
     const skill=Number(selector._f7t(pool,[],1));
     if(!pool.some(x=>Number(x[0])===skill)){S.reason='native_selector_rejected';return;}
     if(!inside()||combat.target!==target||!enemy(target,self))return;
     combat.combat(skill);S.casts++;S.lastSkill=skill;
-    if(skill<8000)S.th++;else S.basic++;
+    S.basic++;
     S.reason='native_pvp_cast';
   }
   function safeTick(){try{tick();}catch(e){S.error=String(e);S.reason='error';}}
