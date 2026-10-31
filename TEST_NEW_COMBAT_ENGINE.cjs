@@ -18,6 +18,8 @@ vm.runInNewContext(src,{window:W,Promise,Date,Number,String,Object,Array,Set});
  dead=false;await e.tick();assert.equal(casts.length,0,'recovery must own movement and block combat');
  W.KVPV_HITRUN1={status(){return {running:true,phase:'FIGHT'};}};
  dead=false;await e.tick();assert.deepEqual(casts,[8001],'single native cast');
+ assert.equal(e.status().reasonCounts.native_cast_requested,1,'native cast reasons counted');
+ assert(e.status().lastCastAt>0,'native cast timestamp captured');
  const saved=combat.target;combat.target={property:{get(k){return k==='type'?4:null;}}};
  await e.tick();assert.deepEqual(casts,[8001],'never attack a player with boss engine');
  combat.target={property:{get(k){return k==='hp'?[100,100]:null;}}};
