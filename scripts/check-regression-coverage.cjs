@@ -21,7 +21,7 @@ const manual = new Map([
 ]);
 
 // Historical, non-executable TH300 regressions. Kept for reference; do not count as passing new-engine tests.
-const archived = new Set(["TEST_FAST_SKILL_POLL.cjs","TEST_TRU_TIEN.cjs","TEST_TH300.cjs","TEST_RANGE_TRIAL.cjs","TEST_TH_OLD_1296.cjs","TEST_MODES_1296.cjs","TEST_TQ_FIVE_BASICS.cjs","TEST_TQ_FIVE_TAIL1MS.cjs","TEST_TQ_BASIC_FORCE.cjs","TEST_TQ_TH_VISUAL99.cjs","TEST_TQ_TH_GAP_BASIC.cjs","TEST_TQ_IDLE_FILL.cjs","TEST_TQ_COSMIC.cjs","TEST_TQ_LUOFENG.cjs","TEST_TQ4100_PILOT.cjs","TEST_TQ4100_BASIC_SOLO.cjs","TEST_TQ4100_COOLDOWN_TRIAL.cjs"]);
+const archived = new Set(["TEST_LINHLUNG_TH.cjs","TEST_FAST_SKILL_POLL.cjs","TEST_TRU_TIEN.cjs","TEST_TH300.cjs","TEST_RANGE_TRIAL.cjs","TEST_TH_OLD_1296.cjs","TEST_MODES_1296.cjs","TEST_TQ_FIVE_BASICS.cjs","TEST_TQ_FIVE_TAIL1MS.cjs","TEST_TQ_BASIC_FORCE.cjs","TEST_TQ_TH_VISUAL99.cjs","TEST_TQ_TH_GAP_BASIC.cjs","TEST_TQ_IDLE_FILL.cjs","TEST_TQ_COSMIC.cjs","TEST_TQ_LUOFENG.cjs","TEST_TQ4100_PILOT.cjs","TEST_TQ4100_BASIC_SOLO.cjs","TEST_TQ4100_COOLDOWN_TRIAL.cjs"]);
 const found = fs.readdirSync(root)
   .filter(name => /^TEST_[A-Z0-9_]+\.cjs$/.test(name))
   .sort();
