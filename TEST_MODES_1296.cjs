@@ -209,10 +209,10 @@ test('FULL startup automatically arms map watcher and logger without attacking o
  const startup=fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'');
 // [VI dòng gốc 104] gọi vm.runInNewContext(startup, {window:q.W,console:q.W.console,String}) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử
  vm.runInNewContext(startup,{window:q.W,console:q.W.console,String});
-// [VI dòng gốc 105] gọi assert.equal(logs, 1) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.W.KVPV_MODE.status(false).pendingTianQuanMode, 'BOSS_TH300_SCAN') để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.state().auto, false) để kiểm tra hai giá trị bằng nhau
- assert.equal(logs,1);assert.equal(q.W.KVPV_MODE.status(false).pendingTianQuanMode,'BOSS_TH300_SCAN');assert.equal(q.state().auto,false);
-// [VI dòng gốc 106] gán inside bằng true | gọi q.W.KVPV_MODE.syncMap() | gọi assert.equal(q.W.KVPV_MODE.status(false).mode, 'BOSS_TH300_SCAN') để kiểm tra hai giá trị bằng nhau
- inside=true;q.W.KVPV_MODE.syncMap();assert.equal(q.W.KVPV_MODE.status(false).mode,'BOSS_TH300_SCAN');
+// [VI dòng gốc 105] gọi assert.equal(logs, 1) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.W.KVPV_MODE.status(false).pendingTianQuanMode, 'BOSS') để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.state().auto, false) để kiểm tra hai giá trị bằng nhau
+ assert.equal(logs,1);assert.equal(q.W.KVPV_MODE.status(false).pendingTianQuanMode,'BOSS');assert.equal(q.state().auto,false);
+// [VI dòng gốc 106] gán inside bằng true | gọi q.W.KVPV_MODE.syncMap() | gọi assert.equal(q.W.KVPV_MODE.status(false).mode, 'BOSS') để kiểm tra hai giá trị bằng nhau
+ inside=true;q.W.KVPV_MODE.syncMap();assert.equal(q.W.KVPV_MODE.status(false).mode,'BOSS');
 // [VI dòng gốc 107] gọi q.W.KVPV_MODE.stop() để dừng bộ điều khiển và dọn tài nguyên | gọi q.W.KVPV_MODE.syncMap() | gọi assert.equal(q.W.KVPV_MODE.status(false).mode, 'OFF') để kiểm tra hai giá trị bằng nhau
  q.W.KVPV_MODE.stop();q.W.KVPV_MODE.syncMap();assert.equal(q.W.KVPV_MODE.status(false).mode,'OFF');
 // [VI dòng gốc 108] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
