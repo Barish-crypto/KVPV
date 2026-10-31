@@ -1631,7 +1631,10 @@
 // [VI dòng gốc 586] Kiểm tra ST.moveGoal&&Date.now()-progress.at>=1800&&ST.positionRetries<6: đúng thì chạy nhánh sau if.
       else if(ST.moveGoal&&Date.now()-progress.at>=1800&&ST.positionRetries<6){
 // [VI dòng gốc 587] tăng ST.positionRetries một đơn vị sau khi lấy giá trị | gán ST.positionOffset bằng d<goal?Math.min(32,ST.positionRetries*8):0
-        ST.positionRetries++;ST.positionOffset=d<goal?Math.min(32,ST.positionRetries*8):0;
+        ST.positionRetries++;
+        // Native path may stop short on either side of the 310-radius ring.
+        // For a too-distant actor, request a slightly *closer* waypoint; do not widen attack range.
+        ST.positionOffset=d<goal?Math.min(32,ST.positionRetries*8):d>goal+CFG.tolerance?-Math.min(24,ST.positionRetries*8):0;
 // [VI dòng gốc 588] gán ST.ownMove bằng true | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi r.m.stop() để dừng bộ điều khiển và dọn tài nguyên (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gán ST.ownMove bằng false
         ST.ownMove=true;try{r.m.stop?.();}finally{ST.ownMove=false;}
 // [VI dòng gốc 589] gán ST.lastMove bằng -Infinity | gán ST.moveGoal bằng null | gán ST.positionSample.at bằng Date.now()

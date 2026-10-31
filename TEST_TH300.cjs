@@ -1054,6 +1054,14 @@ test('native outward path stopping seven units short retries waypoint and casts 
 // [VI dòng gốc 517] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 518] gọi test('blocked path retries are bounded, never allows casts at 295, and yields to recovery', ()=>{ const q=harness({newDefault…)
+test('outside 310 path short-stop retries with inward native waypoint and no out-of-range cast',()=>{
+ const q=harness({newDefault:true,defaultDistance:true,startX:315.57,fastReady:true});
+ q.m.running=()=>true;q.m.moveTo=(x,y)=>q.movements.push({x,y});
+ q.mod.setInterleaved(true,310);q.mod.start('SCAN');
+ for(let i=0;i<7;i++)q.advance(1900);
+ assert(q.movements.some(p=>p.x<310),'retry must aim slightly inward when native stops too far away');
+ assert.equal(q.actor.coords.x,315.57,'mocked native path stays short of its destination');q.mod.stop();
+});
 test('blocked path retries are bounded, never allows casts at 295, and yields to recovery',()=>{
 // [VI dòng gốc 519] Khai báo biến không gán lại bằng const: q = gọi harness({newDefault:true,defaultDistance:true,startX:295,fastReady:true}) | gán q.m.running bằng ()=>true | gán q.m.moveTo bằng (x,y)=>q.movements.push([x,y])
  const q=harness({newDefault:true,defaultDistance:true,startX:295,fastReady:true});q.m.running=()=>true;q.m.moveTo=(x,y)=>q.movements.push([x,y]);
