@@ -582,7 +582,7 @@
 // [VI dòng gốc 265] Chú thích gốc của tác giả; không được thực thi. Nội dung: Đăng ký SCAN tự chạy khi đủ điều kiện Thiên Quan; kiểm tra map ngay sau khi đăng ký.
   // Đăng ký SCAN tự chạy khi đủ điều kiện Thiên Quan; kiểm tra map ngay sau khi đăng ký.
 // [VI dòng gốc 266] Định nghĩa hàm armTianQuan; tham số: không có. Mục đích: đăng ký bộ theo dõi map để tự bật bộ combat khi vào phó bản phù hợp | gán lastTianQuanKey bằng null | gọi watchMap(MODE.BOSS_TH300_SCAN) | gọi syncMap()
-  function armTianQuan(){lastTianQuanKey=null;watchMap(MODE.BOSS_TH300_SCAN);syncMap();return status(false);}
+  function armTianQuan(){lastTianQuanKey=null;watchMap(MODE.BOSS);syncMap();return status(false);}
 // [VI dòng gốc 267] Khai báo biến không gán lại bằng const: api = gọi Object.freeze({version:'1.0.0',start,stop,status,syncMap,armTianQuan, modes:MODE,history:()=>S.history.slice()}) để khóa thay đổi trực tiếp các thuộc tính của đối tượng ở mức ngoài cùng
   const api=Object.freeze({version:'1.0.0',start,stop,status,syncMap,armTianQuan,
 // [VI dòng gốc 268] Thuộc tính modes: MODE | Thuộc tính history: tạo hàm với tham số (không có); mỗi lần gọi trả về gọi S.history.slice() để lấy một đoạn dữ liệu
