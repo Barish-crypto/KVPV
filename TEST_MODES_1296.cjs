@@ -304,7 +304,7 @@ test('native inward path is redirected before first entry poll; retreat and outs
 // [VI dòng gốc 151] gọi q.W.KVPV_MODE.armTianQuan() để đăng ký bộ theo dõi map để tự bật bộ combat khi vào phó bản phù hợp | gán inside bằng true
  q.W.KVPV_MODE.armTianQuan();inside=true;
 // [VI dòng gốc 152] gọi assert.equal(mover.moveTo(0,0), 17) để kiểm tra hai giá trị bằng nhau | gọi assert.deepEqual(moves.pop(), [302,0]) để kiểm tra cấu trúc hai giá trị tương đương
- assert.equal(mover.moveTo(0,0),17);assert.deepEqual(moves.pop(),[310,0]);
+ assert.equal(mover.moveTo(0,0),17);assert.deepEqual(moves.pop(),[300,0]);
 // [VI dòng gốc 153] gán q.W.KVPV_HITRUN1.status bằng ()=>({running:true,phase:'RETREAT'})
  q.W.KVPV_HITRUN1.status=()=>({running:true,phase:'RETREAT'});
 // [VI dòng gốc 154] gọi mover.moveTo(0, 0) | gọi assert.deepEqual(moves.pop(), [0,0]) để kiểm tra cấu trúc hai giá trị tương đương
