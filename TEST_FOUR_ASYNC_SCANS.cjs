@@ -13,6 +13,17 @@ async function main(){
  assert.equal(a.status().lanes.luyen_khi.adapterReady,true);
  assert.equal(a.status().lanes.tui.adapterReady,true);
  assert.equal(new Set([...callbacks.values()].map(x=>x.ms)).size,4,'independent intervals');
+ let bagSync=0,skillSync=0,quickSync=0;
+ W.KVPV_FREE_DAILY_BAG={status:()=>({enabled:true,allowKNB:false}),sync:()=>{bagSync++;}};
+ W.KVPV_QUICK_USE={status:()=>({enabled:true}),sync:()=>{quickSync++;}};
+ W.KVPV_SKILL_REWARDS={status:()=>({enabled:true,allowKNB:false}),sync:()=>{skillSync++;}};
+ await a.scan('tui');await a.scan('phap_thuat');
+ assert.equal(bagSync,1);assert.equal(quickSync,1);assert.equal(skillSync,1);
+ W.KVPV_FREE_DAILY_BAG.status=()=>({enabled:false,allowKNB:false});
+ W.KVPV_SKILL_REWARDS.status=()=>({enabled:false,allowKNB:false});
+ await a.scan('tui');await a.scan('phap_thuat');
+ assert.equal(bagSync,1,'disabled free bag is never reenabled');
+ assert.equal(skillSync,1,'disabled skill rewards is never reenabled');
  let executions=0,ack=false,observed=0;
  a.registerAdapter('luyen_khi',{inspect:async()=>{observed++;return {tasks:[
    {key:'pay',action:'upgrade',free:true,costVerified:true},
