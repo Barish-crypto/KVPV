@@ -6,6 +6,9 @@ async function main(){
    setInterval(fn,ms){const id=++seq;callbacks.set(id,{fn,ms});return id;},
    clearInterval(id){callbacks.delete(id);}};
  vm.runInNewContext(fs.readFileSync(__dirname+'/src/31-four-async-scans.js','utf8'),{window:W,Date,Promise});
+ const timerless={__KVPV_OWN_ACTOR_ID:'1',_Ba:{_rJ:{_O$:{ins:{actorId:'1'}}}}};
+ assert.doesNotThrow(()=>vm.runInNewContext(fs.readFileSync(__dirname+'/src/31-four-async-scans.js','utf8'),{window:timerless,Promise,Date}));
+ assert.equal(timerless.KVPV_FOUR_SCANS.status().enabled,true);
  const a=W.KVPV_FOUR_SCANS;
  assert.equal(callbacks.size,4,'four independent timers');
  assert.equal(a.status().autoUpgrades,false);
