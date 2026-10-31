@@ -63,6 +63,7 @@ const liveModules = [
   "00-combat-metrics.js",
   "00-skill1008-trial.js",
 // [VI dòng gốc 32] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-skill-pacing.js",
+  "00-skill-async-observer.js",
   "00-skill-pacing.js",
   "00-territory-loot.js",
   "00-tq-basic-profile.js",
