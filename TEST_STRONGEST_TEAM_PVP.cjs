@@ -60,7 +60,7 @@ function harness(){
  assert.equal(h.pk().status().dodge.nativeDodgeAttempts,1);
  h.enemy.emit(1039,h.actor,1005);
  assert.equal(h.moves.length,1,'dodge cooldown');
- h.setRows([[8005,0,50]];h.advance(1500);h.tick();
+ h.setRows([[8005,0,50]]);h.advance(1500);h.tick();
  assert.deepEqual(h.casts,[8005,8005],'fallback to ready native basic');
  h.setCooldown(true);h.tick();assert.equal(h.casts.length,2,'native cooldown gate');
  h.setCooldown(false);h.setRange(false);h.tick();assert.equal(h.casts.length,2,'native range gate');
