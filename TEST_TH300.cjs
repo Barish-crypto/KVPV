@@ -530,7 +530,9 @@ test('FULL startup selects 300 and enables all five native basics in Tian Quan',
  assert.equal(q.mod.report().basicHitQuota,null);
  assert.equal(q.mod.report().afterTHWaitMs,1);
  assert.equal(q.mod.report().interleaved.basicClientWaitMs,1,'five-basic mode uses 1ms client polling');
- assert(q.calls.length>0,'Tian Quan startup casts a ready basic');assert(q.calls.every(id=>id>=8001&&id<=8005),'Tian Quan startup selects only its five basics');
+ assert.deepEqual(Array.from(q.mod.report().basicRotation),[8001,8002,8003,8004,8005],'startup registers the full five-basic rotation');
+ assert.deepEqual(Array.from(q.mod.report().playerSkillIds),[8001,8002,8003,8004,8005],'startup exposes all learned basics');
+ assert(q.calls.every(id=>id>=8001&&id<=8005),'startup must never cast outside the five-basic roster');
  const n=q.calls.length;q.cooldown(true);q.advance(500);assert.equal(q.calls.length,n);
  q.cooldown(false);q.hp(0);q.advance(500);assert.equal(q.calls.length,n);
 });
