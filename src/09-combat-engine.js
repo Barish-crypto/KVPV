@@ -7,7 +7,7 @@
  const W=window,old=W.KVPV_COMBAT_ENGINE;old?.stop?.();
  const actor=String(W.__KVPV_OWN_ACTOR_ID??'');
  const ids=[8001,8002,8003,8004,8005,1001,1002,1003,1004,1005,1006,1007,1008];
- const S={enabled:false,armed:false,busy:false,timer:null,casts:0,checks:0,lastSkill:null,reason:'off',error:'',cursor:0,lastTargetSearchAt:0,targetSearches:0,reasonCounts:Object.create(null),lastCastAt:0};
+ const S={enabled:false,armed:false,busy:false,timer:null,casts:0,checks:0,lastSkill:null,reason:'off',error:'',cursor:0,lastTargetSearchAt:0,targetSearches:0,reasonCounts:Object.create(null),lastCastAt:0,lastCooldown:null,lastCooldownAt:0,lastTargetType:null,knownSkillIds:[],lastRange:null};
  const valid=()=>actor!==''&&String(W._Ba?._rJ?._O$?.ins?.actorId??'')===actor&&W.__KVPV_UNIVERSAL_HALTED!==true;
  const far=()=>{const x=(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE);return x?.inside?.()===true&&x?.status?.()?.kind!=='TRU_TIEN';};
  const components=()=>{
@@ -15,7 +15,7 @@
   const c=W._d?._Yct;
   return {a,skill:a?.getComponent?.(c?._Eet),combat:a?.getComponent?.(c?._Het)};
  };
- function state(){return {enabled:S.enabled,armed:S.armed,busy:S.busy,actor,casts:S.casts,checks:S.checks,lastSkill:S.lastSkill,reason:S.reason,error:S.error,singleSender:true,legacyModes:false,targetSearches:S.targetSearches,lastCastAt:S.lastCastAt,reasonCounts:{...S.reasonCounts}};}
+ function state(){return {enabled:S.enabled,armed:S.armed,busy:S.busy,actor,casts:S.casts,checks:S.checks,lastSkill:S.lastSkill,reason:S.reason,error:S.error,singleSender:true,legacyModes:false,targetSearches:S.targetSearches,lastCastAt:S.lastCastAt,lastCooldown:S.lastCooldown,lastCooldownAt:S.lastCooldownAt,lastTargetType:S.lastTargetType,knownSkillIds:S.knownSkillIds.slice(),lastRange:S.lastRange,reasonCounts:{...S.reasonCounts}};}
  function recordReason(){S.reasonCounts[S.reason]=(S.reasonCounts[S.reason]||0)+1;}
  async function tick(){
   if(S.busy||!S.enabled||!valid())return;
@@ -31,6 +31,7 @@
    const nativeTarget=combat.target;
    const rawType=nativeTarget?.property?.get?.('type');
    const type=rawType==null?NaN:Number(rawType);
+   S.lastTargetType=Number.isFinite(type)?type:null;
    const hpNow=nativeTarget?.property?.get?.('hp');
    const stale=!nativeTarget||type===4||(Array.isArray(hpNow)&&Number(hpNow[0])<=0);
    if(stale){
@@ -41,13 +42,19 @@
      S.reason='waiting_native_boss_target';return;
    }
    if(!Number.isFinite(type)||(type!==1&&type!==0)){S.reason='non_monster_target';return;}
-   if(typeof combat.isValidRange==='function'&&combat.isValidRange()===false){S.reason='native_out_of_range';return;}
-   if(typeof combat.isCooldown==='function'&&combat.isCooldown()!==false){S.reason='native_cooldown';return;}
+   const rangeResult=typeof combat.isValidRange==='function'?combat.isValidRange():null;
+   S.lastRange=rangeResult;
+   if(rangeResult===false){S.reason='native_out_of_range';return;}
+   const cooldownResult=typeof combat.isCooldown==='function'?combat.isCooldown():null;
+   S.lastCooldown=cooldownResult;S.lastCooldownAt=Date.now();
+   // Do not cast if the native cooldown API is missing or reports anything but false.
+   if(cooldownResult!==false){S.reason=cooldownResult===true?'native_cooldown':'native_cooldown_unknown';return;}
    const target=combat.target;
    const hp=target?.property?.get?.('hp');
    if(Array.isArray(hp)&&Number(hp[0])<=0){S.reason='target_dead';return;}
    const rows=[...(skill._rtt??[]),...(skill._wet??[])];
    const known=new Set(rows.filter(Array.isArray).map(x=>Number(x[0])));
+   S.knownSkillIds=ids.filter(id=>known.has(id));
    // No bypass of target range; use native selection when its result is learned.
    const nativeId=Number(skill.selectSkill?.());
    const ordered=ids.filter(id=>known.has(id));
@@ -70,7 +77,9 @@
    if(!Number.isFinite(typeNow)||(typeNow!==0&&typeNow!==1)||
      (Array.isArray(hpNowFinal)&&Number(hpNowFinal[0])<=0)){S.reason='target_changed_or_dead';return;}
    if(typeof combat.isValidRange==='function'&&combat.isValidRange()===false){S.reason='native_out_of_range';return;}
-   if(typeof combat.isCooldown==='function'&&combat.isCooldown()!==false){S.reason='native_cooldown';return;}
+   const cooldownFinal=typeof combat.isCooldown==='function'?combat.isCooldown():null;
+   S.lastCooldown=cooldownFinal;S.lastCooldownAt=Date.now();
+   if(cooldownFinal!==false){S.reason=cooldownFinal===true?'native_cooldown':'native_cooldown_unknown';return;}
    combat.combat(chosen);S.lastSkill=chosen;S.casts++;S.lastCastAt=Date.now();S.reason='native_cast_requested';
   }catch(e){S.reason='error';S.error=String(e?.message??e);}
   finally{recordReason();S.busy=false;}
