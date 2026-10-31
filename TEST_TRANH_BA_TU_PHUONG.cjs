@@ -21,5 +21,6 @@ assert(castIds.every(id=>id>=8001&&id<=8005),'must cast basic only, never TH');
 combat.target={...target,property:{get:k=>({type:4,campType:1,hp:[100,100]})[k]}};
 const count=calls;api.tick();assert.equal(calls,count,'must not hit same camp');
 W.KVPV_DAILY.lichData=()=>({active:[]});combat.target=target;api.tick();assert.equal(calls,count,'must not hit outside active event');
-assert(!/\.moveTo\s*\(|setSpeed\s*\(|moveSpeed\s*=/.test(src),'PvP module must not move or speed up movement');
+assert(!/setSpeed\s*\(|moveSpeed\s*=/.test(src),'PvP module must not alter movement speed');
+assert(/moveGapMs:700,step:90/.test(src),'native movement must be rate-limited');
 api.stop();console.log('PASS Tranh Ba Tu Phuong PvP guards and native cast');
