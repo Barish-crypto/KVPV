@@ -205,7 +205,7 @@
       const ids=st?.playerSkillIds;
       if(st&&(
         st.basicOnly!==true||
-        !Array.isArray(ids)||ids.length!==1||Number(ids[0])!==8005
+        (Array.isArray(ids)&&ids.length>0&&(ids.length!==1||Number(ids[0])!==8005))
       )){
         api?.setTianQuanFiveBasics?.(false,1);
         api?.setTianQuanTuyetHoc?.(false);
