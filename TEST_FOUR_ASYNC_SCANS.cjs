@@ -13,6 +13,9 @@ async function main(){
  assert.equal(a.opportunities().tuyet_hoc.spendAllowed,false);
  assert.equal(a.opportunities().phap_bao.spendAllowed,false);
  assert.equal(a.opportunities().dung_luyen.spendAllowed,false);
+ await a.refreshOpportunities();
+ assert(a.status().observer.count>=1,'async opportunity observer updates a snapshot');
+ assert.equal(a.opportunities().tuyet_hoc.spendAllowed,false);
  assert.equal(a.status().lanes.luyen_khi.adapterReady,true);
  assert.equal(a.status().lanes.tui.adapterReady,true);
  assert.equal(new Set([...callbacks.values()].map(x=>x.ms)).size,4,'independent intervals');
