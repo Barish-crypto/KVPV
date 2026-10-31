@@ -156,7 +156,7 @@
  function start(){if(timers.size)return status();enabled=true;
    const owner=W.KVPV_V1?.timers?.setInterval?W.KVPV_V1.timers:W;
    const set=owner?.setInterval;
-   if(typeof set!=='function')return status();
+   if(typeof W.setInterval!=='function'||typeof set!=='function')return status();
    for(const key of keys){timers.set(key,set.call(owner,()=>{void scan(key);},intervals[key]));void scan(key);}
    void refreshOpportunities();return status();
  }
