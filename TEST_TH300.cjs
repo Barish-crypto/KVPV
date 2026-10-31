@@ -948,7 +948,7 @@ for(const scope of [{},{tower:true},{rune:true},{rune:true,bossHp:[1,100]}])test
 // [VI dòng gốc 456] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 457] gọi console.log('PASSED', passed, '/78') | Kiểm tra passed!==78: đúng thì chạy nhánh sau if. | gán process.exitCode bằng 1
-console.log('PASSED',passed,'/83');if(passed!==83)process.exitCode=1;
+console.log('PASSED',passed,'/84');if(passed!==84)process.exitCode=1;
 // [VI dòng gốc 458] Dòng trống để tách các phần, không có lệnh thực thi.
 
 // [VI dòng gốc 459] gọi test('native dispatch distinguishes silent calls from actual actor signals and detaches on stop', ()=>{ const q=harness({fast…)
