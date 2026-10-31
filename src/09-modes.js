@@ -198,6 +198,21 @@
     guardEntryMove();
 // [VI dòng gốc 98] Khai báo biến không gán lại bằng const: scope = gọi W.KVPV_FAR_SCOPE?.status() để trả trạng thái để kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     const scope=W.KVPV_FAR_SCOPE?.status?.();
+    // Reconcile live Tian Quan profile after map/mode transitions or a late module reset.
+    // Only reconfigure on a mismatch; never reset the selector on every 500ms poll.
+    if(scope?.inside===true&&scope.kind==='THIEN_QUAN'){
+      const api=W.KVPV_TH300,st=api?.status?.(false);
+      const ids=st?.playerSkillIds;
+      if(st&&(
+        st.basicOnly!==true||
+        !Array.isArray(ids)||ids.length!==1||Number(ids[0])!==8005
+      )){
+        api?.setTianQuanFiveBasics?.(false,1);
+        api?.setTianQuanTuyetHoc?.(false);
+        api?.setBasicOnly?.(true);
+        api?.setBasicRotation?.([8005]);
+      }
+    }
     // A PvP observer waits for player targets; dungeon auto must own monsters.
     // Disable only when actually in Tru Tien, never on other maps.
     if(scope?.inside===true&&scope.kind==='TRU_TIEN'){
