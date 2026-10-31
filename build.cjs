@@ -121,6 +121,7 @@ const liveModules = [
   "30-tienvi-goals.js",
 // [VI dòng gốc 60] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "31-skill-rewards.js",
   "31-four-async-scans.js",
+  "31-map-task-radar.js",
   "31-cuu-tieu-lenh.js",
   "31-skill-rewards.js",
   "32-xa-menh-lv2-cd0.js",
