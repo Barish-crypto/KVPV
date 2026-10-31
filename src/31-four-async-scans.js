@@ -62,16 +62,18 @@
    const adapter=adapters[key];if(!adapter){lane.reason='waiting_verified_adapter';return;}
    lane.busy=true;const token=generation;
    try{
-     // Delegate only to already-enabled, verified no-spend controllers. Their own
-   // pending/ACK state remains authoritative; never register a second sender.
-   if(key==='tui'){
-     const bag=W.KVPV_FREE_DAILY_BAG;
-     if(bag?.status?.()?.enabled===true&&bag.status().allowKNB===false)bag.sync?.();
-     const quick=W.KVPV_QUICK_USE;
-     if(quick?.status?.()?.enabled===true)quick.sync?.();
-   }else if(key==='phap_thuat'){
-     const rewards=W.KVPV_SKILL_REWARDS;
-     if(rewards?.status?.()?.enabled===true&&rewards.status().allowKNB===false)rewards.sync?.();
+     // Respect user interaction and event ownership before delegating existing senders.
+   const interrupted=W.KVPV_ENTRY_POLICY?.manual===true||
+     W.KVPV_EVENT_PRIORITY?.hold?.()||
+     Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0);
+   if(!interrupted&&key==='tui'){
+     const bag=W.KVPV_FREE_DAILY_BAG,bagState=bag?.status?.();
+     if(bagState?.enabled===true&&bagState.allowKNB===false)bag.sync?.();
+     const quick=W.KVPV_QUICK_USE,quickState=quick?.status?.();
+     if(quickState?.enabled===true&&quickState.allowKNB===false)quick.sync?.();
+   }else if(!interrupted&&key==='phap_thuat'){
+     const rewards=W.KVPV_SKILL_REWARDS,rewardsState=rewards?.status?.();
+     if(rewardsState?.enabled===true&&rewardsState.allowKNB===false)rewards.sync?.();
    }
    const observed=await adapter.inspect();
      if(!enabled||token!==generation)return;
@@ -88,7 +90,7 @@
      if(typeof adapter.execute!=='function'||typeof adapter.confirm!=='function'){
        lane.reason='observe_only_no_verified_executor';return;
      }
-     if(W.KVPV_ENTRY_POLICY?.manual===true||W.KVPV_EVENT_PRIORITY?.hold?.()){
+     if(interrupted){
        lane.reason='yield_to_priority';return;
      }
      const task=tasks.find(t=>safeTask(t)&&t.key!==lane.lastCompletedKey);
