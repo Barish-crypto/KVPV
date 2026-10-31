@@ -154,9 +154,10 @@
  function stop(){enabled=false;generation++;for(const id of timers.values())
    (W.KVPV_V1?.timers?.clearInterval??W.clearInterval)?.(id);timers.clear();}
  function start(){if(timers.size)return status();enabled=true;
-   const set=W.KVPV_V1?.timers?.setInterval??W.setInterval;
+   const owner=W.KVPV_V1?.timers?.setInterval?W.KVPV_V1.timers:W;
+   const set=owner?.setInterval;
    if(typeof set!=='function')return status();
-   for(const key of keys){timers.set(key,set(()=>{void scan(key);},intervals[key]));void scan(key);}
+   for(const key of keys){timers.set(key,set.call(owner,()=>{void scan(key);},intervals[key]));void scan(key);}
    void refreshOpportunities();return status();
  }
  W.KVPV_FOUR_SCANS=Object.freeze({start,stop,scan,status,opportunities,refreshOpportunities,registerReader,registerAdapter,
