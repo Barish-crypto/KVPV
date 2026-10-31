@@ -7,7 +7,7 @@
  const actor=String(W.__KVPV_OWN_ACTOR_ID??'');
  const S={enabled:false,mode:'OFF',reason:'awaiting_explicit_activation',timer:null,cycles:0,lastError:''};
  const valid=()=>!!actor&&String(W._Ba?._rJ?._O$?.ins?.actorId??'')===actor&&W.__KVPV_UNIVERSAL_HALTED!==true;
- const modes=Object.freeze({BOSS:'BOSS',BOSS_TH:'BOSS_TH',BOSS_TH300:'BOSS_TH300',BOSS_TH300_SCAN:'BOSS_TH300_SCAN'});
+ const modes=Object.freeze({BOSS:'BOSS'});
  function status(){return {...S,timer:S.timer!==null,actor,singleSender:true,observer:W.KVPV_SKILL_ASYNC_OBSERVER?.status?.()??null};}
  function stop(){
    S.enabled=false;S.mode='OFF';
@@ -23,7 +23,7 @@
    if(mode?.mode==='OFF')S.reason='waiting_native_mode';
    else S.reason='native_single_owner_'+String(mode?.mode??'unknown');
  }
- function start(mode='BOSS_TH300_SCAN'){
+ function start(mode='BOSS'){
    if(!Object.hasOwn(modes,mode))throw Error('Unknown unified boss combat mode');
    if(!valid())throw Error('Actor not ready');
    if(typeof W.KVPV_MODE?.start!=='function')throw Error('Native combat coordinator missing');
