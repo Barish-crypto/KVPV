@@ -49,6 +49,10 @@
      S.history.push({at:now,event:'stalled_60s',map:next.map,job:next.daily?.job??null});
      if(S.history.length>60)S.history.shift();
    }
+   // Count only ACK-confirmed completions from the independent native scan executors.
+   const confirmed=Object.values(W.KVPV_FOUR_SCANS?.status?.()?.lanes??{})
+     .reduce((sum,row)=>sum+(Number(row?.confirmed)||0),0);
+   if(Number.isFinite(confirmed)&&confirmed>S.completed)S.completed=confirmed;
    const event=next.event?.reason;
    if(event&&event!=='waiting'&&event!==S.lastEvent){S.events++;S.lastEvent=event;}
    if(changed){S.history.push({at:now,event:'map_change',map:next.map});if(S.history.length>60)S.history.shift();}
