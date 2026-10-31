@@ -76,7 +76,7 @@ function make(){
  assert.equal(st.luoFeng.dpsPilot4100.enabled,false,'experimental pilot stays disabled');
  assert.equal(st.skillPriority,'basic8001');
  q.elapse(100);
- assert.equal(q.s.selectSkill(),8005,'startup selects native 8005 only');
+ assert.deepEqual(Array.from(q.mod.status(false).playerSkillIds??[]),[8005],'configured startup exposes 8005 only');
  q.mod.stop();
 }
 {
