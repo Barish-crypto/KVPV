@@ -17,6 +17,8 @@
     W.KVPV_TQ115?.stop?.();
     W.KVPV_TH300?.setInterleaved?.(true,300);
     W.KVPV_TH300?.setPrimaryBasic?.(false);
+    // Enable the five-basic profile before rotation validation (8002 is otherwise excluded).
+    W.KVPV_TH300?.setTianQuanFiveBasics?.(true,1);
     W.KVPV_TH300?.setBasicRotation?.([8001,8002,8003,8004,8005]);
     W.KVPV_TH300?.setBasicHitQuota?.(null);
     W.KVPV_TH300?.setSkillPriority?.('interleaved');
@@ -24,7 +26,6 @@
     // TH and 5 native basics share the Tian Quan-only visual scale configured below.
     W.KVPV_TH300?.setConfirmedTailCut?.(true);
     W.KVPV_TH300?.setBasicOnly?.(true);
-    W.KVPV_TH300?.setTianQuanFiveBasics?.(true,1);
     W.KVPV_TH300?.setTianQuanTuyetHoc?.(false);
     W.KVPV_TH300?.setTianQuanTHGapBasics?.(false);
     W.KVPV_TH300?.setTianQuanCosmic?.(false);
