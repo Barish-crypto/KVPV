@@ -519,8 +519,8 @@ test('Tian Quan Basic Only casts 8005 despite learned 8001 and stale desktop ran
  assert(q.calls.every(id=>id===8005),'all calls are 8005');
  q.mod.stop();
 });
-test('FULL startup selects 300 and only basic 8005 in Tian Quan',()=>{
- const q=harness({fastReady:true,tower:true});q.W.__KVPV_BASIC_RANGE_TEST_20261023={status:'complete'};q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
+test('FULL startup selects 300 and enables all five native basics in Tian Quan',()=>{
+ const q=harness({fastReady:true,tower:true});q.s._rtt=[8001,8002,8003,8004,8005].map(id=>[id,0,50]);q.s._wet=[];q.W.__KVPV_BASIC_RANGE_TEST_20261023={status:'complete'};q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
  vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:q.W});
  q.pump();
  assert.equal(q.mod.report().goalDistance,300);
@@ -530,7 +530,7 @@ test('FULL startup selects 300 and only basic 8005 in Tian Quan',()=>{
  assert.equal(q.mod.report().basicHitQuota,null);
  assert.equal(q.mod.report().afterTHWaitMs,1);
  assert.equal(q.mod.report().interleaved.basicClientWaitMs,0,'basic-only mode has no TH interleave delay');
- assert(q.calls.every(id=>id===8005),'Tian Quan startup selects only basic 8005');
+ assert(q.calls.length>0,'Tian Quan startup casts a ready basic');assert(q.calls.every(id=>id>=8001&&id<=8005),'Tian Quan startup selects only its five basics');
  const n=q.calls.length;q.cooldown(true);q.advance(500);assert.equal(q.calls.length,n);
  q.cooldown(false);q.hp(0);q.advance(500);assert.equal(q.calls.length,n);
 });
