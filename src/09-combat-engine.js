@@ -24,6 +24,8 @@
    if(!far()){S.reason='outside_boss_scope';return;}
    if(W.KVPV_ENTRY_POLICY?.manual===true||W.KVPV_EVENT_PRIORITY?.hold?.()||W.KVPV_BOSS_TEAM?.priority?.()===true){S.reason='yield_priority';return;}
    if(W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='dead';return;}
+   const recovery=W.KVPV_HITRUN1?.status?.(false);
+   if(recovery?.running===true&&recovery.phase!=='FIGHT'){S.reason='yield_recovery';return;}
    const {a,skill,combat}=components();
    if(!a||!skill||typeof combat?.combat!=='function'){S.reason='waiting_native_components';return;}
    const nativeTarget=combat.target;
@@ -67,6 +69,8 @@
      S.reason='yield_changed_priority';return;
    }
    if(W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='dead';return;}
+   const recoveryNow=W.KVPV_HITRUN1?.status?.(false);
+   if(recoveryNow?.running===true&&recoveryNow.phase!=='FIGHT'){S.reason='yield_recovery';return;}
    const rawTypeNow=target?.property?.get?.('type');
    const typeNow=rawTypeNow==null?NaN:Number(rawTypeNow);
    const hpNowFinal=target?.property?.get?.('hp');
