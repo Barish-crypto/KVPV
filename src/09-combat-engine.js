@@ -39,6 +39,7 @@
      S.reason='waiting_native_boss_target';return;
    }
    if(type!==1&&type!==0&&Number.isFinite(type)){S.reason='non_monster_target';return;}
+   if(typeof combat.isValidRange==='function'&&combat.isValidRange()===false){S.reason='native_out_of_range';return;}
    if(typeof combat.isCooldown==='function'&&combat.isCooldown()!==false){S.reason='native_cooldown';return;}
    const target=combat.target;
    const hp=target?.property?.get?.('hp');
