@@ -13,5 +13,9 @@ vm.runInNewContext(fs.readFileSync(__dirname+'/src/00-skill-async-observer.js','
  assert.equal(casts,0);
  assert.equal(st.skills.length,13);
  observer.stop();assert.equal(cleared,1);
+ // The bundle preflight executes with no browser timer API.
+ const empty={};
+ assert.doesNotThrow(()=>vm.runInNewContext(fs.readFileSync(__dirname+'/src/00-skill-async-observer.js','utf8'),{window:empty,Promise,Date,Number,Object,Array,String}));
+ assert.equal(empty.KVPV_SKILL_ASYNC_OBSERVER.status().reason,'waiting_actor');
  console.log('PASS 13-skill async passive observer; no cast, stop cleanup');
 })().catch(e=>{console.error(e);process.exitCode=1;});
