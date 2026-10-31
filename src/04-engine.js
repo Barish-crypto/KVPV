@@ -32765,19 +32765,16 @@ function tick(){
 // [VI dòng gốc 16581] Chú thích gốc của tác giả; không được thực thi. Nội dung: Hold the native guard until current HP is truly full, never rounded to 100.
     // Hold the native guard until current HP is truly full, never rounded to 100.
 // [VI dòng gốc 16582] gọi v1271PrepareRecovery(h.pct)
-    // Tian Quan only: returning at a safely recovered HP level restores
-    // native FIGHT ownership; TH300 subsequently repositions to its 310 goal.
-    // Avoid global 100% override and never release at/below 35% emergency HP.
-    // Require actual healing (+5 points) and the existing retreat dwell time.
-    // Other scenes retain the original stable 100% HP policy.
+    // Tian Quan only: resume once safely outside Boss reach, without a full-HP gate.
+    // Retain emergency retreat at 35% and the native controller on other maps.
     const tqEarlyScope=W.KVPV_FAR_SCOPE?.status?.();
     const tqEarlyResume=tqEarlyScope?.kind==='THIEN_QUAN'&&tqEarlyScope.inside===true&&
-      Number.isFinite(h.pct)&&h.pct>=45&&h.pct-S.minObservedPct>=5&&
-      spent>=C.minRetreatMs&&Number.isFinite(recoveryDistance)&&
-      recoveryDistance>=Math.max(300,recoveryGeometry().range+20);
+      Number.isFinite(h.pct)&&h.pct>35&&spent>=C.minRetreatMs&&
+      Number.isFinite(recoveryDistance)&&
+      recoveryDistance>=Math.max(310,recoveryGeometry().range+20);
     if(tqEarlyResume){
       leaveRetreat('THIEN_QUAN resume at '+h.pct.toFixed(1)+
-        '% HP after real healing; native TH300 positions to 310');
+        '% HP: outside Boss reach; TH300 returns to far casting position');
       return;
     }
     v1271PrepareRecovery(h.pct);
