@@ -44,6 +44,18 @@ async function main(){
  ack=true;await a.scan('luyen_khi');assert.equal(a.status().lanes.luyen_khi.confirmed,1);
  assert.equal(a.status().lanes.luyen_khi.requests,1,'confirmed action must not replay while task remains listed');
  assert(observed>=3);
+ // No inventory/material consumption even when a faulty adapter calls it free.
+ a.registerAdapter('tui',{inspect:async()=>({tasks:[{key:'item',action:'use_free_consumable',free:true,costVerified:true}]}),
+   execute:async()=>{throw Error('must not use inventory item');},confirm:async()=>false});
+ await a.scan('tui');
+ assert.equal(a.status().lanes.tui.requests,0,'material use is reserved for So Tai');
+ // An async executor completing after stop may not rewrite the stopped state.
+ let release;const delayed=new Promise(resolve=>{release=resolve;});
+ a.registerAdapter('tien_phu',{inspect:async()=>({tasks:[{key:'reward',action:'claim_free_reward',free:true,costVerified:true}]}),
+   execute:()=>delayed,confirm:async()=>false});
+ const inFlight=a.scan('tien_phu');await Promise.resolve();await Promise.resolve();
+ a.stop();release();await inFlight;
+ assert.notEqual(a.status().lanes.tien_phu.reason,'action_requested_waiting_server_confirmation');
  a.stop();assert.equal(callbacks.size,0,'stop removes all timers');
  assert.equal(a.status().enabled,false);
  console.log('PASS four independent scanners, guarded free tasks, pending dedupe and confirmation.');
