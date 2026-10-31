@@ -1,11 +1,16 @@
 /* Hồ sơ chạy phó bản và boss hằng ngày. Nạp sau KVPV_V1_FULL.js. */
 (() => {
  'use strict';const W=window,actor=String(W.__KVPV_OWN_ACTOR_ID??'');
- if(!actor||actor!==String(W._Ba?._rJ?._O$?.ins?.actorId??'')||W.__KVPV_UNIVERSAL_HALTED)throw Error('Nạp trong game-frame của acc đã đăng nhập.');
+ if(!actor||actor!==String(W._Ba?._rJ?._O$?.ins?.actorId??'')||W.__KVPV_UNIVERSAL_HALTED){
+  // The live bridge may install while the iframe is transitioning; fail closed without a frame-wide exception.
+  W.__KVPV_PB_BOSS_WAITING_ACTOR=true;
+  return;
+ }
+ W.__KVPV_PB_BOSS_WAITING_ACTOR=false;
  if(!W.KVPV_DAILY?.config)throw Error('Thiếu bộ FULL. Dùng file KVPV_PB_BOSS_DAILY.js.');
  const previous=W.KVPV_PB_BOSS_DAILY,carry=previous?._handoff?.();
  const S={enabled:false,actor,startedAt:null,errors:[],started:[]};
- const starters=[['KVPV_DAILY','start'],['KVPV_DAILY','tuVuotStart'],['KVPV_DAILY_TRIAL','start'],['KVPV_BEAST_ISLAND','start'],['KVPV_SUMMON_BOSS','start'],['KVPV_RUNE_BOSS','start'],['KVPV_HONOR_TARGET','start'],['KVPV_BASIC10','start']];
+ const starters=[['KVPV_DAILY','start'],['KVPV_DAILY','tuVuotStart'],['KVPV_DAILY_TRIAL','start'],['KVPV_BEAST_ISLAND','start'],['KVPV_SUMMON_BOSS','start'],['KVPV_RUNE_BOSS','start'],['KVPV_HONOR_TARGET','start']];
  const own=()=>actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
  function start(){if(!own())throw Error('Acc đã đổi: mở tab và nạp lại cho acc mới.');if(S.enabled)return status();S.errors=[];S.started=[];
   // Quyền tác vụ và pending vẫn thuộc các bộ hiện có, không reset hay phát lại RPC.
@@ -26,7 +31,8 @@
   // Luôn dùng lượt/vé hiện có; không mua lượt hoặc cổ vũ KNB.
   W.KVPV_SPENDING_POLICY=Object.freeze({allowKNB:false,dailyInspireKNBMaps:Object.freeze([]),canDailyInspireKNB:()=>false,reason:'PB/Boss daily: không tự tiêu KNB.'});
   W.KVPV_ENTRY_POLICY=Object.freeze({manual:false,idleDaily:false});
-  W.KVPV_TH300?.setBasicOnly?.(false);W.KVPV_TH300?.setBasicHitQuota?.(null);W.KVPV_TH300?.setDistance?.(302);W.KVPV_MODE?.armTianQuan?.();
+  // Unified native combat engine owns Boss casting. Never re-arm retired TH300 or BASIC10.
+  W.KVPV_COMBAT_ENGINE?.start?.();
   for(const [name,method] of starters)try{if(typeof W[name]?.[method]==='function'){W[name][method]();S.started.push(name+'.'+method);}}catch(e){S.errors.push(name+': '+String(e?.message??e));}
   S.enabled=true;S.startedAt=Date.now();console.info('[PB + BOSS MỖI NGÀY]',status());return status();
  }
