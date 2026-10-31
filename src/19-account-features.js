@@ -13,7 +13,8 @@
 // [VI dòng gốc 8] Duyệt từng giá trị trong ['marryBattle','macLan'] bằng const key. | Khai báo biến không gán lại bằng const: key (chưa gán giá trị) | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | Khai báo biến không gán lại bằng const: m = đọc W.KVPV?.[key] nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
   for(const key of ['marryBattle','macLan']){try{const m=W.KVPV?.[key];if(m?.config?.cloneId){m.stop?.();m.config.enabled=false;m.config.cloneId='';m.config.mainId=actor;}}catch(e){W.KVPV_V1?.diagnostics?.record?.(e);}}
 // [VI dòng gốc 9] Kiểm tra W.KVPV_DAILY?.config: đúng thì chạy nhánh sau if. | gán W.KVPV_DAILY.config.tinhThanCloneId bằng ''
-  if(W.KVPV_DAILY?.config)W.KVPV_DAILY.config.tinhThanCloneId='';
+  // Preserve the user's configured clone account: Tinh Than team coordination needs it.
+  // Do not invite another account without a known, confirmed identity.
 // [VI dòng gốc 10] Định nghĩa hàm install; tham số: name, fn | Khai báo biến không gán lại bằng const: old = đọc W[name]
   function install(name,fn){const old=W[name];
 // [VI dòng gốc 11] Kiểm tra old: đúng thì chạy nhánh sau if. | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | Khai báo biến không gán lại bằng const: s = gọi old.status(false) để trả trạng thái để kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kiểm tra s?.running||s?.pending||s?.blocked: đúng thì chạy nhánh sau if.
@@ -201,7 +202,14 @@
 // [VI dòng gốc 102] gán D.config.tinhThanMs bằng 600
    D.config.tinhThanMs=600;
 // [VI dòng gốc 103] gán D.config.tinhThanTang bằng 5
-   D.config.tinhThanTang=6;
+   // Use the highest server-confirmed unlocked tier, never a fixed floor 6.
+   const starModel=typeof _Ba!=='undefined'?_Ba?._MT?.the_secret_of_the_stars?._Gvt?.instance:null;
+   const tierCandidates=[starModel?.maxPassTier,starModel?.maxOpenTier,starModel?.maxTier,starModel?.highestUnlockedTier]
+     .map(Number).filter(v=>Number.isSafeInteger(v)&&v>0&&v<=10000);
+   if(tierCandidates.length)D.config.tinhThanTang=Math.max(...tierCandidates);
+   // If the native model has not published an unlocked tier yet, preserve user settings.
+   D.config.autoTeam=true;
+   D.config.autoApproveTeam=true;
 // [VI dòng gốc 104] Chú thích gốc của tác giả; không được thực thi. Nội dung: Respect existing dedicated Tower manual controls; do not call tower.start.
    // Respect existing dedicated Tower manual controls; do not call tower.start.
 // [VI dòng gốc 105] Kiểm tra W.KVPV_V873?.config: đúng thì chạy nhánh sau if. | gán W.KVPV_V873.config.autoChallenge bằng false | gán W.KVPV_V873.config.autoOpen bằng false
