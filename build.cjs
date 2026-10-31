@@ -195,7 +195,7 @@ const controlSchema=require("./windows-app/control-schema.json");
 // [VI dòng gốc 96] Khai báo biến không gán lại bằng const: controlInstallers = tính biểu thức "window.__KVPV_CONTROL_SCHEMA=Object.freeze("+JSON.stringify(controlSchema)+");window.__KVPV_CONTROL_INSTALLERS=Object.freeze({"+Object.keys(controlSchema).map(file=>JSON.stringify…
 const controlInstallers="window.__KVPV_CONTROL_SCHEMA=Object.freeze("+JSON.stringify(controlSchema)+");window.__KVPV_CONTROL_INSTALLERS=Object.freeze({"+Object.keys(controlSchema).map(file=>JSON.stringify(file)+":"+installerName(file)).join(",")+"});\n";
 // [VI dòng gốc 97] Khai báo biến không gán lại bằng const: initialCalls = tính biểu thức controlInstallers+modules.map(name=>installerName(name)+'();').join('\n')
-const initialCalls = controlInstallers+modules.map(name=>installerName(name)+'();').join('\n');
+const initialCalls = controlInstallers+liveModules.map(name=>installerName(name)+'();').join('\n');
 // [VI dòng gốc 98] Khai báo biến không gán lại bằng const: updateCalls = tính biểu thức controlInstallers+liveModules.map(name=>installerName(name)+'();').join('\n')
 const updateCalls = controlInstallers+liveModules.map(name=>installerName(name)+'();').join('\n');
 // [VI dòng gốc 99] Chú thích gốc của tác giả; không được thực thi. Nội dung: FULL chạy lần nữa sẽ gọi bản vá; khóa nhân vật phải còn khớp phiên đã cài.
