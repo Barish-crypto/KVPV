@@ -17,7 +17,7 @@
     W.KVPV_TQ115?.stop?.();
     W.KVPV_TH300?.setInterleaved?.(true,300);
     W.KVPV_TH300?.setPrimaryBasic?.(false);
-    W.KVPV_TH300?.setBasicRotation?.([8005]);
+    W.KVPV_TH300?.setBasicRotation?.([8001,8002,8003,8004,8005]);
     W.KVPV_TH300?.setBasicHitQuota?.(null);
     W.KVPV_TH300?.setSkillPriority?.('interleaved');
     W.KVPV_TH300?.setAfterTHWait?.(1);
@@ -32,9 +32,9 @@
     W.KVPV_TH300?.setTianQuanIdleFill?.(false);
     // Stage 4100 also uses the native TH/basic mixed profile.
     W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
-    // Apply the final 8005-only policy after mode-specific profiles.
+    // Apply the five learned native basics after mode-specific profiles.
     W.KVPV_TH300?.setBasicOnly?.(true);
-    W.KVPV_TH300?.setBasicRotation?.([8005]);
+    W.KVPV_TH300?.setBasicRotation?.([8001,8002,8003,8004,8005]);
     W.KVPV_MODE.armTianQuan();
     // Restore native cooldown for mixed TH/basic: no BASIC FORCE hooks.
     // Wait for verified Tian Quan/selected native Boss; never affect other maps.
@@ -42,6 +42,6 @@
     // Khôi phục tốc độ hoạt ảnh gốc (1) theo yêu cầu; không tăng tốc hoạt ảnh 8001.
     if(String(W.__KVPV_OWN_ACTOR_ID)==='10228867268946')W.KVPV_TH300?.setBasicAnimationSpeed?.(1);
     W.KVPV_TH300?.setTianQuanVisualSpeed?.(9999); // 13 skills, Tian Quan only, client visuals
-    console.info('[KVPV V1] Thiên Quan: basic native 8005 only; tam 300.');
+    console.info('[KVPV V1] Thiên Quan: basic native 8001-8005; tam 300.');
   }catch(e){W.KVPV_V1?.diagnostics?.record?.(e);console.warn('[KVPV V1] Auto Thiên Quan:',String(e));}
 })();
