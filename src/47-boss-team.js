@@ -47,9 +47,11 @@
 // [VI dòng gốc 24] Kiểm tra !S.enabled||!owned(): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Kiểm tra W.KVPV_GUILD_BOSS?.active?.(): đúng thì chạy nhánh sau if. | gán S.reason bằng 'guild_boss_priority'
   if(!S.enabled||!owned())return;if(W.KVPV_GUILD_BOSS?.active?.()){S.reason='guild_boss_priority';return;}restore();const peers=W.KVPV_TEAM_COORDINATOR?.status?.()?.accounts??[];
 // [VI dòng gốc 25] Kiểm tra peers.length!==4: đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_four_known_tool_accounts' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-  if(peers.length!==4){S.reason='waiting_four_known_tool_accounts';return;}
+  const clone=String(W.KVPV_DAILY?.config?.tinhThanCloneId??'');
+  const pair=/^[1-9]\\d{4,24}$/.test(clone)&&clone!==actor&&peers.length===2&&peers.some(p=>p.actor===actor)&&peers.some(p=>p.actor===clone);
+  if(!pair&&peers.length!==4){S.reason='waiting_verified_pair_or_four_accounts';return;}
 // [VI dòng gốc 26] Kiểm tra !S.leader: đúng thì chạy nhánh sau if. | gán S.leader bằng peers[0].actor | gán S.roster bằng peers.map(p=>p.actor)
-  if(!S.leader){S.leader=peers[0].actor;S.roster=peers.map(p=>p.actor);}
+  if(pair){S.leader=actor;S.roster=[actor,clone];}else if(!S.leader){S.leader=peers[0].actor;S.roster=peers.map(p=>p.actor);}
 // [VI dòng gốc 27] Khai báo biến không gán lại bằng const: m = gọi model(); r = gọi rpc() | Kiểm tra !m||!r: đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_native_boss_team_model' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
   const m=model(),r=rpc();if(!m||!r){S.reason='waiting_native_boss_team_model';return;}
 // [VI dòng gốc 28] Khai báo biến không gán lại bằng const: data = gọi rows(); ids = gọi data.map(row=>String(row?.[0])) để biến đổi từng phần tử
