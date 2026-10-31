@@ -206,17 +206,17 @@
       if(W.KVPV_TRUTIEN_PVP?.status?.()?.enabled===true)
         W.KVPV_TRUTIEN_PVP.stop('trutien_native_basic_auto');
       if(lastScopeKey!==scope.kind+'/'+scope.current+'/'+(scope.floor??'')){
-        W.KVPV_TH300?.setTianQuanFiveBasics?.(true,1);
+        W.KVPV_TH300?.setTianQuanFiveBasics?.(false,1);
         W.KVPV_TH300?.setTianQuanTuyetHoc?.(false);
         W.KVPV_TH300?.setTianQuanTHGapBasics?.(false);
         W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
-        W.KVPV_TH300?.setBasicRotation?.([8001,8002,8003,8004,8005]);
+        W.KVPV_TH300?.setBasicRotation?.([8005]);
         W.KVPV_TH300?.setBasicHitQuota?.(null);
         W.KVPV_TH300?.setBasicPace?.(0);
         // Bound client retries: 80ms minimum to avoid 1ms cast floods/disconnects.
         W.KVPV_TH300?.setClientPace?.(80);
         W.KVPV_TH300?.setPrimaryBasic?.(true);
-        W.KVPV_TH300?.setBasicOnly?.(false);
+        W.KVPV_TH300?.setBasicOnly?.(true);
       }
     }
 
