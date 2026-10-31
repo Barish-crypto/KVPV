@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('nod
 const src=fs.readFileSync(__dirname+'/src/09-combat-engine.js','utf8');
 let timer,casts=[],inside=false,ready=true,dead=false,castCooldown=false;
 const skill={_rtt:[[8001],[8002],[1001]],_wet:[],selectSkill(){return 8001;}};
-const boss={property:{get(k){return k==='hp'?[100,100]:null;}}};
+const boss={property:{get(k){return k==='type'?1:k==='hp'?[100,100]:null;}}};
 const combat={target:boss,isCooldown(){return castCooldown;},combat(id){casts.push(id);}};
 const player={getComponent(k){return k==='skill'?skill:k==='combat'?combat:null;}};
 const W={__KVPV_OWN_ACTOR_ID:'7',_Ba:{_rJ:{_O$:{ins:{actorId:'7',get isDead(){return dead;}}}}},
@@ -20,6 +20,8 @@ vm.runInNewContext(src,{window:W,Promise,Date,Number,String,Object,Array,Set});
  dead=false;await e.tick();assert.deepEqual(casts,[8001],'single native cast');
  const saved=combat.target;combat.target={property:{get(k){return k==='type'?4:null;}}};
  await e.tick();assert.deepEqual(casts,[8001],'never attack a player with boss engine');
+ combat.target={property:{get(k){return k==='hp'?[100,100]:null;}}};
+ await e.tick();assert.deepEqual(casts,[8001],'unknown target type must never cast');
  combat.target=saved;
  let selections=0;
  W._Ba._rJ._O$.ins.selectTar=function(kind,occ){assert.equal(kind,1);assert.equal(occ,-1);selections++;};
