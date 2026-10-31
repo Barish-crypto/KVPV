@@ -33,7 +33,7 @@
   };
   const ready=(selector,now)=>[...(selector?._rtt??[]),...(selector?._wet??[])].filter(x=>{
     const skill=Number(x?.[0]),time=Number(x?.[1]);
-    return Number.isInteger(skill)&&(skill>=8001&&skill<=8005)&&
+    return Number.isInteger(skill)&&skill===8005&&
       Number.isFinite(time)&&time<now;
   });
   // Native walking at the game's default speed; avoid repeated path resets.
