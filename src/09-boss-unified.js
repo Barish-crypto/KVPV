@@ -31,7 +31,7 @@
    W.KVPV_MODE.start(modes[mode]);
    S.mode=mode;S.enabled=true;S.reason='native_single_owner_'+mode;
    if(S.timer===null){const owner=W.KVPV_V1?.timers?.setInterval?W.KVPV_V1.timers:W;
-     if(typeof owner?.setInterval==='function')S.timer=owner.setInterval(()=>tick(),250);
+     if(typeof W.setInterval==='function'&&typeof owner?.setInterval==='function')S.timer=owner.setInterval(()=>tick(),250);
    }
    return status();
  }
