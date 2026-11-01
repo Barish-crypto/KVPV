@@ -25,7 +25,7 @@ vm.runInNewContext(src,{window:W,Promise,Date,Number,String,Object,Array,Set});
  assert(e.status().lastCastAt>0,'native cast timestamp captured');
  W.KVPV_FAR_SCOPE.status=()=>({kind:'THIEN_QUAN'});
  await e.tick();assert.equal(e.status().reason,'filtered_close_range_skill','native close-range skill cannot cast in Tian Quan');
- assert.deepEqual(casts,[8001,1006,1006,1006],'close range filtering did not cast');
+ assert.deepEqual(casts,[8001],'close range filtering did not cast');
  skill._rtt.push([1006]);skill.selectSkill=()=>1006;
  await e.tick();assert.deepEqual(casts,[8001,1006],'observed long-range skill can be cast');
  W.KVPV_FAR_SCOPE.status=()=>({kind:'LINH_LUNG'});
