@@ -53,7 +53,7 @@
 // [VI dòng gốc 30] Khai báo biến không gán lại bằng const: a = gọi me?.property?.get('position') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); b = gọi target?.property?.get('position') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); entryGoal = W.KVPV_DESKTOP_CONTROL?.distance?.() hoặc dùng vế phải khi vế trái là null/undefined: 302
       const a=me?.property?.get?.('position'),b=target?.property?.get?.('position'),entryGoal=tqDistance();
 // [VI dòng gốc 31] Kiểm tra scopedMode&&valid()&&scope?.inside&&scope.kind==='THIEN_QUAN'&& (!hr?.running||hr.phase==='FIGHT')&&Array.isArray(hp)&&Number(hp[1])>0&&Number(hp[0])/Number(hp[1])*100>35&& W.KVPV_…: đúng thì chạy nhánh sau if.
-      if(scopedMode&&valid()&&scope?.inside&&['THIEN_QUAN','TRU_TIEN'].includes(scope.kind)&&W.KVPV_TH300?.basicRangeProbeGoal?.()==null&&
+      if(scopedMode&&valid()&&scope?.inside&&scope.kind==='THIEN_QUAN'&&W.KVPV_TH300?.basicRangeProbeGoal?.()==null&&
 // [VI dòng gốc 32] gọi Array.isArray(hp) | gọi Number(hp[1]) để chuyển sang số | gọi Number(hp[0]) để chuyển sang số
         Array.isArray(hp)&&Number(hp[1])>0&&Number(hp[0])>0&&
         (tqNoHeal()||(!hr?.running||hr.phase==='FIGHT')&&Number(hp[0])/Number(hp[1])*100>35)&&
