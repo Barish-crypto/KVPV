@@ -16,6 +16,12 @@ function activate(){
   legacy.setSkillPriority?.('tuyet_hoc_first');
   legacy.setBasicOnly?.(false);
   mode.start('BOSS_TH300_SCAN');
+  // Add only basic 8001, preserving TH-first single-sender scheduling.
+  // The existing 310 movement guard must remain authoritative.
+  legacy.setBasicRotation?.([8001]);
+  legacy.setTianQuanFiveBasics?.(false,1);
+  legacy.setBasicOnly?.(false);
+  legacy.setTianQuanTuyetHoc?.(true);
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
