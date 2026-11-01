@@ -116,7 +116,8 @@ const __KVPV_V1_READY = (() => {
   const build=typeof __KVPV_V1_BUILD==='undefined'?null:__KVPV_V1_BUILD;
 // [VI dòng gốc 59] gán W.KVPV_V1 bằng Object.freeze({version:'1.0.0',build,diagnostics,timers:timerAPI})
   // Lock the observed game actor before any live installer captures ownership.
-  W.__KVPV_OWN_ACTOR_ID=actor;
+  if(!Object.getOwnPropertyDescriptor(W,'__KVPV_OWN_ACTOR_ID'))
+    Object.defineProperty(W,'__KVPV_OWN_ACTOR_ID',{value:actor,enumerable:false,writable:false,configurable:false});
   W.KVPV_V1 = Object.freeze({version:'1.0.0',build,diagnostics,timers:timerAPI});
 // [VI dòng gốc 60] Kết thúc hàm hiện tại và trả về: true.
   return true;
