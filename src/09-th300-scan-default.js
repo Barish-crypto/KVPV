@@ -15,27 +15,18 @@ function activate(){
   // without this flag retain original boss handoff behavior.
   W.KVPV_TQ_POSITION_ONLY={...(W.KVPV_TQ_POSITION_ONLY??{}),enabled:true,distance:310};
   legacy.setDistance?.(310);
-  // Native cooldown and animation remain authoritative; keep the 310 ring.
-  legacy.setSkillPriority?.('tuyet_hoc_first');
-  legacy.setBasicOnly?.(false);
-  mode.start('BOSS_TH300_SCAN');
-  // Keep native TH first; allow all five basic skills as fallback.
-  // Movement guards retain the 310 ring; out-of-range basics may not hit.
-  // The TH-first selector filters out all basics unless the five-basic
-  // profile is active. Enable that profile so native 8002 is not excluded.
-  // TH300 remains the only sender and retains native ready/range checks.
+  // Configure the native mixed selector BEFORE entering SCAN. Mode.start
+  // can defer activation outside Tian Quan; its handoff must inherit basics.
+  // Only the original TH300 controller dispatches combat.
   legacy.setTianQuanFiveBasics?.(true,10);
   legacy.setBasicRotation?.([8001,8002,8003,8004,8005]);
   legacy.setBasicOnly?.(false);
   legacy.setTianQuanTuyetHoc?.(true);
-  // A rotation list alone does not enable the basic selector. Explicitly
-  // activate mixed native combat and favor a basic when its row is ready.
   legacy.setInterleaved?.(true,310);
   legacy.setPrimaryBasic?.(true);
   legacy.setSkillPriority?.('interleaved');
-  // Poll cast opportunities without bypassing native cooldown.
-  // Only TH300 sends skill requests; no parallel cast timer.
   legacy.setClientPace?.(100);
+  mode.start('BOSS_TH300_SCAN');
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
