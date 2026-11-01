@@ -11,7 +11,7 @@
  // Still require native selected skill, readiness, range and cooldown checks.
  const confirmedRanged=new Set([1001,1002,1003,1004,1005,1006,1007,1008]);
  const rangedKinds=new Set(['THIEN_QUAN','LINH_LUNG','PHU_VAN']);
- const ringGoal=310,ringTolerance=12;
+ const ringGoal=310,ringTolerance=2;
  const position=o=>{const p=o?.property?.get?.('position'),x=Number(p?.x),y=Number(p?.y);return p&&Number.isFinite(x)&&Number.isFinite(y)?{x,y}:null;};
  function ring(target){const scope=W.KVPV_FAR_SCOPE?.status?.(),kind=scope?.kind;
   if(!rangedKinds.has(kind))return {needed:false,ok:true,distance:null};
