@@ -36,6 +36,34 @@ function activate(){
   return {ready:true,mode:mode.status?.(),th:legacy.status?.(false)};
  }catch(e){return {ready:false,reason:String(e?.message??e)};}
 }
+// Reversible, scoped 10ms cast-selection trial; does not forge native cooldown.
+const trial={enabled:false,expiresAt:0,checks:0,timer:null,previousPace:100,reason:'off'};
+function trialStop(reason='manual'){
+ if(trial.timer!==null){W.clearInterval?.(trial.timer);trial.timer=null;}
+ trial.enabled=false;trial.expiresAt=0;trial.reason=reason;
+ W.KVPV_TH300?.setClientPace?.(trial.previousPace);
+ return trialStatus();
+}
+function trialStatus(){return {enabled:trial.enabled,expiresInMs:trial.enabled?Math.max(0,trial.expiresAt-Date.now()):0,
+ checks:trial.checks,clientPaceMs:trial.enabled?10:trial.previousPace,
+ nativeCooldownModified:false,serverCooldownModified:false,reason:trial.reason};}
+function trialStart(durationMs=15000){
+ if(!Number.isInteger(durationMs)||durationMs<1000||durationMs>30000)throw Error('Duration must be 1000..30000ms');
+ trialStop('restart');
+ const scope=W.KVPV_FAR_SCOPE?.status?.();
+ if(scope?.kind!=='THIEN_QUAN'||scope?.inside!==true||W.KVPV_TH300?.status?.(false)?.running!==true)
+  throw Error('Requires active Tian Quan TH300');
+ trial.enabled=true;trial.expiresAt=Date.now()+durationMs;trial.reason='running';trial.checks=0;
+ W.KVPV_TH300.setClientPace?.(10);
+ trial.timer=W.setInterval?.(()=>{
+  trial.checks++;
+  const s=W.KVPV_FAR_SCOPE?.status?.();
+  if(Date.now()>=trial.expiresAt||s?.kind!=='THIEN_QUAN'||s?.inside!==true||
+     W.KVPV_TH300?.status?.(false)?.running!==true)trialStop('expired_or_left_scope');
+ },100);
+ return trialStatus();
+}
+W.KVPV_TQ_TH10_TRIAL=Object.freeze({start:trialStart,stop:trialStop,status:trialStatus});
 W.KVPV_TH300_RESTORE=Object.freeze({activate,status:()=>({mode:W.KVPV_MODE?.status?.(),th:W.KVPV_TH300?.status?.(false),newEngine:W.KVPV_COMBAT_ENGINE?.status?.()})});
 activate();
 })();
