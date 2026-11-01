@@ -79,7 +79,7 @@
     daily.tuVuotStart();S.reason='tianquan_for_missing_exp';
   }catch(e){S.lastError=String(e);S.reason='error_no_entry_replay';}}
   function stop(reason='manual'){S.enabled=false;if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(S.timer);S.timer=null;if(reason!=='reload')restore();}
-  function start(){if(S.timer!==null)return;S.enabled=true;S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(sync,500);sync();}
+  function start(){if(S.timer!==null)return;S.enabled=true;{const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;if(typeof schedule==='function')S.timer=schedule(sync,500);}sync();}
   W.KVPV_QUEST_PRIORITY=Object.freeze({start,stop,sync,hasPriority,blocks,
     status:()=>({enabled:S.enabled,priority:hasPriority(),task:task(),levelGoal:levelGoal(),reason:S.reason,lastError:S.lastError,allowKNB:false}),
     _handoff:()=>({actor,work:S.work})});if(W.KVPV_DAILY)start();
