@@ -210,7 +210,7 @@ test('FULL stores each module once and preserves both install orders',()=>{
 // [VI dòng gốc 104] gọi assert.deepEqual(W.installed, manifest.modules, 'first install runs all modules in order') để kiểm tra cấu trúc hai giá trị tương đương
   assert.deepEqual(W.installed,manifest.liveModules,'first install runs only supported live modules in order');
 // [VI dòng gốc 105] gán W.installed bằng [] | gán W.__KVPV_OWN_ACTOR_ID bằng '123456'
-  W.installed=[];W.__KVPV_OWN_ACTOR_ID='123456';
+  W.installed=[];assert.equal(W.__KVPV_OWN_ACTOR_ID,'123456','immutable actor retained across reload');
 // [VI dòng gốc 106] Khai báo biến có thể gán lại bằng let: stops = 0 | gán W.KVPV_MODE bằng {stop(){stops++;}} | tăng stops một đơn vị sau khi lấy giá trị | gán W.KVPV_HITRUN_AUTO bằng {}
   let stops=0;W.KVPV_MODE={stop(){stops++;}};W.KVPV_HITRUN_AUTO={};W.KVPV_RANGE281={};
 // [VI dòng gốc 107] gọi vm.runInNewContext(instrumented, context) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử
