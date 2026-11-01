@@ -883,7 +883,7 @@
 // [VI dòng gốc 269] Khai báo biến không gán lại bằng const: stopHook = gọi hook(r.m, 'stop', native=>function(...args){ if(ST.running&&ST.positioning&&canFight()&&!towerFinish()&&!ST.ownMove&&!atPosit…)
       const stopHook=hook(r.m,'stop',native=>function(...args){
 // [VI dòng gốc 270] Kiểm tra ST.running&&ST.positioning&&canFight()&&!towerFinish()&&!ST.ownMove&&!atPosition(r): đúng thì chạy nhánh sau if. | tăng ST.blockedSteering một đơn vị sau khi lấy giá trị | Kết thúc hàm hiện tại và trả về: undefined.
-        if(ST.running&&ST.positioning&&canFight()&&!towerFinish()&&!ST.ownMove&&!atPosition(r)){ST.blockedSteering++;return undefined;}
+        if(ST.running&&W.KVPV_FAR_SCOPE?.status?.()?.kind!=='TRU_TIEN'&&ST.positioning&&canFight()&&!towerFinish()&&!ST.ownMove&&!atPosition(r)){ST.blockedSteering++;return undefined;}
 // [VI dòng gốc 271] Kết thúc hàm hiện tại và trả về: gọi native.apply(this, args).
         return native.apply(this,args);
 // [VI dòng gốc 272] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
@@ -1471,7 +1471,7 @@
 // [VI dòng gốc 509] Chú thích gốc của tác giả; không được thực thi. Nội dung: Chỉ nhận quyền di chuyển trong pha đánh, không can thiệp đường rút lui hồi máu.
       // Chỉ nhận quyền di chuyển trong pha đánh, không can thiệp đường rút lui hồi máu.
 // [VI dòng gốc 510] Kiểm tra newPositionTarget&&((owner?.running&&owner.phase==='FIGHT'&&canFight())|| (!owner?.running&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&W._Ba?._rJ?._O$?.ins?.isDead!==true)): đúng thì chạy nhánh sau if.
-      if(newPositionTarget&&((owner?.running&&owner.phase==='FIGHT'&&canFight())||
+      if(newPositionTarget&&W.KVPV_FAR_SCOPE?.status?.()?.kind!=='TRU_TIEN'&&((owner?.running&&owner.phase==='FIGHT'&&canFight())||
 // [VI dòng gốc 511] gọi W.KVPV_FAR_SCOPE?.status() để trả trạng thái để kiểm tra
         (!owner?.running&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&W._Ba?._rJ?._O$?.ins?.isDead!==true))){
 // [VI dòng gốc 512] gán ST.ownMove bằng true | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi r.m.stop() để dừng bộ điều khiển và dọn tài nguyên (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gán ST.ownMove bằng false
