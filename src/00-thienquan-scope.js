@@ -67,7 +67,9 @@
     if(mission&&owned&&stageBossMatches&&Number.isFinite(current)&&current>0){
       lastStageProof={map:current,actor:actorNow,occ:expectedOcc,at:Date.now()};
     }
-    const briefNativeGap=!!lastStageProof&&mission&&owned&&Date.now()-lastStageProof.at<=PROOF_GRACE_MS;
+    // An explicitly selected different Boss invalidates the proof immediately; only a null native target gets a brief grace.
+    if(target&&(!stageBossMatches))lastStageProof=null;
+    const briefNativeGap=!target&&!!lastStageProof&&mission&&owned&&Date.now()-lastStageProof.at<=PROOF_GRACE_MS;
 // [VI dòng gốc 32] Kiểm tra type===35&&stageBossMatches: đúng thì chạy nhánh sau if. | gán confirmedMap bằng current
     if(type===35&&stageBossMatches)confirmedMap=current;
 // [VI dòng gốc 33] Chú thích gốc của tác giả; không được thực thi. Nội dung: Mission battles can expose a type-0 outer map while the selected monster
