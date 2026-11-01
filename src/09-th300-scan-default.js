@@ -34,6 +34,9 @@ function activate(){
   legacy.setTianQuanBasicVisualSpeed?.(99);
   legacy.setClientPace?.(100);
   mode.start('BOSS_TH300_SCAN');
+  // Enforce five basics after mode startup/handoff; TH must remain disabled.
+  legacy.setTianQuanTuyetHoc?.(false);
+  W.KVPV_TH_FAR?.stop?.('tianquan_five_basics_only');
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
