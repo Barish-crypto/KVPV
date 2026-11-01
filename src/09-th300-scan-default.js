@@ -18,16 +18,18 @@ function activate(){
   // Configure the native mixed selector BEFORE entering SCAN. Mode.start
   // can defer activation outside Tian Quan; its handoff must inherit basics.
   // Only the original TH300 controller dispatches combat.
-  // Basic 8001 only at 310. TH disabled; native skill selection remains single-owner.
-  legacy.setTianQuanFiveBasics?.(false,10);
-  legacy.setInterleaved?.(false,310);
-  legacy.setBasicOnly?.(true);
-  legacy.setBasicRotation?.([8001]);
+  // Tian Quan: all five native basics at 310, without Tuyet Hoc.
+  // Five-basic profile must be enabled before setting rotation (8002 is otherwise excluded).
+  legacy.setBasicOnly?.(false);
+  legacy.setTianQuanFiveBasics?.(true,10);
+  legacy.setTianQuanTuyetHoc?.(false);
+  legacy.setBasicRotation?.([8001,8002,8003,8004,8005]);
+  legacy.setInterleaved?.(true,310);
+  legacy.setPrimaryBasic?.(true);
+  legacy.setSkillPriority?.('interleaved');
   // Visual playback only; native cooldown and server damage stay unchanged.
   legacy.setBasicAnimationSpeed?.(99);
   legacy.setTianQuanBasicVisualSpeed?.(99);
-  legacy.setTianQuanTuyetHoc?.(false);
-  legacy.setPrimaryBasic?.(true);
   legacy.setClientPace?.(100);
   mode.start('BOSS_TH300_SCAN');
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
@@ -43,7 +45,7 @@ const CD={hook:null,timer:null,enabled:true,forced:0,reason:'armed'};
 function cdScope(){
  const s=W.KVPV_FAR_SCOPE?.status?.();
  return CD.enabled&&s?.inside===true&&
-  (s.kind==='TRU_TIEN'||(s.kind==='THIEN_QUAN'&&W.KVPV_TH300?.status?.(false)?.running===true))&&
+  (s.kind==='THIEN_QUAN'&&W.KVPV_TH300?.status?.(false)?.running===true)&&
   String(W._Ba?._rJ?._O$?.ins?.actorId??'')===String(W.__KVPV_OWN_ACTOR_ID??'');
 }
 function cdRelease(reason){
