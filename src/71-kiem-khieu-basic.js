@@ -3,7 +3,7 @@
 (()=>{'use strict';
 const W=window,actor=String(W.__KVPV_OWN_ACTOR_ID||''),old=W.KVPV_KIEM_KHIEU_BASIC;
 old?.stop?.('reload');
-const S={enabled:true,timer:null,casts:0,lastSkill:null,reason:'waiting_scene',error:'',blocked:0,lastOwnerRecoveryAt:0,visual:{factor:9999,calls:0,applied:0,unavailable:0,conflicts:0}};
+const S={enabled:true,timer:null,casts:0,lastSkill:null,reason:'waiting_scene',error:'',blocked:0,lastOwnerRecoveryAt:0,filtered:0,guard:null,visual:{factor:9999,calls:0,applied:0,unavailable:0,conflicts:0}};
 const type=()=>Number(W._ft?._po?.ins?.getCfgById?.(Number(W._C?._Mn?._Cn?.currentID))?.[7]);
 const own=()=>actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 const comp=(r,n)=>{const key=W._d?._Yct?.[n];return key?r?.getComponent?.(key):null;};
@@ -35,10 +35,29 @@ function cast8001(combat){
   }else S.visual.conflicts++;
  }
 }
+function releaseGuard(){
+ const g=S.guard;if(!g)return;
+ try{if(g.combat.combat===g.wrap){if(g.descriptor)Object.defineProperty(g.combat,'combat',g.descriptor);else delete g.combat.combat;}}catch(e){S.error=String(e?.message??e);}
+ S.guard=null;
+}
+function ensureGuard(c){
+ if(S.guard?.combat===c&&c.combat===S.guard.wrap)return true;
+ releaseGuard();
+ if(typeof c?.combat!=='function')return false;
+ const original=c.combat,descriptor=Object.getOwnPropertyDescriptor(c,'combat');
+ if(descriptor&&descriptor.configurable===false)return false;
+ const wrap=function(skill,...args){
+  if(S.enabled&&own()&&type()===84&&this===c&&Number(skill)!==8001){S.filtered++;return;}
+  return original.call(this,skill,...args);
+ };
+ try{Object.defineProperty(c,'combat',{configurable:true,writable:true,enumerable:descriptor?.enumerable??false,value:wrap});S.guard={combat:c,wrap,descriptor};return true;}
+ catch(e){S.error=String(e?.message??e);return false;}
+}
 function tick(){if(!S.enabled)return;
  try{
-  if(!own()||type()!==84){S.reason='outside_kiem_khieu';return;}
+  if(!own()||type()!==84){releaseGuard();S.reason='outside_kiem_khieu';return;}
   const role=W._C?._Ba?.instance?.getRole?.(Number(actor)),combat=comp(role,'_Het'),sel=comp(role,'_Eet'),target=combat?.target;
+  if(combat&&!ensureGuard(combat)){S.reason='native_filter_unavailable';return;}
   if(!role||W._Ba?._rJ?._O$?.ins?.isDead===true||![1,4].includes(Number(target?.property?.get?.('type')))||target?.isValid===false){S.reason='waiting_valid_target';return;}
   if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){S.reason='manual_ui';return;}
   const mode=W.KVPV_MODE?.status?.(false)?.mode;
@@ -62,8 +81,8 @@ function tick(){if(!S.enabled)return;
   cast8001(combat);S.casts++;S.lastSkill=id;S.reason='native_basic_cast';
  }catch(e){S.error=String(e?.message??e);S.reason='error';}
 }
-function stop(reason='stopped'){S.enabled=false;const clear=W.KVPV_V1?.timers?.clearInterval??W.clearInterval;if(S.timer!=null&&typeof clear==='function')clear(S.timer);S.timer=null;S.reason=reason;}
-function status(){return {enabled:S.enabled,inside:type()===84,skills:[8001],pollMs:1,nativeCooldownPreserved:true,tuyetHoc:false,casts:S.casts,lastSkill:S.lastSkill,blockedCooldown:S.blocked,sceneId:W._C?._Mn?._Cn?.currentID??null,sceneType:type(),actorMatch:!!own(),targetType:(()=>{const r=W._C?._Ba?.instance?.getRole?.(Number(actor));return comp(r,'_Het')?.target?.property?.get?.('type')??null;})(),combatMode:W.KVPV_MODE?.status?.(false)?.mode??null,timerActive:S.timer!==null,visual:{...S.visual,visualOnly:true},reason:S.reason,error:S.error};}
+function stop(reason='stopped'){S.enabled=false;releaseGuard();const clear=W.KVPV_V1?.timers?.clearInterval??W.clearInterval;if(S.timer!=null&&typeof clear==='function')clear(S.timer);S.timer=null;S.reason=reason;}
+function status(){return {enabled:S.enabled,inside:type()===84,skills:[8001],pollMs:1,nativeCooldownPreserved:true,tuyetHoc:false,casts:S.casts,lastSkill:S.lastSkill,blockedCooldown:S.blocked,filteredNon8001:S.filtered,filterActive:!!S.guard,sceneId:W._C?._Mn?._Cn?.currentID??null,sceneType:type(),actorMatch:!!own(),targetType:(()=>{const r=W._C?._Ba?.instance?.getRole?.(Number(actor));return comp(r,'_Het')?.target?.property?.get?.('type')??null;})(),combatMode:W.KVPV_MODE?.status?.(false)?.mode??null,timerActive:S.timer!==null,visual:{...S.visual,visualOnly:true},reason:S.reason,error:S.error};}
 W.KVPV_KIEM_KHIEU_BASIC=Object.freeze({tick,status,stop});
 const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;
 if(typeof W.setInterval==='function'&&typeof schedule==='function')S.timer=schedule(tick,1);
