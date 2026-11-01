@@ -10,6 +10,8 @@
   const W=window;
 // [VI dòng gốc 7] Khai báo biến có thể gán lại bằng let: confirmedMap = null
   let confirmedMap=null;
+  let lastStageProof=null;
+  const PROOF_GRACE_MS=5000;
 // [VI dòng gốc 8] Chú thích gốc của tác giả; không được thực thi. Nội dung: Trả trạng thái hiện tại để kiểm tra; ý nghĩa từng bộ đếm thuộc phạm vi module này.
   // Trả trạng thái hiện tại để kiểm tra; ý nghĩa từng bộ đếm thuộc phạm vi module này.
 // [VI dòng gốc 9] Định nghĩa hàm status; tham số: không có. Mục đích: trả trạng thái để kiểm tra | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
@@ -58,6 +60,14 @@
     // Chỉ lưu xác nhận trong chính map hiện tại, tránh mang bằng chứng sang map khác.
 // [VI dòng gốc 31] Kiểm tra confirmedMap!==current: đúng thì chạy nhánh sau if. | gán confirmedMap bằng null
     if(confirmedMap!==current)confirmedMap=null;
+    const actorNow=String(W._Ba?._rJ?._O$?.ins?.actorId??'');
+    const owned=actorNow!==''&&actorNow===String(W.__KVPV_OWN_ACTOR_ID??'');
+    if(lastStageProof&&(lastStageProof.map!==current||lastStageProof.actor!==actorNow||
+       lastStageProof.occ!==expectedOcc||!mission))lastStageProof=null;
+    if(mission&&owned&&stageBossMatches&&Number.isFinite(current)&&current>0){
+      lastStageProof={map:current,actor:actorNow,occ:expectedOcc,at:Date.now()};
+    }
+    const briefNativeGap=!!lastStageProof&&mission&&owned&&Date.now()-lastStageProof.at<=PROOF_GRACE_MS;
 // [VI dòng gốc 32] Kiểm tra type===35&&stageBossMatches: đúng thì chạy nhánh sau if. | gán confirmedMap bằng current
     if(type===35&&stageBossMatches)confirmedMap=current;
 // [VI dòng gốc 33] Chú thích gốc của tác giả; không được thực thi. Nội dung: Mission battles can expose a type-0 outer map while the selected monster
@@ -73,13 +83,13 @@
 // [VI dòng gốc 38] Khai báo biến không gán lại bằng const: missionStageBoss = mission&&stageBossMatches và chỉ đánh giá vế phải khi vế trái truthy: type===0||type===1||type===35
     const missionStageBoss=mission&&stageBossMatches&&(type===0||type===1||type===35);
 // [VI dòng gốc 39] Khai báo biến không gán lại bằng const: nativeStage = missionStageBoss||(type===35&&stageBossMatches) hoặc dùng vế phải khi vế trái falsy: mission&&confirmedMap===current
-    const nativeStage=missionStageBoss||(type===35&&stageBossMatches)||(mission&&confirmedMap===current);
+    const nativeStage=missionStageBoss||(type===35&&stageBossMatches)||(mission&&confirmedMap===current)||briefNativeGap;
 // [VI dòng gốc 40] Khai báo biến không gán lại bằng const: inside = Number.isFinite(current)&&current>0 và chỉ đánh giá vế phải khi vế trái truthy: nativeStage||(mission&&(type===1||observedStageMap))|| (expected>0&&current===expected&&W._Ba?._$a?.SceneUtil?.isCommonScene!==true)
     const inside=Number.isFinite(current)&&current>0&&(nativeStage||(mission&&(type===1||observedStageMap))||
 // [VI dòng gốc 41] Tiếp tục hàm status; thành phần cú pháp bắt đầu bằng (. Đọc cùng dòng mở phía trên: (expected>0&&current===expected&&W._Ba?._$a?.SceneUtil?.isCommonScene!==true));
       (expected>0&&current===expected&&W._Ba?._$a?.SceneUtil?.isCommonScene!==true));
 // [VI dòng gốc 42] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm inside, current, entry, expected, type, mission, observedStageMap, stageBossMatches, targetOcc, expectedOcc.
-    return {inside,current,entry,expected,type,mission,observedStageMap,stageBossMatches,targetOcc,expectedOcc};
+    return {inside,current,entry,expected,type,mission,observedStageMap,stageBossMatches,targetOcc,expectedOcc,briefNativeGap,proofAgeMs:lastStageProof?Date.now()-lastStageProof.at:null};
 // [VI dòng gốc 43] Nhận lỗi bằng e và chạy phần xử lý lỗi. | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm inside, error.
   }catch(e){return {inside:false,error:String(e)};}}
 // [VI dòng gốc 44] gán W.KVPV_TQ_SCOPE bằng Object.freeze({inside:()=>status().inside,status})
