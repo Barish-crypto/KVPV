@@ -78,6 +78,7 @@ const liveModules = [
 // [VI dòng gốc 36] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "06-range.js",
   "03-daily-core.js",
   "06-range.js",
+  "07-th300-hitrun-compat.js",
   "08-range-evidence.js",
   "09-modes.js",
   "09-combat-engine.js",
