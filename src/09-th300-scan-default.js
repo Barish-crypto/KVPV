@@ -24,6 +24,9 @@ function activate(){
   legacy.setInterleaved?.(false,310);
   legacy.setBasicOnly?.(true);
   legacy.setBasicRotation?.([8001]);
+  // Visual playback only; native cooldown and server damage stay unchanged.
+  legacy.setBasicAnimationSpeed?.(99);
+  legacy.setTianQuanBasicVisualSpeed?.(99);
   legacy.setTianQuanTuyetHoc?.(false);
   legacy.setClientPace?.(100);
   mode.start('BOSS_TH300_SCAN');
