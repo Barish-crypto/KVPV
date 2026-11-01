@@ -399,7 +399,7 @@
 // [VI dòng gốc 178] Thuộc tính bossDistanceTarget: nếu [MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(S.mode) thì lấy z.long?.goalDistance??null, ngược lại lấy S.mode===MODE.BOSS_TH?z.th?.goalDistance??null:null
       bossDistanceTarget:[MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(S.mode)?z.long?.goalDistance??null:S.mode===MODE.BOSS_TH?z.th?.goalDistance??null:null,
 // [VI dòng gốc 179] Thuộc tính tuyetHocOnly: z.th?.enabled===true hoặc dùng vế phải khi vế trái falsy: z.long?.running===true&&!z.long?.basicProbeActive&&!z.long?.interleavedBasic | Thuộc tính tuyetHocConfirmed: z.th?.confirmedTH hoặc dùng vế phải khi vế trái là null/undefined: 0
-      tuyetHocOnly:z.th?.enabled===true||(z.long?.running===true&&!z.long?.basicProbeActive&&!z.long?.interleavedBasic),tuyetHocConfirmed:z.th?.confirmedTH??0,
+      tuyetHocOnly:S.mode===MODE.BOSS_TH&&z.th?.enabled===true||(z.long?.running===true&&!z.long?.interleavedBasic&&!z.long?.basicOnly&&!z.long?.tianQuanFiveBasics?.enabled),tuyetHocConfirmed:z.th?.confirmedTH??0,
 // [VI dòng gốc 180] Thuộc tính longRangeProof: z.long?.confirmedSkills||z.long?.confirmedOver300 hoặc dùng vế phải khi vế trái falsy: [] | Thuộc tính longScan: tính biểu thức z.long?.operation==='SCAN'
       longRangeProof:z.long?.confirmedSkills||z.long?.confirmedOver300||[],longScan:z.long?.operation==='SCAN',
 // [VI dòng gốc 181] Thuộc tính range281Enabled: z.range?.enabled===true và chỉ đánh giá vế phải khi vế trái truthy: z.range?.hookAttached===true
