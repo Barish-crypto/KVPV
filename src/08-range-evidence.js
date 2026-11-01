@@ -35,7 +35,7 @@
   // combat profile still supplies distance 302; leave its mode/pace settings alone.
   const tqConfiguredGoal=()=>{const p=W.KVPV_TQ_POSITION_ONLY,d=Number(p?.distance);return p?.enabled===false&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'&&Number.isFinite(d)&&d>280&&d<=600?d:null;};
 // [VI dòng gốc 21] Duyệt từng giá trị trong ['goal','min','max','basicOnly'] bằng const key. | Khai báo biến không gán lại bằng const: key (chưa gán giá trị) | Khai báo biến có thể gán lại bằng let: base = đọc CFG[key] | gọi Object.defineProperty(CFG, key, {enumerable:true,configurable:true,get(){const p=scopedCombat();if(!p)return base;if(key==='basicOnly')return …)
-  for(const key of ['goal','min','max','basicOnly']){let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){if(tqDistanceOnly()){if(key==='goal')return 300;if(key==='min')return 290;if(key==='max')return 310;}const fixed=tqConfiguredGoal();if(fixed!==null&&key!=='basicOnly'){if(key==='goal')return fixed;if(key==='max')return fixed+10;return fixed===300?295:fixed>300?300:280;}const p=scopedCombat();if(!p)return base;if(key==='basicOnly')return p.mode==='basic8001';if(key==='goal')return p.distance;if(key==='max')return p.distance+10;return p.distance===300?295:p.distance>300?300:280;},set(value){base=value;}});}
+  for(const key of ['goal','min','max','basicOnly']){let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){if(tqDistanceOnly()){if(key==='goal')return 310;if(key==='min')return 300;if(key==='max')return 320;}const fixed=tqConfiguredGoal();if(fixed!==null&&key!=='basicOnly'){if(key==='goal')return fixed;if(key==='max')return fixed+10;return fixed===300?295:fixed>300?300:280;}const p=scopedCombat();if(!p)return base;if(key==='basicOnly')return p.mode==='basic8001';if(key==='goal')return p.distance;if(key==='max')return p.distance+10;return p.distance===300?295:p.distance>300?300:280;},set(value){base=value;}});}
 // [VI dòng gốc 22] Khai báo biến không gán lại bằng const: metrics = W.KVPV_COMBAT_METRICS?.create?.() hoặc dùng vế phải khi vế trái là null/undefined: null
   const metrics=W.KVPV_COMBAT_METRICS?.create?.()??null;
 // [VI dòng gốc 23] Khai báo biến không gán lại bằng const: pacer = W.KVPV_SKILL_PACING?.create?.() hoặc dùng vế phải khi vế trái là null/undefined: null
@@ -276,7 +276,7 @@
     rows.sort((a,b)=>(apexRobustDamage(b)??0)-(apexRobustDamage(a)??0)||a.id-b.id);return rows[0]?.id??null;}
 
   const tqFive=W.KVPV_TQ_BASIC_PROFILE?.create?.({scope:()=>W.KVPV_FAR_SCOPE?.status?.()?.kind??(W.KVPV_TQ_SCOPE?.inside?.()===true?'THIEN_QUAN':'OUTSIDE'),context:()=>scene()+'/'+identity(role().c?.target),phase:()=>combatOwner()?.phase,hp:()=>{const h=prop(role().a,'hp');return Array.isArray(h)&&Number(h[1])>0?Number(h[0])/Number(h[1])*100:null;},learned:()=>[...(role().s?._rtt??[]),...(role().s?._wet??[])].map(r=>Number(r?.[0]))})??null;
-  for(const key of ['goal','min','max','scanMs']){const descriptor=Object.getOwnPropertyDescriptor(CFG,key);let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){if(tqDistanceOnly()&&key!=='scanMs')return key==='goal'?300:key==='min'?290:310;const d=tqFive?.goal();if(key==='scanMs'&&tqFive?.active())return tqFive.wait();if(d!==null&&d!==undefined)return key==='goal'?d:key==='min'?Math.max(0,d-15):key==='max'?d+10:base;return descriptor.get?descriptor.get():base;},set(value){if(descriptor.set)descriptor.set(value);else base=value;}});}
+  for(const key of ['goal','min','max','scanMs']){const descriptor=Object.getOwnPropertyDescriptor(CFG,key);let base=CFG[key];Object.defineProperty(CFG,key,{enumerable:true,configurable:true,get(){if(tqDistanceOnly()&&key!=='scanMs')return key==='goal'?310:key==='min'?300:320;const d=tqFive?.goal();if(key==='scanMs'&&tqFive?.active())return tqFive.wait();if(d!==null&&d!==undefined)return key==='goal'?d:key==='min'?Math.max(0,d-15):key==='max'?d+10:base;return descriptor.get?descriptor.get():base;},set(value){if(descriptor.set)descriptor.set(value);else base=value;}});}
 // [VI dòng gốc 33] Khai báo biến không gán lại bằng const: basicProbe = tạo đối tượng gồm enabled, dispatch, context, attempts, hits, damage, startedAt, nextAt, examples
   const basicProbe={enabled:false,dispatch:false,context:null,attempts:0,hits:0,damage:0,startedAt:null,nextAt:0,examples:[]};
 // [VI dòng gốc 34] Khai báo biến không gán lại bằng const: isBasic = tạo hàm với tham số id; mỗi lần gọi trả về Number.isSafeInteger(Number(id))&&Number(id)>=8001 và chỉ đánh giá vế phải khi vế trái truthy: Number(id)<=8009
@@ -758,7 +758,7 @@
   // Trong STRICT giới hạn vị trí theo tầm đã có bằng chứng; SCAN dùng khoảng cách cấu hình.
 // [VI dòng gốc 208] Định nghĩa hàm targetDistance; tham số: không có
   function targetDistance(){
-    if(tqDistanceOnly())return 300;
+    if(tqDistanceOnly())return 310;
     if(tqFive?.active())return CFG.goal;
 // [VI dòng gốc 209] Kiểm tra ST.mode!=='STRICT': đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: đọc CFG.goal.
     if(ST.mode!=='STRICT')return CFG.goal;
@@ -1837,7 +1837,7 @@
 // [VI dòng gốc 672] Chú thích gốc của tác giả; không được thực thi. Nội dung: Cập nhật khoảng cách tính từ tâm Boss, xóa đích di chuyển cũ rồi kiểm tra lại ngay.
   // Cập nhật khoảng cách tính từ tâm Boss, xóa đích di chuyển cũ rồi kiểm tra lại ngay.
 // [VI dòng gốc 673] Định nghĩa hàm setDistance; tham số: value | Khai báo biến không gán lại bằng const: d = gọi Number(value) để chuyển sang số | Kiểm tra !Number.isFinite(d)||d<=280||d>600: đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Distance must be in (280,600]')
-  function setDistance(value){const d=tqDistanceOnly()?300:Number(value);if(!Number.isFinite(d)||d<=280||d>600)throw Error('Distance must be in (280,600]');
+  function setDistance(value){const d=tqDistanceOnly()?310:Number(value);if(!Number.isFinite(d)||d<=280||d>600)throw Error('Distance must be in (280,600]');
 // [VI dòng gốc 674] gọi W.KVPV_RANGE281?.setTrialRange(d+10) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gán CFG.goal bằng d | gán CFG.min bằng d===300?295:d>300?300:280 | gán CFG.max bằng d+10
     W.KVPV_RANGE281?.setTrialRange?.(d+10);CFG.goal=d;CFG.min=d===300?295:d>300?300:280;CFG.max=d+10;
 // [VI dòng gốc 675] gán ST.lastMove bằng -Infinity | gán ST.moveGoal bằng null | gán ST.positioning bằng true | Kiểm tra ST.running: đúng thì chạy nhánh sau if.
