@@ -18,6 +18,7 @@ function runPrelude(W, globals={}) {
   const context={window:W,console:{error(){}},...globals};
 // [VI dòng gốc 10] gọi vm.runInNewContext('(() => {\n'+prelude+'\nif (__KVPV_V1_READY) window.entered=true;})();', context, {timeout:1000}) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử
   vm.runInNewContext('(() => {\n'+prelude+'\nif (__KVPV_V1_READY) window.entered=true;})();',context,{timeout:1000});
+  if(W.entered)assert.equal(W.__KVPV_OWN_ACTOR_ID,String(globals._Ba._rJ._O$.ins.actorId),'prelude binds own actor before installers');
 // [VI dòng gốc 11] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 }
 // [VI dòng gốc 12] gọi test('whole bundle rejects missing game context before installing any module', ()=>{ const W={};vm.runInNewContext(code,{wind…)
@@ -30,6 +31,7 @@ test('whole bundle rejects missing game context before installing any module',()
 });
 // [VI dòng gốc 16] Khai báo biến không gán lại bằng const: globals = tạo đối tượng gồm _Ba, _ft, _Sa
 const globals={_Ba:{_rJ:{_O$:{ins:{actorId:'123456'}}}},_ft:{},_Sa:{}};
+// The verified game actor must be locked before any live combat installer starts.
 // [VI dòng gốc 17] gọi test('valid context enters and exposes V1', ()=>{const W={};runPrelude(W,globals);assert.equal(W.entered,true);assert.equal(W…) | Khai báo biến không gán lại bằng const: W = tạo đối tượng gồm | gọi runPrelude(W, globals) | gọi assert.equal(W.entered, true) để kiểm tra hai giá trị bằng nhau
 test('valid context enters and exposes V1',()=>{const W={};runPrelude(W,globals);assert.equal(W.entered,true);assert.equal(W.KVPV_V1.version,'1.0.0');});
 // [VI dòng gốc 18] gọi test('repeat load does not execute modules', ()=>{const W={KVPV_V1:{}};runPrelude(W,globals);assert.equal(W.entered,undefined…) | Khai báo biến không gán lại bằng const: W = tạo đối tượng gồm KVPV_V1 | gọi runPrelude(W, globals) | gọi assert.equal(W.entered, undefined) để kiểm tra hai giá trị bằng nhau
