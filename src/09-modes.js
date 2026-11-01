@@ -29,7 +29,7 @@
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: inFarMap = tạo hàm với tham số (không có); mỗi lần gọi trả về tính biểu thức (W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false
   const inFarMap=()=>(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false;
   const tqNoHeal=()=>W.KVPV_TQ_POSITION_ONLY?.enabled===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
-  const tqDistance=()=>Number(W.KVPV_TQ_POSITION_ONLY?.distance??300);
+  const tqDistance=()=>Number(W.KVPV_TQ_POSITION_ONLY?.distance??310);
 // [VI dòng gốc 20] Khai báo biến có thể gán lại bằng let: entryMoveHook = null
   let entryMoveHook=null;
 // [VI dòng gốc 21] Định nghĩa hàm releaseEntryMove; tham số: không có | Khai báo biến không gán lại bằng const: h = entryMoveHook | Kiểm tra h&&h.m.moveTo===h.fn: đúng thì chạy nhánh sau if. | Kiểm tra h.own: đúng thì chạy nhánh sau if, sai thì chạy nhánh else.
@@ -62,7 +62,14 @@
 // [VI dòng gốc 34] Khai báo biến không gán lại bằng const: d = gọi Math.hypot(a.x-b.x, a.y-b.y)
         const d=Math.hypot(a.x-b.x,a.y-b.y);
 // [VI dòng gốc 35] Kiểm tra d>0: đúng thì chạy nhánh sau if. | gán x bằng b.x+(a.x-b.x)/d*entryGoal | gán y bằng b.y+(a.y-b.y)/d*entryGoal | gọi log('ENTRY-310', 'redirect native inward path')
-        if(d>0){x=b.x+(a.x-b.x)/d*entryGoal;y=b.y+(a.y-b.y)/d*entryGoal;log('ENTRY-302','redirect native inward path');}
+        if(d>0){
+          // At the established 310 ring, an attempted basic melee approach
+          // must not start a path. Keep the already-working position.
+          if(Math.abs(d-entryGoal)<=2){log('ENTRY-310','blocked native close-range approach');return;}
+          x=b.x+(a.x-b.x)/d*entryGoal;
+          y=b.y+(a.y-b.y)/d*entryGoal;
+          log('ENTRY-310','redirect native inward path');
+        }
 // [VI dòng gốc 36] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
       }
 // [VI dòng gốc 37] Kết thúc hàm hiện tại và trả về: gọi native.call(this, x, y, ...args).
