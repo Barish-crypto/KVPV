@@ -115,6 +115,8 @@ const __KVPV_V1_READY = (() => {
 // [VI dòng gốc 58] Khai báo biến không gán lại bằng const: build = nếu typeof __KVPV_V1_BUILD==='undefined' thì lấy null, ngược lại lấy __KVPV_V1_BUILD
   const build=typeof __KVPV_V1_BUILD==='undefined'?null:__KVPV_V1_BUILD;
 // [VI dòng gốc 59] gán W.KVPV_V1 bằng Object.freeze({version:'1.0.0',build,diagnostics,timers:timerAPI})
+  // Lock the observed game actor before any live installer captures ownership.
+  W.__KVPV_OWN_ACTOR_ID=actor;
   W.KVPV_V1 = Object.freeze({version:'1.0.0',build,diagnostics,timers:timerAPI});
 // [VI dòng gốc 60] Kết thúc hàm hiện tại và trả về: true.
   return true;
