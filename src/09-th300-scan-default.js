@@ -25,6 +25,7 @@ function activate(){
   if(five?.available===false||five?.enabled===false)throw Error('Tian Quan five-basics profile unavailable');
   legacy.setTianQuanTuyetHoc?.(false);
   legacy.setBasicRotation?.([8001,8002,8003,8004,8005]);
+  legacy.setTianQuanBasicBatch?.(true,100);
   // Mixed selector dispatches native basics even while Tuyet Hoc is disabled.
   legacy.setInterleaved?.(true,310);
   legacy.setPrimaryBasic?.(true);
