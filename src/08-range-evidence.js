@@ -837,7 +837,7 @@
 // [VI dòng gốc 246] Chú thích gốc của tác giả; không được thực thi. Nội dung: Đối chiếu khoảng cách Boss hiện tại với mục tiêu, sai số cho phép và điều kiện STRICT.
   // Đối chiếu khoảng cách Boss hiện tại với mục tiêu, sai số cho phép và điều kiện STRICT.
 // [VI dòng gốc 247] Định nghĩa hàm atPosition; tham số: r | Khai báo biến không gán lại bằng const: d = gọi radius(r.a, r.c?.target); goal = gọi targetDistance() | Kết thúc hàm hiện tại và trả về: goal!==null&&outside(d)&&Math.abs(d-goal)<=CFG.tolerance+(ST.mode==='SCAN'&&ST.arrivalSnap?1:0) và chỉ đánh giá vế phải khi vế trái truthy: ST.mode!=='STRICT'||d<=goal+0.2.
-  function atPosition(r){const d=radius(r.a,r.c?.target),goal=targetDistance();return goal!==null&&outside(d)&&Math.abs(d-goal)<=CFG.tolerance+(ST.mode==='SCAN'&&ST.arrivalSnap?1:0)&&(ST.mode!=='STRICT'||d<=goal+0.2);}
+  function atPosition(r){if(W.KVPV_FAR_SCOPE?.status?.()?.kind==='TRU_TIEN')return r.c?.target?.isValidRange?.()===true;const d=radius(r.a,r.c?.target),goal=targetDistance();return goal!==null&&outside(d)&&Math.abs(d-goal)<=CFG.tolerance+(ST.mode==='SCAN'&&ST.arrivalSnap?1:0)&&(ST.mode!=='STRICT'||d<=goal+0.2);}
 // [VI dòng gốc 248] Chú thích gốc của tác giả; không được thực thi. Nội dung: Gộp điều kiện sức khỏe, pha chiến đấu và vị trí trước khi tung chiêu.
   // Gộp điều kiện sức khỏe, pha chiến đấu và vị trí trước khi tung chiêu.
 // [VI dòng gốc 249] Định nghĩa hàm castReady; tham số: không có | Khai báo biến không gán lại bằng const: r = gọi role() | Kết thúc hàm hiện tại và trả về: canFight()&&!ST.positioning và chỉ đánh giá vế phải khi vế trái truthy: atPosition(r).
@@ -867,7 +867,7 @@
 // [VI dòng gốc 261] Chú thích gốc của tác giả; không được thực thi. Nội dung: immediately chases back into its original attack radius after arrival.
       // immediately chases back into its original attack radius after arrival.
 // [VI dòng gốc 262] Kiểm tra ST.running&&(canFight()||entryGuard())&&eligible(r.c?.target)&&!towerFinish()&&!ST.ownMove: đúng thì chạy nhánh sau if. | tăng ST.blockedSteering một đơn vị sau khi lấy giá trị | Kết thúc hàm hiện tại và trả về: undefined.
-      if(ST.running&&(canFight()||entryGuard())&&eligible(r.c?.target)&&!towerFinish()&&!ST.ownMove){ST.blockedSteering++;return undefined;}
+      if(ST.running&&W.KVPV_FAR_SCOPE?.status?.()?.kind!=='TRU_TIEN'&&(canFight()||entryGuard())&&eligible(r.c?.target)&&!towerFinish()&&!ST.ownMove){ST.blockedSteering++;return undefined;}
 // [VI dòng gốc 263] Kết thúc hàm hiện tại và trả về: gọi native.apply(this, args).
       return native.apply(this,args);
 // [VI dòng gốc 264] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
@@ -1518,6 +1518,14 @@
 // Finish phase ends only when native Boss HP rises above 2% or Boss changes.
       ST.finishTarget=null;ST.finishCursor=0;ST.finishMoveAttempts=0;ST.finishLastMove=-Infinity;
 // [VI dòng gốc 529] Khai báo biến không gán lại bằng const: goal = gọi targetDistance()
+      // Tru Tien uses native chase/range, not the Tian Quan 310-position controller.
+      if(W.KVPV_FAR_SCOPE?.status?.()?.kind==='TRU_TIEN'){
+        ST.positioning=false;ST.moveGoal=null;ST.lastDistance=radius(r.a,r.c.target);
+        if(!canFight()){ST.lastReason='trutien_hitrun_wait';return;}
+        if(atPosition(r)){ST.lastReason='trutien_native_range';fastCast(r);}
+        else ST.lastReason='trutien_native_approach';
+        return;
+      }
       const goal=targetDistance();
 // [VI dòng gốc 530] Kiểm tra goal===null: đúng thì chạy nhánh sau if. | gán ST.lastReason bằng 'waiting_verified_skill' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       if(goal===null){ST.lastReason='waiting_verified_skill';return;}
