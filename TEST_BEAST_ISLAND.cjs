@@ -142,3 +142,17 @@ W.localStorage={getItem:()=> '600'};a=load();assert.equal(a.status().bossLevel,5
 // [VI dòng gốc 68] gọi console.log('PASS clone route: collect layer2 -> exit -> boss500 layer1 -> exit at three server credits; legacy600 migrates')
 console.log('PASS clone route: collect layer2 -> exit -> boss500 layer1 -> exit at three server credits; legacy600 migrates');
 // [VI dòng gốc 69] Dòng trống để tách các phần, không có lệnh thực thi.
+
+
+// Regression: manual floor-2 entry must not be kicked out on main-account 3/3 boss quota.
+W.__KVPV_OWN_ACTOR_ID='10228867268946';W._Ba._rJ._O$.ins.actorId='10228867268946';
+map=4902;type=49;busy=false;lease=null;point=null;gathering=false;
+m._c_a=[3,[[101,0],[102,0]],[],false];now+=61000;
+a=load();const exitsBefore=calls.filter(r=>r[0]==='map'&&r[1]===0).length;
+a.sync();
+assert.equal(a.status().manualInside,true,'manual entry should be recognized');
+assert.equal(calls.filter(r=>r[0]==='map'&&r[1]===0).length,exitsBefore,'do not exit floor2 with collection remaining');
+m._c_a[1]=[[101,20],[102,2]];point=null;a.sync();
+assert.equal(calls.filter(r=>r[0]==='map'&&r[1]===0).length,exitsBefore,'do not exit manually-entered floor2 even when all quotas completed');
+a.stop();
+console.log('PASS beast island: manual main floor2 does not auto-exit at boss quota or completion');
