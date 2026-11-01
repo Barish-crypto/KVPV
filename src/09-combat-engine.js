@@ -61,7 +61,7 @@
    S.lastNativeSelectedSkill=Number(skill.selectSkill?.())||null;
    const rangeResult=typeof combat.isValidRange==='function'?combat.isValidRange():null;
    S.lastRange=rangeResult;
-   if(rangeResult===false){S.reason='native_out_of_range_selected_skill';return;}
+   if(rangeResult===false){S.reason='native_out_of_range';return;}
    const cooldownResult=typeof combat.isCooldown==='function'?combat.isCooldown():null;
    S.lastCooldown=cooldownResult;S.lastCooldownAt=Date.now();
    // Do not cast if the native cooldown API is missing or reports anything but false.
