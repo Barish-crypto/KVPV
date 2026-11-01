@@ -212,7 +212,7 @@
     // A PvP observer waits for player targets; dungeon auto must own monsters.
     // Disable only when actually in Tru Tien, never on other maps.
     if(scope?.inside===true&&scope.kind==='TRU_TIEN'){
-      // Tru Tien uses the ordinary native attack rotation, not an optional
+      // Tru Tien uses native basic 8001 only, not an optional
       // player-PvP controller. No native cooldown override or fabricated RPC.
       if(W.KVPV_TRUTIEN_PVP?.status?.()?.enabled===true)
         W.KVPV_TRUTIEN_PVP.stop('trutien_native_basic_auto');
@@ -221,7 +221,7 @@
         W.KVPV_TH300?.setTianQuanTuyetHoc?.(false);
         W.KVPV_TH300?.setTianQuanTHGapBasics?.(false);
         W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
-        W.KVPV_TH300?.setBasicRotation?.([8005]);
+        W.KVPV_TH300?.setBasicRotation?.([8001]);
         W.KVPV_TH300?.setBasicHitQuota?.(null);
         W.KVPV_TH300?.setBasicPace?.(0);
         // Bound client retries: 80ms minimum to avoid 1ms cast floods/disconnects.
