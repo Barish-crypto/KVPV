@@ -23,7 +23,7 @@
 // [VI dòng gốc 16] Khai báo biến không gán lại bằng const: Skill = đọc W._d?._Yct?._Eet nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); Combat = đọc W._d?._Yct?._Het nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); Move = đọc W._d?._Yct?._zet nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
   const Skill=W._d?._Yct?._Eet,Combat=W._d?._Yct?._Het,Move=W._d?._Yct?._zet;
 // [VI dòng gốc 17] Kiểm tra !actorId||!Skill||!Combat||!Move: đúng thì chạy nhánh sau if. | gọi console.warn(TAG, 'Chưa vào game-frame') | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-  if(!actorId||!Skill||!Combat||!Move){console.warn(TAG,'Chưa vào game-frame');return;}
+  if(!actorId||!Skill||!Combat||!Move){console?.warn?.(TAG,'Chưa vào game-frame');return;}
 // [VI dòng gốc 18] Chú thích gốc của tác giả; không được thực thi. Nội dung: Mặc định 302 đơn vị Boss → nhân vật, sai số 5; dải thử còn yêu cầu lớn hơn 300.
   // Mặc định 302 đơn vị Boss → nhân vật, sai số 5; dải thử còn yêu cầu lớn hơn 300.
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: CFG = tạo đối tượng gồm min, max, goal, tolerance, scanMs, basicOnly, basicAnimationSpeed, clientPaceMs, afterTHWaitMs, moveWaitMs, castTtlMs, minCastConfirmations, paceMs
@@ -2009,7 +2009,7 @@
 // [VI dòng gốc 702] gán W.KVPV_TH300 bằng api
   W.KVPV_TH300=api;
 // [VI dòng gốc 703] gọi console.info(TAG, 'READY/OFF. START: KVPV_MODE.start("BOSS_TH300_SCAN") then KVPV_MODE.start("BOSS_TH300")')
-  console.info(TAG,'READY/OFF. START: KVPV_MODE.start("BOSS_TH300_SCAN") then KVPV_MODE.start("BOSS_TH300")');
+  console?.info?.(TAG,'READY/OFF. START: KVPV_MODE.start("BOSS_TH300_SCAN") then KVPV_MODE.start("BOSS_TH300")');
 // [VI dòng gốc 704] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
 })();
 // [VI dòng gốc 705] Dòng trống để tách các phần, không có lệnh thực thi.
