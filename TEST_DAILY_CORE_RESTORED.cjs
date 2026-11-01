@@ -25,6 +25,13 @@ function frame(actor='123456',owner=actor){
  vm.runInNewContext(src,ctx,{timeout:5000});
  assert.equal(W.KVPV_DAILY,original,'live reload must keep native Daily and pending state');
  assert.equal(timers,0,'live reload must not replay timers');
+ W.KVPV_DAILY.start();
+ assert.equal(W.KVPV_DAILY.quickState().running,true,'Daily native scheduler starts');
+ assert.equal(timers,1,'one Daily timer only');
+ W.KVPV_DAILY.start();
+ assert.equal(timers,1,'second start cannot duplicate timer');
+ W.KVPV_DAILY.stop();
+ assert.equal(W.KVPV_DAILY.quickState().running,false,'stop releases Daily scheduler');
 }
 {
  const {W,ctx}=frame('123456','654321');
