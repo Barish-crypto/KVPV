@@ -68,7 +68,7 @@ const liveModules = [
   "00-skill-async-observer.js",
   // retired skill sender: 00-skill-pacing.js
   "00-territory-loot.js",
-  // retired skill sender: 00-tq-basic-profile.js
+  "00-tq-basic-profile.js", // five-basic selection data/profile; must precede TH300
 // [VI dòng gốc 33] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "01-parallel-actions.js",
   "01-parallel-actions.js",
 // [VI dòng gốc 34] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "01-quest-priority.js",
