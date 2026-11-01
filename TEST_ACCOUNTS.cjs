@@ -63,5 +63,8 @@ assert(liveModules.includes('19-account-features.js'));
 // [VI dòng gốc 32] gọi assert(liveModules.includes('00-account-policy.js')) để kiểm tra điều kiện của bài test
 assert(liveModules.includes('00-account-policy.js'));
 // [VI dòng gốc 33] gọi console.log('PASS account portability: independent actor sessions/config, immutable identity, no fixed account IDs, pending workers …)
+const accountFeatures=read('src/19-account-features.js');
+assert(!accountFeatures.includes("note('warning','Không thấy khóa Linh Lung Tháp MANUAL')"),'retired Tower lock must not emit repeating warning');
+assert(!accountFeatures.includes("W.KVPV_TOWER_MANUAL925?.start?.("),'ASYNC928 must not silently auto-start Tower');
 console.log('PASS account portability: independent actor sessions/config, immutable identity, no fixed account IDs, pending workers preserved and legacy pairing detached');
 // [VI dòng gốc 34] Dòng trống để tách các phần, không có lệnh thực thi.
