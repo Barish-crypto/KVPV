@@ -26,7 +26,7 @@
  }
  function stop(){if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(S.timer);S.timer=null;}
  function status(){return {active:true,actor,reason:'fabao_native_materials_opt_in; other_unverified_upgrades_blocked',timerActive:S.timer!==null,applications:S.applications};}
- function start(){if(S.timer===null)S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(apply,1000);apply();return status();}
+ function start(){if(S.timer===null){const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;if(typeof schedule==='function')S.timer=schedule(apply,1000);}apply();return status();}
  W.KVPV_MATERIAL_RESERVE=Object.freeze({active:true,apply,start,stop,status,_handoff:()=>({actor,saved:{}})});
  if(owned())start();
 })();
