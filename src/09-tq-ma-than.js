@@ -27,6 +27,6 @@ function stop(reason='manual'){S.enabled=false;if(S.timer!=null)(W.KVPV_V1?.time
 function status(){return {enabled:S.enabled,scope:scope(),reason:S.reason,requests:S.requests,pending:S.pending,lastError:S.lastError,allowKNB:false};}
 W.KVPV_TQ_MA_THAN=Object.freeze({status,tick,stop,_handoff:()=>({actor,lastAt:S.lastAt,pending:S.pending,spent:S.spent,lastStrength:S.lastStrength,requests:S.requests})});
 const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;
-if(typeof schedule==='function')S.timer=schedule(tick,250);
+if(typeof W.setInterval==='function'&&typeof schedule==='function')S.timer=schedule(tick,250);
 tick();
 })();
