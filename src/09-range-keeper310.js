@@ -4,12 +4,12 @@
 const W=window,actor=String(W.__KVPV_OWN_ACTOR_ID||''),prev=W.KVPV_RANGE_KEEP310;
 prev?.stop?.();
 const C={distance:310,tolerance:2,pollMs:250,minMoveMs:800};
-const S={enabled:false,timer:null,lastMoveAt:0,moves:0,distance:null,scope:'OUTSIDE',reason:'off',error:'',lastScopeAt:0,phase:'FIGHT',hpPct:null,retreats:0};
+const S={enabled:false,timer:null,lastMoveAt:0,moves:0,distance:null,scope:'OUTSIDE',reason:'off',error:'',lastScopeAt:0,phase:'FIGHT',hpPct:null,retreats:0,ownMovePending:false,arrivalStops:0};
 const owned=()=>actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 const pos=o=>{const p=o?.property?.get?.('position');return Number.isFinite(Number(p?.x))&&Number.isFinite(Number(p?.y))?{x:Number(p.x),y:Number(p.y)}:null;};
 // Intercept only native auto-approach toward a verified dungeon Boss while already at the 310 ring.
 // Preserve manual input and recovery movement; never fake movement or skill reach.
-let hook=null,blockedApproaches=0;
+let hook=null,blockedApproaches=0,ownPath=null;
 function releaseHook(){if(!hook)return;const h=hook;hook=null;if(h.m.moveTo!==h.fn)return;
  try{if(h.own)Object.defineProperty(h.m,'moveTo',h.own);else delete h.m.moveTo;}catch(_){}
 }
@@ -41,7 +41,7 @@ function tick(){
  try{
  const scope=W.KVPV_FAR_SCOPE?.status?.(),kind=scope?.kind;
  S.scope=kind||'OUTSIDE';S.lastScopeAt=Date.now();
- if(!scope?.inside||!['THIEN_QUAN','LINH_LUNG','PHU_VAN'].includes(kind)){releaseHook();S.reason='outside_scope';return;}
+ if(!scope?.inside||!['THIEN_QUAN','LINH_LUNG','PHU_VAN'].includes(kind)){ownPath=null;S.ownMovePending=false;releaseHook();S.reason='outside_scope';return;}
  if(W._Ba?._rJ?._O$?.ins?.isDead===true||W.KVPV_ENTRY_POLICY?.manual===true||W.KVPV_EVENT_PRIORITY?.hold?.()||W.KVPV_BOSS_TEAM?.priority?.()===true){S.reason='yield_priority';return;}
  const recovery=W.KVPV_HITRUN1?.status?.(false);
  if(recovery?.running===true&&recovery.phase!=='FIGHT'){S.reason='yield_recovery';return;}
@@ -50,6 +50,7 @@ function tick(){
  if(!mover||typeof mover.moveTo!=='function'||!target||Number(target.property?.get?.('type'))!==1||target.isValid===false){S.reason='waiting_native_target_or_mover';return;}
  if(W.KVPV_FAR_SCOPE?.eligible?.(target)!==true){S.reason='target_not_eligible';return;}
  guardApproach(mover,role,target);
+ if(ownPath&&(ownPath.mover!==mover||ownPath.target!==target)){ownPath=null;S.ownMovePending=false;}
  const hp=role?.property?.get?.('hp');
  if(Array.isArray(hp)&&Number(hp[1])>0){
   S.hpPct=Number(hp[0])*100/Number(hp[1]);
@@ -59,18 +60,25 @@ function tick(){
  const a=pos(role),b=pos(target);
  if(!a||!b){S.reason='waiting_positions';return;}
  const d=Math.hypot(a.x-b.x,a.y-b.y);S.distance=Math.round(d*100)/100;
- if(S.phase==='FIGHT'&&Math.abs(d-C.distance)<=C.tolerance){S.reason='in_position';return;}
+ if(S.phase==='FIGHT'&&Math.abs(d-C.distance)<=C.tolerance){
+  // Old Hit & Run handoff: stop only the remaining path started by our keeper.
+  if(ownPath&&ownPath.mover===mover&&ownPath.target===target){
+   if(typeof mover.stop==='function'){mover.stop();S.arrivalStops++;}
+   ownPath=null;S.ownMovePending=false;
+  }
+  S.reason='holding_far';return;
+ }
  if(S.phase==='RETREAT'&&d>=400){S.reason='healing_at_safe_range';return;}
  if(Date.now()-S.lastMoveAt<C.minMoveMs||mover.running?.()===true){S.reason='moving_or_throttled';return;}
  if(d<1){S.reason='overlapping_positions';return;}
  const goal=S.phase==='RETREAT'?400:C.distance;
  const x=b.x+(a.x-b.x)/d*goal,y=b.y+(a.y-b.y)/d*goal;
  if(!Number.isFinite(x)||!Number.isFinite(y)){S.reason='invalid_waypoint';return;}
- mover.moveTo(x,y);S.lastMoveAt=Date.now();S.moves++;S.reason=S.phase==='RETREAT'?'retreating_for_heal':'moving_to_310';
+ mover.moveTo(x,y);ownPath={mover,target};S.ownMovePending=true;S.lastMoveAt=Date.now();S.moves++;S.reason=S.phase==='RETREAT'?'retreating_for_heal':'moving_to_310';
  }catch(e){S.error=String(e?.message??e);S.reason='error';}
 }
 function status(){const scope=W.KVPV_FAR_SCOPE?.status?.();return {...S,actor,goal:C.distance,tolerance:C.tolerance,timer:S.timer!==null,liveScope:scope?.kind??'UNKNOWN',liveInside:scope?.inside===true,liveMap:scope?.current??null,scopeSampleAgeMs:S.lastScopeAt?Date.now()-S.lastScopeAt:null,blockedApproaches,moveGuard:!!hook};}
-function stop(){releaseHook();S.enabled=false;if(S.timer!==null){(W.KVPV_V1?.timers??W).clearInterval?.(S.timer);S.timer=null;}S.reason='stopped';return status();}
+function stop(){releaseHook();ownPath=null;S.ownMovePending=false;S.enabled=false;if(S.timer!==null){(W.KVPV_V1?.timers??W).clearInterval?.(S.timer);S.timer=null;}S.reason='stopped';return status();}
 function start(){if(!owned()){S.reason='waiting_actor';return status();}S.enabled=true;if(S.timer===null&&typeof W.setInterval==='function'){S.timer=(W.KVPV_V1?.timers??W).setInterval(tick,C.pollMs);}return status();}
 W.KVPV_RANGE_KEEP310=Object.freeze({tick,start,stop,status});
 start();
