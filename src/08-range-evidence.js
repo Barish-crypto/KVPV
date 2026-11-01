@@ -1203,6 +1203,16 @@
 // [VI dòng gốc 377] Chú thích gốc của tác giả; không được thực thi. Nội dung: Thử nhịp chọn đòn thường trên bản sao; dữ liệu native gốc và cổng animation vẫn giữ nguyên.
   // Thử nhịp chọn đòn thường trên bản sao; dữ liệu native gốc và cổng animation vẫn giữ nguyên.
 // [VI dòng gốc 378] Định nghĩa hàm selectBasic; tham số: native, selector, all, mode, occ, d
+  // Tian Quan experiment: 100 native cast requests per basic ID, then next ID.
+  // Counts requested casts, not server-confirmed hits; metrics still track hits/damage.
+  const tqBatch={enabled:false,size:100,index:0,count:0,target:'',totals:Object.fromEntries([8001,8002,8003,8004,8005].map(id=>[id,0]))};
+  function batchIds(){return basicRotation().filter(id=>id>=8001&&id<=8005);}
+  function batchActive(){return tqBatch.enabled&&tqFive?.active()&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';}
+  function batchTarget(){const key=identity(role().c?.target);if(key!==tqBatch.target){tqBatch.target=key;tqBatch.index=0;tqBatch.count=0;}return key;}
+  function batchSkill(){batchTarget();const ids=batchIds();return ids.length?ids[tqBatch.index%ids.length]:null;}
+  function batchCast(id){if(!batchActive()||Number(id)!==batchSkill())return; tqBatch.totals[id]=(tqBatch.totals[id]||0)+1;if(++tqBatch.count>=tqBatch.size){tqBatch.count=0;tqBatch.index++;}}
+  function setTianQuanBasicBatch(enabled=true,size=100){if(!Number.isSafeInteger(size)||size<1||size>10000)throw Error('Batch size must be 1..10000');tqBatch.enabled=!!enabled;tqBatch.size=size;tqBatch.count=0;tqBatch.index=0;tqBatch.target='';return basicBatchStatus();}
+  function basicBatchStatus(){return {enabled:tqBatch.enabled,active:batchActive(),size:tqBatch.size,currentSkill:batchActive()?batchSkill():null,count:tqBatch.count,totals:{...tqBatch.totals},note:'Counts native cast requests; compare hits and damage separately.'};}
   function selectBasic(native,selector,all,mode,occ,d){
 // [VI dòng gốc 379] Khai báo biến không gán lại bằng const: now = gọi Date.now(); trial = mixed.enabled và chỉ đánh giá vế phải khi vế trái truthy: mixed.basicPaceMs!==null
     const basicWait=tqFive?.active()?tqFive.wait():mixed.basicPaceMs,now=Date.now(),trial=(tqFive?.active()||mixed.enabled)&&basicWait!==null;
@@ -1216,7 +1226,7 @@
       return rotation.length?order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])):Number(a[0])-Number(b[0]);
     };
 // [VI dòng gốc 381] Khai báo biến không gán lại bằng const: rows = gọi all.filter(row=>isBasic(row?.[0])&&(!mixed.primary||(rotation.length?rotation.includes(Number(row[0])):Number(row[0])===primaryBasicId()))&&allowed(Number(row[0]),occ,d)&&Number.is…((a,b)=>rotation.length?order.indexOf(Number(a[0]))-order.indexOf(Number(b[0])):Number(stats(occ,Number(b[0])).hits>0)-Nu…) để sắp xếp mảng tại chỗ
-    const rows=all.filter(row=>isBasic(row?.[0])&&(!mixed.primary||(rotation.length?rotation.includes(Number(row[0])):Number(row[0])===primaryBasicId()))&&allowed(Number(row[0]),occ,d)&&Number.isFinite(Number(row[1]))&&(!basicSolo4100Active()||Number(row[1])<now))
+    const rows=all.filter(row=>(!batchActive()||Number(row?.[0])===batchSkill())&&isBasic(row?.[0])&&(!mixed.primary||(rotation.length?rotation.includes(Number(row[0])):Number(row[0])===primaryBasicId()))&&allowed(Number(row[0]),occ,d)&&Number.isFinite(Number(row[1]))&&(!basicSolo4100Active()||Number(row[1])<now))
 // [VI dòng gốc 382] Kiểm tra !trial: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: row. | Khai báo biến không gán lại bằng const: id = gọi Number(row[0]) để chuyển sang số; copy = gọi row.slice() để lấy một đoạn dữ liệu
       .map(row=>{if(!trial)return row;const id=Number(row[0]),copy=row.slice();
 // [VI dòng gốc 383] Kiểm tra !mixed.ready.has(id): đúng thì chạy nhánh sau if. | gọi mixed.ready.set(id, Number(row[1])<now?0:now+Math.min(mixed.basicPaceMs,Math.max(0,Number(row[1])-now)))
@@ -1425,7 +1435,7 @@
           ST.casts.filter(c=>!c.used&&c.id===id&&c.targetId===identity(this.target)&&
             c.scene===scene()&&Date.now()-c.time<=CFG.castTtlMs)||[];
         if(overlap.length){for(const previous of overlap)previous.ambiguousTH=true;tqIdleFill.repeatCalls++;}
-        ST.castAttempts++;ST.casts.push({serial:ST.castAttempts,id,occ,targetId:identity(this.target),scene:scene(),time:Date.now(),distance:d,used:false,ambiguousTH:overlap.length>0,basicTrial:basicProbe.dispatch||mixed.enabled&&isBasic(id),mixedBasic:mixed.enabled&&isBasic(id),burstSerial:burst.active?.serial??null,tuningEligible:!isBasic(id)&&!basicProbe.dispatch&&!burst.dispatch&&!transforming()&&verified(occ,id)});
+        ST.castAttempts++;batchCast(id);ST.casts.push({serial:ST.castAttempts,id,occ,targetId:identity(this.target),scene:scene(),time:Date.now(),distance:d,used:false,ambiguousTH:overlap.length>0,basicTrial:basicProbe.dispatch||mixed.enabled&&isBasic(id),mixedBasic:mixed.enabled&&isBasic(id),burstSerial:burst.active?.serial??null,tuningEligible:!isBasic(id)&&!basicProbe.dispatch&&!burst.dispatch&&!transforming()&&verified(occ,id)});
 // [VI dòng gốc 470] Kiểm tra tailStudy?.status==='running'&&[8001,8005].includes(id): đúng thì chạy nhánh sau if. | gán ST.casts.at(-1).tailPhase bằng tailStudy.phase | tăng tailStudy[tailStudy.phase].casts một đơn vị sau khi lấy giá trị
         ST.tqSelectedNative=null;
         if(tqFive?.active()&&isBasic(id)){ST.casts.at(-1).basicTrial=true;ST.casts.at(-1).mixedBasic=true;tqFive.cast(ST.castAttempts,id,d);mixed.rotationCursor=(tqFive.ids().indexOf(id)+1)%tqFive.ids().length;}
@@ -1780,7 +1790,7 @@
         tqBasicVisualSpeed:CFG.tqBasicVisualSpeed,tqBasicVisualCalls,tqBasicVisualScaled,tqBasicVisualUnavailable,tqBasicVisualLastSkill,
        tqTuyetHocVisualCalls:thVisualCalls,tqTuyetHocVisualScaled:thVisualScaled,
        tqTuyetHocVisualUnavailable:thVisualUnavailable,tqTuyetHocVisualLastSkill:thVisualLastSkill,
-       scaledBasicAnimations:ST.scaledBasicAnimations??0,basicSpeedTrial:speedTrial??W[speedKey]??null,basicOnly:tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,playerSkillIds:tqFive?.active()?tqIds:CFG.basicOnly?[basicRotation()[0]??8001]:null,interleavedBasic:tqFive?.active()||mixed.enabled,basicProbeActive:ST.running&&probeActive(),version:'1.0.0',running:ST.running,operation:ST.mode,goalDistance:targetDistance()??CFG.goal,requestedDistance:CFG.goal,
+       scaledBasicAnimations:ST.scaledBasicAnimations??0,basicSpeedTrial:speedTrial??W[speedKey]??null,basicBatch:basicBatchStatus(),basicOnly:tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,playerSkillIds:tqFive?.active()?tqIds:CFG.basicOnly?[basicRotation()[0]??8001]:null,interleavedBasic:tqFive?.active()||mixed.enabled,basicProbeActive:ST.running&&probeActive(),version:'1.0.0',running:ST.running,operation:ST.mode,goalDistance:targetDistance()??CFG.goal,requestedDistance:CFG.goal,
 // [VI dòng gốc 622] Thuộc tính requireDistanceGreaterThan: đọc CFG.min | Thuộc tính clientTrialRadius: đọc CFG.max
       requireDistanceGreaterThan:CFG.min,clientTrialRadius:CFG.max,
 // [VI dòng gốc 623] Thuộc tính nativeTuyetHoc: ready | Thuộc tính confirmedSkills: proved | Thuộc tính confirmedOver300: gọi proved.filter(x=>supportedDistance(occ,x.id)>300) để giữ phần tử thỏa điều kiện
@@ -2074,7 +2084,7 @@
     if(!['tuyet_hoc_first','interleaved'].includes(value))throw Error('Skill priority must be tuyet_hoc_first or interleaved');
     skillPriority=value;return {skillPriority};
   }
-  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,startTianQuan4100CooldownExperiment,setTianQuan4100CooldownOverride,setLocalLogAutoClear,tianQuan4100CooldownEligible:c=>ST.running&&basicSolo4100Active()&&ST.target===c?.target&&eligible(c?.target)&&role().c===c,tianQuan4100Diagnosis,setTianQuan4100BasicSolo,setTianQuan4100Pilot,setTianQuanLuoFeng,setTianQuanCosmic,setTianQuanIdleFill,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanBasicVisualSpeed,setTianQuanVisualSpeed,setTianQuanTuyetHoc,setTianQuanMpackExtras,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
+  const api={basicRangeProbeGoal:()=>tqFive?.goal()??null,startTianQuan4100CooldownExperiment,setTianQuan4100CooldownOverride,setLocalLogAutoClear,tianQuan4100CooldownEligible:c=>ST.running&&basicSolo4100Active()&&ST.target===c?.target&&eligible(c?.target)&&role().c===c,tianQuan4100Diagnosis,setTianQuan4100BasicSolo,setTianQuan4100Pilot,setTianQuanLuoFeng,setTianQuanCosmic,setTianQuanIdleFill,setTianQuanTHGapBasics,setTianQuanTuyetHocVisualSpeed,setTianQuanBasicVisualSpeed,setTianQuanVisualSpeed,setTianQuanTuyetHoc,setTianQuanMpackExtras,setTianQuanFiveBasics,startTianQuanBasicRangeTest,stopTianQuanBasicRangeTest,rangeReport:()=>tqFive?.report()??null,setSkillPriority,setBasicAnimationSpeed,startBasicSpeedTrial,setBasicOnly,isBasicOnly:()=>tqFive?.active()?(basicSolo4100Active()||!tqFive.allowsTuyetHoc()):CFG.basicOnly,releaseOutsideScope,setClientPace,setConfirmedTailCut,startConfirmedTailStudy,startBasicRangeTest,setAfterTHWait,setBasicHitQuota,setBasicRotation,setTianQuanBasicBatch,basicBatchStatus,setPrimaryBasic,setBasicPace,setInterleaved,setBasicProbe,setBurst,performance,dps,bossInfo,skill1008Info,start1008Trial,stop1008Trial,trial1008Report,version:'1.0.0',start,stop,status,report,setDistance,repairPolling,sync:tick,export:()=>JSON.stringify(report(),null,2),history:()=>ST.history.slice()};
 // [VI dòng gốc 702] gán W.KVPV_TH300 bằng api
   W.KVPV_TH300=api;
 // [VI dòng gốc 703] gọi console.info(TAG, 'READY/OFF. START: KVPV_MODE.start("BOSS_TH300_SCAN") then KVPV_MODE.start("BOSS_TH300")')
