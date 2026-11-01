@@ -7,7 +7,13 @@
   return;
  }
  W.__KVPV_PB_BOSS_WAITING_ACTOR=false;
- if(!W.KVPV_DAILY?.config)throw Error('Thiếu bộ FULL. Dùng file KVPV_PB_BOSS_DAILY.js.');
+ if(!W.KVPV_DAILY?.config){
+  // The curated FULL may be updating before the native Daily controller is available.
+  // Do not abort other live modules or install a fake Daily controller.
+  W.__KVPV_PB_BOSS_WAITING_DAILY=true;
+  return;
+ }
+ W.__KVPV_PB_BOSS_WAITING_DAILY=false;
  const previous=W.KVPV_PB_BOSS_DAILY,carry=previous?._handoff?.();
  const S={enabled:false,actor,startedAt:null,errors:[],started:[]};
  const starters=[['KVPV_DAILY','start'],['KVPV_DAILY','tuVuotStart'],['KVPV_DAILY_TRIAL','start'],['KVPV_BEAST_ISLAND','start'],['KVPV_SUMMON_BOSS','start'],['KVPV_RUNE_BOSS','start'],['KVPV_HONOR_TARGET','start']];
