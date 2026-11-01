@@ -41,7 +41,7 @@ function activate(){
   return {ready:true,mode:mode.status?.(),th,requestedBasicIds:[8001,8002,8003,8004,8005],tuyetHocEnabled:false};
  }catch(e){return {ready:false,reason:String(e?.message??e)};}
 }
-// Persistent scoped client-only cooldown override for 8001 trial.
+// Persistent scoped client-only cooldown TRUE override in Tian Quan.
 // It cannot modify server-side cooldowns; restore the original on scope exit.
 W.KVPV_TQ_8001_CD?.stop?.('reload');
 const CD={hook:null,timer:null,enabled:true,forced:0,reason:'armed'};
@@ -74,7 +74,7 @@ function cdSync(){
  if(own&&!own.configurable)return;
  const original=c.isCooldown;
  const fn=function(...args){
-  if(this===c&&cdScope()){CD.forced++;return false;}
+  if(this===c&&cdScope()){CD.forced++;return true;}
   return original.apply(this,args);
  };
  try{Object.defineProperty(c,'isCooldown',{value:fn,writable:true,configurable:true,enumerable:!!own?.enumerable});
@@ -87,7 +87,7 @@ function cdStop(reason='manual'){
  cdRelease(reason);return cdStatus();
 }
 function cdStatus(){return {enabled:CD.enabled,active:!!CD.hook&&CD.hook.obj.isCooldown===CD.hook.fn&&cdScope(),
- forcedFalse:CD.forced,reason:CD.reason,serverCooldownModified:false};}
+ forcedTrue:CD.forced,forcedFalse:0,returnValueWhenActive:true,reason:CD.reason,serverCooldownModified:false};}
 W.KVPV_TQ_8001_CD=Object.freeze({status:cdStatus,stop:cdStop});
 if(typeof W.setInterval==='function')CD.timer=W.setInterval(cdSync,200);
 cdSync();
