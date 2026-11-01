@@ -209,7 +209,7 @@
 // [VI dòng gốc 99] Chú thích gốc của tác giả; không được thực thi. Nội dung: Bật bộ điều khiển và lịch kiểm tra của module; trả trạng thái sau khi khởi động.
   // Bật bộ điều khiển và lịch kiểm tra của module; trả trạng thái sau khi khởi động.
 // [VI dòng gốc 100] Định nghĩa hàm start; tham số: không có. Mục đích: khởi động bộ điều khiển | gán C.enabled bằng true | Kiểm tra S.timer==null: đúng thì chạy nhánh sau if. | gán S.timer bằng (W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,C.pollMs)
-  function start(){C.enabled=true;if(S.timer==null)S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,C.pollMs);tick();return status();}
+  function start(){C.enabled=true;if(S.timer==null){const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;if(typeof schedule==='function')S.timer=schedule(tick,C.pollMs);}tick();return status();}
 // [VI dòng gốc 101] gán W.KVPV_EIGHT_FLOOR bằng Object.freeze({start,stop,status,sync:tick,_handoff:()=>({actor,completedDay,day:S.day,attempts:S.attempts,phase:S.phase,claimKeys:[...S.claimKeys],claimPending:S.claimPending,rewa… | gọi start() để khởi động bộ điều khiển
   W.KVPV_EIGHT_FLOOR=Object.freeze({start,stop,status,sync:tick,_handoff:()=>({actor,completedDay,day:S.day,attempts:S.attempts,phase:S.phase,claimKeys:[...S.claimKeys],claimPending:S.claimPending,rewardConfirmed:S.rewardConfirmed})});start();
 // [VI dòng gốc 102] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
