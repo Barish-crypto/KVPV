@@ -9,6 +9,9 @@ function activate(){
   W.KVPV_LEGACY_COMBAT_TEST?.stop?.();
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
+  // Explicit no-heal 310 profile for live TH300; legacy test contexts
+  // without this flag retain original boss handoff behavior.
+  W.KVPV_TQ_POSITION_ONLY={...(W.KVPV_TQ_POSITION_ONLY??{}),enabled:true,distance:310};
   legacy.setDistance?.(310);
   // Restore the last user-confirmed working ranged combat profile.
   // Do not activate the five-basic async rotation at 310: native melee
