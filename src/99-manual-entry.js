@@ -24,7 +24,7 @@
      ['KVPV_DAILY','tuVuotStart'],['KVPV_DAILY','start'],['KVPV_ASYNC928','start'],
 // [VI dòng gốc 13] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng [. Đọc cùng dòng mở phía trên: ['KVPV_PARALLEL_ACTIONS','start'],['KVPV_QUEST_PRIORITY','start'],['KVPV_DAILY_TRIAL','start'],
      ['KVPV_PARALLEL_ACTIONS','start'],['KVPV_QUEST_PRIORITY','start'],['KVPV_DAILY_TRIAL','start'],
-// [VI dòng gốc 14] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng [. Đọc cùng dòng mở phía trên: ['KVPV_BASIC10','start'],['KVPV_BOSS_LOG','start']]){
+// [VI dòng gốc 14] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng [. Đọc cùng dòng mở phía trên: ['KVPV_BOSS_LOG','start']]){
      ['KVPV_BASIC10','start'],['KVPV_BOSS_LOG','start']]){
 // [VI dòng gốc 15] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | Kiểm tra typeof W[name]?.[method]==='function': đúng thì chạy nhánh sau if. | gọi W[name][method]() | gọi s.restarted.push(name+'.'+method) để thêm phần tử vào cuối mảng
     try{if(typeof W[name]?.[method]==='function'){W[name][method]();s.restarted.push(name+'.'+method);}}
