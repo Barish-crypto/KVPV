@@ -83,7 +83,11 @@
 // [VI dòng gốc 42] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 43] Định nghĩa hàm eligible; tham số: target | Kiểm tra !target||target.isValid===false||Number(target.property?.get?.('type'))!==1: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: false.
-  function eligible(target){if(!target||target.isValid===false||Number(target.property?.get?.('type'))!==1)return false;
+  function eligible(target){if(!target||target.isValid===false)return false;
+    const targetType=Number(target.property?.get?.('type'));
+    const scope=status();
+    // Tru Tien can select a type-3 combat entity; still reject players (type 4).
+    if(targetType!==1&&!(scope.inside&&scope.kind==='TRU_TIEN'&&targetType===3))return false;
 // [VI dòng gốc 44] Khai báo biến không gán lại bằng const: hp = gọi target.property?.get('hp') (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | Kiểm tra Array.isArray(hp)&&Number(hp[0])<=0: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: false.
     const hp=target.property?.get?.('hp');if(Array.isArray(hp)&&Number(hp[0])<=0)return false;
 // [VI dòng gốc 45] Khai báo biến không gán lại bằng const: s = gọi status() để trả trạng thái để kiểm tra | Kiểm tra !s.inside: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: false.
