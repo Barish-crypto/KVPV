@@ -20,10 +20,12 @@ function activate(){
   // Only the original TH300 controller dispatches combat.
   // Tian Quan: all five native basics at 310, without Tuyet Hoc.
   // Five-basic profile must be enabled before setting rotation (8002 is otherwise excluded).
-  legacy.setBasicOnly?.(false);
-  legacy.setTianQuanFiveBasics?.(true,10);
+  legacy.setBasicOnly?.(false); // BasicOnly's legacy path hardcodes 8001.
+  const five=legacy.setTianQuanFiveBasics?.(true,10);
+  if(five?.available===false||five?.enabled===false)throw Error('Tian Quan five-basics profile unavailable');
   legacy.setTianQuanTuyetHoc?.(false);
   legacy.setBasicRotation?.([8001,8002,8003,8004,8005]);
+  // Mixed selector dispatches native basics even while Tuyet Hoc is disabled.
   legacy.setInterleaved?.(true,310);
   legacy.setPrimaryBasic?.(true);
   legacy.setSkillPriority?.('interleaved');
@@ -35,7 +37,8 @@ function activate(){
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
-  return {ready:true,mode:mode.status?.(),th:legacy.status?.(false)};
+  const th=legacy.status?.(false);
+  return {ready:true,mode:mode.status?.(),th,requestedBasicIds:[8001,8002,8003,8004,8005],tuyetHocEnabled:false};
  }catch(e){return {ready:false,reason:String(e?.message??e)};}
 }
 // Persistent scoped client-only cooldown override for 8001 trial.
