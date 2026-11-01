@@ -2,6 +2,7 @@
 (()=>{
 'use strict';
 const W=window;
+W.KVPV_TQ_TH10_TRIAL?.stop?.('reload');
 function activate(){
  const legacy=W.KVPV_TH300,mode=W.KVPV_MODE;
  if(!legacy?.start||!mode?.start)return {ready:false,reason:'legacy_dependencies_missing'};
@@ -37,8 +38,10 @@ function activate(){
  }catch(e){return {ready:false,reason:String(e?.message??e)};}
 }
 // Reversible, scoped 10ms cast-selection trial; does not forge native cooldown.
-const trial={enabled:false,expiresAt:0,checks:0,timer:null,previousPace:100,reason:'off'};
+const trial={enabled:false,expiresAt:0,checks:0,timer:null,previousPace:100,reason:'off',hook:null,forcedFalse:0,nativeTrue:0,lastForcedAt:0};
 function trialStop(reason='manual'){
+ const h=trial.hook;trial.hook=null;
+ if(h&&h.obj.isCooldown===h.fn){try{if(h.own)Object.defineProperty(h.obj,'isCooldown',h.own);else delete h.obj.isCooldown;}catch(e){trial.reason='restore_failed:'+String(e);}}
  if(trial.timer!==null){W.clearInterval?.(trial.timer);trial.timer=null;}
  trial.enabled=false;trial.expiresAt=0;trial.reason=reason;
  W.KVPV_TH300?.setClientPace?.(trial.previousPace);
@@ -46,19 +49,45 @@ function trialStop(reason='manual'){
 }
 function trialStatus(){return {enabled:trial.enabled,expiresInMs:trial.enabled?Math.max(0,trial.expiresAt-Date.now()):0,
  checks:trial.checks,clientPaceMs:trial.enabled?10:trial.previousPace,
- nativeCooldownModified:false,serverCooldownModified:false,reason:trial.reason};}
+ clientIsCooldownHook:!!trial.hook,forcedFalse:trial.forcedFalse,nativeTrue:trial.nativeTrue,
+ nativeCooldownModified:false,serverCooldownModified:false,affectsSharedCombatGate:true,reason:trial.reason};}
 function trialStart(durationMs=15000){
  if(!Number.isInteger(durationMs)||durationMs<1000||durationMs>30000)throw Error('Duration must be 1000..30000ms');
  trialStop('restart');
  const scope=W.KVPV_FAR_SCOPE?.status?.();
  if(scope?.kind!=='THIEN_QUAN'||scope?.inside!==true||W.KVPV_TH300?.status?.(false)?.running!==true)
   throw Error('Requires active Tian Quan TH300');
+ const actor=String(W.__KVPV_OWN_ACTOR_ID??''),world=W._C?._Ba?.instance;
+ const role=world?.getRole?.(Number(actor))??world?.getRole?.(actor);
+ const c=role?.getComponent?.(W._d?._Yct?._Het);
+ if(!c||typeof c.isCooldown!=='function')throw Error('Native combat component unavailable');
+ const own=Object.getOwnPropertyDescriptor(c,'isCooldown');
+ if(own&&!own.configurable)throw Error('Native cooldown hook is not configurable');
+ const original=c.isCooldown;
  trial.enabled=true;trial.expiresAt=Date.now()+durationMs;trial.reason='running';trial.checks=0;
+ trial.forcedFalse=0;trial.nativeTrue=0;trial.lastForcedAt=0;
+ const wrapped=function(...args){
+  const result=original.apply(this,args);
+  if(result!==true||this!==c||!trial.enabled)return result;
+  trial.nativeTrue++;
+  const st=W.KVPV_FAR_SCOPE?.status?.();
+  if(Date.now()>=trial.expiresAt||st?.kind!=='THIEN_QUAN'||st?.inside!==true||
+    W.KVPV_TH300?.status?.(false)?.running!==true||
+    String(W._Ba?._rJ?._O$?.ins?.actorId??'')!==actor)return result;
+  // Shared native gate: at most one synthetic ready indication per 10ms.
+  // This does not change learned skill rows, network requests or server cooldown.
+  const now=Date.now();
+  if(now-trial.lastForcedAt<10)return result;
+  trial.lastForcedAt=now;trial.forcedFalse++;return false;
+ };
+ try{Object.defineProperty(c,'isCooldown',{value:wrapped,writable:true,configurable:true,enumerable:!!own?.enumerable});}
+ catch(e){trial.enabled=false;throw e;}
+ trial.hook={obj:c,fn:wrapped,own};
  W.KVPV_TH300.setClientPace?.(10);
  trial.timer=W.setInterval?.(()=>{
   trial.checks++;
   const s=W.KVPV_FAR_SCOPE?.status?.();
-  if(Date.now()>=trial.expiresAt||s?.kind!=='THIEN_QUAN'||s?.inside!==true||
+  if(trial.hook?.obj?.isCooldown!==trial.hook?.fn||Date.now()>=trial.expiresAt||s?.kind!=='THIEN_QUAN'||s?.inside!==true||
      W.KVPV_TH300?.status?.(false)?.running!==true)trialStop('expired_or_left_scope');
  },100);
  return trialStatus();
