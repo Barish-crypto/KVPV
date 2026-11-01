@@ -28,7 +28,7 @@
   let scopedMode=null,mapTimer=null,towerAttempt=null,lastScopeKey=null,lastMaintenanceAt=-Infinity,lastTianQuanKey=null,lastTruAcquire=-Infinity,lastTowerRetryAt=-Infinity;
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: inFarMap = tạo hàm với tham số (không có); mỗi lần gọi trả về tính biểu thức (W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false
   const inFarMap=()=>(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false;
-  const tqNoHeal=()=>W.KVPV_TQ_POSITION_ONLY?.enabled===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN';
+  const tqNoHeal=()=>W.KVPV_FAR_SCOPE?.status?.()?.inside===true&&W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'; // TQ: no HP-based retreat/heal-to-100 wait
   const tqDistance=()=>Number(W.KVPV_TQ_POSITION_ONLY?.distance??310);
 // [VI dòng gốc 20] Khai báo biến có thể gán lại bằng let: entryMoveHook = null
   let entryMoveHook=null;
