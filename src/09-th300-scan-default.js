@@ -16,10 +16,10 @@ function activate(){
   legacy.setSkillPriority?.('tuyet_hoc_first');
   legacy.setBasicOnly?.(false);
   mode.start('BOSS_TH300_SCAN');
-  // At the proven 310 ring prefer consecutive native Tuyet Hoc casts.
-  // No basic skill is scheduled: 8001 could cause native auto-approach.
+  // Keep native TH first; add only requested basics as fallback.
+  // Movement guards retain the 310 ring; out-of-range basics may not hit.
   legacy.setTianQuanFiveBasics?.(false,1);
-  legacy.setBasicRotation?.([]);
+  legacy.setBasicRotation?.([8005,8002]);
   legacy.setBasicOnly?.(false);
   legacy.setTianQuanTuyetHoc?.(true);
   legacy.setSkillPriority?.('tuyet_hoc_first');
