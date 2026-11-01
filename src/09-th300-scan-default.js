@@ -13,16 +13,14 @@ function activate(){
   // without this flag retain original boss handoff behavior.
   W.KVPV_TQ_POSITION_ONLY={...(W.KVPV_TQ_POSITION_ONLY??{}),enabled:true,distance:310};
   legacy.setDistance?.(310);
-  // Restore the last user-confirmed working ranged combat profile.
-  // Do not activate the five-basic async rotation at 310: native melee
-  // skills can trigger auto-approach and lose the safe boss ring.
+  // Keep TH priority and 310 movement protection while testing all five basics.
   legacy.setSkillPriority?.('tuyet_hoc_first');
   legacy.setBasicOnly?.(false);
   mode.start('BOSS_TH300_SCAN');
-  // Keep native TH first; add only requested basics as fallback.
+  // Keep native TH first; allow all five basic skills as fallback.
   // Movement guards retain the 310 ring; out-of-range basics may not hit.
   legacy.setTianQuanFiveBasics?.(false,1);
-  legacy.setBasicRotation?.([8005,8002]);
+  legacy.setBasicRotation?.([8001,8002,8003,8004,8005]);
   legacy.setBasicOnly?.(false);
   legacy.setTianQuanTuyetHoc?.(true);
   legacy.setSkillPriority?.('tuyet_hoc_first');
