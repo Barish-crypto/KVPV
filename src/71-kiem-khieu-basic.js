@@ -39,7 +39,7 @@ function tick(){if(!S.enabled)return;
  try{
   if(!own()||type()!==84){S.reason='outside_kiem_khieu';return;}
   const role=W._C?._Ba?.instance?.getRole?.(Number(actor)),combat=comp(role,'_Het'),sel=comp(role,'_Eet'),target=combat?.target;
-  if(!role||W._Ba?._rJ?._O$?.ins?.isDead===true||Number(target?.property?.get?.('type'))!==4||target?.isValid===false){S.reason='waiting_enemy_player';return;}
+  if(!role||W._Ba?._rJ?._O$?.ins?.isDead===true||![1,4].includes(Number(target?.property?.get?.('type')))||target?.isValid===false){S.reason='waiting_valid_target';return;}
   if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){S.reason='manual_ui';return;}
   const mode=W.KVPV_MODE?.status?.(false)?.mode;
   if(mode&&mode!=='OFF'){
