@@ -34,7 +34,7 @@ function stop(){S.enabled=false;if(S.timer!==null){(W.KVPV_V1?.timers??W).clearI
 function start(){if(!eligible()){S.reason='waiting_actor';return status();}
  W.KVPV_COMBAT_ENGINE?.stop?.();
  S.enabled=true;
- if(S.timer===null){const t=W.KVPV_V1?.timers??W;S.timer=t.setInterval(tick,100);}
+ if(S.timer===null){const t=W.KVPV_V1?.timers?.setInterval?W.KVPV_V1.timers:W;if(typeof t?.setInterval==='function')S.timer=t.setInterval(tick,100);}
  S.reason='started';return status();}
 W.KVPV_LEGACY_COMBAT_TEST=Object.freeze({start,stop,tick,status});
 })();
