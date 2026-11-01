@@ -64,12 +64,14 @@ test('preflight reports missing modules without throwing or starting combat',()=
  const W={};vm.runInNewContext(preflight,{window:W});const r=W.KVPV_CHECK();assert.equal(r.ready,false);assert(r.checks.some(x=>!x.ok&&x.name==='Daily core'));
 // [VI dòng gốc 33] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
-// [VI dòng gốc 34] gọi test('preflight accepts native Boss without range experiments or PK', ()=>{ const W={KVPV_V1:{},__KVPV_OWN_ACTOR_ID:'123456',_Ba:{_rJ:{_O$:{ins:{actorId:'123456'}}}},
+test('preflight accepts current actor Daily and Boss combat without legacy modes',()=>{
+ const W={KVPV_V1:{},__KVPV_OWN_ACTOR_ID:'123456',_Ba:{_rJ:{_O$:{ins:{actorId:'123456'}}}},
  KVPV_DAILY:{config:{},start(){},tuVuotStart(){}},
- KVPV_COMBAT_ENGINE:{status:()=>({singleSender:true})},
- KVPV_BOSS_LOG:{start(){}}};
- vm.runInNewContext(preflight,{window:W});assert.equal(W.KVPV_CHECK().ready,true);
-// [VI dòng gốc 39] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+ KVPV_COMBAT_ENGINE:{status:()=>({singleSender:true})},KVPV_BOSS_LOG:{start(){}}};
+ vm.runInNewContext(preflight,{window:W});
+ assert.equal(W.KVPV_CHECK().ready,true);
+ delete W.KVPV_DAILY;
+ assert.equal(W.KVPV_CHECK().ready,false,'missing Daily core must prevent readiness');
 });
 // [VI dòng gốc 40] gọi test('actual bundle installs readiness check before entering legacy engine', ()=>{ const bundle=fs.readFileSync(__dirname+'/K…)
 test('actual bundle installs readiness check before entering legacy engine',()=>{
@@ -92,7 +94,7 @@ test('actual bundle installs readiness check before entering legacy engine',()=>
 // [VI dòng gốc 49] gọi assert.equal(W.KVPV_BOSS_LOG.report().build.id, manifest.buildId) để kiểm tra hai giá trị bằng nhau
  assert.equal(W.KVPV_BOSS_LOG.report().build.id,manifest.buildId);
 // [VI dòng gốc 50] gọi assert(W.KVPV_CHECK().checks.some(x=>x.name==='Daily core'&&!x.ok)) để kiểm tra điều kiện của bài test
- assert(W.KVPV_CHECK().checks.some(x=>x.name==='Boss controller'&&!x.ok));
+ assert(W.KVPV_CHECK().checks.some(x=>x.name==='Daily core'&&!x.ok));
 // [VI dòng gốc 51] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
 // [VI dòng gốc 52] gọi console.log('PASSED', passed+'/9')
