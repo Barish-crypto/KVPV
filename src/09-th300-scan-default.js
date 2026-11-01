@@ -42,8 +42,8 @@ W.KVPV_TQ_8001_CD?.stop?.('reload');
 const CD={hook:null,timer:null,enabled:true,forced:0,reason:'armed'};
 function cdScope(){
  const s=W.KVPV_FAR_SCOPE?.status?.();
- return CD.enabled&&s?.inside===true&&s?.kind==='THIEN_QUAN'&&
-  W.KVPV_TH300?.status?.(false)?.running===true&&
+ return CD.enabled&&s?.inside===true&&
+  (s.kind==='TRU_TIEN'||(s.kind==='THIEN_QUAN'&&W.KVPV_TH300?.status?.(false)?.running===true))&&
   String(W._Ba?._rJ?._O$?.ins?.actorId??'')===String(W.__KVPV_OWN_ACTOR_ID??'');
 }
 function cdRelease(reason){
@@ -55,7 +55,7 @@ function cdRelease(reason){
  CD.reason=reason;
 }
 function cdSync(){
- if(!cdScope()){cdRelease('outside_tianquan');return;}
+ if(!cdScope()){cdRelease('outside_combat_scope');return;}
  const id=String(W.__KVPV_OWN_ACTOR_ID??'');
  const world=W._C?._Ba?.instance;
  const actor=world?.getRole?.(Number(id))??world?.getRole?.(id);
