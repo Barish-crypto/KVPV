@@ -61,18 +61,13 @@ test('stop preserves report and prevents further recording',()=>{
 // [VI dòng gốc 31] gọi test('preflight reports missing modules without throwing or starting combat', ()=>{ const W={};vm.runInNewContext(preflight,{…)
 test('preflight reports missing modules without throwing or starting combat',()=>{
 // [VI dòng gốc 32] Khai báo biến không gán lại bằng const: W = tạo đối tượng gồm | gọi vm.runInNewContext(preflight, {window:W}) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử | Khai báo biến không gán lại bằng const: r = gọi W.KVPV_CHECK() | gọi assert.equal(r.ready, false) để kiểm tra hai giá trị bằng nhau
- const W={};vm.runInNewContext(preflight,{window:W});const r=W.KVPV_CHECK();assert.equal(r.ready,false);assert(r.checks.some(x=>!x.ok&&x.name==='Boss controller'));
+ const W={};vm.runInNewContext(preflight,{window:W});const r=W.KVPV_CHECK();assert.equal(r.ready,false);assert(r.checks.some(x=>!x.ok&&x.name==='Daily core'));
 // [VI dòng gốc 33] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
-// [VI dòng gốc 34] gọi test('preflight accepts native Boss without range experiments or PK', ()=>{ const W={KVPV_V1:{},KVPV_BOSS_RECOVERY:{policy:{l…)
-test('preflight accepts native Boss without range experiments or PK',()=>{
-// [VI dòng gốc 35] Khai báo biến không gán lại bằng const: W = tạo đối tượng gồm KVPV_V1, KVPV_BOSS_RECOVERY, KVPV_HITRUN1, KVPV_HITRUN_AUTO, KVPV_MODE, KVPV_BOSS_LOG
- const W={KVPV_V1:{},KVPV_BOSS_RECOVERY:{policy:{leavePct:35,returnPct:100}},
-// [VI dòng gốc 36] Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('must not start')
- KVPV_HITRUN1:{start(){throw Error('must not start');},status(){},config:{leavePct:35,returnPct:100}},
-// [VI dòng gốc 37] Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('must not rearm') | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('must not start')
- KVPV_HITRUN_AUTO:{rearm(){throw Error('must not rearm');}},KVPV_MODE:{start(){throw Error('must not start');},modes:{BOSS:'BOSS'}},KVPV_BOSS_LOG:{start(){}}};
-// [VI dòng gốc 38] gọi vm.runInNewContext(preflight, {window:W}) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử | gọi assert.equal(W.KVPV_CHECK().ready, true) để kiểm tra hai giá trị bằng nhau
+// [VI dòng gốc 34] gọi test('preflight accepts native Boss without range experiments or PK', ()=>{ const W={KVPV_V1:{},__KVPV_OWN_ACTOR_ID:'123456',_Ba:{_rJ:{_O$:{ins:{actorId:'123456'}}}},
+ KVPV_DAILY:{config:{},start(){},tuVuotStart(){}},
+ KVPV_COMBAT_ENGINE:{status:()=>({singleSender:true})},
+ KVPV_BOSS_LOG:{start(){}}};
  vm.runInNewContext(preflight,{window:W});assert.equal(W.KVPV_CHECK().ready,true);
 // [VI dòng gốc 39] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
@@ -96,7 +91,7 @@ test('actual bundle installs readiness check before entering legacy engine',()=>
  assert.equal(W.KVPV_CHECK().build.id,manifest.buildId);
 // [VI dòng gốc 49] gọi assert.equal(W.KVPV_BOSS_LOG.report().build.id, manifest.buildId) để kiểm tra hai giá trị bằng nhau
  assert.equal(W.KVPV_BOSS_LOG.report().build.id,manifest.buildId);
-// [VI dòng gốc 50] gọi assert(W.KVPV_CHECK().checks.some(x=>x.name==='Boss controller'&&!x.ok)) để kiểm tra điều kiện của bài test
+// [VI dòng gốc 50] gọi assert(W.KVPV_CHECK().checks.some(x=>x.name==='Daily core'&&!x.ok)) để kiểm tra điều kiện của bài test
  assert(W.KVPV_CHECK().checks.some(x=>x.name==='Boss controller'&&!x.ok));
 // [VI dòng gốc 51] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
