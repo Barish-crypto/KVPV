@@ -22,8 +22,9 @@ function activate(){
   legacy.setTianQuanFiveBasics?.(false,1);
   legacy.setBasicOnly?.(false);
   legacy.setTianQuanTuyetHoc?.(true);
-  // Zero additional client pacing; native TH cooldown/readiness remains enforced.
-  legacy.setClientPace?.(0);
+  // Bound TH300 client cast attempts to 300ms. Native cooldown remains authoritative.
+  // This does not rewrite the game's native or server cooldown values.
+  legacy.setClientPace?.(300);
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
