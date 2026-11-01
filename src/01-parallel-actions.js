@@ -274,7 +274,7 @@
 // [VI dòng gốc 137] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 138] Định nghĩa hàm start; tham số: không có. Mục đích: khởi động bộ điều khiển | Kiểm tra S.timer!==null: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | gán S.enabled bằng true
-  function start(){if(S.timer!==null)return;S.enabled=true;S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,50);tick();}
+  function start(){if(S.timer!==null)return;S.enabled=true;{const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;if(typeof schedule==='function')S.timer=schedule(tick,50);}tick();}
 // [VI dòng gốc 139] gọi watchGlobal('KVPV_V8', wrapV8) | gọi watchGlobal('KVPV_UPGRADES', wrapUpgrades)
   watchGlobal('KVPV_V8',wrapV8);watchGlobal('KVPV_UPGRADES',wrapUpgrades);
 // [VI dòng gốc 140] gán W.KVPV_PARALLEL_ACTIONS bằng Object.freeze({start,stop,sync:tick,canDirectDuringPve,legacyBusy:()=>S.upgrades?.busy.call(S.upgrades.object)??true,get independent(){return S.enabled&&S.taken;}, status:()=>({ena… | Kết thúc hàm hiện tại và trả về: S.enabled và chỉ đánh giá vế phải khi vế trái truthy: S.taken.
