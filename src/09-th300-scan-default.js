@@ -10,9 +10,15 @@ function activate(){
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
   legacy.setDistance?.(310);
-  legacy.setSkillPriority?.('tuyet_hoc_first');
-  legacy.setBasicOnly?.(false);
   mode.start('BOSS_TH300_SCAN');
+  // Configure after mode.start so its native owner is already installed.
+  // TH and five basics are selected cooperatively by TH300's sole sender:
+  // readiness observation is independent, but cast requests stay serialized.
+  legacy.setBasicOnly?.(false);
+  legacy.setBasicRotation?.([8001,8002,8003,8004,8005]);
+  legacy.setTianQuanFiveBasics?.(true,1);
+  legacy.setTianQuanTuyetHoc?.(true);
+  legacy.setSkillPriority?.('interleaved');
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
