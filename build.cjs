@@ -206,6 +206,7 @@ const updateCalls = controlInstallers+liveModules.map(name=>installerName(name)+
 const reloadGuard = `
 if (window.KVPV_V1) {
   const actor=String(window._Ba?._rJ?._O$?.ins?.actorId??'');
+  if (/^[1-9]\\d{4,24}$/.test(actor) && !window.__KVPV_OWN_ACTOR_ID && typeof window._ft!=='undefined' && typeof window._Sa!=='undefined') window.__KVPV_OWN_ACTOR_ID=actor;
   if (!actor || actor!==String(window.__KVPV_OWN_ACTOR_ID??'') || window.__KVPV_UNIVERSAL_HALTED) {
     console.error('[KVPV V1] Reload blocked: actor changed or session halted.');return;
   }
