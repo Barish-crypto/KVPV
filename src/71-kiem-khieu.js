@@ -103,7 +103,7 @@
 // [VI dòng gốc 52] gán W.KVPV_KIEM_KHIEU bằng Object.freeze({sync:tick,stop,status:()=>({enabled:S.enabled,reason:S.reason,lastError:S.error,window:S.window,registered:S.registered,inside:S.inside,claimed:S.claimed,pending:S.p…
  W.KVPV_KIEM_KHIEU=Object.freeze({sync:tick,stop,status:()=>({enabled:S.enabled,reason:S.reason,lastError:S.error,window:S.window,registered:S.registered,inside:S.inside,claimed:S.claimed,pending:S.pending,nativeCombat:true}),_handoff:()=>({actor,attempts:{...attempts}})});
 // [VI dòng gốc 53] gán S.timer bằng (W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,1000) | gọi tick() để xử lý một nhịp kiểm tra
- S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,1000);tick();
+ {const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;if(typeof schedule==='function')S.timer=schedule(tick,1000);}tick();
 // [VI dòng gốc 54] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
 })();
 // [VI dòng gốc 55] Dòng trống để tách các phần, không có lệnh thực thi.
