@@ -71,6 +71,11 @@
    S.knownSkillIds=ids.filter(id=>knownBefore.has(id));
    S.confirmedRangedAvailable=S.knownSkillIds.filter(id=>confirmedRanged.has(id));
    S.lastNativeSelectedSkill=Number(skill.selectSkill?.())||null;
+   const initialKind=W.KVPV_FAR_SCOPE?.status?.()?.kind;
+   if(rangedKinds.has(initialKind)&&!confirmedRanged.has(S.lastNativeSelectedSkill)){
+    S.filteredCloseSkillIds=S.knownSkillIds.filter(id=>!confirmedRanged.has(id));
+    S.reason='filtered_close_range_skill';return;
+   }
    const rangeResult=typeof combat.isValidRange==='function'?combat.isValidRange():null;
    S.lastRange=rangeResult;
    if(rangeResult===false){S.reason='native_out_of_range';return;}
