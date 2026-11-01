@@ -7,9 +7,9 @@
  const W=window,old=W.KVPV_COMBAT_ENGINE;old?.stop?.();
  const actor=String(W.__KVPV_OWN_ACTOR_ID??'');
  const ids=[8001,8002,8003,8004,8005,1001,1002,1003,1004,1005,1006,1007,1008];
- // Only skills with observed successful hits near distance 307 are eligible in these three ranged instances.
- // A native selected melee skill is skipped; never force-cast or substitute an unready skill.
- const confirmedRanged=new Set([1006,1007]);
+ // User-confirmed ranged Tuyet Hoc group 1001..1008; exclude basic 8001..8005 at the 310 ring.
+ // Still require native selected skill, readiness, range and cooldown checks.
+ const confirmedRanged=new Set([1001,1002,1003,1004,1005,1006,1007,1008]);
  const rangedKinds=new Set(['THIEN_QUAN','LINH_LUNG','PHU_VAN']);
  const ringGoal=310,ringTolerance=12;
  const position=o=>{const p=o?.property?.get?.('position'),x=Number(p?.x),y=Number(p?.y);return p&&Number.isFinite(x)&&Number.isFinite(y)?{x,y}:null;};
