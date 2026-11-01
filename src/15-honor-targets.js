@@ -137,7 +137,7 @@
 // [VI dòng gốc 74] Định nghĩa hàm start; tham số: không có. Mục đích: khởi động bộ điều khiển | gán S.enabled bằng true | Kiểm tra !S.listening&&typeof W._Sa?.notify?.on==='function': đúng thì chạy nhánh sau if. | gọi W._Sa.notify.on(5978, observer, onSearch)
   function start(){S.enabled=true;if(!S.listening&&typeof W._Sa?.notify?.on==='function'){W._Sa.notify.on(5978,observer,onSearch);S.listening=true;}
 // [VI dòng gốc 75] Kiểm tra S.timer==null: đúng thì chạy nhánh sau if. | gán S.timer bằng (W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,500) | gọi tick() để xử lý một nhịp kiểm tra | Kết thúc hàm hiện tại và trả về: gọi status() để trả trạng thái để kiểm tra.
-    if(S.timer==null)S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,500);tick();return status();}
+    if(S.timer==null){const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;if(typeof schedule==='function')S.timer=schedule(tick,500);}tick();return status();}
 // [VI dòng gốc 76] gán W.KVPV_HONOR_TARGET bằng Object.freeze({start,stop,status,sync:tick}) | gọi start() để khởi động bộ điều khiển
   W.KVPV_HONOR_TARGET=Object.freeze({start,stop,status,sync:tick});start();
 // [VI dòng gốc 77] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
