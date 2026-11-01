@@ -1524,7 +1524,26 @@
         ST.positioning=false;ST.moveGoal=null;ST.lastDistance=radius(r.a,r.c.target);
         if(!canFight()){ST.lastReason='trutien_hitrun_wait';return;}
         if(atPosition(r)){ST.lastReason='trutien_native_range';fastCast(r);}
-        else ST.lastReason='trutien_native_approach';
+        else {
+          // HitRun may enter FIGHT without requesting a native chase.
+          // Issue a bounded waypoint only when idle; never override user UI or recovery.
+          const a=loc(r.a),b=loc(r.c.target),d=radius(r.a,r.c.target);
+          const nativeRange=Number(W._ft?._tY?.ins?.getCfgById?.(Number(prop(r.c.target,'occ')))?.[3]);
+          const goal=Number.isFinite(nativeRange)&&nativeRange>0?Math.min(80,nativeRange*.7):40;
+          const now=Date.now();
+          if(a&&b&&Number.isFinite(d)&&d>goal+5&&
+             now-ST.lastMove>=1000&&
+             r.m.running?.()!==true&&
+             now>=Number(W.__KVPV_USER_UI_UNTIL||0)&&
+             !W._Ba?._K_t?._Z7t?.ins?.gathering&&
+             typeof r.m.moveTo==='function'){
+            ST.ownMove=true;
+            try{r.m.moveTo(b.x+(a.x-b.x)/Math.max(d,1)*goal,
+                           b.y+(a.y-b.y)/Math.max(d,1)*goal);
+                ST.lastMove=now;ST.moves++;ST.lastReason='trutien_chase_commanded';}
+            finally{ST.ownMove=false;}
+          }else ST.lastReason='trutien_native_approach';
+        }
         return;
       }
       const goal=targetDistance();
