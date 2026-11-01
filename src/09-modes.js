@@ -198,21 +198,10 @@
     guardEntryMove();
 // [VI dòng gốc 98] Khai báo biến không gán lại bằng const: scope = gọi W.KVPV_FAR_SCOPE?.status() để trả trạng thái để kiểm tra (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     const scope=W.KVPV_FAR_SCOPE?.status?.();
-    // Reconcile live Tian Quan profile after map/mode transitions or a late module reset.
-    // Only reconfigure on a mismatch; never reset the selector on every 500ms poll.
-    if(scope?.inside===true&&scope.kind==='THIEN_QUAN'){
-      const api=W.KVPV_TH300,st=api?.status?.(false);
-      const ids=st?.playerSkillIds;
-      if(st&&(
-        st.basicOnly!==true||
-        (Array.isArray(ids)&&ids.length>0&&(ids.length!==1||Number(ids[0])!==8005))
-      )){
-        api?.setTianQuanFiveBasics?.(false,1);
-        api?.setTianQuanTuyetHoc?.(false);
-        api?.setBasicOnly?.(true);
-        api?.setBasicRotation?.([8005]);
-      }
-    }
+    // TH300 SCAN is the active skill sender. Its restored mixed profile is
+    // configured at activation, not overwritten on every map poll.
+    // In particular, forcing basic 8005 alone at distance 310 can leave the
+    // character stationary without any ranged skill available to cast.
     // A PvP observer waits for player targets; dungeon auto must own monsters.
     // Disable only when actually in Tru Tien, never on other maps.
     if(scope?.inside===true&&scope.kind==='TRU_TIEN'){
