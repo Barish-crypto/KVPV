@@ -171,10 +171,10 @@ const liveModules = [
 // [VI dòng gốc 80] Nội dung nguyên văn của chuỗi mẫu; đây là dữ liệu trong chuỗi, không phải lệnh đang chạy.
 const prepareUpdate = `
 const W=window;
-if(!W.KVPV_MODE||!W.KVPV_HITRUN_AUTO||!W.KVPV_RANGE281)throw Error("Load V1 first");
+if(!W.KVPV_V1){console.warn("[KVPV] Live update skipped: V1 session unavailable");return;}
 if(W._Ba?._rJ?._O$?.ins?.isDead===true)throw Error("Hồi sinh nhân vật trước khi chạy bản vá");
 if(String(W.__KVPV_OWN_ACTOR_ID)!==String(W._Ba?._rJ?._O$?.ins?.actorId)||W.__KVPV_UNIVERSAL_HALTED)throw Error("Actor/session mismatch");
-W.KVPV_BEAST_ISLAND?.stop?.();W.KVPV_STRONGEST_TEAM?.stop?.();W.KVPV_HONOR_TARGET?.stop?.();/* Eight Floor stays armed until its installer safely replaces it. */W.KVPV_BASIC10?.stop?.();W.KVPV_STAND281?.stop?.();W.KVPV_MODE.stop("Install live SCAN update");
+W.KVPV_BEAST_ISLAND?.stop?.();W.KVPV_STRONGEST_TEAM?.stop?.();W.KVPV_HONOR_TARGET?.stop?.();/* Eight Floor stays armed until its installer safely replaces it. */W.KVPV_BASIC10?.stop?.();W.KVPV_STAND281?.stop?.();W.KVPV_MODE?.stop?.("Install live SCAN update");
 `;
 // [VI dòng gốc 87] Duyệt từng giá trị trong liveModules bằng const name. | Khai báo biến không gán lại bằng const: name (chưa gán giá trị) | Kiểm tra !sources.has(name): đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Missing live module: '+name)
 for(const name of liveModules)if(!sources.has(name))throw Error('Missing live module: '+name);
