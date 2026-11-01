@@ -18,17 +18,16 @@ function activate(){
   // Configure the native mixed selector BEFORE entering SCAN. Mode.start
   // can defer activation outside Tian Quan; its handoff must inherit basics.
   // Only the original TH300 controller dispatches combat.
-  // Trial: native 8001 plus Tuyet Hoc at fixed 310; keep five-basic mode off.
+  // Basic 8001 only at 310. TH disabled; native skill selection remains single-owner.
   legacy.setTianQuanFiveBasics?.(false,10);
-  legacy.setInterleaved?.(true,310);
-  legacy.setBasicOnly?.(false);
+  legacy.setInterleaved?.(false,310);
+  legacy.setBasicOnly?.(true);
   legacy.setBasicRotation?.([8001]);
   // Visual playback only; native cooldown and server damage stay unchanged.
   legacy.setBasicAnimationSpeed?.(99);
   legacy.setTianQuanBasicVisualSpeed?.(99);
-  legacy.setTianQuanTuyetHoc?.(true);
+  legacy.setTianQuanTuyetHoc?.(false);
   legacy.setPrimaryBasic?.(true);
-  legacy.setSkillPriority?.('interleaved');
   legacy.setClientPace?.(100);
   mode.start('BOSS_TH300_SCAN');
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
@@ -37,6 +36,56 @@ function activate(){
   return {ready:true,mode:mode.status?.(),th:legacy.status?.(false)};
  }catch(e){return {ready:false,reason:String(e?.message??e)};}
 }
+// Persistent scoped client-only cooldown override for 8001 trial.
+// It cannot modify server-side cooldowns; restore the original on scope exit.
+W.KVPV_TQ_8001_CD?.stop?.('reload');
+const CD={hook:null,timer:null,enabled:true,forced:0,reason:'armed'};
+function cdScope(){
+ const s=W.KVPV_FAR_SCOPE?.status?.();
+ return CD.enabled&&s?.inside===true&&s?.kind==='THIEN_QUAN'&&
+  W.KVPV_TH300?.status?.(false)?.running===true&&
+  String(W._Ba?._rJ?._O$?.ins?.actorId??'')===String(W.__KVPV_OWN_ACTOR_ID??'');
+}
+function cdRelease(reason){
+ const h=CD.hook;CD.hook=null;
+ if(h&&h.obj.isCooldown===h.fn){
+  try{if(h.own)Object.defineProperty(h.obj,'isCooldown',h.own);else delete h.obj.isCooldown;}
+  catch(e){CD.reason='restore_error:'+String(e);return;}
+ }
+ CD.reason=reason;
+}
+function cdSync(){
+ if(!cdScope()){cdRelease('outside_tianquan');return;}
+ const id=String(W.__KVPV_OWN_ACTOR_ID??'');
+ const world=W._C?._Ba?.instance;
+ const actor=world?.getRole?.(Number(id))??world?.getRole?.(id);
+ const c=actor?.getComponent?.(W._d?._Yct?._Het);
+ if(!c||typeof c.isCooldown!=='function')return;
+ if(CD.hook){
+  if(CD.hook.obj===c&&c.isCooldown===CD.hook.fn)return;
+  cdRelease('combat_component_changed');
+ }
+ const own=Object.getOwnPropertyDescriptor(c,'isCooldown');
+ if(own&&!own.configurable)return;
+ const original=c.isCooldown;
+ const fn=function(...args){
+  if(this===c&&cdScope()){CD.forced++;return false;}
+  return original.apply(this,args);
+ };
+ try{Object.defineProperty(c,'isCooldown',{value:fn,writable:true,configurable:true,enumerable:!!own?.enumerable});
+  CD.hook={obj:c,fn,own};CD.reason='active';
+ }catch(e){CD.reason='hook_error:'+String(e);}
+}
+function cdStop(reason='manual'){
+ CD.enabled=false;
+ if(CD.timer!==null){W.clearInterval?.(CD.timer);CD.timer=null;}
+ cdRelease(reason);return cdStatus();
+}
+function cdStatus(){return {enabled:CD.enabled,active:!!CD.hook&&CD.hook.obj.isCooldown===CD.hook.fn&&cdScope(),
+ forcedFalse:CD.forced,reason:CD.reason,serverCooldownModified:false};}
+W.KVPV_TQ_8001_CD=Object.freeze({status:cdStatus,stop:cdStop});
+if(typeof W.setInterval==='function')CD.timer=W.setInterval(cdSync,200);
+cdSync();
 W.KVPV_TH300_RESTORE=Object.freeze({activate,status:()=>({mode:W.KVPV_MODE?.status?.(),th:W.KVPV_TH300?.status?.(false),newEngine:W.KVPV_COMBAT_ENGINE?.status?.()})});
 activate();
 })();
