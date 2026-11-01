@@ -143,6 +143,7 @@ const liveModules = [
 // [VI dòng gốc 61] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "33-progress-planner.js",
   "33-progress-planner.js",
 // [VI dòng gốc 62] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "34-fabao-treasure.js",
+  "34-co-bao-native.js",
   "34-fabao-treasure.js",
 // [VI dòng gốc 63] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "35-equipment-treasure.js",
   "35-equipment-treasure.js",
