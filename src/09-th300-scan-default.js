@@ -43,7 +43,7 @@ const CD={hook:null,timer:null,enabled:true,forced:0,reason:'armed'};
 function cdScope(){
  const s=W.KVPV_FAR_SCOPE?.status?.();
  return CD.enabled&&s?.inside===true&&
-  s.kind==='THIEN_QUAN'&&W.KVPV_TH300?.status?.(false)?.running===true&&
+  (s.kind==='TRU_TIEN'||(s.kind==='THIEN_QUAN'&&W.KVPV_TH300?.status?.(false)?.running===true))&&
   String(W._Ba?._rJ?._O$?.ins?.actorId??'')===String(W.__KVPV_OWN_ACTOR_ID??'');
 }
 function cdRelease(reason){
