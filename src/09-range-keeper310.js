@@ -4,14 +4,14 @@
 const W=window,actor=String(W.__KVPV_OWN_ACTOR_ID||''),prev=W.KVPV_RANGE_KEEP310;
 prev?.stop?.();
 const C={distance:310,tolerance:12,pollMs:400,minMoveMs:1300};
-const S={enabled:false,timer:null,lastMoveAt:0,moves:0,distance:null,scope:'OUTSIDE',reason:'off',error:''};
+const S={enabled:false,timer:null,lastMoveAt:0,moves:0,distance:null,scope:'OUTSIDE',reason:'off',error:'',lastScopeAt:0};
 const owned=()=>actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 const pos=o=>{const p=o?.property?.get?.('position');return Number.isFinite(Number(p?.x))&&Number.isFinite(Number(p?.y))?{x:Number(p.x),y:Number(p.y)}:null;};
 function tick(){
  if(!S.enabled||!owned())return;
  try{
  const scope=W.KVPV_FAR_SCOPE?.status?.(),kind=scope?.kind;
- S.scope=kind||'OUTSIDE';
+ S.scope=kind||'OUTSIDE';S.lastScopeAt=Date.now();
  if(!scope?.inside||!['THIEN_QUAN','LINH_LUNG','PHU_VAN'].includes(kind)){S.reason='outside_scope';return;}
  if(W._Ba?._rJ?._O$?.ins?.isDead===true||W.KVPV_ENTRY_POLICY?.manual===true||W.KVPV_EVENT_PRIORITY?.hold?.()||W.KVPV_BOSS_TEAM?.priority?.()===true){S.reason='yield_priority';return;}
  const recovery=W.KVPV_HITRUN1?.status?.(false);
@@ -31,7 +31,7 @@ function tick(){
  mover.moveTo(x,y);S.lastMoveAt=Date.now();S.moves++;S.reason='moving_to_310';
  }catch(e){S.error=String(e?.message??e);S.reason='error';}
 }
-function status(){return {...S,actor,goal:C.distance,tolerance:C.tolerance,timer:S.timer!==null};}
+function status(){const scope=W.KVPV_FAR_SCOPE?.status?.();return {...S,actor,goal:C.distance,tolerance:C.tolerance,timer:S.timer!==null,liveScope:scope?.kind??'UNKNOWN',liveInside:scope?.inside===true,liveMap:scope?.current??null,scopeSampleAgeMs:S.lastScopeAt?Date.now()-S.lastScopeAt:null};}
 function stop(){S.enabled=false;if(S.timer!==null){(W.KVPV_V1?.timers??W).clearInterval?.(S.timer);S.timer=null;}S.reason='stopped';return status();}
 function start(){if(!owned()){S.reason='waiting_actor';return status();}S.enabled=true;if(S.timer===null&&typeof W.setInterval==='function'){S.timer=(W.KVPV_V1?.timers??W).setInterval(tick,C.pollMs);}return status();}
 W.KVPV_RANGE_KEEP310=Object.freeze({tick,start,stop,status});
