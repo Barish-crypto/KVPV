@@ -1888,7 +1888,7 @@
 // [VI dòng gốc 658] Kiểm tra ST.timer!=null: đúng thì chạy nhánh sau if. | gọi W.KVPV_V1?.timers?.clearInterval??W.clearInterval(ST.timer)
     if(ST.timer!=null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(ST.timer);
 // [VI dòng gốc 659] gán ST.timer bằng (W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,CFG.scanMs)
-    ST.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,CFG.scanMs);
+    ST.timer=typeof (W.KVPV_V1?.timers?.setInterval??W.setInterval)==='function'?(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,CFG.scanMs):null;
 // [VI dòng gốc 660] tăng ST.timerRepairs một đơn vị sau khi lấy giá trị | gọi tick() để xử lý một nhịp kiểm tra | Kết thúc hàm hiện tại và trả về: true.
     ST.timerRepairs++;tick();return true;
 // [VI dòng gốc 661] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
@@ -1993,7 +1993,7 @@
 // [VI dòng gốc 697] Kiểm tra enabled: đúng thì chạy nhánh sau if. | gán mixed.enabled bằng true | gán mixed.primary bằng true | gán mixed.rotation bằng [8001]
     if(enabled){mixed.enabled=true;mixed.primary=true;mixed.rotation=[8001];mixed.rotationCursor=0;mixed.wantBasic=true;mixed.basicPaceMs=0;mixed.ready.clear();burst.enabled=false;basicProbe.enabled=false;CFG.clientPaceMs=0;}
 // [VI dòng gốc 698] Kiểm tra ST.timer!==null: đúng thì chạy nhánh sau if. | gọi W.KVPV_V1?.timers?.clearInterval??W.clearInterval(ST.timer) | gán ST.timer bằng (W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,CFG.scanMs)
-    if(ST.timer!==null){(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(ST.timer);ST.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,CFG.scanMs);}
+    if(ST.timer!==null){(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(ST.timer);ST.timer=typeof (W.KVPV_V1?.timers?.setInterval??W.setInterval)==='function'?(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,CFG.scanMs):null;}
 // [VI dòng gốc 699] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm enabled, skillId, scanMs, addedClientWaitMs, serverMultiplierVerified.
     return {enabled:CFG.basicOnly,skillId:8001,scanMs:CFG.scanMs,addedClientWaitMs:CFG.clientPaceMs,serverMultiplierVerified:false};}
 // [VI dòng gốc 700] Định nghĩa hàm setBasicAnimationSpeed; tham số: factor=1. Mục đích: đặt hệ số phát hoạt ảnh 8001 phía client; không phải hệ số sát thương server | Kiểm tra ![1,9,99,99999].includes(factor): đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Native animation factor must be 1, 9 or 99') | gọi finishSpeedTrial('stopped')
@@ -2076,7 +2076,7 @@
   }
   function setBasicAnimationSpeed(factor=1){if(![1,9,99,99999].includes(factor))throw Error('Native animation factor must be 1, 9 or 99');finishSpeedTrial('stopped');restoreSpeedClips();CFG.basicAnimationSpeed=factor;return {factor,scope:['THIEN_QUAN','LINH_LUNG','PHU_VAN','TRU_TIEN'],playerSkillId:8001,serverDamageMultiplierVerified:false};}
 // [VI dòng gốc 701] Khai báo biến không gán lại bằng const: api = tạo đối tượng gồm setBasicAnimationSpeed, startBasicSpeedTrial, setBasicOnly, isBasicOnly, releaseOutsideScope, setClientPace, setConfirmedTailCut, startConfirmedTailStudy, startBasicRangeTest, setAfterTHWait, setBasicHitQuota, setBasicRotation, setPrimaryBasic, setBasicPace, setInterleaved, setBasicProbe, setBurst, performance, version, start, stop, status, report, setDistance, repairPolling, sync, export, his…
-  function setTianQuanFiveBasics(enabled=true,wait=10){if(!tqFive)return {enabled:false,available:false,reason:'five_basics_profile_not_loaded'};const out=tqFive.configure(enabled,wait);mixed.ready.clear();mixed.rotationCursor=0;if(ST.timer!==null){(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(ST.timer);ST.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,CFG.scanMs);}return out;}
+  function setTianQuanFiveBasics(enabled=true,wait=10){if(!tqFive)return {enabled:false,available:false,reason:'five_basics_profile_not_loaded'};const out=tqFive.configure(enabled,wait);mixed.ready.clear();mixed.rotationCursor=0;if(ST.timer!==null){(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(ST.timer);ST.timer=typeof (W.KVPV_V1?.timers?.setInterval??W.setInterval)==='function'?(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,CFG.scanMs):null;}return out;}
   function setTianQuanTuyetHoc(enabled=true){if(!tqFive)return {enabled:false,available:false,reason:'five_basics_profile_not_loaded'};return tqFive.setTuyetHoc(enabled);}
   function startTianQuanBasicRangeTest(distances){if(!ST.running)throw Error('Chờ bộ đánh Thiên Quan chạy trước.');if(!tqFive)throw Error('Thiếu module đo tầm.');const out=tqFive.start(distances);ST.moveGoal=null;ST.positioning=true;ST.lastMove=-Infinity;mixed.ready.clear();mixed.rotationCursor=0;return out;}
   function stopTianQuanBasicRangeTest(){const out=tqFive?.stop('manual stop');ST.moveGoal=null;ST.positioning=true;ST.lastMove=-Infinity;return out;}
