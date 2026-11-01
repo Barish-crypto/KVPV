@@ -223,11 +223,13 @@
         W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
         W.KVPV_TH300?.setBasicRotation?.([8001]);
         W.KVPV_TH300?.setBasicHitQuota?.(null);
-        W.KVPV_TH300?.setBasicPace?.(0);
-        // Bound client retries: 80ms minimum to avoid 1ms cast floods/disconnects.
-        W.KVPV_TH300?.setClientPace?.(80);
-        W.KVPV_TH300?.setPrimaryBasic?.(true);
+        W.KVPV_TH300?.setInterleaved?.(false,310);
         W.KVPV_TH300?.setBasicOnly?.(true);
+        // Mirror the 8001 Tian Quan visual profile; this is not a server speed boost.
+        W.KVPV_TH300?.setBasicAnimationSpeed?.(99);
+        W.KVPV_TH300?.setTianQuanBasicVisualSpeed?.(99);
+        W.KVPV_TH300?.setBasicPace?.(0);
+        W.KVPV_TH300?.setClientPace?.(100);
       }
     }
 
