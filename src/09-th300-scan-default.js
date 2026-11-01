@@ -16,15 +16,16 @@ function activate(){
   legacy.setSkillPriority?.('tuyet_hoc_first');
   legacy.setBasicOnly?.(false);
   mode.start('BOSS_TH300_SCAN');
-  // Add only basic 8001, preserving TH-first single-sender scheduling.
-  // The existing 310 movement guard must remain authoritative.
-  legacy.setBasicRotation?.([8001]);
+  // At the proven 310 ring prefer consecutive native Tuyet Hoc casts.
+  // No basic skill is scheduled: 8001 could cause native auto-approach.
   legacy.setTianQuanFiveBasics?.(false,1);
+  legacy.setBasicRotation?.([]);
   legacy.setBasicOnly?.(false);
   legacy.setTianQuanTuyetHoc?.(true);
-  // Bound TH300 client cast attempts to 300ms. Native cooldown remains authoritative.
-  // This does not rewrite the game's native or server cooldown values.
-  legacy.setClientPace?.(300);
+  legacy.setSkillPriority?.('tuyet_hoc_first');
+  // Poll cast opportunities more often without bypassing native cooldown.
+  // Only TH300 sends skill requests; no parallel cast timer.
+  legacy.setClientPace?.(100);
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
