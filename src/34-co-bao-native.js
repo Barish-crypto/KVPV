@@ -50,6 +50,6 @@ function tick(){if(!S.enabled||!own())return;
 function status(){return {enabled:S.enabled,actor,active:active(),reason:S.reason,pending:S.pending,lastError:S.lastError,steps:S.steps,snapshot:own()?snapshot():null,allowKNB:false};}
 W.KVPV_CO_BAO_NATIVE=Object.freeze({tick,status,stop,_handoff:()=>({actor,pending:S.pending,steps:S.steps})});
 const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;
-if(typeof schedule==='function')S.timer=schedule(tick,1000);
+if(typeof W.setInterval==='function'&&typeof schedule==='function')S.timer=schedule(tick,1000);
 tick();
 })();
