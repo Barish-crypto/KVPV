@@ -3,7 +3,7 @@
 (()=>{'use strict';
 const W=window,actor=String(W.__KVPV_OWN_ACTOR_ID||''),old=W.KVPV_KIEM_KHIEU_BASIC;
 old?.stop?.('reload');
-const S={enabled:true,timer:null,casts:0,lastSkill:null,reason:'waiting_scene',error:'',blocked:0,visual:{factor:9999,calls:0,applied:0,unavailable:0,conflicts:0}};
+const S={enabled:true,timer:null,casts:0,lastSkill:null,reason:'waiting_scene',error:'',blocked:0,lastOwnerRecoveryAt:0,visual:{factor:9999,calls:0,applied:0,unavailable:0,conflicts:0}};
 const type=()=>Number(W._ft?._po?.ins?.getCfgById?.(Number(W._C?._Mn?._Cn?.currentID))?.[7]);
 const own=()=>actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 const comp=(r,n)=>{const key=W._d?._Yct?.[n];return key?r?.getComponent?.(key):null;};
@@ -39,9 +39,17 @@ function tick(){if(!S.enabled)return;
  try{
   if(!own()||type()!==84){S.reason='outside_kiem_khieu';return;}
   const role=W._C?._Ba?.instance?.getRole?.(Number(actor)),combat=comp(role,'_Het'),sel=comp(role,'_Eet'),target=combat?.target;
-  if(!role||W._Ba?._rJ?._O$?.ins?.isDead!==false||Number(target?.property?.get?.('type'))!==4||target?.isValid===false){S.reason='waiting_enemy_player';return;}
+  if(!role||W._Ba?._rJ?._O$?.ins?.isDead===true||Number(target?.property?.get?.('type'))!==4||target?.isValid===false){S.reason='waiting_enemy_player';return;}
   if(Date.now()<Number(W.__KVPV_USER_UI_UNTIL||0)){S.reason='manual_ui';return;}
-  if(W.KVPV_MODE?.status?.(false)?.mode!=='OFF'&&W.KVPV_MODE?.status?.(false)?.mode!=null){S.reason='other_combat_owner';return;}
+  const mode=W.KVPV_MODE?.status?.(false)?.mode;
+  if(mode&&mode!=='OFF'){
+   if(Date.now()-S.lastOwnerRecoveryAt>=5000&&typeof W.KVPV_MODE?.stop==='function'){
+    S.lastOwnerRecoveryAt=Date.now();
+    W.KVPV_MODE.stop('Kiem Khieu scene84: handoff player combat to native basic 8001');
+   }
+   const current=W.KVPV_MODE?.status?.(false)?.mode;
+   if(current&&current!=='OFF'){S.reason='other_combat_owner';return;}
+  }
   if(typeof combat?.isCooldown!=='function'||combat.isCooldown()!==false){S.blocked++;S.reason='native_cooldown';return;}
   if(combat.isValidTarget?.()!==true||combat.isValidRange?.()!==true){S.reason='native_target_or_range';return;}
   if(typeof sel?._f7t!=='function'||typeof combat?.combat!=='function'){S.reason='native_combat_unavailable';return;}
@@ -55,7 +63,7 @@ function tick(){if(!S.enabled)return;
  }catch(e){S.error=String(e?.message??e);S.reason='error';}
 }
 function stop(reason='stopped'){S.enabled=false;const clear=W.KVPV_V1?.timers?.clearInterval??W.clearInterval;if(S.timer!=null&&typeof clear==='function')clear(S.timer);S.timer=null;S.reason=reason;}
-function status(){return {enabled:S.enabled,inside:type()===84,skills:[8001],pollMs:1,nativeCooldownPreserved:true,tuyetHoc:false,casts:S.casts,lastSkill:S.lastSkill,blockedCooldown:S.blocked,visual:{...S.visual,visualOnly:true},reason:S.reason,error:S.error};}
+function status(){return {enabled:S.enabled,inside:type()===84,skills:[8001],pollMs:1,nativeCooldownPreserved:true,tuyetHoc:false,casts:S.casts,lastSkill:S.lastSkill,blockedCooldown:S.blocked,sceneId:W._C?._Mn?._Cn?.currentID??null,sceneType:type(),actorMatch:!!own(),targetType:(()=>{const r=W._C?._Ba?.instance?.getRole?.(Number(actor));return comp(r,'_Het')?.target?.property?.get?.('type')??null;})(),combatMode:W.KVPV_MODE?.status?.(false)?.mode??null,timerActive:S.timer!==null,visual:{...S.visual,visualOnly:true},reason:S.reason,error:S.error};}
 W.KVPV_KIEM_KHIEU_BASIC=Object.freeze({tick,status,stop});
 const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;
 if(typeof W.setInterval==='function'&&typeof schedule==='function')S.timer=schedule(tick,1);
