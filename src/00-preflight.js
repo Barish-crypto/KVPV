@@ -19,18 +19,10 @@
 // [VI dòng gốc 11] gọi check('session', ()=>!!W.KVPV_V1&&!W.__KVPV_UNIVERSAL_HALTED)
     check('session',()=>!!W.KVPV_V1&&!W.__KVPV_UNIVERSAL_HALTED);
 // [VI dòng gốc 12] gọi check('recovery policy', ()=>W.KVPV_BOSS_RECOVERY?.policy?.leavePct===35&&W.KVPV_BOSS_RECOVERY?.policy?.returnPct===100)
-    check('recovery policy',()=>W.KVPV_BOSS_RECOVERY?.policy?.leavePct===35&&W.KVPV_BOSS_RECOVERY?.policy?.returnPct===100);
-// [VI dòng gốc 13] gọi check('Boss controller', ()=>typeof W.KVPV_HITRUN1?.start==='function'&&typeof W.KVPV_HITRUN1?.status==='function')
-    check('Boss controller',()=>typeof W.KVPV_HITRUN1?.start==='function'&&typeof W.KVPV_HITRUN1?.status==='function');
-// [VI dòng gốc 14] gọi check('Boss auto controller', ()=>typeof W.KVPV_HITRUN_AUTO?.rearm==='function')
-    check('Boss auto controller',()=>typeof W.KVPV_HITRUN_AUTO?.rearm==='function');
-// [VI dòng gốc 15] gọi check('mode manager', ()=>typeof W.KVPV_MODE?.start==='function'&&W.KVPV_MODE?.modes?.BOSS==='BOSS')
-    check('mode manager',()=>typeof W.KVPV_MODE?.start==='function'&&W.KVPV_MODE?.modes?.BOSS==='BOSS');
-// [VI dòng gốc 16] gọi check('fixed HP thresholds', ()=>W.KVPV_HITRUN1?.config?.leavePct===35&&W.KVPV_HITRUN1?.config?.returnPct===100)
-    check('fixed HP thresholds',()=>W.KVPV_HITRUN1?.config?.leavePct===35&&W.KVPV_HITRUN1?.config?.returnPct===100);
-// [VI dòng gốc 17] gọi check('combat log', ()=>typeof W.KVPV_BOSS_LOG?.start==='function')
+    check('actor identity',()=>String(W.__KVPV_OWN_ACTOR_ID||'')!==''&&String(W.__KVPV_OWN_ACTOR_ID)===String(W._Ba?._rJ?._O$?.ins?.actorId??''));
+    check('Daily core',()=>!!W.KVPV_DAILY?.config&&typeof W.KVPV_DAILY.start==='function'&&typeof W.KVPV_DAILY.tuVuotStart==='function');
+    check('single Boss combat',()=>typeof W.KVPV_COMBAT_ENGINE?.status==='function'&&W.KVPV_COMBAT_ENGINE.status()?.singleSender===true);
     check('combat log',()=>typeof W.KVPV_BOSS_LOG?.start==='function');
-// [VI dòng gốc 18] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm ready, build, checks, diagnostics, note.
     return {ready:checks.every(x=>x.ok),build:W.KVPV_V1?.build??null,checks,diagnostics:W.KVPV_V1?.diagnostics?.status?.()??null,
 // [VI dòng gốc 19] Thuộc tính note: "Readiness only; game movement, healing and server reach still require an observed fight."
       note:'Readiness only; game movement, healing and server reach still require an observed fight.'};
