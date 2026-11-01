@@ -26,5 +26,7 @@ function tick(){if(!S.enabled)return;
 function stop(reason='manual'){S.enabled=false;if(S.timer!=null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)?.(S.timer);S.timer=null;S.reason=reason;}
 function status(){return {enabled:S.enabled,scope:scope(),reason:S.reason,requests:S.requests,pending:S.pending,lastError:S.lastError,allowKNB:false};}
 W.KVPV_TQ_MA_THAN=Object.freeze({status,tick,stop,_handoff:()=>({actor,lastAt:S.lastAt,pending:S.pending,spent:S.spent,lastStrength:S.lastStrength,requests:S.requests})});
-S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)?.(tick,250)??null;tick();
+const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;
+if(typeof schedule==='function')S.timer=schedule(tick,250);
+tick();
 })();
