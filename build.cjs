@@ -27,9 +27,8 @@ const sources = new Map();
 // [VI dòng gốc 14] Khai báo biến không gán lại bằng const: body = gọi modules.map(name => { const text=fs.readFileSync(path.join(root,'src',name),'utf8'); new vm.Script(text,{filename:name}); sources.set(name,text); return '// Source: src/'+name+'\n'…('\n')
 const body = modules.map(name => {
 // [VI dòng gốc 15] Khai báo biến không gán lại bằng const: text = gọi fs.readFileSync(path.join(root,'src',name), 'utf8') để đọc tệp đồng bộ
-  // Keep original source intact; remove generated explanatory annotations from FULL.
-  const text=fs.readFileSync(path.join(root,'src',name),'utf8')
-    .replace(/^\/\/ \[VI dòng gốc \d+\][^\r\n]*(?:\r?\n|$)/gm,'');
+  // TEST_V1 requires the exact original source bytes in every installer.
+  const text=fs.readFileSync(path.join(root,'src',name),'utf8');
 // [VI dòng gốc 16] tạo đối tượng bằng vm.Script(text, {filename:name})
   new vm.Script(text,{filename:name});
 // [VI dòng gốc 17] gọi sources.set(name, text)
