@@ -1238,6 +1238,7 @@
 // [VI dòng gốc 401] Kiểm tra CFG.basicOnly&&ST.running&&this===r.s&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false: đúng thì chạy nhánh sau if.
       if(CFG.basicOnly&&ST.running&&this===r.s&&(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE)?.inside?.()!==false){
 // [VI dòng gốc 402] Kiểm tra !eligible(r.c?.target)||!(towerFinish()?canFight():castReady())||!nativeReady(r.c): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: áp dụng toán tử - lên 1.
+        if(W.KVPV_FAR_SCOPE?.status?.()?.kind==='TRU_TIEN'&&!eligible(r.c?.target))return native.call(this,active,common,mode); // Let native acquire a target; no forced casting.
         if(!eligible(r.c?.target)||!(towerFinish()?canFight():castReady())||!nativeReady(r.c))return -1;
 // [VI dòng gốc 403] Khai báo biến không gán lại bằng const: rows = gọi [...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].filter(row=>Number(row?.[0])===(basicRotation()[0]??8001)) để giữ phần tử thỏa điều kiện
         const rows=[...(Array.isArray(active)?active:[]),...(Array.isArray(common)?common:[])].filter(row=>Number(row?.[0])===(basicRotation()[0]??mixed.rotation[0]??8001));
@@ -1454,7 +1455,7 @@
 // [VI dòng gốc 502] Kiểm tra !bind(r): đúng thì chạy nhánh sau if. | gán ST.lastReason bằng 'hook_failed' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       if(!bind(r)){ST.lastReason='hook_failed';return;}
 // [VI dòng gốc 503] Kiểm tra !eligible(r.c.target): đúng thì chạy nhánh sau if. | gọi unlisten() | gán ST.lastReason bằng 'not_tianquan_boss' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-      if(!eligible(r.c.target)){unlisten();ST.lastReason='not_tianquan_boss';return;}
+      if(!eligible(r.c.target)){unlisten();ST.lastReason=W.KVPV_FAR_SCOPE?.status?.()?.kind==='TRU_TIEN'?'trutien_waiting_native_monster_target':'not_tianquan_boss';return;}
 // [VI dòng gốc 504] Chú thích gốc của tác giả; không được thực thi. Nội dung: Khóa bối cảnh theo Boss thật, loại Boss, map và biến thân để không trộn nhịp học.
       // Khóa bối cảnh theo Boss thật, loại Boss, map và biến thân để không trộn nhịp học.
 // [VI dòng gốc 505] gọi pacer?.context(identity(r.c.target)+'/'+String(prop(r.c.target,'occ'))+'/'+scene()+'/'+(transforming()?'transform':'native')) (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
