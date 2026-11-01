@@ -7,7 +7,11 @@
  const W=window,old=W.KVPV_COMBAT_ENGINE;old?.stop?.();
  const actor=String(W.__KVPV_OWN_ACTOR_ID??'');
  const ids=[8001,8002,8003,8004,8005,1001,1002,1003,1004,1005,1006,1007,1008];
- const S={enabled:false,armed:false,busy:false,timer:null,casts:0,checks:0,lastSkill:null,reason:'off',error:'',cursor:0,lastTargetSearchAt:0,targetSearches:0,reasonCounts:Object.create(null),lastCastAt:0,lastCooldown:null,lastCooldownAt:0,lastTargetType:null,knownSkillIds:[],lastRange:null};
+ // Only skills with observed successful hits near distance 307 are eligible in these three ranged instances.
+ // A native selected melee skill is skipped; never force-cast or substitute an unready skill.
+ const confirmedRanged=new Set([1006,1007]);
+ const rangedKinds=new Set(['THIEN_QUAN','LINH_LUNG','PHU_VAN']);
+ const S={enabled:false,armed:false,busy:false,timer:null,casts:0,checks:0,lastSkill:null,reason:'off',error:'',cursor:0,lastTargetSearchAt:0,targetSearches:0,reasonCounts:Object.create(null),lastCastAt:0,lastCooldown:null,lastCooldownAt:0,lastTargetType:null,knownSkillIds:[],filteredCloseSkillIds:[],lastRange:null};
  const valid=()=>actor!==''&&String(W._Ba?._rJ?._O$?.ins?.actorId??'')===actor&&W.__KVPV_UNIVERSAL_HALTED!==true;
  const far=()=>{const x=(W.KVPV_FAR_SCOPE??W.KVPV_TQ_SCOPE);return x?.inside?.()===true&&x?.status?.()?.kind!=='TRU_TIEN';};
  const components=()=>{
@@ -15,7 +19,7 @@
   const c=W._d?._Yct;
   return {a,skill:a?.getComponent?.(c?._Eet),combat:a?.getComponent?.(c?._Het)};
  };
- function state(){return {enabled:S.enabled,armed:S.armed,busy:S.busy,actor,casts:S.casts,checks:S.checks,lastSkill:S.lastSkill,reason:S.reason,error:S.error,singleSender:true,legacyModes:false,targetSearches:S.targetSearches,lastCastAt:S.lastCastAt,lastCooldown:S.lastCooldown,lastCooldownAt:S.lastCooldownAt,lastTargetType:S.lastTargetType,knownSkillIds:S.knownSkillIds.slice(),lastRange:S.lastRange,reasonCounts:{...S.reasonCounts}};}
+ function state(){return {enabled:S.enabled,armed:S.armed,busy:S.busy,actor,casts:S.casts,checks:S.checks,lastSkill:S.lastSkill,reason:S.reason,error:S.error,singleSender:true,legacyModes:false,targetSearches:S.targetSearches,lastCastAt:S.lastCastAt,lastCooldown:S.lastCooldown,lastCooldownAt:S.lastCooldownAt,lastTargetType:S.lastTargetType,knownSkillIds:S.knownSkillIds.slice(),filteredCloseSkillIds:S.filteredCloseSkillIds.slice(),lastRange:S.lastRange,reasonCounts:{...S.reasonCounts}};}
  function recordReason(){S.reasonCounts[S.reason]=(S.reasonCounts[S.reason]||0)+1;}
  async function tick(){
   if(S.busy||!S.enabled||!valid())return;
@@ -65,7 +69,11 @@
    const nativeId=Number(skill.selectSkill?.());
    const ordered=ids.filter(id=>known.has(id));
    const chosen=ordered.includes(nativeId)?nativeId:(!Number.isFinite(nativeId)?null:nativeId);
+   const kind=W.KVPV_FAR_SCOPE?.status?.()?.kind;
+   const strictlyRanged=rangedKinds.has(kind);
+   S.filteredCloseSkillIds=strictlyRanged?ordered.filter(id=>!confirmedRanged.has(id)):[];
    if(!chosen||!ordered.includes(chosen)){S.reason='no_native_ready_skill';return;}
+   if(strictlyRanged&&!confirmedRanged.has(chosen)){S.reason='filtered_close_range_skill';return;}
    S.checks++;
    await Promise.resolve();
    if(!S.enabled||!valid()||combat.target!==target)return;
