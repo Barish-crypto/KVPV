@@ -212,25 +212,19 @@
     // A PvP observer waits for player targets; dungeon auto must own monsters.
     // Disable only when actually in Tru Tien, never on other maps.
     if(scope?.inside===true&&scope.kind==='TRU_TIEN'){
-      // Tru Tien uses native basic 8001 only, not an optional
-      // player-PvP controller. No native cooldown override or fabricated RPC.
+      // Native recovery trial: release all TH300/HitRun owners and leave
+      // selection, combat and movement entirely to the game in Tru Tien.
       if(W.KVPV_TRUTIEN_PVP?.status?.()?.enabled===true)
-        W.KVPV_TRUTIEN_PVP.stop('trutien_native_basic_auto');
-      if(lastScopeKey!==scope.kind+'/'+scope.current+'/'+(scope.floor??'')){
-        W.KVPV_TH300?.setTianQuanFiveBasics?.(false,1);
-        W.KVPV_TH300?.setTianQuanTuyetHoc?.(false);
-        W.KVPV_TH300?.setTianQuanTHGapBasics?.(false);
-        W.KVPV_TH300?.setTianQuan4100BasicSolo?.(false);
-        W.KVPV_TH300?.setBasicRotation?.([8001]);
-        W.KVPV_TH300?.setBasicHitQuota?.(null);
-        W.KVPV_TH300?.setInterleaved?.(false,310);
-        W.KVPV_TH300?.setBasicOnly?.(true);
-        // Mirror the 8001 Tian Quan visual profile; this is not a server speed boost.
-        W.KVPV_TH300?.setBasicAnimationSpeed?.(99);
-        W.KVPV_TH300?.setTianQuanBasicVisualSpeed?.(99);
-        W.KVPV_TH300?.setBasicPace?.(0);
-        W.KVPV_TH300?.setClientPace?.(100);
+        W.KVPV_TRUTIEN_PVP.stop('trutien_native_recovery');
+      const z=inspect();
+      if(S.mode!==MODE.OFF||z.long?.running||z.boss?.running||z.auto?.enabled){
+        stopOwners('Tru Tien: restore native combat');
+        S.mode=MODE.OFF;towerAttempt=null;
       }
+      releaseEntryMove();
+      S.reason='Tru Tien: native combat only';
+      lastScopeKey=scope.kind+'/'+scope.current+'/'+(scope.floor??'');
+      return;
     }
 
 // [VI dòng gốc 99] Kiểm tra scope: đúng thì chạy nhánh sau if. | Khai báo biến không gán lại bằng const: key = tính biểu thức scope.kind+'/'+scope.current+'/'+(scope.floor??'')
