@@ -10,15 +10,12 @@ function activate(){
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
   legacy.setDistance?.(310);
-  mode.start('BOSS_TH300_SCAN');
-  // Configure after mode.start so its native owner is already installed.
-  // TH and five basics are selected cooperatively by TH300's sole sender:
-  // readiness observation is independent, but cast requests stay serialized.
+  // Restore the last user-confirmed working ranged combat profile.
+  // Do not activate the five-basic async rotation at 310: native melee
+  // skills can trigger auto-approach and lose the safe boss ring.
+  legacy.setSkillPriority?.('tuyet_hoc_first');
   legacy.setBasicOnly?.(false);
-  legacy.setBasicRotation?.([8001,8002,8003,8004,8005]);
-  legacy.setTianQuanFiveBasics?.(true,1);
-  legacy.setTianQuanTuyetHoc?.(true);
-  legacy.setSkillPriority?.('interleaved');
+  mode.start('BOSS_TH300_SCAN');
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
