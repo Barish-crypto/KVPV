@@ -18,16 +18,17 @@ function activate(){
   // Configure the native mixed selector BEFORE entering SCAN. Mode.start
   // can defer activation outside Tian Quan; its handoff must inherit basics.
   // Only the original TH300 controller dispatches combat.
-  // Diagnostic: 8001 only; never enable five-basic mode or Tuyet Hoc.
-  // Keep native cooldown and original 310 movement guard for approach testing.
+  // Trial: native 8001 plus Tuyet Hoc at fixed 310; keep five-basic mode off.
   legacy.setTianQuanFiveBasics?.(false,10);
-  legacy.setInterleaved?.(false,310);
-  legacy.setBasicOnly?.(true);
+  legacy.setInterleaved?.(true,310);
+  legacy.setBasicOnly?.(false);
   legacy.setBasicRotation?.([8001]);
   // Visual playback only; native cooldown and server damage stay unchanged.
   legacy.setBasicAnimationSpeed?.(99);
   legacy.setTianQuanBasicVisualSpeed?.(99);
-  legacy.setTianQuanTuyetHoc?.(false);
+  legacy.setTianQuanTuyetHoc?.(true);
+  legacy.setPrimaryBasic?.(true);
+  legacy.setSkillPriority?.('interleaved');
   legacy.setClientPace?.(100);
   mode.start('BOSS_TH300_SCAN');
   // Mode owns the TH300 sender and map handoff. Explicitly remove newer senders afterwards.
