@@ -1870,7 +1870,7 @@
 // [VI dòng gốc 649] gán ST.positionSample bằng null | gán ST.positionRetries bằng 0 | gán ST.positionOffset bằng 0 | gán ST.positionCommands bằng 0
     ST.positionSample=null;ST.positionRetries=0;ST.positionOffset=0;ST.positionCommands=0;ST.positionPause=null;ST.positionRecovery=0;ST.mode=mode;ST.running=true;ST.positioning=true;ST.moveGoal=null;ST.lastMove=-Infinity;ST.lastOwnerPhase=null;ST.lastReason='starting';ST.lastError='';
 // [VI dòng gốc 650] Kiểm tra ST.timer==null: đúng thì chạy nhánh sau if. | gán ST.timer bằng (W.KVPV_V1?.timers?.setInterval ?? W.setInterval)(tick,CFG.scanMs) | gọi tick() để xử lý một nhịp kiểm tra | Kết thúc hàm hiện tại và trả về: gọi status(false) để trả trạng thái để kiểm tra.
-    if(ST.timer==null)ST.timer=(W.KVPV_V1?.timers?.setInterval ?? W.setInterval)(tick,CFG.scanMs);tick();return status(false);
+    if(ST.timer==null){const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;if(typeof schedule==='function')ST.timer=schedule(tick,CFG.scanMs);}tick();return status(false);
 // [VI dòng gốc 651] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 652] Chú thích gốc của tác giả; không được thực thi. Nội dung: Dừng bộ điều khiển, hủy lịch và giải phóng tài nguyên do module này sở hữu.
