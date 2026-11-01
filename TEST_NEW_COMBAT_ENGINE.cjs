@@ -68,7 +68,7 @@ vm.runInNewContext(src,{window:W,Promise,Date,Number,String,Object,Array,Set});
  const build=fs.readFileSync(__dirname+'/build.cjs','utf8');
  assert(!build.includes('||!W.KVPV_HITRUN_AUTO||!W.KVPV_RANGE281'),'no retired hot-update dependencies');
  assert(build.includes("const initialCalls = controlInstallers+liveModules.map(name=>installerName(name)+'();').join('\\n');"),'initial FULL must use curated live modules only');
- for(const name of ['08-range-evidence.js','09-modes.js','09-boss-unified.js','11-auto-tianquan.js','00-skill1008-trial.js','00-skill-pacing.js','00-tq-basic-profile.js','10-tq-basic-force.js','10-experimental-boost.js','12-basic-outside.js','13-transform-skills.js','32-xa-menh-lv2-cd0.js','32-thac-an-cd0.js'])
+ for(const name of ['09-boss-unified.js','11-auto-tianquan.js','00-skill1008-trial.js','00-skill-pacing.js','00-tq-basic-profile.js','10-tq-basic-force.js','10-experimental-boost.js','12-basic-outside.js','13-transform-skills.js','32-xa-menh-lv2-cd0.js','32-thac-an-cd0.js'])
   assert(!new RegExp('^\\s*"'+name.replaceAll('.','\\.')+'",','m').test(build),name+' still bundled');
- console.log('PASS: single native combat engine with no TH300 bundle, cooldown and outside-map safety.');
+ console.log('PASS: native combat engine standalone checks, with TH300 restored separately and outside-map safety.');
 })().catch(err=>{console.error(err);process.exitCode=1;});
