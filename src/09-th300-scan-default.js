@@ -21,7 +21,7 @@ function activate(){
   // Tian Quan: all five native basics at 310, without Tuyet Hoc.
   // Five-basic profile must be enabled before setting rotation (8002 is otherwise excluded).
   legacy.setBasicOnly?.(false); // BasicOnly's legacy path hardcodes 8001.
-  const five=legacy.setTianQuanFiveBasics?.(true,10);
+  const five=legacy.setTianQuanFiveBasics?.(true,5);
   if(five?.available===false||five?.enabled===false)throw Error('Tian Quan five-basics profile unavailable');
   legacy.setTianQuanTuyetHoc?.(false);
   legacy.setBasicRotation?.([8001,8002,8003,8004,8005]);
@@ -32,7 +32,7 @@ function activate(){
   // Visual playback only; native cooldown and server damage stay unchanged.
   legacy.setBasicAnimationSpeed?.(99);
   legacy.setTianQuanBasicVisualSpeed?.(99);
-  legacy.setClientPace?.(100);
+  legacy.setClientPace?.(50);
   mode.start('BOSS_TH300_SCAN');
   // Enforce five basics after mode startup/handoff; TH must remain disabled.
   legacy.setTianQuanTuyetHoc?.(false);
