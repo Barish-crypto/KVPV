@@ -4,7 +4,7 @@
 const W=window,actor=String(W.__KVPV_OWN_ACTOR_ID||''),prev=W.KVPV_RANGE_KEEP310;
 prev?.stop?.();
 const C={distance:310,tolerance:2,pollMs:250,minMoveMs:800};
-const S={enabled:false,timer:null,lastMoveAt:0,moves:0,distance:null,scope:'OUTSIDE',reason:'off',error:'',lastScopeAt:0};
+const S={enabled:false,timer:null,lastMoveAt:0,moves:0,distance:null,scope:'OUTSIDE',reason:'off',error:'',lastScopeAt:0,phase:'FIGHT',hpPct:null,retreats:0};
 const owned=()=>actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 const pos=o=>{const p=o?.property?.get?.('position');return Number.isFinite(Number(p?.x))&&Number.isFinite(Number(p?.y))?{x:Number(p.x),y:Number(p.y)}:null;};
 // Intercept only native auto-approach toward a verified dungeon Boss while already at the 310 ring.
@@ -50,15 +50,23 @@ function tick(){
  if(!mover||typeof mover.moveTo!=='function'||!target||Number(target.property?.get?.('type'))!==1||target.isValid===false){S.reason='waiting_native_target_or_mover';return;}
  if(W.KVPV_FAR_SCOPE?.eligible?.(target)!==true){S.reason='target_not_eligible';return;}
  guardApproach(mover,role,target);
+ const hp=role?.property?.get?.('hp');
+ if(Array.isArray(hp)&&Number(hp[1])>0){
+  S.hpPct=Number(hp[0])*100/Number(hp[1]);
+  if(S.phase==='FIGHT'&&S.hpPct<=35){S.phase='RETREAT';S.retreats++;}
+  if(S.phase==='RETREAT'&&S.hpPct>=100)S.phase='FIGHT';
+ }
  const a=pos(role),b=pos(target);
  if(!a||!b){S.reason='waiting_positions';return;}
  const d=Math.hypot(a.x-b.x,a.y-b.y);S.distance=Math.round(d*100)/100;
- if(Math.abs(d-C.distance)<=C.tolerance){S.reason='in_position';return;}
+ if(S.phase==='FIGHT'&&Math.abs(d-C.distance)<=C.tolerance){S.reason='in_position';return;}
+ if(S.phase==='RETREAT'&&d>=400){S.reason='healing_at_safe_range';return;}
  if(Date.now()-S.lastMoveAt<C.minMoveMs||mover.running?.()===true){S.reason='moving_or_throttled';return;}
  if(d<1){S.reason='overlapping_positions';return;}
- const x=b.x+(a.x-b.x)/d*C.distance,y=b.y+(a.y-b.y)/d*C.distance;
+ const goal=S.phase==='RETREAT'?400:C.distance;
+ const x=b.x+(a.x-b.x)/d*goal,y=b.y+(a.y-b.y)/d*goal;
  if(!Number.isFinite(x)||!Number.isFinite(y)){S.reason='invalid_waypoint';return;}
- mover.moveTo(x,y);S.lastMoveAt=Date.now();S.moves++;S.reason='moving_to_310';
+ mover.moveTo(x,y);S.lastMoveAt=Date.now();S.moves++;S.reason=S.phase==='RETREAT'?'retreating_for_heal':'moving_to_310';
  }catch(e){S.error=String(e?.message??e);S.reason='error';}
 }
 function status(){const scope=W.KVPV_FAR_SCOPE?.status?.();return {...S,actor,goal:C.distance,tolerance:C.tolerance,timer:S.timer!==null,liveScope:scope?.kind??'UNKNOWN',liveInside:scope?.inside===true,liveMap:scope?.current??null,scopeSampleAgeMs:S.lastScopeAt?Date.now()-S.lastScopeAt:null,blockedApproaches,moveGuard:!!hook};}
