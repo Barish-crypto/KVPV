@@ -10,16 +10,16 @@ function activate(){
   W.KVPV_LEGACY_COMBAT_TEST?.stop?.();
   W.KVPV_COMBAT_ENGINE?.stop?.();
   W.KVPV_RANGE_KEEP310?.stop?.();
-  // Explicit no-heal 300 profile for live TH300; legacy test contexts
+  // Explicit no-heal 310 profile for live TH300; legacy test contexts
   // without this flag retain original boss handoff behavior.
-  W.KVPV_TQ_POSITION_ONLY={...(W.KVPV_TQ_POSITION_ONLY??{}),enabled:true,distance:300};
-  legacy.setDistance?.(300);
-  // Keep TH priority and 300 movement protection while testing all five basics.
+  W.KVPV_TQ_POSITION_ONLY={...(W.KVPV_TQ_POSITION_ONLY??{}),enabled:true,distance:310};
+  legacy.setDistance?.(310);
+  // Keep TH priority and 310 movement protection while testing all five basics.
   legacy.setSkillPriority?.('tuyet_hoc_first');
   legacy.setBasicOnly?.(false);
   mode.start('BOSS_TH300_SCAN');
   // Keep native TH first; allow all five basic skills as fallback.
-  // Movement guards retain the 300 ring; out-of-range basics may not hit.
+  // Movement guards retain the 310 ring; out-of-range basics may not hit.
   // The TH-first selector filters out all basics unless the five-basic
   // profile is active. Enable that profile so native 8002 is not excluded.
   // TH300 remains the only sender and retains native ready/range checks.
