@@ -436,11 +436,9 @@
 // [VI dòng gốc 213] gán s.paused bằng !!C&&!C.enableTuVuot
     s.paused=!!C&&!C.enableTuVuot;
 // [VI dòng gốc 214] Kiểm tra W.KVPV_TOWER_MANUAL925?.status?.()?.mode!=='manual': đúng thì chạy nhánh sau if.
-    if(W.KVPV_TOWER_MANUAL925?.status?.()?.mode!=='manual'){
-// [VI dòng gốc 215] gọi note('warning', 'Không thấy khóa Linh Lung Tháp MANUAL')
-      note('warning','Không thấy khóa Linh Lung Tháp MANUAL');
-// [VI dòng gốc 216] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
-    }
+    // The optional legacy Tower MANUAL925 controller is not bundled in the curated FULL.
+    // A missing controller is not a missing safety lock: this observer never starts Tower.
+    // Preserve native manual entry; do not synthesize a fake MANUAL925 controller.
 // [VI dòng gốc 217] Chú thích gốc của tác giả; không được thực thi. Nội dung: Daily native Tu Vuot: unlimited retries by default; manual stop only.
     // Daily native Tu Vuot: unlimited retries by default; manual stop only.
 // [VI dòng gốc 218] Chú thích gốc của tác giả; không được thực thi. Nội dung: The engine never sends raw RPC or resets server state.
