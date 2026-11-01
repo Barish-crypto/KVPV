@@ -28,6 +28,10 @@ function activate(){
   legacy.setBasicRotation?.([8001,8002,8003,8004,8005]);
   legacy.setBasicOnly?.(false);
   legacy.setTianQuanTuyetHoc?.(true);
+  // A rotation list alone does not enable the basic selector. Explicitly
+  // activate mixed native combat and favor a basic when its row is ready.
+  legacy.setInterleaved?.(true,310);
+  legacy.setPrimaryBasic?.(true);
   legacy.setSkillPriority?.('interleaved');
   // Poll cast opportunities without bypassing native cooldown.
   // Only TH300 sends skill requests; no parallel cast timer.
