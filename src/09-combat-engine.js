@@ -21,7 +21,13 @@
   if(S.busy||!S.enabled||!valid())return;
   S.busy=true;
   try{
-   if(!far()){S.reason='outside_boss_scope';return;}
+   if(!far()){
+    const daily=W.KVPV_DAILY?.quickState?.();
+    // Daily scene 10 (Yeu Vuong) uses native encounter combat; do not steal its skill sender.
+    S.reason=daily?.running===true&&daily?.job==='yeuvuong'&&daily?.step==='fighting'&&Number(daily?.scene)===10
+      ? 'daily_yeuvuong_native_combat' : 'outside_boss_scope';
+    return;
+   }
    if(W.KVPV_ENTRY_POLICY?.manual===true||W.KVPV_EVENT_PRIORITY?.hold?.()||W.KVPV_BOSS_TEAM?.priority?.()===true){S.reason='yield_priority';return;}
    if(W._Ba?._rJ?._O$?.ins?.isDead===true){S.reason='dead';return;}
    const recovery=W.KVPV_HITRUN1?.status?.(false);
