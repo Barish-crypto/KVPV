@@ -19,11 +19,14 @@ function activate(){
   mode.start('BOSS_TH300_SCAN');
   // Keep native TH first; allow all five basic skills as fallback.
   // Movement guards retain the 310 ring; out-of-range basics may not hit.
-  legacy.setTianQuanFiveBasics?.(false,1);
+  // The TH-first selector filters out all basics unless the five-basic
+  // profile is active. Enable that profile so native 8002 is not excluded.
+  // TH300 remains the only sender and retains native ready/range checks.
+  legacy.setTianQuanFiveBasics?.(true,10);
   legacy.setBasicRotation?.([8001,8002,8003,8004,8005]);
   legacy.setBasicOnly?.(false);
   legacy.setTianQuanTuyetHoc?.(true);
-  legacy.setSkillPriority?.('tuyet_hoc_first');
+  legacy.setSkillPriority?.('interleaved');
   // Poll cast opportunities more often without bypassing native cooldown.
   // Only TH300 sends skill requests; no parallel cast timer.
   legacy.setClientPace?.(100);
