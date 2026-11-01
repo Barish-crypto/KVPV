@@ -31,7 +31,7 @@
 // [VI dòng gốc 18] Khai báo biến không gán lại bằng const: S = tạo đối tượng gồm enabled, timer, lease, phase, reason, lastError, lastRefresh, lastEntry, lastAction, idleSince, action, stageAuto, hooks
   const S={enabled:true,timer:null,lease:false,phase:'WAITING',reason:'starting',lastError:'',
 // [VI dòng gốc 19] Thuộc tính lastRefresh: áp dụng toán tử - lên Infinity | Thuộc tính lastEntry: áp dụng toán tử - lên Infinity | Thuộc tính lastAction: áp dụng toán tử - lên Infinity | Thuộc tính idleSince: null
-    lastRefresh:-Infinity,lastEntry:-Infinity,lastAction:-Infinity,idleSince:null,action:'',bossCombatOcc:null,stageAuto:null,hooks:[],bossTrialAt:0,bossQuotaSeen:null,bossFailures:0,bossCandidates:[]};
+    lastRefresh:-Infinity,lastEntry:-Infinity,lastAction:-Infinity,idleSince:null,action:'',bossCombatOcc:null,stageAuto:null,hooks:[],bossTrialAt:0,bossQuotaSeen:null,bossFailures:0,bossCandidates:[],manualInside:false};
 // [VI dòng gốc 20] Kiểm tra carry?.actor===actor&&Number.isFinite(carry.lastEntry): đúng thì chạy nhánh sau if. | gán S.lastEntry bằng carry.lastEntry
   if(carry?.actor===actor&&Number.isFinite(carry.lastEntry))S.lastEntry=carry.lastEntry;
 // [VI dòng gốc 21] Khai báo biến không gán lại bằng const: model = tạo hàm với tham số (không có); mỗi lần gọi trả về đọc W._Ba?._dP?._P5t?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); cfg = tạo hàm với tham số (không có); mỗi lần gọi trả về đọc W._ft?._gci?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
@@ -151,6 +151,8 @@
     if(!S.enabled||!owned()){stop();return;}
 // [VI dòng gốc 75] Khai báo biến không gán lại bằng const: d = gọi snapshot() để đọc ảnh chụp trạng thái hiện tại; now = gọi Date.now() | gọi refresh() để làm mới dữ liệu theo điều kiện của hàm
     const d=snapshot(),now=Date.now();refresh();
+    if(d.inside&&!S.lease&&S.phase!=='ENTERING')S.manualInside=true;
+    if(!d.inside)S.manualInside=false;
     if(adaptive&&d.known&&d.boss.remaining!==null){
       const count=d.boss.used;
       if(S.bossQuotaSeen===null)S.bossQuotaSeen=count;
@@ -188,8 +190,9 @@
     const collections=[d.phoenix,d.dragon].filter(q=>q.remaining>0);
     // Main account: only a server-confirmed 3/3 boss quota completes this objective.
     // Exit once, then release the scene so the remaining Daily queue can proceed.
-    if(actor==='10228867268946'&&d.boss.used>=3&&d.boss.remaining===0){
+    if(actor==='10228867268946'&&d.boss.used>=3&&d.boss.remaining===0&&collections.length===0){
       if(d.inside){
+        if(S.manualInside){S.reason='manual_floor2_complete_no_auto_exit';return;}
         if(S.phase!=='EXITING')exit('three_server_confirmed_boss_kills');
         else S.reason='waiting_exit_confirmation';
       }else{
@@ -239,7 +242,7 @@
 // [VI dòng gốc 103] gán S.phase bằng 'ACTIVE'
     S.phase='ACTIVE';
 // [VI dòng gốc 104] Kiểm tra !todo.length: đúng thì chạy nhánh sau if. | gọi exit('daily_quotas_completed') | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-    if(!todo.length){exit('daily_quotas_completed');return;}
+    if(!todo.length){if(S.manualInside){S.reason='manual_floor2_complete_no_auto_exit';return;}exit('daily_quotas_completed');return;}
 // [VI dòng gốc 105] Kiểm tra user()?.isDead===true: đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_native_revive' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(user()?.isDead===true){S.reason='waiting_native_revive';return;}
 // [VI dòng gốc 106] Kiểm tra W._Ba?._K_t?._Z7t?.ins?.gathering: đúng thì chạy nhánh sau if. | gán S.reason bằng 'native_gathering' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
@@ -249,7 +252,7 @@
 // [VI dòng gốc 108] Khai báo biến không gán lại bằng const: next = gọi todo.find(q=>Number(q.row[0])===d.map&&m.getMABossIsLive?.(q.row[4],q===d.boss?1:2,q.row[1])===true) để tìm phần tử đầu tiên thỏa điều kiện
     const next=todo.find(q=>Number(q.row[0])===d.map&&m.getMABossIsLive?.(q.row[4],q===d.boss?1:2,q.row[1])===true);
 // [VI dòng gốc 109] Kiểm tra !next: đúng thì chạy nhánh sau if. | Kiểm tra todo.every(q=>Number(q.row[0])!==d.map): đúng thì chạy nhánh sau if. | gọi exit('switch_to_target_layer') | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-    if(!next){if(todo.every(q=>Number(q.row[0])!==d.map)){exit('switch_to_target_layer');return;}S.reason='waiting_respawn';S.idleSince??=now;if(now-S.idleSince>45000)exit('respawn_wait_release_map');return;}
+    if(!next){if(todo.every(q=>Number(q.row[0])!==d.map)){if(S.manualInside){S.reason='manual_floor2_keep_scene';return;}exit('switch_to_target_layer');return;}S.reason='waiting_respawn';S.idleSince??=now;if(now-S.idleSince>45000&&!S.manualInside)exit('respawn_wait_release_map');return;}
 // [VI dòng gốc 110] gán S.idleSince bằng null
     S.idleSince=null;
 // [VI dòng gốc 111] Khai báo biến không gán lại bằng const: occ = đọc next.row[4]
@@ -332,7 +335,7 @@
       bossSelection:adaptive?'adaptive_server_outcome':'manual_level',
       availableBossLevels:[...S.bossCandidates],bossFailures:S.bossFailures,
 // [VI dòng gốc 144] Thuộc tính bossLayer: gọi bossLayer() để tầng chứa boss được chọn
-      bossLayer:bossLayer(),
+      bossLayer:bossLayer(),manualInside:S.manualInside,
 // [VI dòng gốc 145] Thuộc tính quota: gọi snapshot() để đọc ảnh chụp trạng thái hiện tại
       quota:snapshot(),
 // [VI dòng gốc 146] Thuộc tính lastError: đọc S.lastError
