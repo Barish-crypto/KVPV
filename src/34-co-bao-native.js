@@ -11,7 +11,7 @@ const model=()=>W._Ba?._kAt?._LAt?.inst;
 const rpc=()=>W._Ba?._kAt?._IMi?.inst;
 function quest(){const t=W._Ba?._zIt?._FIt?.ins?.taskInfo;return Array.isArray(t)?{id:String(t[0]),state:Number(t[1])}:null;}
 function active(){const q=quest(),m=model();return (!!q&&q.id==='m1094'&&q.state!==2)||
- (m?.__gn===true&&Array.isArray(m?.shenqi)&&m.shenqi.length<2);}
+ (m?.__gn===true&&Array.isArray(m?.shenqi));}
 function idle(){const s=W.KVPV_DAILY?.quickState?.(),j=String(s?.job??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  return own()&&active()&&(!j||j==='ranh'||j==='idle')&&
  !['entering','exiting','fighting'].includes(String(s.step))&&
@@ -37,7 +37,6 @@ function tick(){if(!S.enabled||!own())return;
     return;
    }S.pending=null;}
   if(!p.ready){if(now-S.lastOpen>60000&&typeof manager()?.openByActionId==='function'){manager().openByActionId(189);S.lastOpen=now;}S.reason='waiting_fragment_data';return;}
-  if(p.count>=2){S.reason='waiting_quest_progress';return;}
   if(p.own&&typeof rpc()?.epFragment==='function'){
    rpc().epFragment([p.own.id]);S.pending={signature,at:now,action:'put'};S.steps++;S.reason='placed_wait_ack';return;
   }
