@@ -12,6 +12,7 @@ const model=()=>W._Ba?._Yo?.marryFight?._Z9t?.ins,rpc=()=>W._Ba?._Yo?.marryFight
 const own=()=>actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 // [VI dòng gốc 7] Khai báo biến không gán lại bằng const: map = tạo hàm với tham số (không có); mỗi lần gọi trả về gọi Number(W._C?._Mn?._Cn?.currentID) để chuyển sang số
 const map=()=>Number(W._C?._Mn?._Cn?.currentID);
+function eventWindow(){try{const d=W.KVPV_DAILY?.lichData?.();return Array.isArray(d?.active)&&d.active.some(e=>e?.key==='tien_duyen_tac_chien');}catch(_){return false;}}
 // [VI dòng gốc 8] Định nghĩa hàm release; tham số: không có. Mục đích: nhả quyền điều khiển đang giữ | Kiểm tra S.lease: đúng thì chạy nhánh sau if. | gọi W.KVPV?.core?.scene?.release('daily') để nhả quyền điều khiển đang giữ (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gán S.lease bằng false
 function release(){if(S.lease)W.KVPV?.core?.scene?.release?.('daily');S.lease=false;const stage=W._Ba?._Co?._Mo?.ins;if(S.stageAuto===true&&stage?.auto===false&&!W.KVPV_EVENT_PRIORITY?.hold?.())stage.auto=true;S.stageAuto=null;}
 // [VI dòng gốc 9] Định nghĩa hàm safe; tham số: không có | Khai báo biến không gán lại bằng const: q = gọi W.KVPV_DAILY?.quickState() (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); b = đọc W._Ba | Kết thúc hàm hiện tại và trả về: b?._rJ?._O$?.ins?.isDead===false&&b?._$a?.SceneUtil?.isCommonScene===true&&b?._$a?._yo?.ins?.isInMission===false&&q?.running===true&&['rảnh','ranh'].includes(q.job)&&!W.KVPV?.core?… và chỉ đánh giá vế phải khi vế trái truthy: W.KVPV_CONFIRM_POPUPS?.beforeTask?.()!==true.
@@ -33,6 +34,7 @@ if(S.pending){const p=S.pending;
 // [VI dòng gốc 17] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 }
 // [VI dòng gốc 18] Kiểm tra !['10228867268946','10228867268941'].includes(actor): đúng thì chạy nhánh sau if. | gán S.reason bằng 'account_not_selected_unmarried' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
+if(!eventWindow()){S.reason='waiting_tien_duyen_tac_chien_window';return;}
 if(!['10228867268946','10228867268941'].includes(actor)){S.reason='account_not_selected_unmarried';return;}
 // [VI dòng gốc 19] Kiểm tra !safe(): đúng thì chạy nhánh sau if. | gán S.reason bằng 'yield_current_activity' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Kiểm tra Date.now()-S.lastAction<5000: đúng thì chạy nhánh sau if.
 if(!safe()){S.reason='yield_current_activity';return;}if(Date.now()-S.lastAction<5000)return;
@@ -62,10 +64,10 @@ S.pending={kind:'refresh',list,at:Date.now()};S.lastAction=Date.now();S.refreshe
 }catch(e){S.error=String(e.message||e);S.reason='error_no_retry';}}
 // [VI dòng gốc 32] Định nghĩa hàm stop; tham số: reason. Mục đích: dừng bộ điều khiển và dọn tài nguyên | Kiểm tra S.timer!==null: đúng thì chạy nhánh sau if. | gọi W.KVPV_V1?.timers?.clearInterval??W.clearInterval(S.timer) | gán S.timer bằng null
 function stop(reason){if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(S.timer);S.timer=null;if(reason!=='reload')release();}
-// [VI dòng gốc 33] gán W.KVPV_MARRY_ARENA bằng Object.freeze({sync:tick,stop,status:()=>({enabled:true,reason:S.reason,lastError:S.error,entries:S.entries,freeRefreshes:S.refreshes,confirmed:S.confirmed,remaining:model()?.getRe…
-W.KVPV_MARRY_ARENA=Object.freeze({sync:tick,stop,status:()=>({enabled:true,reason:S.reason,lastError:S.error,entries:S.entries,freeRefreshes:S.refreshes,confirmed:S.confirmed,remaining:model()?.getRemainCount?.()??null,freeRefresh:model()?.getCanRef?.()===true,pending:S.pending?{kind:S.pending.kind,tier:S.pending.tier,at:S.pending.at}:null,allowKNB:false,selectedAccount:['10228867268946','10228867268941'].includes(actor)}),_handoff:()=>({actor,pending:S.pending,lastAction:S.lastAction,entries:S.entries,refreshes:S.refreshes,confirmed:S.confirmed,lease:S.lease,stageAuto:S.stageAuto})});
-// [VI dòng gốc 34] gán S.timer bằng (W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,1000) | gọi tick() để xử lý một nhịp kiểm tra
-S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,1000);tick();
+function start(){if(!own()){S.reason='actor_mismatch';return status();}if(S.timer===null){S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,1000);tick();}return status();}
+function status(){return {enabled:S.timer!==null,reason:S.reason,lastError:S.error,entries:S.entries,freeRefreshes:S.refreshes,confirmed:S.confirmed,remaining:model()?.getRemainCount?.()??null,freeRefresh:model()?.getCanRef?.()===true,pending:S.pending?{kind:S.pending.kind,tier:S.pending.tier,at:S.pending.at}:null,allowKNB:false,selectedAccount:['10228867268946','10228867268941'].includes(actor)};}
+W.KVPV_MARRY_ARENA=Object.freeze({start,sync:tick,stop,status,_handoff:()=>({actor,pending:S.pending,lastAction:S.lastAction,entries:S.entries,refreshes:S.refreshes,confirmed:S.confirmed,lease:S.lease,stageAuto:S.stageAuto})});
+if(own())start();
 // [VI dòng gốc 35] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
 })();
 // [VI dòng gốc 36] Dòng trống để tách các phần, không có lệnh thực thi.
