@@ -5,7 +5,7 @@ const W=window,old=W.KVPV_CO_BAO_NATIVE,carry=old?._handoff?.();
 old?.stop?.('reload');
 const actor=String(W.__KVPV_OWN_ACTOR_ID??'');
 const S={enabled:true,timer:null,pending:carry?.actor===actor?carry.pending:null,
- lastOpen:0,lastError:'',reason:'armed',steps:carry?.steps??0};
+ lastOpen:0,lastError:'',reason:'armed',steps:carry?.steps??0,ackTimeouts:0};
 const own=()=>!!actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 const model=()=>W._Ba?._kAt?._LAt?.inst;
 const rpc=()=>W._Ba?._kAt?._IMi?.inst;
@@ -30,8 +30,12 @@ function tick(){if(!S.enabled||!own())return;
   if(!active()){S.reason='no_cobao_quest';return;}
   if(!idle()){S.reason='waiting_idle';return;}
   const p=snapshot(),now=Date.now(),signature=JSON.stringify([quest(),p.count,p.rows]);
-  if(S.pending){if(S.pending.signature===signature){S.reason='waiting_server_ack';return;}S.pending=null;}
-  if(!p.ready){if(now-S.lastOpen>60000&&manager()?.openByActionId){manager().openByActionId(189);S.lastOpen=now;}S.reason='waiting_fragment_data';return;}
+  if(S.pending){if(S.pending.signature===signature){
+    S.reason=now-Number(S.pending.at||0)>30000?'server_ack_timeout_manual_review':'waiting_server_ack';
+    if(S.reason==='server_ack_timeout_manual_review')S.ackTimeouts++;
+    return;
+   }S.pending=null;}
+  if(!p.ready){if(now-S.lastOpen>60000&&typeof manager()?.openByActionId==='function'){manager().openByActionId(189);S.lastOpen=now;}S.reason='waiting_fragment_data';return;}
   if(p.count>=2){S.reason='waiting_quest_progress';return;}
   if(p.own&&typeof rpc()?.epFragment==='function'){
    rpc().epFragment([p.own.id]);S.pending={signature,at:now,action:'put'};S.steps++;S.reason='placed_wait_ack';return;
@@ -47,7 +51,7 @@ function tick(){if(!S.enabled||!own())return;
   S.reason='missing_fragments_no_purchase';
  }catch(e){S.lastError=String(e?.message??e);S.reason='error';}
 }
-function status(){return {enabled:S.enabled,actor,active:active(),reason:S.reason,pending:S.pending,lastError:S.lastError,steps:S.steps,snapshot:own()?snapshot():null,allowKNB:false};}
+function status(){const q=quest(),d=W.KVPV_DAILY?.quickState?.(),p=own()?snapshot():null;return {enabled:S.enabled,actor,actorMatch:!!own(),quest:q,active:active(),idleReady:idle(),dailyRunning:d?.running??null,dailyJob:d?.job??null,commonScene:W._Ba?._$a?.SceneUtil?.isCommonScene??null,reason:S.reason,pending:S.pending,pendingAgeMs:S.pending?Date.now()-Number(S.pending.at||0):null,ackTimeouts:S.ackTimeouts,lastError:S.lastError,steps:S.steps,snapshot:p,rpcAvailable:{place:typeof rpc()?.epFragment==='function',activate:typeof rpc()?.actShenQi==='function'},allowKNB:false};}
 W.KVPV_CO_BAO_NATIVE=Object.freeze({tick,status,stop,_handoff:()=>({actor,pending:S.pending,steps:S.steps})});
 const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;
 if(typeof W.setInterval==='function'&&typeof schedule==='function')S.timer=schedule(tick,1000);
