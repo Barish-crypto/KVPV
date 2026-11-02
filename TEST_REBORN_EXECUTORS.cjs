@@ -74,8 +74,9 @@ assert.equal(W.KVPV_REBORN_EXECUTORS.status().arena.confirmed,2);attempts=0;asse
 // Available rewards are independent of era goals and never create a stage-farming goal.
 // [VI dòng gốc 38] gán which bằng 'none' | gán owned bằng true | gán placed bằng false | gọi ep.clear()
 which='none';owned=true;placed=false;ep.clear();
-// [VI dòng gốc 39] gọi assert.equal(coPlugin.probe().ready, true) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(W.KVPV_REBORN_EXECUTORS.cobaoStageGoal(), null) để kiểm tra hai giá trị bằng nhau
-assert.equal(coPlugin.probe().ready,true);assert.equal(W.KVPV_REBORN_EXECUTORS.cobaoStageGoal(),null);
+// Available fragments alone must not start CoBao work outside its selected reborn node.
+assert.equal(coPlugin.probe().ready,false);assert.equal(W.KVPV_REBORN_EXECUTORS.cobaoStageGoal(),null);
+which='co';assert.equal(coPlugin.probe().ready,true,'selected CoBao goal enables fragment work');
 // [VI dòng gốc 40] gọi coPlugin.run(coPlugin.probe()) | gọi assert.deepEqual(calls.at(-1), ['put',700]) để kiểm tra cấu trúc hai giá trị tương đương
 coPlugin.run(coPlugin.probe());assert.deepEqual(calls.at(-1),['put',700]);
 // [VI dòng gốc 41] Khai báo biến không gán lại bằng const: sent = đọc calls.length | Duyệt từng giá trị trong timers bằng const tick. | Khai báo biến không gán lại bằng const: tick (chưa gán giá trị) | gọi tick() để xử lý một nhịp kiểm tra
