@@ -1,17 +1,16 @@
-/* Co Bao m1094 native restoration (V8.6.3): only owned fragments, native UI, no purchases. */
+/* Native Co Bao auto-restoration is intentionally disabled. Reborn/quest executors own the ordered flow. */
 (()=>{
 'use strict';
 const W=window,old=W.KVPV_CO_BAO_NATIVE,carry=old?._handoff?.();
 old?.stop?.('reload');
 const actor=String(W.__KVPV_OWN_ACTOR_ID??'');
-const S={enabled:true,timer:null,pending:carry?.actor===actor?carry.pending:null,
+const S={enabled:false,timer:null,pending:carry?.actor===actor?carry.pending:null,
  lastOpen:0,lastError:'',reason:'armed',steps:carry?.steps??0,ackTimeouts:0};
 const own=()=>!!actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 const model=()=>W._Ba?._kAt?._LAt?.inst;
 const rpc=()=>W._Ba?._kAt?._IMi?.inst;
 function quest(){const t=W._Ba?._zIt?._FIt?.ins?.taskInfo;return Array.isArray(t)?{id:String(t[0]),state:Number(t[1])}:null;}
-function active(){const q=quest(),m=model();return (!!q&&q.id==='m1094'&&q.state!==2)||
- (m?.__gn===true&&Array.isArray(m?.shenqi));}
+function active(){return false;}
 function idle(){const s=W.KVPV_DAILY?.quickState?.(),j=String(s?.job??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  return own()&&active()&&(!j||j==='ranh'||j==='idle')&&
  !['entering','exiting','fighting'].includes(String(s.step))&&
@@ -56,7 +55,5 @@ function tick(){if(!S.enabled||!own())return;
 }
 function status(){const q=quest(),d=W.KVPV_DAILY?.quickState?.(),p=own()?snapshot():null;return {enabled:S.enabled,actor,actorMatch:!!own(),quest:q,active:active(),idleReady:idle(),dailyRunning:d?.running??null,dailyJob:d?.job??null,commonScene:W._Ba?._$a?.SceneUtil?.isCommonScene??null,reason:S.reason,pending:S.pending,pendingAgeMs:S.pending?Date.now()-Number(S.pending.at||0):null,ackTimeouts:S.ackTimeouts,lastError:S.lastError,steps:S.steps,snapshot:p,rpcAvailable:{place:typeof rpc()?.epFragment==='function',activate:typeof rpc()?.actShenQi==='function'},allowKNB:false};}
 W.KVPV_CO_BAO_NATIVE=Object.freeze({tick,status,stop,_handoff:()=>({actor,pending:S.pending,steps:S.steps})});
-const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;
-if(typeof W.setInterval==='function'&&typeof schedule==='function')S.timer=schedule(tick,1000);
-tick();
+S.reason='disabled_ordered_executor';
 })();
