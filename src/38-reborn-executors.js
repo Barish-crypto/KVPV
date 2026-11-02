@@ -37,7 +37,7 @@
     const p=W.KVPV_V864?.plan?.(),f=p?.fragments;
 // [VI dòng gốc 20] Khai báo biến không gán lại bằng const: actionable = đảo giá trị đúng/sai của !(p?.reward||p?.item||f?.owned||f?.allPlaced)
 // [VI dòng gốc 21] Khai báo biến không gán lại bằng const: goal = eraGoal hoặc dùng vế phải khi vế trái falsy: actionable?{id:'COBAO/available',target:Infinity,availableOnly:true}:null | Kiểm tra !goal: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: null.
-    const goal=eraGoal;if(!goal)return null;
+    const goal=eraGoal||(p?.reward?{id:'COBAO/reward',target:Infinity,availableOnly:true}:null);if(!goal)return null;
 // [VI dòng gốc 22] Kiểm tra !f: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm goal, step.
     if(!f)return {goal,step:'waiting_cobao_model'};
 // [VI dòng gốc 23] Kiểm tra Number(f.count)>=goal.target: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm goal, step, f.
