@@ -90,7 +90,7 @@ coPlugin.run(coPlugin.probe());assert.equal(calls.at(-1),'activate');
 // [VI dòng gốc 45] tăng count một đơn vị sau khi lấy giá trị | gán placed bằng false | gọi W.KVPV_REBORN_EXECUTORS.sync() | gọi assert.equal(coPlugin.probe().ready, false) để kiểm tra hai giá trị bằng nhau
 count++;placed=false;W.KVPV_REBORN_EXECUTORS.sync();assert.equal(coPlugin.probe().ready,false);
 // [VI dòng gốc 46] gán reward bằng {lv:50,mapId:2011,sig:'global-reward'} | gán W._Ba._Co._Mo.ins.awardLvs bằng [50]
-reward={lv:50,mapId:2011,sig:'global-reward'};W._Ba._Co._Mo.ins.awardLvs=[50];
+which='none';reward={lv:50,mapId:2011,sig:'global-reward'};W._Ba._Co._Mo.ins.awardLvs=[50];
 // [VI dòng gốc 47] gán W.__KVPV_USER_UI_UNTIL bằng Date.now()+5000 | Khai báo biến không gán lại bằng const: beforeManual = đọc calls.length
 W.__KVPV_USER_UI_UNTIL=Date.now()+5000;const beforeManual=calls.length;
 // [VI dòng gốc 48] Duyệt từng giá trị trong timers bằng const tick. | Khai báo biến không gán lại bằng const: tick (chưa gán giá trị) | gọi tick() để xử lý một nhịp kiểm tra | gọi assert.equal(calls.length, beforeManual, 'manual interaction yields') để kiểm tra hai giá trị bằng nhau
