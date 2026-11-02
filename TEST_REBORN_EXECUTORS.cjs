@@ -73,7 +73,7 @@ assert.equal(W.KVPV_REBORN_EXECUTORS.status().arena.confirmed,2);attempts=0;asse
 // [VI dòng gốc 37] Chú thích gốc của tác giả; không được thực thi. Nội dung: Available rewards are independent of era goals and never create a stage-farming goal.
 // Available rewards are independent of era goals and never create a stage-farming goal.
 // [VI dòng gốc 38] gán which bằng 'none' | gán owned bằng true | gán placed bằng false | gọi ep.clear()
-which='none';owned=true;placed=false;ep.clear();
+which='none';count=3;owned=true;placed=false;ep.clear();
 // Available fragments alone must not start CoBao work outside its selected reborn node.
 assert.equal(coPlugin.probe().ready,false);assert.equal(W.KVPV_REBORN_EXECUTORS.cobaoStageGoal(),null);
 which='co';assert.equal(coPlugin.probe().ready,true,'selected CoBao goal enables fragment work');
