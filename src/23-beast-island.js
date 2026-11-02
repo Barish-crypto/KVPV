@@ -319,7 +319,7 @@
     const map=Number(W._C?._Mn?._Cn?.currentID??W._Ba?._$a?._yo?.ins?.intoSce?.[0]);
     return Number(W._ft?._po?.ins?.getCfgById?.(map)?.[7])===49;
   }
-  const B={timer:null,guard:null,casts:0,moves:0,distance:null,reason:'waiting_boss',filtered:0,lastMove:0};
+  const B={guard:null,casts:0,moves:0,distance:null,reason:'waiting_boss',filtered:0,lastMove:0,lastMainTick:0};
   const component=(role,key)=>{const id=W._d?._Yct?.[key];return id?role?.getComponent?.(id):null;};
   const rolePos=r=>{const p=r?.property?.get?.('position');return Number.isFinite(Number(p?.x))&&Number.isFinite(Number(p?.y))?{x:Number(p.x),y:Number(p.y)}:null;};
   function releaseBasicGuard(){const g=B.guard;if(!g)return;try{if(g.combat.combat===g.wrap){if(g.descriptor)Object.defineProperty(g.combat,'combat',g.descriptor);else delete g.combat.combat;}}catch(e){S.lastError=String(e?.message||e);}B.guard=null;}
