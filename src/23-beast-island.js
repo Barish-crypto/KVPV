@@ -409,9 +409,9 @@
 // [VI dòng gốc 163] gán S.enabled bằng true
     S.enabled=true;
 // [VI dòng gốc 164] gán S.timer bằng (W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,1000)
-    S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,1000);
     const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;
-    if(typeof W.setInterval==='function'&&typeof schedule==='function')B.timer=schedule(basicBossTick,1);
+    if(typeof W.setInterval==='function'&&typeof schedule==='function')S.timer=schedule(()=>{basicBossTick();const now=Date.now();if(now-B.lastMainTick>=1000){B.lastMainTick=now;tick();}},1);
+    else S.timer=schedule(tick,1000);
 // [VI dòng gốc 165] gọi tick() để xử lý một nhịp kiểm tra
     tick();
 // [VI dòng gốc 166] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
