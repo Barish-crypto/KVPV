@@ -42,8 +42,8 @@
   });
  }
  function reconcile(){
-  if(!owned()){releaseHooks();S.reason='actor_changed_or_halted';return;}
-  if(role()==='none'){S.reason='account_not_assigned';return;}
+  if(!owned()){releaseHooks();K.marryBattle?.stop?.();S.reason='actor_changed_or_halted';return;}
+  if(role()==='none'){releaseHooks();K.marryBattle?.stop?.();S.reason='account_not_assigned';return;}
   const battle=K.marryBattle;
   if(!battle||battle.version!=='11.8.0'){S.reason='native_battle_module_unavailable';return;}
   battle.config.mainId=MAIN;battle.config.cloneId=CLONE;
