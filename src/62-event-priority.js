@@ -75,9 +75,8 @@ function manualReservation(daily,now){
   if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start)return null;
   const until=start-wallMinute;
   if(phase==='opening' ? !(wallMinute>=start&&wallMinute<end) : !(until>0&&until<=lead))return null;
-  const nativeAuto=e.key==='tien_duyen_tac_chien'&&phase==='opening';
   return {key:e.key,name:e.name||e.key,phase,time:e.time,
-   minutesUntil:Math.max(0,until),requiresManualEntry:!nativeAuto,mode:nativeAuto?'auto':'manual'};
+   minutesUntil:Math.max(0,until),requiresManualEntry:true,mode:'manual'};
  };
  const active=calendar.active.map(e=>eligible(e,'opening')).filter(Boolean);
  const next=calendar.upcoming.map(e=>eligible(e,'upcoming')).filter(Boolean);
@@ -93,7 +92,7 @@ function observedActivities(){
   return active.slice(0,20).filter(e=>e&&typeof e.key==='string').map(e=>({
    key:e.key,name:String(e.name||e.key),action:e.action||'notice',
    priority:Number.isFinite(e.priority)?Number(e.priority):null,
-   state:'calendar_active',autoEntryConfirmed:e.action==='auto'||e.key==='tien_duyen_tac_chien'
+   state:'calendar_active',autoEntryConfirmed:e.action==='auto'
   }));
  }catch(_){return [];}
 }
@@ -180,8 +179,6 @@ function tick(){
  if(event)yieldStage(event);
  else if(S.pending)resumeIfSafe();
  else S.reason='stage_can_resume_when_idle';
- // The native marriage-arena executor is enabled only during this verified event window.
- if(event?.key==='tien_duyen_tac_chien'&&event.phase==='opening')W.KVPV_MARRY_ARENA?.start?.();
 }
 function start(){C.enabled=true;if(S.timer==null)S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,C.pollMs);tick();return status();}
 function stop(reason='manual'){
@@ -194,7 +191,7 @@ function status(){return {enabled:C.enabled,actor,hold:hold(),observedActivities
  exitRequests:S.exitRequests,stageEnabled:W.KVPV_DAILY?.config?.enableTuVuot??null,
  nativeStageAuto:model()?.auto===true,timerActive:S.timer!=null,lastError:S.lastError,history:S.history.slice(-20),
  manualPriorityKeys:Object.keys(C.manualPriorityKeys||{}).filter(k=>C.manualPriorityKeys[k]===true),
- note:'Tiên Duyên Tác Chiến uses the verified native marriage-arena entry during its active window; other manual-only events still require user entry. Restore only in the same stage without manual input. No invented RPC or KNB.'};}
+ note:'Automatic events keep native Daily entry; manual-only events reserve time but require user entry. Restore only in the same stage without manual input. No invented RPC or KNB.'};}
 W.KVPV_EVENT_PRIORITY=Object.freeze({config:C,hold,yieldStage,tick,start,stop,status,
  _handoff:()=>({actor,paused:S.paused,resumed:S.resumed,exitRequests:S.exitRequests,
   pending:S.pending?{...S.pending}:null,lastExitAt:S.lastExitAt,lastExitKey:S.lastExitKey,history:S.history.slice(-60),
