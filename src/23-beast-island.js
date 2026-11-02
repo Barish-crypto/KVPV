@@ -319,6 +319,39 @@
     const map=Number(W._C?._Mn?._Cn?.currentID??W._Ba?._$a?._yo?.ins?.intoSce?.[0]);
     return Number(W._ft?._po?.ins?.getCfgById?.(map)?.[7])===49;
   }
+  const B={timer:null,guard:null,casts:0,moves:0,distance:null,reason:'waiting_boss',filtered:0,lastMove:0};
+  const component=(role,key)=>{const id=W._d?._Yct?.[key];return id?role?.getComponent?.(id):null;};
+  const rolePos=r=>{const p=r?.property?.get?.('position');return Number.isFinite(Number(p?.x))&&Number.isFinite(Number(p?.y))?{x:Number(p.x),y:Number(p.y)}:null;};
+  function releaseBasicGuard(){const g=B.guard;if(!g)return;try{if(g.combat.combat===g.wrap){if(g.descriptor)Object.defineProperty(g.combat,'combat',g.descriptor);else delete g.combat.combat;}}catch(e){S.lastError=String(e?.message||e);}B.guard=null;}
+  function installBasicGuard(c){
+    if(B.guard?.combat===c&&c.combat===B.guard.wrap)return true;
+    releaseBasicGuard();if(typeof c?.combat!=='function')return false;
+    const original=c.combat,descriptor=Object.getOwnPropertyDescriptor(c,'combat');
+    if(descriptor&&descriptor.configurable===false)return false;
+    const wrap=function(skill,...args){if(S.enabled&&owned()&&S.lease&&S.phase==='ACTIVE'&&S.bossCombatOcc!==null&&Number(skill)!==8001){B.filtered++;return;}return original.call(this,skill,...args);};
+    try{Object.defineProperty(c,'combat',{configurable:true,writable:true,enumerable:descriptor?.enumerable??false,value:wrap});B.guard={combat:c,wrap,descriptor};return true;}catch(e){S.lastError=String(e?.message||e);return false;}
+  }
+  function basicBossTick(){
+    try{
+      if(!owned()||!S.enabled||!S.lease||S.phase!=='ACTIVE'||S.bossCombatOcc===null){releaseBasicGuard();B.reason='boss_not_active';return;}
+      const target=user()?.selectTarget,role=W._C?._Ba?.instance?.getRole?.(Number(actor)),combat=component(role,'_Het'),selector=component(role,'_Eet'),mover=component(role,'_zet');
+      if(!basicCombatReady(target)||combat?.target!==target){B.reason='waiting_native_boss_target';return;}
+      if(!installBasicGuard(combat)){B.reason='basic_guard_unavailable';return;}
+      const a=rolePos(role),b=rolePos(target);if(!a||!b){B.reason='waiting_position';return;}
+      const d=Math.hypot(a.x-b.x,a.y-b.y);B.distance=Math.round(d*100)/100;
+      if(d<1){B.reason='invalid_distance';return;}
+      if(Math.abs(d-310)>5){
+        if(typeof mover?.moveTo==='function'&&Date.now()-B.lastMove>=800&&mover.running?.()!==true){mover.moveTo(b.x+(a.x-b.x)*310/d,b.y+(a.y-b.y)*310/d);B.moves++;B.lastMove=Date.now();}
+        B.reason='moving_to_310';return;
+      }
+      if(combat.isCooldown?.()!==false){B.reason='native_cooldown';return;}
+      if(combat.isValidTarget?.()!==true||combat.isValidRange?.()!==true){B.reason='native_range';return;}
+      const now=Date.now(),rows=[...(Array.isArray(selector?._rtt)?selector._rtt:[]),...(Array.isArray(selector?._wet)?selector._wet:[])].filter(x=>Number(x?.[0])===8001&&Number(x?.[1])<now);
+      if(!rows.length||typeof selector?._f7t!=='function'){B.reason='waiting_basic_8001';return;}
+      if(Number(selector._f7t(rows,[],1))!==8001||combat.target!==target||!basicCombatReady(target)){B.reason='selector_changed';return;}
+      combat.combat(8001);B.casts++;B.reason='cast_8001';
+    }catch(e){S.lastError=String(e?.message||e);B.reason='error';}
+  }
   function status(){
 // [VI dòng gốc 138] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm enabled, phase, reason, collectionLayer, bossLevel, bossLayer, quota, lastError, allowKNB.
     return {
@@ -342,7 +375,7 @@
       lastError:S.lastError,
 // [VI dòng gốc 147] Thuộc tính allowKNB: false
       allowKNB:false,
-      basicCombat:{enabled:true,active:S.bossCombatOcc!==null&&S.lease,skillIds:[8001,8002,8003,8004,8005]}
+      basicCombat:{enabled:true,active:S.bossCombatOcc!==null&&S.lease,skillIds:[8001],goal:310,pollMs:1,casts:B.casts,moves:B.moves,distance:B.distance,reason:B.reason,filteredNon8001:B.filtered}
 // [VI dòng gốc 148] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
     };
 // [VI dòng gốc 149] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
@@ -362,7 +395,7 @@
 // [VI dòng gốc 156] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
     }
 // [VI dòng gốc 157] gọi release() để nhả quyền điều khiển đang giữ
-    release();
+    release();releaseBasicGuard();
 // [VI dòng gốc 158] gán S.phase bằng 'OFF'
     S.phase='OFF';
 // [VI dòng gốc 159] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
