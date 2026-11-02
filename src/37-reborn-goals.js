@@ -75,9 +75,10 @@
 // [VI dòng gốc 39] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
     }
 // [VI dòng gốc 40] Khai báo biến không gán lại bằng const: claim = gọi tasks.find(q=>q.state===1) để tìm phần tử đầu tiên thỏa điều kiện; supported = tạo mảng gồm 7 vị trí: ['LEVEL','STAGE','LINH_LUNG','FABAO','EQUIPMENT','CO_BAO','ARENA']
-    const claim=tasks.find(q=>q.state===1),supported=['LEVEL','STAGE','LINH_LUNG','FABAO','EQUIPMENT','CO_BAO','ARENA'];
-// [VI dòng gốc 41] Khai báo biến không gán lại bằng const: selected = claim??tasks.find(q=>q.state===0&&supported.includes(q.kind)) hoặc dùng vế phải khi vế trái là null/undefined: null
-    const selected=claim??tasks.find(q=>q.state===0&&supported.includes(q.kind))??null;
+    const supported=['LEVEL','STAGE','LINH_LUNG','FABAO','EQUIPMENT','CO_BAO','ARENA'];
+    const stageClaim=tasks.find(q=>q.state===1&&q.kind==='STAGE'),claim=stageClaim??tasks.find(q=>q.state===1);
+    const stageTask=tasks.find(q=>q.state===0&&q.kind==='STAGE');
+    const selected=claim??stageTask??tasks.find(q=>q.state===0&&supported.includes(q.kind))??null;
 // [VI dòng gốc 42] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm root, eraLevel, tasks, selected, reason.
     return {root:r,eraLevel:Number(m?.lv),tasks,selected,
 // [VI dòng gốc 43] Thuộc tính reason: nếu !tasks.length thì lấy 'waiting_era_info', ngược lại lấy claim?'waiting_existing_era_reward_queue':selected?'doing_'+selected.kind.toLowerCase(): tasks.length===4&&tasks.every(q=>q.state===2)?Number(m?.lv)>=406&&Number(W._Ba?._ke?._Le?.i…
@@ -119,9 +120,8 @@
 // [VI dòng gốc 61] Chú thích gốc của tác giả; không được thực thi. Nội dung: native claim/breakthrough sender in charge; never click its paid bypass.
     // native claim/breakthrough sender in charge; never click its paid bypass.
 // [VI dòng gốc 62] Khai báo biến không gán lại bằng const: key = tính biểu thức S.plan.root.id+'/'+S.plan.eraLevel; ui = đọc W._ft?._Y4n?.ins nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
-    const key=S.plan.root.id+'/'+S.plan.eraLevel,ui=W._ft?._Y4n?.ins;
-// [VI dòng gốc 63] Kiểm tra S.plan.root.state!==2&&S.openedKey!==key&&idle()&&ui?.open: đúng thì chạy nhánh sau if. | gán S.openedKey bằng key | gọi ui.open(41)
-    if(S.plan.root.state!==2&&S.openedKey!==key&&idle()&&ui?.open){S.openedKey=key;ui.open(41);}
+    const key=S.plan.root.id+'/'+S.plan.eraLevel,ui=W._ft?._Y4n?.ins,isOpen=typeof ui?.isOpened==='function'?ui.isOpened(41):null;
+    if(S.plan.root.state!==2&&idle()&&ui?.open&&(S.openedKey!==key||isOpen===false)){S.openedKey=key;ui.open(41);}
 // [VI dòng gốc 64] gọi W.KVPV_QUEST_PRIORITY?.sync() (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gọi W.KVPV_QUEST_GOALS?.sync() (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gọi W.KVPV_PROGRESS_PLANNER?.sync() (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     W.KVPV_QUEST_PRIORITY?.sync?.();W.KVPV_QUEST_GOALS?.sync?.();W.KVPV_PROGRESS_PLANNER?.sync?.();
 // [VI dòng gốc 65] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gán S.lastError bằng String(e) | gán S.reason bằng 'error'
