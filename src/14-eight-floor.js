@@ -120,13 +120,16 @@
 // [VI dòng gốc 61] Khai báo biến không gán lại bằng const: top = d.inside và chỉ đánh giá vế phải khi vế trái truthy: Number(W._Ba?._$a?._yo?.ins?.intoSce?.[3])===9||d.floor===9; chestDone = tính biểu thức W.KVPV_EIGHT_CHEST?.status?.()?.doneToday===true
     const top=d.inside&&(Number(W._Ba?._$a?._yo?.ins?.intoSce?.[3])===9||d.floor===9),chestDone=W.KVPV_EIGHT_CHEST?.status?.()?.doneToday===true;
 // [VI dòng gốc 62] Kiểm tra chestDone||(!top&&d.passed&&Number(d.rank?.[2])===2): đúng thì chạy nhánh sau if. | gán completedDay bằng d.day | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi W.localStorage?.setItem(storage, completedDay) để ghi giá trị vào bộ lưu trữ (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
-    if(chestDone||(!top&&d.passed&&Number(d.rank?.[2])===2)){completedDay=d.day;try{W.localStorage?.setItem(storage,completedDay);}catch(_){}}
+    const floorCompletion=!top&&d.passed&&Number(d.floor)>=8&&Number(d.rank?.[2])===2;
+    if(chestDone||floorCompletion){completedDay=d.day;try{W.localStorage?.setItem(storage,completedDay);}catch(_){}}
 // [VI dòng gốc 63] Kiểm tra d.inside: đúng thì chạy nhánh sau if.
     if(d.inside){
 // [VI dòng gốc 64] Kiểm tra !S.session: đúng thì chạy nhánh sau if. | Kiểm tra !reserve(): đúng thì chạy nhánh sau if. | gán S.reason bằng 'scene_reserved_by_other_job' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       if(!S.session){if(!reserve()){S.reason='scene_reserved_by_other_job';return;}S.session=true;S.entries++;S.enteredAt=time;S.lastTarget=-Infinity;rpc()?.getRankInfo?.();note('ENTRY-CONFIRMED');}
 // [VI dòng gốc 65] gọi W.KVPV?.core?.scene?.renew('combat') để gia hạn quyền đang giữ (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại) | gọi claim(d)
       W.KVPV?.core?.scene?.renew?.('combat');claim(d);
+      // A stale local completion marker must not eject an unfinished run.
+      if(!top&&completedDay===d.day&&Number(d.rank?.[2])!==2){completedDay='';try{W.localStorage?.removeItem(storage);}catch(_){}note('STALE-COMPLETION-CLEARED');}
 // [VI dòng gốc 66] Kiểm tra S.phase==='EXITING': đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_exit_confirmation' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
       if(S.phase==='EXITING'){S.reason='waiting_exit_confirmation';return;}
 // [VI dòng gốc 67] Kiểm tra completedDay===d.day&&!S.claimPending&&(!top||chestDone): đúng thì chạy nhánh sau if. | gán S.reason bằng 'completed_and_rewarded_exit' | Kiểm tra typeof sceneRpc()?.rqEtScene==='function': đúng thì chạy nhánh sau if. | gán S.phase bằng 'EXITING'
@@ -167,6 +170,7 @@
 // [VI dòng gốc 84] gọi claim(d)
     claim(d);
 // [VI dòng gốc 85] Kiểm tra completedDay===d.day: đúng thì chạy nhánh sau if. | gán S.reason bằng 'completed_and_rewarded_today' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
+    if(completedDay===d.day&&Number(d.rank?.[2])!==2&&!chestDone){completedDay='';try{W.localStorage?.removeItem(storage);}catch(_){}note('STALE-COMPLETION-CLEARED');}
     if(completedDay===d.day){S.reason='completed_and_rewarded_today';return;}
 // [VI dòng gốc 86] Kiểm tra !d.scheduled||!d.open||!d.unlocked: đúng thì chạy nhánh sau if. | gán S.reason bằng 'waiting_schedule_server_open_unlock' | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
     if(!d.scheduled||!d.open||!d.unlocked){S.reason='waiting_schedule_server_open_unlock';return;}
