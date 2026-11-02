@@ -13,19 +13,19 @@
  const component=(key)=>{const r=W._C?._Ba?.instance?.getRole?.(Number(actor)),id=W._d?._Yct?.[key];return id?r?.getComponent?.(id):null;};
  function restore(h){if(!h?.obj||h.obj[h.key]!==h.wrapper)return;try{if(h.descriptor)Object.defineProperty(h.obj,h.key,h.descriptor);else delete h.obj[h.key];}catch(e){S.error=String(e?.message??e);}}
  function releaseHooks(){restore(G.selector);restore(G.combat);G.selector=G.combat=null;}
- function hook(obj,key,factory){
+ function hook(slot,obj,key,factory){
   if(!obj||typeof obj[key]!=='function')return null;
-  const prior=G[key];if(prior?.obj===obj&&obj[key]===prior.wrapper)return prior;
-  restore(prior);G[key]=null;
+  const prior=G[slot];if(prior?.obj===obj&&obj[key]===prior.wrapper)return prior;
+  restore(prior);G[slot]=null;
   const descriptor=Object.getOwnPropertyDescriptor(obj,key),native=obj[key],wrapper=factory(native);
-  try{Object.defineProperty(obj,key,{configurable:descriptor?.configurable??true,writable:descriptor?.writable??true,enumerable:descriptor?.enumerable??false,value:wrapper});return G[key]={obj,key,wrapper,descriptor};}
+  try{Object.defineProperty(obj,key,{configurable:descriptor?.configurable??true,writable:descriptor?.writable??true,enumerable:descriptor?.enumerable??false,value:wrapper});return G[slot]={obj,key,wrapper,descriptor};}
   catch(e){S.error=String(e?.message??e);return null;}
  }
  function mainBoss(){return S.enabled&&owned()&&role()==='main'&&map()===BOSS;}
  function installMain8001(){
   if(!mainBoss()){releaseHooks();return;}
   const selector=component('_Eet'),combat=component('_Het');
-  hook(selector,'_f7t',native=>function(active,common,mode,...rest){
+  hook('selector',selector,'_f7t',native=>function(active,common,mode,...rest){
    if(!mainBoss())return native.call(this,active,common,mode,...rest);
    if(mode!==1){S.filtered++;return -1;}
    const a=Array.isArray(active)?active.filter(r=>Number(r?.[0])===8001):[];
@@ -35,7 +35,7 @@
    if(picked!==8001){S.filtered++;return -1;}
    S.skillCalls++;return 8001;
   });
-  hook(combat,'combat',native=>function(skill,...args){
+  hook('combat',combat,'combat',native=>function(skill,...args){
    if(mainBoss()&&Number(skill)!==8001){S.filtered++;return;}
    if(mainBoss())S.skillCalls++;
    return native.call(this,skill,...args);
