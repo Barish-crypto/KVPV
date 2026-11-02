@@ -12,7 +12,7 @@ const rpc=()=>W._Ba?._kAt?._IMi?.inst;
 function quest(){const t=W._Ba?._zIt?._FIt?.ins?.taskInfo;return Array.isArray(t)?{id:String(t[0]),state:Number(t[1])}:null;}
 function active(){const q=quest();return !!q&&q.id==='m1094'&&q.state!==2;}
 function idle(){const s=W.KVPV_DAILY?.quickState?.(),j=String(s?.job??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
- return own()&&active()&&s?.running===true&&(j==='ranh'||j==='idle')&&
+ return own()&&active()&&(!j||j==='ranh'||j==='idle')&&
  !['entering','exiting','fighting'].includes(String(s.step))&&
  W._Ba?._$a?.SceneUtil?.isCommonScene===true&&!W.KVPV_UPGRADES?.busy?.()&&
  !W.KVPV_EVENT_PRIORITY?.hold?.();}
@@ -32,7 +32,7 @@ function tick(){if(!S.enabled||!own())return;
   const p=snapshot(),now=Date.now(),signature=JSON.stringify([quest(),p.count,p.rows]);
   if(S.pending){if(S.pending.signature===signature){
     S.reason=now-Number(S.pending.at||0)>30000?'server_ack_timeout_manual_review':'waiting_server_ack';
-    if(S.reason==='server_ack_timeout_manual_review')S.ackTimeouts++;
+    if(S.reason==='server_ack_timeout_manual_review'&&!S.pending.timeoutLogged){S.ackTimeouts++;S.pending.timeoutLogged=true;}
     return;
    }S.pending=null;}
   if(!p.ready){if(now-S.lastOpen>60000&&typeof manager()?.openByActionId==='function'){manager().openByActionId(189);S.lastOpen=now;}S.reason='waiting_fragment_data';return;}
