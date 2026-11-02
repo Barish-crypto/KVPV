@@ -10957,7 +10957,7 @@
 // [VI dòng gốc 5505] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | Kiểm tra W.KVPV_V861?.config: đúng thì chạy nhánh sau if. | gán W.KVPV_V861.config.autoOpenFarmingGuide bằng false | Nhận lỗi bằng _ và chạy phần xử lý lỗi.
   try{if(W.KVPV_V861?.config)W.KVPV_V861.config.autoOpenFarmingGuide=false;}catch(_){window.KVPV_V1?.diagnostics?.record(_);}
 // [VI dòng gốc 5506] Khai báo biến không gán lại bằng const: C = tạo đối tượng gồm enabled, questId, actionId, targetCount, autoOpenCoBao, autoEquipOwned, autoActivate, preventAutoTuVuot, resumeTuVuotAfterQuest, openIntervalMs, ackTimeoutMs, watchMs
-  const C={enabled:true,questId:'m1094',actionId:189,targetCount:2,
+  const C={enabled:false,questId:'m1094',actionId:189,targetCount:2,
 // [VI dòng gốc 5507] Thuộc tính autoOpenCoBao: true | Thuộc tính autoEquipOwned: true | Thuộc tính autoActivate: true
     autoOpenCoBao:true,autoEquipOwned:true,autoActivate:true,
 // [VI dòng gốc 5508] Thuộc tính preventAutoTuVuot: true | Thuộc tính resumeTuVuotAfterQuest: true
@@ -11297,7 +11297,7 @@
 // [VI dòng gốc 5675] Duyệt từng giá trị trong plugins bằng const p. | Khai báo biến không gán lại bằng const: p (chưa gán giá trị)
   for(const p of plugins){
 // [VI dòng gốc 5676] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi V.register({...p,verified:true,enabled:true,background:false,redIds:[]}) | gọi life.ids.push(p.id) để thêm phần tử vào cuối mảng
-    try{V.register({...p,verified:true,enabled:true,background:false,redIds:[]});life.ids.push(p.id);}
+    try{V.register({...p,verified:true,enabled:false,background:false,redIds:[]});life.ids.push(p.id);}
 // [VI dòng gốc 5677] Nhận lỗi bằng e và chạy phần xử lý lỗi. | gọi console.warn('[V8.6.3] Khong dang ky:', p.id, e)
     catch(e){console.warn('[V8.6.3] Khong dang ky:',p.id,e);}
 // [VI dòng gốc 5678] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
@@ -11381,7 +11381,8 @@
 // [VI dòng gốc 5717] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   };
 // [VI dòng gốc 5718] gán W.KVPV_V863 bằng api | gọi api.start() để khởi động bộ điều khiển
-  W.KVPV_V863=api;api.start();
+  // V8.6.4 owns the ordered Co Bao flow; keep this legacy controller manual-only.
+  W.KVPV_V863=api;
 // [VI dòng gốc 5719] gọi console.log('[V8.6.3] FIX: Tu Vuot tam dung khi m1094; chi mo Co Bao 189; bam Nhan/Kich hoat neu game bao du. KVPV_V863.status()')
   console.log('[V8.6.3] FIX: Tu Vuot tam dung khi m1094; chi mo Co Bao 189; bam Nhan/Kich hoat neu game bao du. KVPV_V863.status()');
 // [VI dòng gốc 5720] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
@@ -11437,7 +11438,7 @@
 // [VI dòng gốc 5750] Thuộc tính claimStageReward: true | Thuộc tính useFragmentItem: true | Thuộc tính putFragments: true | Thuộc tính activateCoBao: true
     claimStageReward:true,useFragmentItem:true,putFragments:true,activateCoBao:true,
 // [VI dòng gốc 5751] Thuộc tính openCoBaoUI: true | Thuộc tính openEveryMs: 60000
-    openCoBaoUI:true,openEveryMs:60000,
+    openCoBaoUI:false,openEveryMs:60000,
 // [VI dòng gốc 5752] Chú thích gốc của tác giả; không được thực thi. Nội dung: m1094: tuyet doi khong tu qua ai. Neu thieu manh, doi thuong ai co san.
     // m1094: tuyet doi khong tu qua ai. Neu thieu manh, doi thuong ai co san.
 // [VI dòng gốc 5753] Thuộc tính suspendTuVuotDuringCoBao: true | Thuộc tính restoreTuVuotAfterCoBao: true
