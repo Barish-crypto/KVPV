@@ -44,7 +44,7 @@
 // [VI dòng gốc 23] Kiểm tra Number(f.count)>=goal.target: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm goal, step, f.
     if(Number(f.count)>=goal.target)return {goal,step:'waiting_era_node_ack',f};
 // [VI dòng gốc 24] Khai báo biến không gán lại bằng const: step = nếu !f.ready thì lấy 'fetch', ngược lại lấy f.allPlaced?'activate':f.owned?'put':p.item?'use':p.reward?'claimStage':'missing'
-    const step=!f.ready?'fetch':f.allPlaced?'activate':f.owned?'put':p.item?'use':p.reward?'claimStage':'missing';
+    const step=!f.ready?'fetch':f.allPlaced?'activate':f.owned?'put':p.reward?'claimStage':p.item?'use':'missing';
 // [VI dòng gốc 25] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm goal, step, f, item, reward.
     return {goal,step,f,item:p.item,reward:p.reward};
 // [VI dòng gốc 26] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
