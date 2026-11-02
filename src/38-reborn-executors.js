@@ -36,15 +36,14 @@
 // [VI dòng gốc 19] Khai báo biến không gán lại bằng const: p = gọi W.KVPV_V864?.plan() (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại); f = đọc p?.fragments nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại)
     const p=W.KVPV_V864?.plan?.(),f=p?.fragments;
 // [VI dòng gốc 20] Khai báo biến không gán lại bằng const: actionable = đảo giá trị đúng/sai của !(p?.reward||p?.item||f?.owned||f?.allPlaced)
-    const actionable=!!(p?.reward||p?.item||f?.owned||f?.allPlaced);
 // [VI dòng gốc 21] Khai báo biến không gán lại bằng const: goal = eraGoal hoặc dùng vế phải khi vế trái falsy: actionable?{id:'COBAO/available',target:Infinity,availableOnly:true}:null | Kiểm tra !goal: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: null.
-    const goal=eraGoal||(actionable?{id:'COBAO/available',target:Infinity,availableOnly:true}:null);if(!goal)return null;
+    const goal=eraGoal;if(!goal)return null;
 // [VI dòng gốc 22] Kiểm tra !f: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm goal, step.
     if(!f)return {goal,step:'waiting_cobao_model'};
 // [VI dòng gốc 23] Kiểm tra Number(f.count)>=goal.target: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm goal, step, f.
     if(Number(f.count)>=goal.target)return {goal,step:'waiting_era_node_ack',f};
 // [VI dòng gốc 24] Khai báo biến không gán lại bằng const: step = nếu !f.ready thì lấy 'fetch', ngược lại lấy f.allPlaced?'activate':f.owned?'put':p.item?'use':p.reward?'claimStage':'missing'
-    const step=!f.ready?'fetch':f.allPlaced?'activate':f.owned?'put':p.reward?'claimStage':p.item?'use':'missing';
+    const step=!f.ready?'fetch':p.item?'use':p.reward?'claimStage':f.allPlaced?'activate':f.owned?'put':'missing';
 // [VI dòng gốc 25] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm goal, step, f, item, reward.
     return {goal,step,f,item:p.item,reward:p.reward};
 // [VI dòng gốc 26] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
