@@ -11438,7 +11438,7 @@
 // [VI dòng gốc 5750] Thuộc tính claimStageReward: true | Thuộc tính useFragmentItem: true | Thuộc tính putFragments: true | Thuộc tính activateCoBao: true
     claimStageReward:true,useFragmentItem:true,putFragments:true,activateCoBao:true,
 // [VI dòng gốc 5751] Thuộc tính openCoBaoUI: true | Thuộc tính openEveryMs: 60000
-    openCoBaoUI:false,openEveryMs:60000,
+    openCoBaoUI:true,openEveryMs:60000,
 // [VI dòng gốc 5752] Chú thích gốc của tác giả; không được thực thi. Nội dung: m1094: tuyet doi khong tu qua ai. Neu thieu manh, doi thuong ai co san.
     // m1094: tuyet doi khong tu qua ai. Neu thieu manh, doi thuong ai co san.
 // [VI dòng gốc 5753] Thuộc tính suspendTuVuotDuringCoBao: true | Thuộc tính restoreTuVuotAfterCoBao: true
@@ -11456,7 +11456,7 @@
 // [VI dòng gốc 5759] Khai báo biến không gán lại bằng const: S = tạo đối tượng gồm ids, timer, disabled, last, attempts, paused, oldTuVuot, questKey, navKey, navAt, lastMessage, lastMessageAt, stageClaims, uses, places, activations
   const S={ids:[],timer:null,disabled:false,last:new Map(),attempts:new Map(),
 // [VI dòng gốc 5760] Thuộc tính paused: false | Thuộc tính oldTuVuot: null | Thuộc tính questKey: null | Thuộc tính navKey: null
-    paused:false,oldTuVuot:null,questKey:null,navKey:null,navAt:0,
+    paused:false,oldTuVuot:null,questKey:null,navKey:null,navAt:0,coBaoOpenKey:null,
 // [VI dòng gốc 5761] Thuộc tính lastMessage: "" | Thuộc tính lastMessageAt: 0 | Thuộc tính stageClaims: 0 | Thuộc tính uses: 0
     lastMessage:'',lastMessageAt:0,stageClaims:0,uses:0,places:0,activations:0};
 // [VI dòng gốc 5762] Khai báo biến không gán lại bằng const: time = tạo hàm với tham số (không có); mỗi lần gọi trả về gọi Date.now()
@@ -11626,13 +11626,17 @@
 // [VI dòng gốc 5844] Chú thích gốc của tác giả; không được thực thi. Nội dung: Neu dung ID fragment truc tiep, van chi dung item loai 2/3 co ten Manh.
       // Neu dung ID fragment truc tiep, van chi dung item loai 2/3 co ten Manh.
 // [VI dòng gốc 5845] Khai báo biến không gán lại bằng const: isTarget = targets.has(id) hoặc dùng vế phải khi vế trái falsy: /mảnh/i.test(name)&& ((f.config?.[1]&&name.toLocaleLowerCase().includes(String(f.config[1]).toLocaleLowerCase())) || /cổ bảo|huyền thiên thanh liên/i.test(name))
-      const isTarget=targets.has(id)||(/mảnh/i.test(name)&&
+      const norm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase();
+      const itemName=norm(name),artifactName=norm(f.config?.[1]);
+      const exactArtifact=targets.has(id)&&!!artifactName&&itemName.includes(artifactName);
+      const namedFragment=/manh/.test(itemName)&&((artifactName&&itemName.includes(artifactName))||/co bao|huyen thien thanh lien/.test(itemName));
+      const isTarget=(targets.has(id)&&(/manh/.test(itemName)||exactArtifact))||namedFragment||(/mảnh/i.test(name)&&
 // [VI dòng gốc 5846] gọi name.toLocaleLowerCase().includes(String(f.config[1]).toLocaleLowerCase()) để kiểm tra dữ liệu có chứa giá trị | gọi name.toLocaleLowerCase() | gọi String(f.config[1]).toLocaleLowerCase() | gọi String(f.config[1]) để chuyển sang chuỗi
         ((f.config?.[1]&&name.toLocaleLowerCase().includes(String(f.config[1]).toLocaleLowerCase())) ||
 // [VI dòng gốc 5847] gọi /cổ bảo|huyền thiên thanh liên/i.test(name)
         /cổ bảo|huyền thiên thanh liên/i.test(name)));
 // [VI dòng gốc 5848] Kiểm tra !isTarget||!/mảnh/i.test(name): đúng thì chạy nhánh sau if. | Bỏ phần còn lại của vòng hiện tại và chuyển sang vòng tiếp theo.
-      if(!isTarget||!/mảnh/i.test(name))continue;
+      if(!isTarget||(!/manh/.test(itemName)&&!exactArtifact))continue;
 // [VI dòng gốc 5849] Kiểm tra typeof _et==='undefined'||![2,3].includes(Number(_et.getTypeById?.(id))): đúng thì chạy nhánh sau if. | Bỏ phần còn lại của vòng hiện tại và chuyển sang vòng tiếp theo.
       if(typeof _et==='undefined'||![2,3].includes(Number(_et.getTypeById?.(id))))continue;
 // [VI dòng gốc 5850] Kiểm tra itemTool()?.isManualGift?.(id)===true||itemTool()?.isManualGift2?.(id)===true: đúng thì chạy nhánh sau if. | Bỏ phần còn lại của vòng hiện tại và chuyển sang vòng tiếp theo.
@@ -11661,14 +11665,11 @@
       if(f.count!==null&&f.count>=C.requiredCoBao)step='waitQuest';
 // [VI dòng gốc 5862] Kiểm tra f.ready: đúng thì chạy nhánh sau if, sai thì chạy nhánh else.
       else if(f.ready){
-// [VI dòng gốc 5863] Kiểm tra f.allPlaced: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gán step bằng 'activate'
-        if(f.allPlaced)step='activate';
-// [VI dòng gốc 5864] Kiểm tra f.owned: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gán step bằng 'put'
-        else if(f.owned)step='put';
-// [VI dòng gốc 5865] Kiểm tra i: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gán step bằng 'use'
+// Theo ảnh thao tác: nhận thưởng Thiên Kiếp → dùng item đúng → đặt mảnh → kích hoạt/tiến bậc.
+        if(r)step='claimStage';
         else if(i)step='use';
-// [VI dòng gốc 5866] Kiểm tra r: đúng thì chạy nhánh sau if, sai thì chạy nhánh else. | gán step bằng 'claimStage'
-        else if(r)step='claimStage';
+        else if(f.owned)step='put';
+        else if(f.allPlaced)step='activate';
 // [VI dòng gốc 5867] gán step bằng 'missing'
         else step='missing';
 // [VI dòng gốc 5868] gán step bằng 'fetch'
@@ -11830,13 +11831,14 @@
 // [VI dòng gốc 5946] Định nghĩa hàm openCoBao; tham số: không có
   function openCoBao(){
 // [VI dòng gốc 5947] Khai báo biến không gán lại bằng const: p = gọi statusCore() | Kiểm tra !isCoBao(p.task)||!eligible()||p.panel.open: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: false.
-    const p=statusCore();if(!isCoBao(p.task)||!eligible()||p.panel.open)return false;
+    const p=statusCore(),openKey=`${p.task?.id}:${p.task?.state}:${p.step}:${p.sig}`;
+    if(!isCoBao(p.task)||!eligible()||p.panel.open||S.coBaoOpenKey===openKey)return false;
 // [VI dòng gốc 5948] Kiểm tra typeof mgr()?.openByActionId!=='function': đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: false.
     if(typeof mgr()?.openByActionId!=='function')return false;
 // [VI dòng gốc 5949] Kiểm tra time()-S.navAt<C.openEveryMs: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: false.
     if(time()-S.navAt<C.openEveryMs)return false;
 // [VI dòng gốc 5950] gọi mgr().openByActionId(C.coBaoActionId) | gán S.navAt bằng time() | gọi log('Di den Co Bao (189), KHONG mo Tu Vuot') | Kết thúc hàm hiện tại và trả về: true.
-    mgr().openByActionId(C.coBaoActionId);S.navAt=time();log('Di den Co Bao (189), KHONG mo Tu Vuot');return true;
+    mgr().openByActionId(C.coBaoActionId);S.navAt=time();S.coBaoOpenKey=openKey;log('Di den Co Bao (189), KHONG mo Tu Vuot');return true;
 // [VI dòng gốc 5951] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 5952] Chú thích gốc của tác giả; không được thực thi. Nội dung: Sau khi m1094 duoc NHAN, taskInfo cua game doi ID: mo actionId cua nhiem vu moi
@@ -11898,7 +11900,7 @@
 // [VI dòng gốc 5980] Chú thích gốc của tác giả; không được thực thi. Nội dung: Uu tien xu ly du lieu RPC ngay, khong can chuyen man hinh. UI chi mo khi can hoac mong muon.
       // Uu tien xu ly du lieu RPC ngay, khong can chuyen man hinh. UI chi mo khi can hoac mong muon.
 // [VI dòng gốc 5981] Kiểm tra C.openCoBaoUI&&p.step!=='claimStage'&&p.step!=='use'&&p.step!=='waitQuest'&& time()-S.navAt>=C.openEveryMs: đúng thì chạy nhánh sau if.
-      if(C.openCoBaoUI&&p.step!=='claimStage'&&p.step!=='use'&&p.step!=='waitQuest'&&
+      if(C.openCoBaoUI&&['put','activate'].includes(p.step)&&
 // [VI dòng gốc 5982] gọi openCoBao()
          time()-S.navAt>=C.openEveryMs)openCoBao();
 // [VI dòng gốc 5983] Kiểm tra p.task: đúng thì chạy nhánh sau if. | gọi followNextQuest(p)

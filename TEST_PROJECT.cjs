@@ -43,7 +43,9 @@ try{
 // [VI dòng gốc 22] gọi assert(!built.liveModules.includes('04-engine.js'), 'hot reload must preserve legacy Daily workers') để kiểm tra điều kiện của bài test
  assert(!built.liveModules.includes('04-engine.js'),'hot reload must preserve legacy Daily workers');
 // [VI dòng gốc 23] gọi assert(built.liveModules.includes('23-beast-island.js')) để kiểm tra điều kiện của bài test
- assert(built.liveModules.includes('23-beast-island.js'));
+ const removedCombat=['09-combat-engine.js','09-range-keeper310.js','09-test-legacy-combat.js','09-th300-scan-default.js','10-tq-basic-force.js','12-basic-outside.js','13-transform-skills.js','23-beast-island.js','50-companion-combat.js','71-kiem-khieu-basic.js','76-trutien-pvp.js','77-strongest-team-pvp.js','80-tienma-quyetchien-pvp.js','81-tranh-ba-tu-phuong-pvp.js','84-basic310-universal.js','85-le-hoi-khu-thu-boss.js'];
+ for(const file of removedCombat){assert(!built.modules.includes(file),file+' must be absent from the native-combat build');assert(!built.liveModules.includes(file),file+' must not be installed');}
+ for(const file of ['00-skill-pacing.js','00-tq-basic-profile.js','07-tuyet-hoc.js','07-th300-hitrun-compat.js','08-range-evidence.js','09-modes.js','11-auto-tianquan.js'])assert(built.liveModules.includes(file),file+' must be active for native skill + Tuyet Hoc combat');
 // [VI dòng gốc 24] gọi console.log('PASS shared project: manifest path/hash/syntax checks, no generated-file build loop, stable addon ID, live module membe…)
  console.log('PASS shared project: manifest path/hash/syntax checks, no generated-file build loop, stable addon ID, live module membership');
 // [VI dòng gốc 25] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: }finally{

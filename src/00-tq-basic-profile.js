@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   window.KVPV_TQ_BASIC_PROFILE=Object.freeze({create(env){
-    const ids=[8001,8002,8003,8004,8005],pending=new Map(),rows=new Map();
+    const allIds=[8001,8002,8003,8004,8005],pending=new Map(),rows=new Map();let ids=allIds.slice();
     let enabled=false,waitMs=10,context='',probe=null,serial=0,tuyetHoc=false;
     const now=()=>Date.now(),active=()=>enabled&&['THIEN_QUAN','LINH_LUNG','PHU_VAN'].includes(env.scope());
     const learned=()=>ids.filter(id=>env.learned().includes(id));
@@ -34,6 +34,6 @@
       rows:ids.map(id=>{const r=row(id),distances=r.hits.map(h=>Math.min(h.castDistance,h.hitDistance)).filter(Number.isFinite).sort((a,b)=>b-a);return {...r,confirmedDistance:distances[1]??null,rangeStatus:distances.length>=2?'two_direct_hit_pairs':'unverified'};}),
       note:'Confirmed distance is a tested lower bound, not maximum server range. No confirmation is not proof of a miss. Active probe moves inward, may take damage, pauses below 70% HP/during dodge or recovery, and returns to the normal far goal when finished.'}));}
     return Object.freeze({active,allowsTuyetHoc:()=>active()&&tuyetHoc&&!probeRunning(),setTuyetHoc(value=true){tuyetHoc=!!value;return report();},wait:()=>waitMs,goal,ids:()=>probeSafe()?[probe.ids[probe.index]]:ids.slice(),canAttempt,tick,cast,hit,start,stop,report,
-      configure(on=true,wait=10){if(!Number.isFinite(wait)||wait<1||wait>1000)throw Error('Wait must be 1..1000ms');enabled=!!on;waitMs=wait;if(!enabled)stop('disabled');return report();}});
+      configure(on=true,wait=0,skillIds=null){if(!Number.isFinite(wait)||wait<0||wait>1000)throw Error('Wait must be 0..1000ms');if(skillIds!==null&&(!Array.isArray(skillIds)||!skillIds.length||skillIds.some(id=>!allIds.includes(Number(id)))))throw Error('Basic profile requires native IDs 8001..8005');enabled=!!on;waitMs=wait;ids=skillIds===null?allIds.slice():[...new Set(skillIds.map(Number))];if(!enabled)stop('disabled');return report();}});
   }});
 })();

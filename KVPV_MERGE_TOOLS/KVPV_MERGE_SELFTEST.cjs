@@ -1,0 +1,61 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm'),path=require('node:path');
+const full=path.resolve(process.argv[2]||path.join(__dirname,'KVPV_V1_FULL_MERGED_CANDIDATE.js'));
+const src=fs.readFileSync(full,'utf8');
+const native=src.split('// Source: src/10-experimental-boost.js')[0];
+const start=native.indexOf("  const speedKey='__KVPV_BASIC_SPEED_TRIAL_99_REPEAT1_20261025'");
+const end=native.indexOf('  function onNativeCast(',start);
+assert(start>=0&&end>start,'speed trial bounds must exist');
+const trial=native.slice(start,end).replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'');
+for (const token of ['thVisual=id>=1001&&id<=1008','tqFive.allowsTuyetHoc()===true',
+  "W.KVPV_FAR_SCOPE?.status?.()?.kind==='THIEN_QUAN'",'CFG.tqTuyetHocVisualSpeed>1',
+  'avatar.getActionTween=original','if(thVisual)thVisualScaled++',
+  'clip?.timeScale===s.applied)clip.timeScale=s.before'])assert(trial.includes(token),token);
+assert(native.includes('function setTianQuanTuyetHocVisualSpeed(factor=99)'));
+assert(native.includes('if(![1,9,30,99].includes(factor))'));
+assert(native.includes('serverCooldownUnchanged:true'));
+const visualStart=src.indexOf('  function setTianQuanTuyetHocVisualSpeed(factor=99){');
+const visualEnd=src.indexOf('  function setBasicAnimationSpeed(',visualStart);
+assert(visualStart>=0&&visualEnd>visualStart);
+const chunk=src.slice(visualStart,visualEnd);
+const ctx={CFG:{tqTuyetHocVisualSpeed:99,tqBasicVisualSpeed:1},restoreCalls:0,
+ restoreSpeedClips(){this.restoreCalls++;}};
+// In source, restoreSpeedClips() is called as an unbound function; use a closure counter.
+const visualVM=vm.createContext({CFG:{tqTuyetHocVisualSpeed:99,tqBasicVisualSpeed:1},restores:0});
+vm.runInContext(`function restoreSpeedClips(){restores++}\n${chunk}\nthis.api={setTianQuanTuyetHocVisualSpeed,setTianQuanVisualSpeed,setTianQuanBasicVisualSpeed};`,visualVM);
+assert.throws(()=>visualVM.api.setTianQuanTuyetHocVisualSpeed(9999));
+let result=visualVM.api.setTianQuanVisualSpeed(9999);
+assert.equal(result.visualOnly,true);assert.equal(result.serverCooldownUnchanged,true);
+assert.equal(visualVM.CFG.tqTuyetHocVisualSpeed,9999);assert.equal(visualVM.CFG.tqBasicVisualSpeed,9999);
+assert.equal(result.basic.length,5);assert.equal(result.tuyetHoc.length,8);
+result=visualVM.api.setTianQuanVisualSpeed(99);
+assert.equal(visualVM.CFG.tqTuyetHocVisualSpeed,99);assert.equal(visualVM.CFG.tqBasicVisualSpeed,99);
+visualVM.api.setTianQuanVisualSpeed(1);
+assert.equal(visualVM.CFG.tqTuyetHocVisualSpeed,1);assert.equal(visualVM.CFG.tqBasicVisualSpeed,1);
+assert(visualVM.restores>=2);
+const gs=src.indexOf('  function tuVuotHigherPriority() {');
+const ge=src.indexOf('  function tuVuotObserve() {',gs);
+assert(gs>=0&&ge>gs);
+const stageVM=vm.createContext({window:{},job:null});
+vm.runInContext(src.slice(gs,ge)+'\nthis.priority=tuVuotHigherPriority;',stageVM);
+assert.equal(stageVM.priority(),null);
+stageVM.window.KVPV_EVENT_PRIORITY={hold:()=>({key:'EVENT'})};
+assert.equal(stageVM.priority(),'timed_event:EVENT');
+delete stageVM.window.KVPV_EVENT_PRIORITY;
+stageVM.job={type:'daily'};assert.equal(stageVM.priority(),'daily_job');stageVM.job=null;
+stageVM.window.KVPV_BOSS_TEAM={priority:()=>true};assert.equal(stageVM.priority(),'boss_team');
+delete stageVM.window.KVPV_BOSS_TEAM;
+stageVM.window.KVPV={core:{scene:{status:()=>({owner:'event'})}}};assert.equal(stageVM.priority(),'scene_owner:event');
+stageVM.window.KVPV.core.scene.status=()=>({owner:'stage'});assert.equal(stageVM.priority(),null);
+stageVM.window.KVPV_GEAR36={blocking:()=>true};assert.equal(stageVM.priority(),'gear_ack');
+assert(src.includes('tuVuot.yieldReason=higherPriority'));
+assert(src.includes('if (tuVuotHigherPriority()) return false;'));
+assert(src.includes('setTianQuanVisualSpeed?.(9999)'));
+const sandbox={window:{},console:{error(){},warn(){}}};
+vm.runInNewContext(src,sandbox,{timeout:5000});
+assert.equal(sandbox.window.KVPV_V1,undefined,'No game context: no installation');
+console.log('PASS 1: test-compatible TH predicate and transient restore');
+console.log('PASS 2: TH-specific x99, global x9999, off x1');
+console.log('PASS 3: activity priority yields to timed events, jobs, boss, scene, gear');
+console.log('PASS 4: no game context blocks FULL');
+console.log('SELFTEST PASSED (local fixtures; not the Windows test suite)');

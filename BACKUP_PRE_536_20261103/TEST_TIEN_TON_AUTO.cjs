@@ -1,0 +1,21 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');const source=fs.readFileSync('src/74-tien-ton-native-auto.js','utf8');
+function harness(actor='10228867268946'){
+ let now=Date.parse('2026-10-27T12:31:00Z'),callback,opened=false,auto=false;
+ const calls={open:0,toggle:0,match:0,cancel:0,refresh:0,legacyStop:0},scene={intoSce:[1001],isInArena:false},daily={running:true,job:'rảnh'},entry={allowed:true,checkEnterScene(id){assert.equal(id,2171);return this.allowed;}},native={getTti(){calls.refresh++;}};
+ const state={server:2,matching:-1,userUntil:0},model={ttiScore:[1,0,0,3],times:[0]};
+ const panel={autoBtn:{},_n_i(){return state.server===2&&model.ttiScore[3]>0;},_U4i(){calls.toggle++;if(this._n_i())model.atMatch=!model.atMatch;}};
+ Object.defineProperty(model,'atMatch',{get:()=>auto,set(value){auto=value;if(opened){if(value)calls.match++;else calls.cancel++;}}});
+ const manager={isOpened:()=>opened,getPanelById:()=>opened?panel:null,open(id){assert.equal(id,203);calls.open++;opened=true;if(model.atMatch)calls.match++;}};
+ const W={__KVPV_OWN_ACTOR_ID:actor,_Ba:{_rJ:{_O$:{ins:{actorId:actor}}},_Xit:{_nst:{inst:model},_hst:{inst:native}},_$a:{_yo:{ins:scene},SceneUtil:{isCommonScene:true}},_sst:{_ist:{inst:{getCpSceneStateByType:id=>{assert.equal(id,16);return [0,0,state.server];}}},_Cht:{inst:entry}},_cm:{_vJ:{ins:{get matState(){return state.matching;}}}}},_ft:{_Y4n:{ins:manager}},KVPV_DAILY:{config:{enableTienTonAuto:true},quickState:()=>daily},KVPV:{tienTon:{stop(){calls.legacyStop++;}},core:{scene:{acquire:()=>true,release(){}}}},setInterval(fn,ms){assert.equal(ms,1000);callback=fn;return 1;},clearInterval(){callback=null;}};
+ class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
+ const run=()=>vm.runInNewContext(source,{window:W,Date:Clock,Intl});return {W,model,scene,daily,entry,state,calls,panel,run,pump:()=>callback?.(),time:s=>{now=Date.parse(s);},close(){opened=false;},api:()=>W.KVPV_TIEN_TON_AUTO};
+}
+let h=harness();h.run();assert.equal(h.calls.legacyStop,1);assert.equal(h.calls.refresh,1);h.pump();assert.equal(h.calls.open,1);h.pump();assert.equal(h.calls.toggle,1);assert.equal(h.model.atMatch,true);assert.equal(h.calls.match,1);for(let i=0;i<10;i++)h.pump();assert.equal(h.calls.toggle,1);assert.equal(h.calls.match,1);
+h.scene.intoSce=[2171];h.scene.isInArena=true;h.W._Ba._$a.SceneUtil.isCommonScene=false;h.pump();assert.equal(h.api().status().reason,'native_fight_in_progress');assert.equal(h.calls.open,1);
+h.model.ttiScore[3]=2;h.model.times[0]=1;h.close();h.scene.intoSce=[1001];h.scene.isInArena=false;h.W._Ba._$a.SceneUtil.isCommonScene=true;h.pump();assert.equal(h.calls.open,2);assert.equal(h.calls.match,2);h.pump();assert.equal(h.calls.toggle,1);
+h.run();h.pump();assert.equal(h.calls.open,2);assert.equal(h.calls.toggle,1);assert.equal(h.model.atMatch,true);h.model.ttiScore[3]=0;h.pump();assert.equal(h.model.atMatch,false);assert.equal(h.api().status().reason,'attempts_exhausted');assert.equal(h.api().status().allowPurchase,false);
+for(const actor of ['10228867268946','10228867268941']){h=harness(actor);h.time('2026-10-27T11:00:00Z');h.run();h.pump();assert.equal(h.calls.open,0);assert.equal(h.calls.toggle,0);assert.equal(h.api().status().reason,'outside_1930_1945');}
+h=harness();h.state.server=1;h.run();h.pump();assert.equal(h.calls.open,0);h.state.server=2;h.pump();h.entry.allowed=false;h.pump();assert.equal(h.calls.open,0);h.entry.allowed=true;h.daily.job='PB EXP';h.pump();assert.equal(h.calls.open,0);h.daily.job='rảnh';h.state.matching=0;h.pump();assert.equal(h.calls.open,0);h.state.matching=-1;h.pump();h.pump();assert.equal(h.calls.toggle,1);h.time('2026-10-27T12:45:00Z');h.pump();assert.equal(h.model.atMatch,false);
+h=harness();h.run();h.pump();h.pump();h.api().stop();assert.equal(h.model.atMatch,false);assert.equal(h.api().status().enabled,false);h.run();assert.equal(h.api().status().enabled,false);
+assert(!/\.send\(|rqBeginMatch\(|getTtiJoinAward\(|buy|addBtn/.test(source));console.log('PASS Tien Ton native auto: panel203 and native auto handler, no duplicate toggle/match, native continuation, zero attempts, time/server/scene/matching/job gates, reload carry, manual stop and clones; no purchases/raw requests.');

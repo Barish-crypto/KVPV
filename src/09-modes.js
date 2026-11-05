@@ -471,13 +471,13 @@
 // [VI dòng gốc 214] Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Thiếu module combat trong V1')
       throw Error('Thiếu module combat trong V1');
 // [VI dòng gốc 215] Kiểm tra target!==MODE.BOSS && !W.KVPV_RANGE281?.enable: đúng thì chạy nhánh sau if.
-    if(target!==MODE.BOSS && !W.KVPV_RANGE281?.enable)
+    if(target===MODE.BOSS_TH && (!W.KVPV_RANGE281?.enable||!W.KVPV_RANGE281?.setTrialRange))
 // [VI dòng gốc 216] Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Thiếu RANGE281 cho mode Tuyệt Học thử nghiệm')
       throw Error('Thiếu RANGE281 cho mode Tuyệt Học thử nghiệm');
 // [VI dòng gốc 217] Kiểm tra target===MODE.BOSS_TH && !W.KVPV_TH_FAR?.start: đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Thiếu TUYET HOC FAR')
     if(target===MODE.BOSS_TH && !W.KVPV_TH_FAR?.start)throw Error('Thiếu TUYET HOC FAR');
 // [VI dòng gốc 218] Kiểm tra ([MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(target)) && (!W.KVPV_TH300?.start||!W.KVPV_RANGE281?.setTrialRange): đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Thiếu TH300 / Range adjustable')
-    if(([MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(target)) && (!W.KVPV_TH300?.start||!W.KVPV_RANGE281?.setTrialRange))throw Error('Thiếu TH300 / Range adjustable');
+    if(([MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(target)) && !W.KVPV_TH300?.start)throw Error('Thiếu bộ điều khiển TH300');
 // [VI dòng gốc 219] Kiểm tra target===MODE.BOSS_TH300: đúng thì chạy nhánh sau if.
     if(target===MODE.BOSS_TH300){
 // [VI dòng gốc 220] Khai báo biến không gán lại bằng const: evidence = gọi W.KVPV_TH300.status(false) để trả trạng thái để kiểm tra
@@ -527,9 +527,9 @@
 // [VI dòng gốc 242] Chú thích gốc của tác giả; không được thực thi. Nội dung: All Boss safety decisions remain with the original HitRun controller.
         // All Boss safety decisions remain with the original HitRun controller.
 // [VI dòng gốc 243] Kiểm tra target!==MODE.BOSS: đúng thì chạy nhánh sau if.
-        if(target!==MODE.BOSS){
+        if(target!==MODE.BOSS&&W.KVPV_RANGE281?.enable){
 // [VI dòng gốc 244] gọi W.KVPV_RANGE281.setTrialRange([MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(target)?Number(W.KVPV_TH300.status(false).requestedDistance??W.KVPV_TH30…)
-          W.KVPV_RANGE281.setTrialRange([MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(target)?Number(W.KVPV_TH300.status(false).requestedDistance??W.KVPV_TH300.status(false).goalDistance??302)+10:281);
+          if(typeof W.KVPV_RANGE281.setTrialRange==='function')W.KVPV_RANGE281.setTrialRange([MODE.BOSS_TH300,MODE.BOSS_TH300_SCAN].includes(target)?Number(W.KVPV_TH300.status(false).requestedDistance??W.KVPV_TH300.status(false).goalDistance??302)+10:281);
 // [VI dòng gốc 245] gọi W.KVPV_RANGE281.enable(true)
           W.KVPV_RANGE281.enable(true);
 // [VI dòng gốc 246] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
@@ -558,15 +558,23 @@
 // [VI dòng gốc 257] gán S.mode bằng target | tăng S.switches một đơn vị sau khi lấy giá trị | gán S.lastChangedAt bằng new Date().toISOString()
       S.mode=target;S.switches++;S.lastChangedAt=new Date().toISOString();
 // [VI dòng gốc 258] gán S.lastError bằng '' | gọi log('START', target) | Kết thúc hàm hiện tại và trả về: gọi status(true) để trả trạng thái để kiểm tra.
-      S.lastError='';log('START',target);return status(true);
+      S.lastError='';log('START',target);
+      // Startup has succeeded at this point. A status/report walk may inspect
+      // native game objects and must never tear down the active combat owner.
+      try{return status(true);}catch(reportError){
+        S.errors++;S.lastError=String(reportError?.message||reportError);
+        S.reason='Đã bật '+target+'; lỗi khi đọc trạng thái: '+S.lastError;
+        log('START-REPORT-ERROR',S.lastError);
+        return {mode:S.mode,reason:S.reason,lastError:S.lastError};
+      }
 // [VI dòng gốc 259] Nhận lỗi bằng e và chạy phần xử lý lỗi.
     }catch(e){
 // [VI dòng gốc 260] tăng S.errors một đơn vị sau khi lấy giá trị | gán S.lastError bằng String(e?.message||e) | gọi log('START-ERROR', S.lastError)
       S.errors++;S.lastError=String(e?.message||e);log('START-ERROR',S.lastError);
 // [VI dòng gốc 261] gọi stopOwners('Start '+target+' thất bại') | gán S.mode bằng MODE.OFF | gán S.reason bằng 'Không khởi động được '+target
-      stopOwners('Start '+target+' thất bại');S.mode=MODE.OFF;S.reason='Không khởi động được '+target;
+      stopOwners('Start '+target+' thất bại: '+S.lastError);S.mode=MODE.OFF;S.reason='Không khởi động được '+target+': '+S.lastError;
 // [VI dòng gốc 262] gọi console.warn(TAG, S.lastError) | Kết thúc hàm hiện tại và trả về: gọi status(true) để trả trạng thái để kiểm tra.
-      console.warn(TAG,S.lastError);return status(true);
+      console?.warn?.(TAG,S.lastError);return status(true);
 // [VI dòng gốc 263] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
     }
 // [VI dòng gốc 264] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
@@ -588,7 +596,7 @@
 // [VI dòng gốc 272] gọi stopOwners('Khởi tạo: chờ chọn mode')
   stopOwners('Khởi tạo: chờ chọn mode');
 // [VI dòng gốc 273] gọi console.info(TAG, 'READY/OFF. Chạy KVPV_MODE.start("BOSS") | .start("BOSS_TH") | .start("BOSS_TH300_SCAN") | .start("BOSS_TH300") | .…)
-  console.info(TAG,'READY/OFF. Chạy KVPV_MODE.start("BOSS") | .start("BOSS_TH") | .start("BOSS_TH300_SCAN") | .start("BOSS_TH300") | .stop()');
+  console?.info?.(TAG,'READY/OFF. Chạy KVPV_MODE.start("BOSS") | .start("BOSS_TH") | .start("BOSS_TH300_SCAN") | .start("BOSS_TH300") | .stop()');
 // [VI dòng gốc 274] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
 })();
 // [VI dòng gốc 275] Dòng trống để tách các phần, không có lệnh thực thi.

@@ -15,35 +15,21 @@ Không cần cài tiện ích hoặc copy/paste. Xem [TU_CAP_NHAT.md](TU_CAP_NHA
 
 ## Hành vi hiện tại
 
-DPS thụ động: `KVPV_TH300.dps()` in bảng, `KVPV_TH300.dps(false)` lấy báo cáo để xuất JSON. Ghi riêng 8001–8005, Tuyệt Học 1001–1008 và nhóm khác; có DPS toàn trận, đóng góp trong thời gian FIGHT đánh/chờ chiêu và cửa sổ 10 giây gần nhất. Chỉ cộng damage đã ghép được với cast, không coi số lần gọi là hit, không tính được đầy đủ DOT/nhiều hit/trợ chiến. Báo cáo không tự đổi combo hay tạo timer; giữ tối đa 20 trận, 64 chiêu và 1024 mẫu damage cho cửa sổ gần nhất. Các số DPS là phần damage đã xác nhận ghép cặp, không phải tổng DPS server.
-
-Riêng Thiên Quan: năm chiêu tay 8001–8005 đã học (gồm 8002) xen Tuyệt Học native đã hồi; wait client 10 ms, vẫn giữ cổng cooldown/hoạt ảnh native và timestamp gốc của Tuyệt Học. TH đang hồi thì tiếp tục vòng tay. Đo tầm chủ động tạm ngưng TH để chỉ đo năm chiêu tay; kết thúc tự bật lại. Tắt/bật TH riêng bằng `KVPV_TH300.setTianQuanTuyetHoc(false/true)`. `KVPV_TH300.rangeReport()` ghi riêng số lần thử, cặp cast–damage và khoảng cách xác nhận từng chiêu; không coi gọi chiêu là trúng và không suy ra tầm tối đa từ một mốc đo.
+**Tự đánh Boss Thiên Quan dùng skill thường native `8001–8003` và Hàng Ma Chân Quyết nếu tên skill trong native config khớp.** Tuyệt Học khác và skill thường `8004–8005` không được chọn; giữ cooldown và điều kiện sẵn sàng native. Các map/hoạt động khác giữ cấu hình combat riêng của chúng.
 
 Giữ focus engine là Snippet riêng `KVPV_GIU_FOCUS.js`: khóa cờ `_isFocused`/`_isVisibility`, không phát sự kiện focus/focuschange giả; khôi phục bằng `KVPV_FOCUS_HOLD.stop()`. Không đổi focus thật của tài liệu, input, cấu hình combat, frame rate hay lịch Daily. Đây là cờ engine, không bảo đảm trình duyệt giữ nguyên nhịp timer khi tab nền.
 
-Giảm tải: ba vòng quét phụ Cổ Bảo, Đá Hồn, trợ chiến dùng 50 ms thay vì 1 ms. Trợ chiến vẫn phản ứng theo sự kiện tung chiêu của chủ; lượt quét nền không dựng báo cáo trạng thái. Combo chính Thiên Quan vẫn wait 10 ms. `KVPV_DO_LAG_10S.js` đo nhịp rAF, độ trễ timer và long task (nếu có), không sửa gameplay. Sau thay đổi tải, F5 rồi chỉ nạp FULL mới để so sánh trước khi thử focus riêng.
-
-Đo chủ động: chạy `KVPV_DO_TAM_5_CHIEU_THIEN_QUAN.js` trong pha FIGHT với HP ≥70%. Đo từ 302 xuống 80, tối đa hai lần thử mỗi mốc/chiêu, cần hai hit khớp để xác nhận; tối đa năm phút. Có thể trúng đòn khi áp sát. Tạm dừng đo/áp sát lúc HP <70% hoặc né/hồi máu; đổi Boss/map thì hủy đo. Kết thúc quay về mốc xa cũ. Dừng bằng `KVPV_TH300.stopTianQuanBasicRangeTest()`; xem bằng `KVPV_TH300.rangeReport()`.
+Giảm tải: các vòng quét phụ dùng nhịp giới hạn; không có vòng chọn/gửi skill riêng trong combat. `KVPV_DO_LAG_10S.js` chỉ đo nhịp rAF, độ trễ timer và long task (nếu có).
 
 Lãnh Địa Boss (luồng Daily, map 2164): các Boss mở tầng ban đầu vẫn đánh chết để đi tiếp. Chỉ tên chứa Thần Binh, Thời Trang, Linh Ti/Tỉ hoặc Linh Dực mới áp dụng chuyển Boss ở HP ≤11% để lấy thưởng rơi, không chờ giết. Không suy ra nhóm rơi đồ theo số tầng/thứ tự danh sách; thiếu tên/HP thì tiếp tục luồng đánh bình thường. Chỉ thoát sớm khi đã nhận diện đủ bốn nhóm và mọi Boss trong danh sách đã tới ngưỡng hoặc có trạng thái chết native. Ngưỡng chỉnh bằng `KVPV_TERRITORY_LOOT.setCutoff(11)`; đây là ngưỡng người dùng cung cấp, chưa xác nhận phần thưởng từ server.
 
 Tinh Thần mặc định chọn tầng 6, kể cả khi bật lại FAST927; vẫn kiểm tra mở tầng bằng UI native. Bản vá riêng `KVPV_TINH_THAN_TANG_6.js` chỉ đổi cấu hình cho lượt chọn tiếp theo, không ép chuyển tầng đang đánh.
 
-Đánh–né dự báo và các bản thử áp sát hiện chỉ dành cho Boss Thiên Quan. Nhận diện theo phạm vi native và đúng Boss tầng; phần mở rộng Boss mọi map đã tắt, kể cả gọi lại API cũ `setAllBosses(true)`. Linh Lung/Phù Văn/Tru Tiên giữ combat riêng hiện có. Bản áp sát trực tiếp tự dừng khi rời Thiên Quan; dự báo vẫn cần đủ mẫu. Lần cập nhật này sửa engine lõi: cần F5 rồi nạp FULL mới; nạp nóng giữ engine cũ nên chưa đủ.
+Các bộ điều khiển combat và áp sát cũ không còn trong FULL. Nạp lại tiện ích và đồng bộ FULL mới để dọn controller cũ đang chạy trong tab.
 
 Thí Luyện: bỏ chọn/xả skill 1 ms, giao chọn chiêu cho native, giữ hồi chiêu gốc; kiểm tra hỗ trợ mỗi 100 ms và giới hạn hai lần tung đòn cách nhau ít nhất 100 ms (cấu hình cũ thấp hơn cũng được nâng lên 100). Lệnh áp sát cách nhau ít nhất 1000 ms, không phát lại khi nhân vật đang chạy. Chưa xác nhận mức DPS hoặc nguyên nhân server đóng kết nối. Bộ đếm `rejected` là bộ lọc bằng chứng, không phải server từ chối chiêu.
 
-FULL tự bật các module sau khi nạp đúng game-frame:
-
-- Thiên Quan, Linh Lung, Phù Văn và Tru Tiên: mặc định đứng khoảng 302, ưu tiên skill sẵn sàng trước đòn thường; bỏ khóa chỉ đánh 8001 và quota chờ hit thường. Xếp hạng chiêu theo sát thương trực tiếp khi có ít nhất hai hit xác nhận, mỗi bốn lượt vẫn quay vòng để lấy mẫu. Đánh thường 8001 lấp lúc skill chưa sẵn sàng.
-- Chỉ Thiên Quan: HP <=35% rút ra vòng ngoài Boss, chờ đủ 100% rồi mới đánh lại.
-- Linh Lung: tiếp tục đánh khi còn sống trong cửa sổ 30s, không dùng chu kỳ hồi máu 35/100.
-- Ngoài phạm vi chiến đấu tầm xa: ưu tiên Tuyệt Học đã hồi chiêu, đánh thường lấp thời gian hồi; kiểm tra mỗi 16 ms. Áp dụng với mục tiêu native hiện tại ở cả PVE và PVP. Thí Luyện vẫn dùng bộ chọn native riêng.
-- Mọi map: tốc di chuyển client x99; thời gian chờ chọn chiêu client Linh Thú/Phúc Oa 1 ms, Ngự Thú/Phi Phong còn 1/10.
-
-75 ms và 10 ms là nhịp kiểm tra phía client, không bảo đảm số đòn trên server.
-Tăng tốc trợ chiến/di chuyển là thử nghiệm client; chưa xác minh server chấp nhận.
-Daily và các tác vụ nền vẫn độc lập. Không có module PK tự chọn mục tiêu.
+FULL vẫn chạy các tác vụ map/nhiệm vụ đã cấu hình, nhưng không còn thay bộ chọn skill, ép skill cụ thể, tự gửi đòn combat hay áp đặt combo lên người chơi và trợ chiến. Combat thuộc quyền xử lý của game client.
 
 ## Nạp và cập nhật
 
@@ -55,29 +41,7 @@ Daily và các tác vụ nền vẫn độc lập. Không có module PK tự ch�
 
 ## Điều khiển
 
-```js
-KVPV_MODE.status(false)              // map, mode và lý do chờ
-KVPV_TH300.report()                  // khoảng cách, lần gọi chiêu và hit xác nhận
-KVPV_TQ_SCOPE.status()               // dữ liệu nhận diện map
-KVPV_MODE.stop()                     // dừng Thiên Quan và tự bật lại
-KVPV_MODE.armTianQuan()              // bật lại theo dõi Thiên Quan
-KVPV_BASIC10.stop()                  // dừng combo đánh tay + Tuyệt Học ngoài map
-KVPV_BASIC10.start()                 // bật lại combo ngoài map
-KVPV_EXPERIMENTAL_BOOST.stop()       // tắt boost, khôi phục giá trị gốc
-KVPV_EXPERIMENTAL_BOOST.start()      // bật lại boost
-```
-
-MODE.stop() không dừng BASIC10 hoặc boost toàn map; dùng lệnh dừng riêng ở trên.
-Ngoài phạm vi chiến đấu tầm xa, MODE OFF là bình thường; BASIC10 vẫn chạy với nhịp kiểm tra 16 ms. Tuyệt Học sẵn sàng được dùng liên tiếp theo vòng, không bắt buộc xen đòn thường. Hồi chiêu Tuyệt Học, cổng combat và tầm đánh vẫn do native kiểm tra. Chưa đo mức tăng DPS thực tế; thứ tự này chưa xét hiệu ứng khống chế, buff hoặc nhiều hit của từng chiêu.
-
-Đổi thứ tự để so sánh trong cùng điều kiện:
-
-```js
-KVPV_BASIC10.setSkillPriority('interleaved')     // combo xen kẽ cũ
-KVPV_BASIC10.setSkillPriority('tuyet_hoc_first') // mặc định mới
-```
-
-Thiên Quan/Linh Lung/Phù Văn/Tru Tiên dùng combo Boss mới khi khởi động. Cấu hình riêng trong app (`basic8001` hoặc `towerBasicOnly`) vẫn được ưu tiên nếu bạn đã bật. Thí Luyện giữ bộ chọn riêng. Có thể dùng `KVPV_TH300.setSkillPriority('interleaved')` để so sánh combo xen kẽ. Sát thương trực tiếp đã ghép hit chưa phản ánh đầy đủ DOT/nhiều hit hoặc DPS toàn bộ chiêu.
+Combat không có lệnh chọn combo riêng trong bản này. Dùng trạng thái/autobattle native trong game để điều khiển việc đánh.
 
 ## Tổ chức nguồn
 
@@ -529,23 +493,9 @@ KVPV_GOLDEN_PROC.stop()
 Nếu `ownedDamageSignals===0` sau khi đánh nhiều đòn, điểm cần khảo sát tiếp là đường event 1012 của client chứ không phải tự kết luận nội tại không kích hoạt. Nếu `ownedDamageSignals>0` nhưng `markerHistogram` không chứa `3022`/`3032`, cần đối chiếu ID sát thương theo client thực tế trước khi suy luận xác suất. Dù có tín hiệu, `observedBursts` chỉ là nhóm hit quan sát, **không phải số lần server thử RNG**, và `burstCountPer100ObservedBasicTH` không phải xác suất kích hoạt.
 
 
-## Thiên Quan: bổ sung kỹ năng chủ động MPACK đã học (2026-10-31)
+## Thiên Quan: bốn skill thường
 
-Kiểm kê trực tiếp file `configs_yuenan.mpacks`, bản `20261014002`: `skill` có **4.172 dòng cấu hình**, **1.278 skill ID** riêng, trong đó **352 ID có ít nhất một dòng `skill[4]===1` (chủ động)**. Con số 352 gồm cả skill triệu hồi/phát sinh nội tại, NPC, theo hệ và theo cảnh, không phải 352 skill có thể gắn lên nhân vật.
-
-**Thiên Quan mặc định vẫn dùng 5 đánh thường `8001..8005` + 8 Tuyệt Học `1001..1008`**. Bản bổ sung sẽ xét **tất cả ID còn lại đủ điều kiện** trong native selector thay vì thêm cứng một dải ID: cần vừa được nhân vật học trong `user.skills`, vừa có trong `_rtt`/`_wet`, vừa trùng hàng `getCfgBySkillIdAndLv` phân loại chủ động `skill[4]===1`, lại phải hợp lệ theo `skill[17]` của bản đồ hiện tại. Không lấy các skill kết thúc tên `-Chủ Động` là phần hiệu ứng phát sinh từ nội tại (vd 3022/3032). Những kỹ năng thường của quái/đồng hành, nội tại/thuộc tính vĩnh viễn hay chưa học **không được gọi thay người chơi**.
-
-**Chỉ ở Thiên Quan**: các ID ngoài 13 chiêu gốc nằm trong cùng bộ chọn native, chỉ được gọi khi hàng trong selector báo sẵn sàng và điều kiện phòng thủ/cooldown/di chuyển của TH300 đều cho phép. Kích hoạt tự động khi TQ đánh theo bộ hỗn hợp mặc định. Không mở khóa, không tăng tốc server, không thay `skill[6]`, không RPC hay tiêu KNB. Đặc biệt **không tự kích hoạt** những nội tại Thánh Trang như Bát Hoang Phá Thế 3021, Xá Mệnh 3031, Cuồng Long 3061.
-
-Kiểm tra ngay trên đúng frame sau khi FULL cập nhật:
-```js
-KVPV_TH300.status(false).playerSkillIds
-KVPV_TH300.status(false).tianQuanMpackExtras
-KVPV_TH300.setTianQuanMpackExtras(false) // tùy chọn quay về chỉ 13 chiêu
-KVPV_TH300.setTianQuanMpackExtras(true)  // bật lại xét mọi skill native hợp lệ
-```
-
-`tianQuanMpackExtras.ids` là các ID bổ sung **thực tế có trên nhân vật và được native selector đưa ra**, không phải tất cả 352 ID trong tệp MPACK. Nếu `ids: []`, có thể nhân vật chỉ có 13 skill gốc trong selector, không có extra phù hợp. `TEST_TQ_FIVE_BASICS.cjs` có bài test phân loại 3907 với các ID kỹ năng nội tại/khóa/theo cảnh và xác nhận không động cooldown.
+Thiên Quan tự đánh Boss xoay đúng `8001`, `8002`, `8003`, `8004`; profile chặn `8005` và Tuyệt Học. Selector vẫn tôn trọng hàng skill đã học và cooldown native. Báo cáo `KVPV_TH300.status(false).playerSkillIds` để xem danh sách skill đang được phép.
 
 
 ## Sửa trường hợp skill native đánh mặc định được nhưng bộ Thiên Quan không chọn (2026-10-31)

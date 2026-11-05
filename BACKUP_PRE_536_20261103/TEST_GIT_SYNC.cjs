@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {blockingTrackedChanges}=require('./git-sync/generated-changes.cjs');
+const check=(input,expected)=>assert.deepEqual(blockingTrackedChanges(input),expected);
+check('',[]);
+check(' M KVPV_PB_BOSS_DAILY.js\0 M KVPV_SCAN_LIVE_PATCH.js\0 M edge-addon/native/host-manifest.json\0',[]);
+check(' M KVPV_V1_FULL.js\0 M MANIFEST.json\0 M android/KVPV_ANDROID.zip\0 M edge-addon/core.js\0',[]);
+check(' M src/60-quiz-auto.js\0',[' M src/60-quiz-auto.js']);
+check('M  KVPV_V1_FULL.js\0',['M  KVPV_V1_FULL.js']);
+check(' D MANIFEST.json\0',[' D MANIFEST.json']);
+check(' M src/04-engine.js\0 M KVPV_V1_FULL.js\0',[' M src/04-engine.js']);
+check('R  KVPV_V1_FULL.js\0other.js\0',['R  KVPV_V1_FULL.js','other.js']);
+console.log('PASS: Git auto-pull ignores only unstaged generated-file modifications, never source or staged changes');

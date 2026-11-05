@@ -2,7 +2,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const script=fs.readFileSync(__dirname+'/src/76-trutien-pvp.js','utf8');
 const buildSource=fs.readFileSync(__dirname+'/build.cjs','utf8');
-assert(buildSource.includes('"75-pvp-luofeng.js"')&&buildSource.includes('"76-trutien-pvp.js"'),'both PvP modules must be included in live-reload installer list');
+assert(buildSource.includes('"75-pvp-luofeng.js"')&&!buildSource.includes('"76-trutien-pvp.js"'),'native combat keeps the passive observer and removes the custom player skill sender');
 const actorId='10228867268946';
 function setup(){
  let time=100000,kind='TRU_TIEN',sc='2692',mode='BOSS_TH300_SCAN',bossRunning=true,hitrun=true,focus=true,

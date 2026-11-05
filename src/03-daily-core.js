@@ -54,7 +54,7 @@
     manHoangMs: 30000,
     yeuVuongMs: 60000,
     tinhThanMs: 600, // bỏ vòng chờ 5 phút giữa các lần quét
-    tinhThanTang: 5,
+    tinhThanTang: 6,
     enableTinhThan: true, // Boss Tinh Than: team co chu dich, CHI acc chinh
     autoTeam: true, // tao doi rieng; khong tu xin vao doi nguoi la
     autoApproveTeam: true, // tu duyet nguoi xin vao doi cua minh
@@ -2454,12 +2454,21 @@
     const type=Number(r.model.curBossTypeScene),layer=Number(r.model.curBosslayerScene),
       line=Number(r.model.curlineScene);
     const rows=starRows(r,type,layer,line);
-    const valid=type===C.tinhThanTang && line>0 && rows.length>0 &&
+    const wantedTier=Number(j.target?.tier)||Number(C.tinhThanTang);
+    const valid=type===wantedTier && line>0 && rows.length>0 &&
       rows.every(x=>alive(x.flag)||dead(x.flag));
     begin('tinhthan',valid?'fighting':'team_only',{
       type,layer,line,rows:valid?rows.map(x=>x.raw):[],selected:null,lastSelect:0
     });teamReset();
     log('🌟 Tiếp quản Tinh Thần (tổ đội tự động)');return true;
+  }
+  function starHighestUnlocked(p) {
+    const list=p?._wWn;
+    if (!list || !Array.isArray(list.arrs) || typeof p._CJ!=='function') return Number(C.tinhThanTang)||0;
+    for (let tier=list.arrs.length; tier>=1; tier--) {
+      try { const unlocked=p._CJ(tier); if (unlocked===true || unlocked===1) return tier; } catch (_) {}
+    }
+    return Number(C.tinhThanTang)||0;
   }
   function followStar(j,t) {
     const r=starRefs();
@@ -2469,22 +2478,24 @@
       const p=r.ui.isOpened?.(605)?r.ui.getPanelById?.(605):null;
       if (!p || p.destroyed || !p.parent) return;
       const type=Number(p._bvt),layer=Number(p._wvt),line=Number(p._Tvt);
-      if (type!==C.tinhThanTang) {
+      const targetTier=starHighestUnlocked(p);
+      j.target.tier=targetTier;
+      if (type!==targetTier) {
         // Game mặc định chọn curBestType, có thể KHÁC loại Boss 5. Tự chọn bằng UI native.
         // Không giả cập nhật dữ liệu hay vượt khóa mở: _CJ kiểm tra cấp/điều kiện thật.
-        const idx=C.tinhThanTang-1, list=p._wWn;
+        const idx=targetTier-1, list=p._wWn;
         if (!j.target.tierChangeAttempted && list && Array.isArray(list.arrs) &&
             idx>=0 && idx<list.arrs.length && typeof p._CJ==='function' &&
             typeof p._gRn==='function') {
           let unlocked=false;
-          try{unlocked=p._CJ(C.tinhThanTang)===true;}catch(e){
+          try{unlocked=p._CJ(targetTier)===true;}catch(e){
             log('🌟 Chưa đọc được điều kiện mở Tinh Thần: '+String(e));
           }
           if(unlocked){
             j.target.tierChangeAttempted=true;
             try{
               list.selIdx=idx;p._gRn.call(p);
-              log('🌟 Tinh Thần: chọn loại/tầng '+C.tinhThanTang+' bằng nút native');
+              log('🌟 Tinh Thần: chọn tầng cao nhất đã mở ('+targetTier+') bằng nút native');
               return; // đợi model cấu hình boss/kênh nạp, không gọi Enter ngay
             }catch(e){
               r.ui.close?.(605);
@@ -2494,7 +2505,7 @@
         }
         if (t-j.started<8000)return;
         r.ui.close?.(605);
-        return finish(false,'Không chọn được loại Tinh Thần '+C.tinhThanTang+' (chưa mở hoặc UI chưa tải)',15000);
+        return finish(false,'Không chọn được tầng Tinh Thần cao nhất đã mở ('+targetTier+')',15000);
       }
       if (!num(line) || line<1) {
         if (!j.target.lineRefreshAttempted && typeof p._GQn==='function') {

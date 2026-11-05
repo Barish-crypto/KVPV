@@ -20,6 +20,7 @@
   function signature(part){const s=slots();return s?JSON.stringify(Array.from({length:5},(_,i)=>s.get(part*10+i)??null)):null;}
 // [VI dòng gốc 11] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function tick(){try{
+    if(W.KVPV_MATERIAL_RESERVE?.active===true){if(W.KVPV_UPGRADES?.config)W.KVPV_UPGRADES.config.daHon=false;S.reason='automatic_upgrades_disabled_by_user';stop('user_upgrade_disabled');return;}
 // [VI dòng gốc 12] Kiểm tra !S.enabled: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Kiểm tra !owned(): đúng thì chạy nhánh sau if. | gọi stop() để dừng bộ điều khiển và dọn tài nguyên
     if(!S.enabled)return;// Explicitly permitted Đá Hồn only; other equipment and Thần Binh upgrades remain blocked.
     if(!owned()){stop();return;}

@@ -2,7 +2,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const source=fs.readFileSync(__dirname+'/src/80-tienma-quyetchien-pvp.js','utf8');
 const build=fs.readFileSync(__dirname+'/build.cjs','utf8');
-assert(build.includes('"80-tienma-quyetchien-pvp.js"'),'must hot reload Tiên Ma module');
+assert(!build.includes('"80-tienma-quyetchien-pvp.js"'),'player combat must use the native selector');
 function harness(){
  let now=100000,map=2191,phase=3,fightTime=60000,manual=false,focus=true,selected=null;
  const casts=[],moves=[],timers=new Map();

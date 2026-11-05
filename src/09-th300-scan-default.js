@@ -93,7 +93,7 @@ function cdStop(reason='manual'){
 function cdStatus(){return {enabled:CD.enabled,active:!!CD.hook&&CD.hook.obj.isCooldown===CD.hook.fn&&cdScope(),
  forcedTrue:0,forcedFalse:CD.forced,returnValueWhenActive:false,reason:CD.reason,serverCooldownModified:false};}
 W.KVPV_TQ_8001_CD=Object.freeze({status:cdStatus,stop:cdStop});
-if(typeof W.setInterval==='function')CD.timer=W.setInterval(cdSync,200);
+if(typeof W.setInterval==='function')CD.timer=W.setInterval(cdSync,1);
 cdSync();
 W.KVPV_TH300_RESTORE=Object.freeze({activate,status:()=>({mode:W.KVPV_MODE?.status?.(),th:W.KVPV_TH300?.status?.(false),newEngine:W.KVPV_COMBAT_ENGINE?.status?.()})});
 activate();

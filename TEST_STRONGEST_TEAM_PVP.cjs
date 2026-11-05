@@ -3,7 +3,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const observe=fs.readFileSync(__dirname+'/src/75-pvp-luofeng.js','utf8');
 const script=fs.readFileSync(__dirname+'/src/77-strongest-team-pvp.js','utf8');
 const build=fs.readFileSync(__dirname+'/build.cjs','utf8');
-assert(build.includes('"77-strongest-team-pvp.js"'),'event PK must be hot-reloadable');
+assert(!build.includes('"77-strongest-team-pvp.js"'),'player combat must remain with the native selector');
 function harness(){
  const actor='10228867268946',enemyId='pvp-enemy-1';
  let now=200000,inside=true,open=true,phase='ACTIVE',enemyColor='red',enemy2Color='red',manual=false,selected,hidden=false,skillRows=[[1001,0,50],[8005,0,50]];

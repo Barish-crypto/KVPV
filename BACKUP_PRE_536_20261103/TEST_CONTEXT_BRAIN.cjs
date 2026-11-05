@@ -1,0 +1,23 @@
+// [VI dòng gốc 1] Khai báo biến không gán lại bằng const: vm = gọi require('vm') để nạp module Node.js; fs = gọi require('fs') để nạp module Node.js; assert = gọi require('node:assert/strict') để nạp module Node.js
+const vm=require('vm'),fs=require('fs'),assert=require('node:assert/strict');
+// [VI dòng gốc 2] Định nghĩa lớp NativePanel. | Khai báo biến có thể gán lại bằng let: panel = tạo đối tượng bằng NativePanel(); step = "-"; mission = true | gán panel.parent bằng {}
+class NativePanel{};let panel=new NativePanel(),step='-',mission=true;panel.parent={};
+// [VI dòng gốc 3] Khai báo biến không gán lại bằng const: model = tạo đối tượng gồm cpInfo, ht
+const model={cpInfo:[240000],ht:123456};
+// [VI dòng gốc 4] Khai báo biến không gán lại bằng const: W = tạo đối tượng gồm __KVPV_OWN_ACTOR_ID, _Ba, _ft, KVPV_DAILY, KVPV_WORLD_EYE | Kết thúc hàm hiện tại và trả về: mission.
+const W={__KVPV_OWN_ACTOR_ID:'12345',_Ba:{_rJ:{_O$:{ins:{actorId:'12345',isDead:false}}},_We:{_p9i:NativePanel,_eJ:{inst:model}},_$a:{_yo:{ins:{get isInMission(){return mission;}}},SceneUtil:{isCommonScene:false}}},_ft:{_Y4n:{ins:{getPanelById:()=>panel,isOpened:()=>true}}},KVPV_DAILY:{quickState:()=>({running:true,job:'ranh',step})},KVPV_WORLD_EYE:{status:()=>({actions:[{panel:1,key:'go',kind:'navigate',ready:true},{panel:1,key:'help',kind:'manual_control',ready:true},{panel:1,key:'buy',kind:'paid_or_currency',ready:true}]})}};
+// [VI dòng gốc 5] gọi vm.runInNewContext(fs.readFileSync('src/43-context-brain.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''), {window:W}) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử | Khai báo biến không gán lại bằng const: B = đọc W.KVPV_CONTEXT_BRAIN
+vm.runInNewContext(fs.readFileSync('src/43-context-brain.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:W});const B=W.KVPV_CONTEXT_BRAIN;
+// [VI dòng gốc 6] gọi assert.equal(B.activity().kind, 'TRAN_MA') để kiểm tra hai giá trị bằng nhau | gọi assert.equal(B.activity().direct, true) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(B.plan().actions[0].decision, 'defer_until_activity_finishes') để kiểm tra hai giá trị bằng nhau | gọi assert.equal(B.plan().actions[1].decision, 'manual_only') để kiểm tra hai giá trị bằng nhau
+assert.equal(B.activity().kind,'TRAN_MA');assert.equal(B.activity().direct,true);assert.equal(B.plan().actions[0].decision,'defer_until_activity_finishes');assert.equal(B.plan().actions[1].decision,'manual_only');assert.equal(B.plan().actions[2].decision,'blocked_currency');
+// [VI dòng gốc 7] gọi vm.runInNewContext(fs.readFileSync('src/01-parallel-actions.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''), {window:W}) để chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử | gọi assert.equal(W.KVPV_PARALLEL_ACTIONS.canDirectDuringPve(), true, 'actual dispatcher consumes native activity policy') để kiểm tra hai giá trị bằng nhau
+vm.runInNewContext(fs.readFileSync('src/01-parallel-actions.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:W});assert.equal(W.KVPV_PARALLEL_ACTIONS.canDirectDuringPve(),true,'actual dispatcher consumes native activity policy');
+// [VI dòng gốc 8] gán step bằng 'exiting' | gọi assert.equal(B.activity().direct, false) để kiểm tra hai giá trị bằng nhau | gán step bằng '-' | gán W._Ba._rJ._O$.ins.isDead bằng true
+step='exiting';assert.equal(B.activity().direct,false);step='-';W._Ba._rJ._O$.ins.isDead=true;assert.equal(B.activity().kind,'DEAD');W._Ba._rJ._O$.ins.isDead=false;
+// [VI dòng gốc 9] gán panel bằng {parent:{}} | gọi assert.equal(B.activity().direct, false, 'similar-looking unknown panel is not native evidence') để kiểm tra hai giá trị bằng nhau | gán panel bằng new NativePanel() | gán panel.parent bằng {}
+panel={parent:{}};assert.equal(B.activity().direct,false,'similar-looking unknown panel is not native evidence');panel=new NativePanel();panel.parent={};model.cpInfo[0]=0;assert.equal(B.activity().direct,false,'expired event not active');
+// [VI dòng gốc 10] gán W._Ba._rJ._O$.ins.actorId bằng 'other' | gọi assert.equal(B.activity().kind, 'UNAVAILABLE') để kiểm tra hai giá trị bằng nhau
+W._Ba._rJ._O$.ins.actorId='other';assert.equal(B.activity().kind,'UNAVAILABLE');
+// [VI dòng gốc 11] gọi console.log('PASS context decision rules: exact native Tran Ma evidence, stable background policy, death/transition/expiry/identity,…)
+console.log('PASS context decision rules: exact native Tran Ma evidence, stable background policy, death/transition/expiry/identity, no social or paid actions');
+// [VI dòng gốc 12] Dòng trống để tách các phần, không có lệnh thực thi.

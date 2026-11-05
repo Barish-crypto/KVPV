@@ -71,6 +71,7 @@
   }
 // [VI dòng gốc 38] Định nghĩa hàm tick; tham số: không có. Mục đích: xử lý một nhịp kiểm tra | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
   function tick(){try{
+    if(W.KVPV_MATERIAL_RESERVE?.active===true){S.reason='automatic_upgrades_disabled_by_user';stop();return;}
 // [VI dòng gốc 39] Kiểm tra !S.enabled: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | Kiểm tra !owned(): đúng thì chạy nhánh sau if. | gọi stop() để dừng bộ điều khiển và dọn tài nguyên
     if(!S.enabled)return;// Explicit Fa Bao opt-in; native panel must still validate sufficient owned materials.
     if(!owned()){stop();return;}
@@ -143,7 +144,7 @@
 // [VI dòng gốc 73] Định nghĩa hàm stop; tham số: không có. Mục đích: dừng bộ điều khiển và dọn tài nguyên | gán S.enabled bằng false | Kiểm tra S.timer!==null: đúng thì chạy nhánh sau if. | gọi W.KVPV_V1?.timers?.clearInterval??W.clearInterval(S.timer)
   function stop(){S.enabled=false;if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(S.timer);S.timer=null;}
 // [VI dòng gốc 74] Định nghĩa hàm start; tham số: không có. Mục đích: khởi động bộ điều khiển | Kiểm tra S.timer!==null: đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại mà không trả giá trị cụ thể. | gán S.enabled bằng true
-  function start(){if(S.timer!==null)return;S.enabled=true;
+  function start(){if(W.KVPV_MATERIAL_RESERVE?.active===true){S.enabled=false;S.reason='automatic_upgrades_disabled_by_user';return false;}if(S.timer!==null)return;S.enabled=true;
 // [VI dòng gốc 75] gán S.timer bằng (W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,500) | gọi tick() để xử lý một nhịp kiểm tra
     S.timer=(W.KVPV_V1?.timers?.setInterval??W.setInterval)(tick,350);tick();}
 // [VI dòng gốc 76] gán W.KVPV_FABAO_FAST bằng Object.freeze({start,stop,sync:tick,inspect:items, status:()=>({enabled:S.enabled,actor,reason:S.reason,requests:S.requests,confirmed:S.confirmed, pending:S.pending?{at:S.pending.a…

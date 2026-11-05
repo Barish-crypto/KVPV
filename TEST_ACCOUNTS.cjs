@@ -32,10 +32,10 @@ assert.equal(a.W.KVPV_ACCOUNT_POLICY.status().actorMatches,true);assert.equal(b.
 a.W.KVPV_ACCOUNT_POLICY.config.pauseWhenHidden=true;assert.equal(b.W.KVPV_ACCOUNT_POLICY.config.pauseWhenHidden,false);
 // [VI dòng gốc 17] gọi assert.equal(b.W.KVPV_ACCOUNT_POLICY.status().playerLoaded, true) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(b.W.KVPV_ACCOUNT_POLICY.status().components.selector, true) để kiểm tra hai giá trị bằng nhau
 assert.equal(b.W.KVPV_ACCOUNT_POLICY.status().playerLoaded,true);assert.equal(b.W.KVPV_ACCOUNT_POLICY.status().components.selector,true);
-// [VI dòng gốc 18] gọi assert.equal(b.W.KVPV_ACCOUNT_POLICY.pollingGap(), 50) để kiểm tra hai giá trị bằng nhau
-assert.equal(b.W.KVPV_ACCOUNT_POLICY.pollingGap(),50);
-// [VI dòng gốc 19] gán b.W.document.hidden bằng false | gán b.W.document.hasFocus bằng ()=>false | gọi assert.equal(b.W.KVPV_ACCOUNT_POLICY.pollingGap(), 25) để kiểm tra hai giá trị bằng nhau
-b.W.document.hidden=false;b.W.document.hasFocus=()=>false;assert.equal(b.W.KVPV_ACCOUNT_POLICY.pollingGap(),25);
+// [VI dòng gốc 18] Tab nền được cấu hình polling gap tối thiểu 1ms.
+assert.equal(b.W.KVPV_ACCOUNT_POLICY.pollingGap(),1);
+// [VI dòng gốc 19] Tab hiện nhưng mất focus cũng dùng polling gap tối thiểu 1ms.
+b.W.document.hidden=false;b.W.document.hasFocus=()=>false;assert.equal(b.W.KVPV_ACCOUNT_POLICY.pollingGap(),1);
 // [VI dòng gốc 20] gán b.W.document.hasFocus bằng ()=>true | gọi assert.equal(b.W.KVPV_ACCOUNT_POLICY.pollingGap(), 0) để kiểm tra hai giá trị bằng nhau | gán b.W.document.hidden bằng true
 b.W.document.hasFocus=()=>true;assert.equal(b.W.KVPV_ACCOUNT_POLICY.pollingGap(),0);b.W.document.hidden=true;
 // [VI dòng gốc 21] gọi assert.notEqual(a.W.KVPV_V1, b.W.KVPV_V1) | gọi assert.equal(Object.getOwnPropertyDescriptor(a.W,'__KVPV_OWN_ACTOR_ID').writable, false) để kiểm tra hai giá trị bằng nhau

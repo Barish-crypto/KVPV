@@ -1,0 +1,18 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(__dirname+'/src/00-far-scope.js','utf8');
+let inside=false,type=1,occ=99;
+const target={isValid:true,property:{get:k=>({id:'boss1',type,occ,hp:[100,100]})[k]}};
+const W={KVPV_TQ_SCOPE:{status:()=>({inside,current:2993})},_Ba:{_Co:{_Mo:{ins:{curLv:1}}}},_ft:{_tY:{ins:{isBoss:()=>true,getCfgById:()=>[0,0,0,265]}},_h$:{ins:{getCfgByLv:()=>[2993],occ:()=>99}}}};
+vm.runInNewContext(source,{window:W});const scope=W.KVPV_FAR_SCOPE;
+assert.equal(scope.status().kind,'OUTSIDE');assert.equal(scope.genericBoss(target),null);assert.equal(scope.eligible(target),false);
+scope.setAllBosses(true);assert.equal(scope.status().kind,'OUTSIDE');assert.equal(scope.genericBoss(target),null);
+inside=true;assert.equal(scope.status().kind,'THIEN_QUAN');assert.equal(scope.eligible(target),true);
+occ=100;assert.equal(scope.eligible(target),false);occ=99;type=3;assert.equal(scope.eligible(target),false);
+inside=false;assert.equal(scope.inside(),false);
+console.log('PASS Tian Quan-only scope: generic Boss opt-in stays disabled; exact stage Boss accepted, other Boss/player/outside rejected.');
+const recovery=fs.readFileSync(__dirname+'/TEST_RECOVERY.cjs','utf8'),context={require,__dirname,console};
+vm.runInNewContext(recovery.slice(0,recovery.indexOf('let passed=0;'))+'\nglobalThis.createRecovery=harness;',context);
+const outside=context.createRecovery();outside.W.KVPV_TQ_SCOPE={inside:()=>false};outside.start();assert.equal(outside.status().thienQuan.eligible,false);assert.equal(outside.status().nativeTelegraph.hooked,false);outside.W.KVPV_HITRUN1.stop();
+const insideStage=context.createRecovery();insideStage.W.KVPV_TQ_SCOPE={inside:()=>true};insideStage.start();assert.equal(insideStage.status().thienQuan.eligible,true);insideStage.W.KVPV_HITRUN1.stop();
+console.log('PASS real HitRun engine enables learned dodge only in confirmed Tian Quan scope.');

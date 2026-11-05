@@ -13,9 +13,9 @@ assert(full.includes('// Source: src/08-range-evidence.js'));
 // [VI dòng gốc 7] Khai báo biến không gán lại bằng const: src = gọi fs.readFileSync(__dirname+'/src/08-range-evidence.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm, '')
 const src=fs.readFileSync(__dirname+'/src/08-range-evidence.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,'');
 // [VI dòng gốc 8] Khai báo biến có thể gán lại bằng let: passed = 0
-let passed=0;
+let passed=0;const testFilter=process.env.KVPV_TEST_FILTER||'';
 // [VI dòng gốc 9] Định nghĩa hàm test; tham số: name, cb | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | gọi cb() | gọi console.log('PASS', name)
-function test(name,cb){try{cb();console.log('PASS',name);++passed;}catch(e){console.log('FAIL',name,e.stack);process.exitCode=1;}}
+function test(name,cb){if(testFilter&&!name.includes(testFilter))return;try{cb();console.log('PASS',name);++passed;}catch(e){console.log('FAIL',name,e.stack);process.exitCode=1;}}
 // [VI dòng gốc 10] Định nghĩa hàm harness; tham số: options={}
 function harness(options={}){
 // [VI dòng gốc 11] Khai báo biến có thể gán lại bằng let: clock = gọi Date.now(); destination = null; moveReadyAt = 0; cooling = đảo giá trị đúng/sai của !options.cooling
@@ -167,6 +167,29 @@ test('STRICT refuses unproven TH and ordinary attacks',()=>{const q=harness();q.
 // [VI dòng gốc 83] gọi test('SCAN chooses 1001 at 310 and blocks basic', ()=>{const q=harness();q.mod.start('SCAN');assert.equal(q.s.selectSkill(),1…) | Khai báo biến không gán lại bằng const: q = gọi harness() | gọi q.mod.start('SCAN') để khởi động bộ điều khiển | gọi assert.equal(q.s.selectSkill(), 1001) để kiểm tra hai giá trị bằng nhau
 test('SCAN chooses 1001 at 310 and blocks basic',()=>{const q=harness();q.mod.start('SCAN');assert.equal(q.s.selectSkill(),1001);q.c.combat(1001);q.c.combat(8001);assert.deepEqual(q.calls,[1001]);});
 // [VI dòng gốc 84] gọi test('SCAN only works when actor beyond 300', ()=>{const q=harness();q.mod.start('SCAN');q.actor.coords.x=280;assert.equal(q.…) | Khai báo biến không gán lại bằng const: q = gọi harness() | gọi q.mod.start('SCAN') để khởi động bộ điều khiển | gán q.actor.coords.x bằng 280
+test('Tian Quan scan measures Tuyet Hoc and locks the highest confirmed average damage skill',()=>{
+ const q=harness({fastReady:true});q.W.KVPV_TQ_SINGLE_STRONGEST_TH=true;
+ q.W.KVPV_MODE={status:()=>({mode:'BOSS_TH300_SCAN'})};
+ q.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN',inside:true}),inside:()=>true,eligible:()=>true};
+ q.mod.start('SCAN');
+ const record=(id,damage)=>{q.c.combat(id);q.events[1012]('10228867268946',id*10000,damage,1,'boss1');q.elapse(100);};
+ for(let i=0;i<3;i++)record(1001,20);
+ for(let i=0;i<3;i++)record(1002,100);
+ q.pump();const status=q.mod.report();
+ assert.equal(status.operation,'STRICT');assert.equal(status.tuyetHocCalibration.selectedSkillId,1002);
+ const n=q.calls.length;q.c.combat(1001);assert.equal(q.calls.length,n,'non-selected Tuyet Hoc must be blocked');
+ q.mod.stop();
+});
+
+test('transformed native skill still attacks during active TQ profile',()=>{
+ const q=harness({fastReady:true,startX:310.4});
+ q.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN',inside:true}),inside:()=>true,eligible:()=>true};
+ q.s._rtt=[[8001,0,50],[1001,0,100],[9001,0,100]];q.s._wet=[];
+ q.W.KVPV_TRANSFORM10={transformed:()=>true,status:()=>({enabled:true}),has:id=>Number(id)===9001,skills:()=>[{id:9001,name:'Native transform skill'}],select(native,selector,active,common,mode){return native.call(selector,active,common,mode);}};
+ q.mod.setTianQuanFiveBasics(true,1);q.mod.start('SCAN');
+ const id=q.s._f7t([[9001,0,100]],[],2);
+ assert.equal(id,9001);q.calls.length=0;q.c.combat(id);assert.deepEqual(q.calls,[9001]);q.mod.stop();
+});
 test('SCAN only works when actor beyond 300',()=>{const q=harness();q.mod.start('SCAN');q.actor.coords.x=280;assert.equal(q.s.selectSkill(),-1);q.c.combat(1001);assert.equal(q.calls.length,0);});
 // [VI dòng gốc 85] gọi test('one cast hit pair not sufficient for STRICT', ()=>{const q=harness();q.mod.start('SCAN');q.c.combat(1001);q.events[1012…) | Khai báo biến không gán lại bằng const: q = gọi harness() | gọi q.mod.start('SCAN') để khởi động bộ điều khiển | gọi q.c.combat(1001)
 test('one cast hit pair not sufficient for STRICT',()=>{const q=harness();q.mod.start('SCAN');q.c.combat(1001);q.events[1012]('10228867268946',10010000,90,1,'boss1');assert.equal(q.mod.status(false).confirmedCastHitPairs,1);q.mod.stop();q.mod.start('STRICT');assert.equal(q.s.selectSkill(),-1);});
@@ -397,9 +420,9 @@ test('burst dispatches eight ready native skills in one turn and verifies every 
 // [VI dòng gốc 198] Khai báo biến không gán lại bằng const: native = đọc q.c.combat | gán q.c.combat bằng function(id){q.cooldown(true);return native.call(this,id);} | gọi q.cooldown(true) | Kết thúc hàm hiện tại và trả về: gọi native.call(this, id).
  const native=q.c.combat;q.c.combat=function(id){q.cooldown(true);return native.call(this,id);};
 // [VI dòng gốc 199] gọi q.mod.setBurst(true) để bật/tắt chế độ thử tung nhóm chiêu; false là tắt | gọi q.mod.start('SCAN') để khởi động bộ điều khiển | gọi assert.equal(q.calls.length, 8) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(new Set(q.calls).size, 8) để kiểm tra hai giá trị bằng nhau
- q.mod.setBurst(true);q.mod.start('SCAN');assert.equal(q.calls.length,8);assert.equal(new Set(q.calls).size,8);
+ q.mod.setAfterTHWait(100);q.mod.setBurst(true);q.mod.start('SCAN');assert.equal(q.calls.length,8);assert.equal(new Set(q.calls).size,8);
 // [VI dòng gốc 200] gọi assert.equal(q.mod.report().burst.batches[0].attempted.length, 8) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.mod.report().burst.batches[0].confirmed.length, 0) để kiểm tra hai giá trị bằng nhau
- assert.equal(q.mod.report().burst.batches[0].attempted.length,8);assert.equal(q.mod.report().burst.batches[0].confirmed.length,0);
+ const first=q.mod.report().burst;assert.equal(first.minBatchGapMs,100);assert.deepEqual(Array.from(first.batches[0].readyIds),[1001,1002,1003,1004,1005,1006,1007,1008]);assert.equal(first.batches[0].attempted.length,8);assert.equal(first.batches[0].confirmed.length,0);assert.deepEqual(Array.from(first.batches[0].selectorRejected),[]);
 // [VI dòng gốc 201] gọi q.cooldown(false) | gọi q.advance(1000) | gọi assert.equal(q.calls.length, 8) để kiểm tra hai giá trị bằng nhau | gọi assert.equal(q.mod.report().lastReason, 'burst_waiting_results') để kiểm tra hai giá trị bằng nhau
  q.cooldown(false);q.advance(1000);assert.equal(q.calls.length,8);assert.equal(q.mod.report().lastReason,'burst_waiting_results');
 // [VI dòng gốc 202] Lặp for: khởi tạo let id=1001; tiếp tục khi id<=1008; sau mỗi vòng id++. | Khai báo biến có thể gán lại bằng let: id = 1001 | gọi q.events[1012]('10228867268946', id*10000, 10, 1, 'boss1')
@@ -416,6 +439,15 @@ test('burst dispatches eight ready native skills in one turn and verifies every 
  assert.equal(q.mod.report().burst.enabled,false);assert(q.s._rtt.every(row=>row[2]===100||row[0]===8001));
 // [VI dòng gốc 208] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 });
+test('burst is not serialized by the artificial post-Tuyet-Hoc wait after a synchronous hit signal',()=>{
+ const q=harness({fastReady:true});for(let id=1003;id<=1008;id++)q.s._rtt.push([id,0,100]);
+ const native=q.c.combat;q.c.combat=function(id){const result=native.call(this,id);q.events[1012]('10228867268946',id*10000,10,1,'boss1');return result;};
+ q.mod.setAfterTHWait(100);q.mod.setBurst(true);q.mod.start('SCAN');
+ assert.equal(q.calls.length,8,'all eight rows ready at batch start');
+ const batch=q.mod.report().burst.batches[0];assert.deepEqual(Array.from(batch.attempted),[1001,1002,1003,1004,1005,1006,1007,1008]);
+ assert.deepEqual(Array.from(batch.confirmed),[1001,1002,1003,1004,1005,1006,1007,1008]);assert.equal(batch.matchedDamage,80);
+ q.mod.stop();
+});
 // [VI dòng gốc 209] gọi test('burst preserves skill readiness, native initial lock, strict proofs and live tower HP checks', ()=>{ const q=harness({f…)
 test('burst preserves skill readiness, native initial lock, strict proofs and live tower HP checks',()=>{
 // [VI dòng gốc 210] Khai báo biến không gán lại bằng const: q = gọi harness({fastReady:true,cooling:true,tower:true}) | gán q.s._rtt[2][1] bằng Date.now()+100000
@@ -423,7 +455,7 @@ test('burst preserves skill readiness, native initial lock, strict proofs and li
 // [VI dòng gốc 211] gọi q.mod.setBurst(true) để bật/tắt chế độ thử tung nhóm chiêu; false là tắt | gọi q.mod.start('SCAN') để khởi động bộ điều khiển | gọi assert.equal(q.calls.length, 0) để kiểm tra hai giá trị bằng nhau
  q.mod.setBurst(true);q.mod.start('SCAN');assert.equal(q.calls.length,0);
 // [VI dòng gốc 212] gọi q.cooldown(false) | gọi q.advance(100) | gọi assert.deepEqual(q.calls, [1001]) để kiểm tra cấu trúc hai giá trị tương đương
- q.cooldown(false);q.advance(100);assert.deepEqual(q.calls,[1001]);
+ q.cooldown(false);q.advance(100);assert.deepEqual(q.calls,[1001]);assert.deepEqual(Array.from(q.mod.report().burst.lastPass.readyIds),[1001]);
 // [VI dòng gốc 213] gọi q.hp(1) | gọi q.phase('RETREAT') | gọi q.advance(4000) | gọi assert.equal(q.calls.length, 1) để kiểm tra hai giá trị bằng nhau
  q.hp(1);q.phase('RETREAT');q.advance(4000);assert.equal(q.calls.length,1);q.hp(100);q.phase('FIGHT');q.advance(4000);assert(q.calls.length>1);q.hp(0);const calls=q.calls.length;q.advance(4000);assert.equal(q.calls.length,calls);
 // [VI dòng gốc 214] Khai báo biến không gán lại bằng const: r = gọi harness({fastReady:true}) | gọi r.mod.setBurst(true) để bật/tắt chế độ thử tung nhóm chiêu; false là tắt | gọi r.mod.start('STRICT') để khởi động bộ điều khiển | gọi assert.equal(r.calls.length, 0) để kiểm tra hai giá trị bằng nhau
@@ -519,21 +551,26 @@ test('Tian Quan Basic Only casts 8005 despite learned 8001 and stale desktop ran
  assert(q.calls.every(id=>id===8005),'all calls are 8005');
  q.mod.stop();
 });
-test('FULL startup selects 300 and enables all five native basics in Tian Quan',()=>{
- const q=harness({fastReady:true,startX:300});q.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN',inside:true}),inside:()=>true,eligible:()=>true};q.W.KVPV_TQ_SCOPE={inside:()=>true};q.s._rtt=[8001,8002,8003,8004,8005].map(id=>[id,0,50]);q.s._wet=[];q.W.__KVPV_BASIC_RANGE_TEST_20261023={status:'complete'};q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
+test('FULL startup stands at 310 and bursts every ready native Tuyet Hoc skill',()=>{
+ const q=harness({fastReady:true,startX:300});q.W.KVPV_FAR_SCOPE={status:()=>({kind:'THIEN_QUAN',inside:true}),inside:()=>true,eligible:()=>true};q.W.KVPV_TQ_SCOPE={inside:()=>true};q.s._rtt=[...[8001,8002,8003,8004,8005,1001,1002,1003,1004,1005,1006,1007,1008].map(id=>[id,0,50])];q.s._wet=[];q.W.__KVPV_BASIC_RANGE_TEST_20261023={status:'complete'};q.W.KVPV_MODE={armTianQuan(){q.mod.start('SCAN');}};
  vm.runInNewContext(fs.readFileSync(__dirname+'/src/11-auto-tianquan.js','utf8').replace(/^\/\/ \[VI dòng gốc \d+\].*\r?\n/gm,''),{window:q.W});
  q.pump();
- assert.equal(q.mod.report().goalDistance,300);
- assert(Math.abs(q.actor.coords.x-300)<=5, 'startup position must remain within 5 of 300; actual='+q.actor.coords.x+' movements='+JSON.stringify(q.movements));
+ assert.equal(q.mod.report().goalDistance,310);
+ assert(Math.abs(q.actor.coords.x-310)<=5, 'startup position must remain within 5 of 310; actual='+q.actor.coords.x+' movements='+JSON.stringify(q.movements));
  assert.equal(q.mod.report().interleaved.enabled,true);
- assert.equal(q.mod.report().basicOnly,true,'Tian Quan defaults to native basic only');
+ assert.equal(q.mod.report().basicOnly,false,'Tuyet Hoc is enabled in the scan profile');
  assert.equal(q.mod.report().basicHitQuota,null);
- assert.equal(q.mod.report().afterTHWaitMs,1);
- assert.equal(q.mod.report().tianQuanFiveBasics.active,true,'Tian Quan five-basic profile must be active at startup');
- assert.equal(q.mod.report().interleaved.basicClientWaitMs,1,'five-basic mode uses 1ms client polling');
- assert.deepEqual(Array.from(q.mod.report().basicRotation),[8001,8002,8003,8004,8005],'startup registers the full five-basic rotation');
- assert.deepEqual(Array.from(q.mod.report().playerSkillIds),[8001,8002,8003,8004,8005],'startup exposes all learned basics');
- assert(q.calls.every(id=>id>=8001&&id<=8005),'startup must never cast outside the five-basic roster');
+ assert.equal(q.mod.report().afterTHWaitMs,100);
+ assert.equal(q.mod.report().tianQuanFiveBasics.active,true,'Tian Quan native basic profile must be active at startup');
+ assert.equal(q.mod.rangeReport().tuyetHocEnabled,true,'native Tuyet Hoc is enabled');
+ assert.deepEqual(Array.from(q.mod.report().tianQuanFiveBasics.ids),[8001,8002,8003],'profile retains the configured three basics');
+ assert.equal(q.mod.report().interleaved.basicClientWaitMs,0,'basic profile keeps zero extra client wait');
+ assert.deepEqual(Array.from(q.mod.report().basicRotation),[8001,8002,8003],'startup registers the configured basics');
+ assert.deepEqual(Array.from(q.mod.report().playerSkillIds),[8001,8002,8003,1001,1002,1003,1004,1005,1006,1007,1008],'startup exposes all eight Tuyet Hoc IDs');
+ assert.equal(q.mod.report().burst.enabled,true,'startup enables burst mode');assert.equal(q.mod.report().burst.minBatchGapMs,100);
+ assert(q.calls.length>=8,'ready Tuyet Hoc roster must dispatch');
+ assert.deepEqual(Array.from(q.calls.slice(0,8)),[1001,1002,1003,1004,1005,1006,1007,1008]);
+ assert(q.calls.every(id=>id>=1001&&id<=1008),'burst sends only the native Tuyet Hoc roster');
  const n=q.calls.length;q.cooldown(true);q.advance(500);assert.equal(q.calls.length,n);
  q.cooldown(false);q.hp(0);q.advance(500);assert.equal(q.calls.length,n);
 });

@@ -14,9 +14,9 @@
  }
  function apply(){
    if(!owned())return false;
-   // New explicit permission: native Fa Bao fast upgrade is allowed only when
-   // its own material and ACK checks pass. Keep unverified/KNB equipment paths off.
-   W.KVPV_FABAO_FAST?.start?.();
+   // User requested all automatic upgrading to remain off.
+   W.KVPV_FABAO_FAST?.stop?.();
+   W.KVPV_SOUL_STONE_FAST?.stop?.('user_upgrade_disabled');
    disable(W.KVPV_UPGRADES?.config);
    disable(W.KVPV_BG_RESOURCES?.config?.enabled);
    disable(W.KVPV_V880?.config,['autoWeapon','autoWing','autoArm']);
@@ -25,7 +25,7 @@
    S.applications++;return true;
  }
  function stop(){if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(S.timer);S.timer=null;}
- function status(){return {active:true,actor,reason:'fabao_native_materials_opt_in; other_unverified_upgrades_blocked',timerActive:S.timer!==null,applications:S.applications};}
+ function status(){return {active:true,actor,reason:'automatic_upgrades_disabled_by_user',timerActive:S.timer!==null,applications:S.applications};}
  function start(){if(S.timer===null){const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;if(typeof schedule==='function')S.timer=schedule(apply,1000);}apply();return status();}
  W.KVPV_MATERIAL_RESERVE=Object.freeze({active:true,apply,start,stop,status,_handoff:()=>({actor,saved:{}})});
  if(owned())start();

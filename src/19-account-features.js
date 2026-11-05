@@ -211,7 +211,7 @@
    const starModel=typeof _Ba!=='undefined'?_Ba?._MT?.the_secret_of_the_stars?._Gvt?.instance:null;
    const tierCandidates=[starModel?.maxPassTier,starModel?.maxOpenTier,starModel?.maxTier,starModel?.highestUnlockedTier]
      .map(Number).filter(v=>Number.isSafeInteger(v)&&v>0&&v<=10000);
-   if(tierCandidates.length)D.config.tinhThanTang=Math.max(...tierCandidates);
+   if(tierCandidates.length)D.config.tinhThanTang=Math.max(Number(D.config.tinhThanTang)||0,...tierCandidates);
    // If the native model has not published an unlocked tier yet, preserve user settings.
    D.config.autoTeam=true;
    D.config.autoApproveTeam=true;

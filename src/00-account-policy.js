@@ -5,7 +5,7 @@
 // [VI dòng gốc 4] chạy ngay hàm bao để tạo phạm vi và khởi tạo phần chức năng bên trong
 (() => {
 // [VI dòng gốc 5] Khai báo biến không gán lại bằng const: W = window; config = tạo đối tượng gồm pauseWhenHidden, backgroundTickMs, unfocusedTickMs
-  const W=window,config={pauseWhenHidden:false,backgroundTickMs:50,unfocusedTickMs:25};
+  const W=window,config={pauseWhenHidden:false,backgroundTickMs:1,unfocusedTickMs:1};
 // [VI dòng gốc 6] Khai báo biến không gán lại bằng const: focused = tạo hàm với tham số (không có); mỗi lần gọi trả về nếu typeof W.document?.hasFocus==='function' thì lấy W.document.hasFocus(), ngược lại lấy null
   const focused=()=>typeof W.document?.hasFocus==='function'?W.document.hasFocus():null;
 // [VI dòng gốc 7] Khai báo biến không gán lại bằng const: pollingGap = tạo hàm với tham số (không có); mỗi lần gọi trả về nếu W.document?.hidden thì lấy config.backgroundTickMs, ngược lại lấy focused()===false?config.unfocusedTickMs:0

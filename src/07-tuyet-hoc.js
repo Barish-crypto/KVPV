@@ -27,7 +27,7 @@
 // [VI dòng gốc 18] Kiểm tra !actorId||!Comp||!Sel||!Mov||!W.KVPV_HITRUN1?.status: đúng thì chạy nhánh sau if.
   if(!actorId||!Comp||!Sel||!Mov||!W.KVPV_HITRUN1?.status){
 // [VI dòng gốc 19] gọi console.warn(TAG, 'Chưa sẵn sàng trong game-frame') | Kết thúc hàm hiện tại mà không trả giá trị cụ thể.
-    console.warn(TAG,'Chưa sẵn sàng trong game-frame');return;
+    console?.warn?.(TAG,'Chưa sẵn sàng trong game-frame');return;
 // [VI dòng gốc 20] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   }
 // [VI dòng gốc 21] Khai báo biến không gán lại bằng const: TH = tạo đối tượng bằng Set([1001,1002,1003,1004,1005,1006,1007,1008])
@@ -373,7 +373,7 @@
 // [VI dòng gốc 191] gán W[NAME] bằng api
   W[NAME]=api;
 // [VI dòng gốc 192] gọi console.info(TAG, 'READY/OFF. Chạy KVPV_MODE.start("BOSS_TH") để chỉ xả Tuyệt Học ở xa.')
-  console.info(TAG,'READY/OFF. Chạy KVPV_MODE.start("BOSS_TH") để chỉ xả Tuyệt Học ở xa.');
+  console?.info?.(TAG,'READY/OFF. Chạy KVPV_MODE.start("BOSS_TH") để chỉ xả Tuyệt Học ở xa.');
 // [VI dòng gốc 193] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
 })();
 // [VI dòng gốc 194] Dòng trống để tách các phần, không có lệnh thực thi.

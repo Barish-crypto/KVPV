@@ -1,0 +1,752 @@
+[
+  {
+    "file": "00-account-policy.js",
+    "title": "Chính sách tài khoản",
+    "report": "",
+    "apis": [
+      "KVPV_ACCOUNT_POLICY"
+    ]
+  },
+  {
+    "file": "00-boss-recovery.js",
+    "title": "Hồi phục khi đánh boss",
+    "report": "",
+    "apis": [
+      "KVPV_BOSS_RECOVERY"
+    ]
+  },
+  {
+    "file": "00-boss-session.js",
+    "title": "Phiên đánh boss",
+    "report": "",
+    "apis": [
+      "KVPV_BOSS_LOG"
+    ]
+  },
+  {
+    "file": "00-combat-metrics.js",
+    "title": "Đo lường combat",
+    "report": "",
+    "apis": [
+      "KVPV_COMBAT_METRICS"
+    ]
+  },
+  {
+    "file": "00-daily-clock.js",
+    "title": "Đồng hồ reset ngày",
+    "report": "activityDay",
+    "apis": [
+      "KVPV_DAILY_CLOCK"
+    ]
+  },
+  {
+    "file": "00-far-scope.js",
+    "title": "Phạm vi các map đánh xa",
+    "report": "combat",
+    "apis": [
+      "KVPV_FAR_SCOPE"
+    ]
+  },
+  {
+    "file": "00-manual-entry-policy.js",
+    "title": "Chính sách vào hoạt động",
+    "report": "",
+    "apis": [
+      "KVPV_ENTRY_POLICY"
+    ]
+  },
+  {
+    "file": "00-preflight.js",
+    "title": "Kiểm tra trước khi chạy",
+    "report": "",
+    "apis": [
+      "KVPV_CHECK"
+    ]
+  },
+  {
+    "file": "00-skill-pacing.js",
+    "title": "Nhịp kỹ năng",
+    "report": "",
+    "apis": [
+      "KVPV_SKILL_PACING"
+    ]
+  },
+  {
+    "file": "00-spending-policy.js",
+    "title": "Chính sách tiêu tài nguyên",
+    "report": "",
+    "apis": [
+      "KVPV_SPENDING_POLICY"
+    ]
+  },
+  {
+    "file": "00-thienquan-scope.js",
+    "title": "Nhận diện Thiên Quan",
+    "report": "combat",
+    "apis": [
+      "KVPV_TQ_SCOPE"
+    ]
+  },
+  {
+    "file": "01-identity.js",
+    "title": "Nhận diện tài khoản",
+    "report": "",
+    "apis": []
+  },
+  {
+    "file": "01-parallel-actions.js",
+    "title": "Tác vụ song song",
+    "report": "stage",
+    "apis": [
+      "KVPV_PARALLEL_ACTIONS"
+    ]
+  },
+  {
+    "file": "01-quest-priority.js",
+    "title": "Ưu tiên nhiệm vụ",
+    "report": "stage",
+    "apis": [
+      "KVPV_QUEST_PRIORITY"
+    ]
+  },
+  {
+    "file": "02-scene.js",
+    "title": "Điều phối quyền map",
+    "report": "stage",
+    "apis": []
+  },
+  {
+    "file": "03-timeline.js",
+    "title": "Lịch sự kiện",
+    "report": "",
+    "apis": []
+  },
+  {
+    "file": "04-engine.js",
+    "title": "Lõi Daily và các bộ điều khiển",
+    "report": "stage",
+    "apis": [
+      "KVPV_TULA27",
+      "KVPV_DAILY",
+      "KVPV_TD925",
+      "KVPV_UPGRADES",
+      "KVPV_TIENVI_AUTO",
+      "KVPV_CUONG_HOA",
+      "KVPV_KHAM_DA_HON",
+      "KVPV_DUC_HON",
+      "KVPV_TIEN_PHU",
+      "KVPV_V8",
+      "KVPV_V81",
+      "KVPV_V82",
+      "KVPV_V83",
+      "KVPV_V84",
+      "KVPV_V85",
+      "KVPV_QUEST_GUARD",
+      "KVPV_V86",
+      "KVPV_V863",
+      "KVPV_V864",
+      "KVPV_V865",
+      "KVPV_V866",
+      "KVPV_V868",
+      "KVPV_V870",
+      "KVPV_V871",
+      "KVPV_QUEST_ATLAS",
+      "KVPV_V873",
+      "KVPV_V874",
+      "KVPV_V875",
+      "KVPV_V876",
+      "KVPV_V877",
+      "KVPV_V878",
+      "KVPV_V878_STRENGTH",
+      "KVPV_V879_STONE",
+      "KVPV_V879_FAST",
+      "KVPV_V880",
+      "KVPV_V881",
+      "KVPV_MAIN_SOLO",
+      "KVPV_SOLO_EXP30",
+      "KVPV_EVENTS13",
+      "KVPV_EVENTS24",
+      "KVPV_EVENTS25",
+      "KVPV_TULA26",
+      "KVPV_AUDIT28",
+      "KVPV_UNIFIED29",
+      "KVPV_BIENTHAN33",
+      "KVPV_HEALTH34",
+      "KVPV_MATHAN32",
+      "KVPV_GEAR36",
+      "KVPV_UNIVERSAL35",
+      "KVPV_UNIVERSAL36",
+      "KVPV_TIANKIEP45",
+      "KVPV_EVENTS9",
+      "KVPV_V9",
+      "KVPV_BOSS921",
+      "KVPV_BOSS92",
+      "KVPV_V921",
+      "KVPV_V92",
+      "KVPV_LINHLUNG922",
+      "KVPV_V922",
+      "KVPV_V923",
+      "KVPV_FOCUS922",
+      "KVPV_ALWAYS923",
+      "KVPV_V924_STAR",
+      "KVPV_TOWER_MANUAL925",
+      "KVPV_FAST926",
+      "KVPV_TU_VUOT",
+      "KVPV_SMELT25",
+      "KVPV_MATHAN_READY",
+      "KVPV_MAIL_AUTO",
+      "KVPV_TU_VUOT_ASYNC",
+      "KVPV_ASYNC_V35",
+      "KVPV_BG_RESOURCES",
+      "KVPV_BOSS_POSITION",
+      "KVPV_V127_HEAL",
+      "KVPV_V125_ORBIT",
+      "KVPV_TQ112",
+      "KVPV_TQ113",
+      "KVPV_V126_SIGNAL",
+      "KVPV_TQ114",
+      "KVPV_TQ115",
+      "KVPV_TQ117",
+      "KVPV_TQ118",
+      "KVPV_TQ119",
+      "KVPV_V122_RETURN",
+      "KVPV_V127_BASIC",
+      "KVPV_V129_RANGE",
+      "KVPV_V12_COMBAT",
+      "KVPV_HITRUN1",
+      "KVPV_HITRUN_AUTO",
+      "KVPV_BUILD_CLEAN",
+      "KVPV_HITRUN_FIX",
+      "KVPV_V121_PERF",
+      "KVPV_V123_SURVIVAL",
+      "KVPV_V124_EFFICIENCY"
+    ]
+  },
+  {
+    "file": "06-range.js",
+    "title": "Tầm đánh",
+    "report": "",
+    "apis": []
+  },
+  {
+    "file": "07-tuyet-hoc.js",
+    "title": "Tuyệt Học",
+    "report": "",
+    "apis": []
+  },
+  {
+    "file": "08-range-evidence.js",
+    "title": "Đánh xa và đo kết quả",
+    "report": "combat",
+    "apis": [
+      "KVPV_TH300"
+    ]
+  },
+  {
+    "file": "09-modes.js",
+    "title": "Chế độ chiến đấu",
+    "report": "combat",
+    "apis": [
+      "KVPV_MODE"
+    ]
+  },
+  {
+    "file": "10-experimental-boost.js",
+    "title": "Cấu hình thử nghiệm",
+    "report": "",
+    "apis": [
+      "KVPV_EXPERIMENTAL_BOOST"
+    ]
+  },
+  {
+    "file": "11-auto-tianquan.js",
+    "title": "Tự bật Thiên Quan",
+    "report": "combat",
+    "apis": []
+  },
+  {
+    "file": "12-basic-outside.js",
+    "title": "Đánh thường ngoài map đánh xa",
+    "report": "combat",
+    "apis": [
+      "KVPV_BASIC10"
+    ]
+  },
+  {
+    "file": "13-transform-skills.js",
+    "title": "Kỹ năng Biến Thân",
+    "report": "transformSkills",
+    "apis": [
+      "KVPV_TRANSFORM10"
+    ]
+  },
+  {
+    "file": "14-eight-floor.js",
+    "title": "Thiên thê 8 tầng",
+    "report": "",
+    "apis": [
+      "KVPV_EIGHT_FLOOR"
+    ]
+  },
+  {
+    "file": "15-honor-targets.js",
+    "title": "Tìm mục tiêu chiến trường vinh dự",
+    "report": "",
+    "apis": [
+      "KVPV_HONOR_TARGET"
+    ]
+  },
+  {
+    "file": "16-strongest-team.js",
+    "title": "Đội mạnh nhất",
+    "report": "",
+    "apis": [
+      "KVPV_STRONGEST_TEAM"
+    ]
+  },
+  {
+    "file": "17-linh-lung-th.js",
+    "title": "Linh Lung Tháp",
+    "report": "",
+    "apis": [
+      "KVPV_LINHLUNG_TH"
+    ]
+  },
+  {
+    "file": "18-supervisors.js",
+    "title": "Giám sát bộ điều khiển",
+    "report": "",
+    "apis": [
+      "KVPV_V11_STABLE",
+      "KVPV_V111_COMBAT"
+    ]
+  },
+  {
+    "file": "19-account-features.js",
+    "title": "Tính năng theo tài khoản",
+    "report": "",
+    "apis": [
+      "KVPV_TD925",
+      "KVPV_FAST927",
+      "KVPV_ASYNC928",
+      "KVPV_QUEST929",
+      "KVPV_RUNES930",
+      "KVPV_RUNE_INLAY931",
+      "KVPV_STAR_REWARD932",
+      "KVPV_ACCOUNT_FEATURES"
+    ]
+  },
+  {
+    "file": "20-daily-trial.js",
+    "title": "Thí luyện hàng ngày",
+    "report": "dailyTrial",
+    "apis": [
+      "KVPV_DAILY_TRIAL"
+    ]
+  },
+  {
+    "file": "21-quick-use.js",
+    "title": "Dùng nhanh vật phẩm",
+    "report": "",
+    "apis": [
+      "KVPV_QUICK_USE"
+    ]
+  },
+  {
+    "file": "22-confirm-popups.js",
+    "title": "Xác nhận cửa sổ native",
+    "report": "",
+    "apis": [
+      "KVPV_CONFIRM_POPUPS"
+    ]
+  },
+  {
+    "file": "23-beast-island.js",
+    "title": "Đảo Thần Thú",
+    "report": "",
+    "apis": [
+      "KVPV_BEAST_ISLAND"
+    ]
+  },
+  {
+    "file": "24-summon-boss.js",
+    "title": "Triệu hồi boss",
+    "report": "",
+    "apis": [
+      "KVPV_SUMMON_BOSS"
+    ]
+  },
+  {
+    "file": "25-rune-boss.js",
+    "title": "Boss Phù Văn",
+    "report": "",
+    "apis": [
+      "KVPV_RUNE_BOSS"
+    ]
+  },
+  {
+    "file": "26-fabao-fast.js",
+    "title": "Nâng Pháp Bảo",
+    "report": "",
+    "apis": [
+      "KVPV_FABAO_FAST"
+    ]
+  },
+  {
+    "file": "27-craft-low.js",
+    "title": "Ghép vật phẩm cấp thấp",
+    "report": "",
+    "apis": [
+      "KVPV_CRAFT_LOW"
+    ]
+  },
+  {
+    "file": "28-appearance-auto.js",
+    "title": "Nâng ngoại hình",
+    "report": "upgradeReports.appearance",
+    "apis": [
+      "KVPV_APPEARANCE_AUTO"
+    ]
+  },
+  {
+    "file": "29-quest-goals.js",
+    "title": "Mục tiêu nhiệm vụ",
+    "report": "",
+    "apis": [
+      "KVPV_QUEST_GOALS"
+    ]
+  },
+  {
+    "file": "30-tienvi-goals.js",
+    "title": "Mục tiêu Tiên Vị",
+    "report": "tienVi",
+    "apis": [
+      "KVPV_TIENVI_GOALS"
+    ]
+  },
+  {
+    "file": "31-skill-rewards.js",
+    "title": "Thưởng kỹ năng",
+    "report": "",
+    "apis": [
+      "KVPV_SKILL_REWARDS"
+    ]
+  },
+  {
+    "file": "33-progress-planner.js",
+    "title": "Lập kế hoạch phát triển",
+    "report": "",
+    "apis": [
+      "KVPV_PROGRESS_PLANNER"
+    ]
+  },
+  {
+    "file": "34-fabao-treasure.js",
+    "title": "Tầm bảo Pháp Bảo",
+    "report": "",
+    "apis": [
+      "KVPV_FABAO_TREASURE",
+      "KVPV_TREASURE_AUTO"
+    ]
+  },
+  {
+    "file": "35-equipment-treasure.js",
+    "title": "Tầm bảo trang bị",
+    "report": "",
+    "apis": [
+      "KVPV_EQUIPMENT_TREASURE"
+    ]
+  },
+  {
+    "file": "36-fast-actions.js",
+    "title": "Hành động nhanh",
+    "report": "",
+    "apis": []
+  },
+  {
+    "file": "37-reborn-goals.js",
+    "title": "Mục tiêu chuyển sinh",
+    "report": "reborn",
+    "apis": [
+      "KVPV_REBORN_GOALS"
+    ]
+  },
+  {
+    "file": "38-reborn-executors.js",
+    "title": "Thực hiện nhiệm vụ chuyển sinh",
+    "report": "executors",
+    "apis": [
+      "KVPV_REBORN_EXECUTORS"
+    ]
+  },
+  {
+    "file": "39-executor-report.js",
+    "title": "Báo cáo chẩn đoán",
+    "report": "",
+    "apis": [
+      "KVPV_EXECUTOR_REPORT"
+    ]
+  },
+  {
+    "file": "40-soul-stone-fast.js",
+    "title": "Đá Hồn",
+    "report": "upgradeReports.soulStone",
+    "apis": [
+      "KVPV_SOUL_STONE_FAST"
+    ]
+  },
+  {
+    "file": "41-season-rewards.js",
+    "title": "Thưởng mùa",
+    "report": "upgradeReports.seasonRewards",
+    "apis": [
+      "KVPV_SEASON_REWARDS"
+    ]
+  },
+  {
+    "file": "42-world-eye.js",
+    "title": "Quan sát thế giới",
+    "report": "worldEye",
+    "apis": [
+      "KVPV_WORLD_EYE"
+    ]
+  },
+  {
+    "file": "43-context-brain.js",
+    "title": "Chọn tác vụ theo bối cảnh",
+    "report": "contextPlan",
+    "apis": [
+      "KVPV_CONTEXT_BRAIN"
+    ]
+  },
+  {
+    "file": "44-red-navigator.js",
+    "title": "Điều hướng chấm đỏ",
+    "report": "upgradeReports.redNavigator",
+    "apis": [
+      "KVPV_RED_NAVIGATOR"
+    ]
+  },
+  {
+    "file": "45-monster-plate.js",
+    "title": "Quái Bàn",
+    "report": "",
+    "apis": [
+      "KVPV_MONSTER_PLATE"
+    ]
+  },
+  {
+    "file": "46-team-coordinator.js",
+    "title": "Điều phối đội",
+    "report": "teamCoordinator",
+    "apis": [
+      "KVPV_TEAM_COORDINATOR"
+    ]
+  },
+  {
+    "file": "47-boss-team.js",
+    "title": "Boss nhóm",
+    "report": "bossTeam",
+    "apis": [
+      "KVPV_BOSS_TEAM"
+    ]
+  },
+  {
+    "file": "48-guild-boss.js",
+    "title": "Boss bang",
+    "report": "guildBoss",
+    "apis": [
+      "KVPV_GUILD_BOSS"
+    ]
+  },
+  {
+    "file": "49-adventure.js",
+    "title": "Thám hiểm",
+    "report": "adventure",
+    "apis": [
+      "KVPV_ADVENTURE"
+    ]
+  },
+  {
+    "file": "50-companion-combat.js",
+    "title": "Ngự Thú theo nhân vật",
+    "report": "companionCombat",
+    "apis": [
+      "KVPV_COMPANION_COMBAT"
+    ]
+  },
+  {
+    "file": "51-demon-king-recovery.js",
+    "title": "Khôi phục phó bản Yêu Vương",
+    "report": "demonKingRecovery",
+    "apis": [
+      "KVPV_DEMON_KING_RECOVERY"
+    ]
+  },
+  {
+    "file": "52-item-trace.js",
+    "title": "Theo dõi vật phẩm",
+    "report": "itemTrace",
+    "apis": [
+      "KVPV_ITEM_TRACE"
+    ]
+  },
+  {
+    "file": "55-crystal-capture.js",
+    "title": "Thủ Hộ Thủy Tinh",
+    "report": "crystalCapture",
+    "apis": [
+      "KVPV_CRYSTAL_CAPTURE"
+    ]
+  },
+  {
+    "file": "56-free-treasure.js",
+    "title": "Tầm bảo miễn phí",
+    "report": "freeTreasure",
+    "apis": [
+      "KVPV_FREE_TREASURE"
+    ]
+  },
+  {
+    "file": "57-free-daily-bag.js",
+    "title": "Quà miễn phí hàng ngày",
+    "report": "freeDailyBag",
+    "apis": [
+      "KVPV_FREE_DAILY_BAG"
+    ]
+  },
+  {
+    "file": "58-idle-daily.js",
+    "title": "Bật Daily lúc rảnh",
+    "report": "idleDaily",
+    "apis": [
+      "KVPV_IDLE_DAILY"
+    ]
+  },
+  {
+    "file": "59-road-cadence.js",
+    "title": "Đường Thí Luyện",
+    "report": "roadCadence",
+    "apis": [
+      "KVPV_ROAD_CADENCE"
+    ]
+  },
+  {
+    "file": "60-quiz-auto.js",
+    "title": "Tầm Tiên Vấn Đạo",
+    "report": "quizAuto",
+    "apis": [
+      "KVPV_QUIZ_AUTO"
+    ]
+  },
+  {
+    "file": "61-peak-chest.js",
+    "title": "Rương Tranh Bá Đỉnh Cao",
+    "report": "peakChest",
+    "apis": [
+      "KVPV_PEAK_CHEST"
+    ]
+  },
+  {
+    "file": "62-resume-stage.js",
+    "title": "Tiếp tục tự vượt",
+    "report": "stageResume",
+    "apis": []
+  },
+  {
+    "file": "63-peak-completion.js",
+    "title": "Hoàn thành Tranh Bá Đỉnh Cao",
+    "report": "peakCompletion",
+    "apis": [
+      "KVPV_PEAK_COMPLETION"
+    ]
+  },
+  {
+    "file": "64-eight-chest.js",
+    "title": "Rương Thiên thê 8 tầng",
+    "report": "eightChest",
+    "apis": [
+      "KVPV_EIGHT_CHEST"
+    ]
+  },
+  {
+    "file": "65-marry-arena.js",
+    "title": "Đấu Tiên Duyên",
+    "report": "marryArena",
+    "apis": [
+      "KVPV_MARRY_ARENA"
+    ]
+  },
+  {
+    "file": "66-pet-travel.js",
+    "title": "Du ngoạn",
+    "report": "petTravel",
+    "apis": [
+      "KVPV_PET_TRAVEL"
+    ]
+  },
+  {
+    "file": "67-login-streak.js",
+    "title": "Đăng nhập liên tục",
+    "report": "loginStreak",
+    "apis": [
+      "KVPV_LOGIN_STREAK"
+    ]
+  },
+  {
+    "file": "68-festival-free.js",
+    "title": "Quà sự kiện miễn phí",
+    "report": "festivalFree",
+    "apis": [
+      "KVPV_FESTIVAL_FREE"
+    ]
+  },
+  {
+    "file": "69-marry-rewards.js",
+    "title": "Thưởng Tiên Duyên",
+    "report": "marryRewards",
+    "apis": [
+      "KVPV_MARRY_REWARDS"
+    ]
+  },
+  {
+    "file": "70-four-worship.js",
+    "title": "Hành lễ Tứ Phương Bá Chủ",
+    "report": "fourWorship",
+    "apis": [
+      "KVPV_FOUR_WORSHIP"
+    ]
+  },
+  {
+    "file": "71-kiem-khieu.js",
+    "title": "Kiếm Khiếu Quần Hùng",
+    "report": "kiemKhieu",
+    "apis": [
+      "KVPV_KIEM_KHIEU"
+    ]
+  },
+  {
+    "file": "72-bag-open-session.js",
+    "title": "Phiên mở túi vật phẩm",
+    "report": "",
+    "apis": [
+      "KVPV_BAG_OPEN_SESSION"
+    ]
+  },
+  {
+    "file": "72-desktop-control.js",
+    "title": "Điều khiển từ app Windows",
+    "report": "desktopControl",
+    "apis": [
+      "KVPV_DESKTOP_CONTROL"
+    ]
+  },
+  {
+    "file": "99-manual-entry.js",
+    "title": "Áp dụng chế độ vào map",
+    "report": "manualEntry",
+    "apis": [
+      "KVPV_MANUAL_ENTRY"
+    ]
+  }
+]

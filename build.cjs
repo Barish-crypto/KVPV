@@ -18,8 +18,17 @@ if (fs.existsSync(path.join(root,'.kvpv-live','maintenance.lock')) && process.en
   throw Error('MAINTENANCE: giữ bản đang chạy trong lúc dọn nguồn.');
 // [VI dòng gốc 10] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 }
-// [VI dòng gốc 11] Khai báo biến không gán lại bằng const: modules = gọi fs.readdirSync(path.join(root, 'src')).filter(x => /^\d\d-.*\.js$/.test(x)).sort() để sắp xếp mảng tại chỗ
-const modules = fs.readdirSync(path.join(root, 'src')).filter(x => /^\d\d-.*\.js$/.test(x)).sort();
+// Custom combat skill packs are removed from generated installers; the game-native selector owns combat.
+const removedCombatSkillModules=new Set([
+  '09-combat-engine.js','09-range-keeper310.js',
+  '09-test-legacy-combat.js','09-th300-scan-default.js','10-tq-basic-force.js',
+  '12-basic-outside.js','13-transform-skills.js','23-beast-island.js',
+  '50-companion-combat.js','71-kiem-khieu-basic.js','76-trutien-pvp.js',
+  '77-strongest-team-pvp.js','80-tienma-quyetchien-pvp.js','81-tranh-ba-tu-phuong-pvp.js',
+  '84-basic310-universal.js','85-le-hoi-khu-thu-boss.js'
+]);
+const modules = fs.readdirSync(path.join(root,'src'))
+  .filter(x=>/^\d\d-.*\.js$/.test(x)&&!removedCombatSkillModules.has(x)).sort();
 // [VI dòng gốc 12] Khai báo biến không gán lại bằng const: prelude = gọi fs.readFileSync(path.join(root,'runtime-v1.js'), 'utf8') để đọc tệp đồng bộ
 const prelude = fs.readFileSync(path.join(root,'runtime-v1.js'),'utf8');
 // [VI dòng gốc 13] Khai báo biến không gán lại bằng const: sources = tạo đối tượng bằng Map()
@@ -39,8 +48,8 @@ const body = modules.map(name => {
 }).join('\n');
 // [VI dòng gốc 20] Khai báo biến không gán lại bằng const: controlsSchemaText = gọi fs.readFileSync(path.join(root,'windows-app/control-schema.json'), 'utf8') để đọc tệp đồng bộ
 const controlsSchemaText=fs.readFileSync(path.join(root,'windows-app/control-schema.json'),'utf8');
-// [VI dòng gốc 21] Khai báo biến không gán lại bằng const: buildId = gọi crypto.createHash('sha256').update('shared-installers-v2\n'+prelude+'\n'+body+'\n'+controlsSchemaText).digest('hex').slice(0, 12) để lấy một đoạn dữ liệu
-const buildId=crypto.createHash('sha256').update('shared-installers-v2\n'+prelude+'\n'+body+'\n'+controlsSchemaText).digest('hex').slice(0,12);
+// Build ID covers installer templates as well as every embedded source and control schema.
+const buildId=crypto.createHash('sha256').update('shared-installers-v3\n'+prelude+'\n'+body+'\n'+controlsSchemaText+'\n'+fs.readFileSync(__filename,'utf8')).digest('hex').slice(0,12);
 // [VI dòng gốc 22] Khai báo biến không gán lại bằng const: moduleCatalog = gọi modules.map(file=>({file,apis:[...new Set([...sources.get(file).replace(/^\/\/ \[VI dòng gốc \d+\].*$/gm,'').matchAll(/(?:window|W)\…) để biến đổi từng phần tử
 const moduleCatalog=modules.map(file=>({file,apis:[...new Set([...sources.get(file).replace(/^\/\/ \[VI dòng gốc \d+\].*$/gm,'').matchAll(/(?:window|W)\.(KVPV_[A-Z0-9_]+)\s*=/g)].map(m=>m[1]))]}));
 // [VI dòng gốc 23] Khai báo biến không gán lại bằng const: metadata = gọi JSON.stringify({id:buildId,release:'1.0.0',recovery:'35-100-observed-ring',modules:moduleCatalog}) để chuyển giá trị thành chuỗi JSON
@@ -64,6 +73,8 @@ const liveModules = [
   "00-thienquan-scope.js",
 // [VI dòng gốc 31] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-combat-metrics.js",
   "00-combat-metrics.js",
+  "00-skill-pacing.js",
+  "00-tq-basic-profile.js",
   // retired skill sender: 00-skill1008-trial.js
 // [VI dòng gốc 32] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-skill-pacing.js",
   "00-skill-async-observer.js",
@@ -79,14 +90,12 @@ const liveModules = [
 // [VI dòng gốc 36] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "06-range.js",
   "03-daily-core.js",
   "06-range.js",
+  "07-tuyet-hoc.js",
   "07-th300-hitrun-compat.js",
   "08-range-evidence.js",
   "09-modes.js",
-  "09-combat-engine.js",
-  "09-range-keeper310.js",
-  "09-test-legacy-combat.js",
-  "09-th300-scan-default.js",
   "09-tq-ma-than.js",
+  "11-auto-tianquan.js",
 // [VI dòng gốc 37] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "08-range-evidence.js",
 // [VI dòng gốc 38] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "09-modes.js",
 // [VI dòng gốc 39] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "10-experimental-boost.js",
@@ -116,7 +125,6 @@ const liveModules = [
 // [VI dòng gốc 51] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "22-confirm-popups.js",
   "22-confirm-popups.js",
 // [VI dòng gốc 52] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "23-beast-island.js",
-  "23-beast-island.js",
 // [VI dòng gốc 53] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "24-summon-boss.js",
   "24-summon-boss.js",
 // [VI dòng gốc 54] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "25-rune-boss.js",
@@ -174,7 +182,7 @@ const liveModules = [
 // [VI dòng gốc 76] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "47-boss-team.js",
   "47-boss-team.js",
 // [VI dòng gốc 77] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "48-guild-boss.js", "49-adventure.js", "50-companion-combat.js", "51-demon-king-recovery.js", "52-item-trace.js", "55-crystal-capture.js", "56-free-treasure.js", "57-free-daily-bag…
-  "48-guild-boss.js", "49-adventure.js", "50-companion-combat.js", "51-demon-king-recovery.js", "52-item-trace.js", "55-crystal-capture.js", "56-free-treasure.js", "57-free-daily-bag.js", "58-idle-daily.js", "59-road-cadence.js", "60-quiz-auto.js", "61-peak-chest.js", "62-event-priority.js", "62-resume-stage.js", "63-peak-completion.js", "64-eight-chest.js", "65-marry-arena.js", "66-pet-travel.js", "67-login-streak.js", "68-festival-free.js", "69-marry-rewards.js", "70-four-worship.js", "71-kiem-khieu.js", "71-kiem-khieu-basic.js", "72-desktop-control.js", "73-frame-click.js", "74-tien-ton-native-auto.js", "75-pvp-luofeng.js", "76-trutien-pvp.js", "77-strongest-team-pvp.js", "78-tula-pvp.js", "80-tienma-quyetchien-pvp.js", "82-move-visual99.js", "83-movement-observer.js", "84-basic310-universal.js", "85-le-hoi-khu-thu-boss.js", "99-manual-entry.js", "99-z-pb-boss-daily.js"
+  "48-guild-boss.js", "49-adventure.js", "51-demon-king-recovery.js", "52-item-trace.js", "55-crystal-capture.js", "56-free-treasure.js", "57-free-daily-bag.js", "58-idle-daily.js", "59-road-cadence.js", "60-quiz-auto.js", "61-peak-chest.js", "62-event-priority.js", "62-resume-stage.js", "63-peak-completion.js", "64-eight-chest.js", "65-marry-arena.js", "66-pet-travel.js", "67-login-streak.js", "68-festival-free.js", "69-marry-rewards.js", "70-four-worship.js", "71-kiem-khieu.js", "72-desktop-control.js", "73-frame-click.js", "74-tien-ton-native-auto.js", "75-pvp-luofeng.js", "78-tula-pvp.js", "82-move-visual99.js", "83-movement-observer.js", "99-manual-entry.js", "99-z-pb-boss-daily.js"
 // [VI dòng gốc 78] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
 ];
 // [VI dòng gốc 79] Chú thích gốc của tác giả; không được thực thi. Nội dung: Cùng một trình tự dừng được dùng cho FULL và bản vá độc lập.
@@ -185,7 +193,7 @@ const W=window;
 if(!W.KVPV_V1){console.warn("[KVPV] Live update skipped: V1 session unavailable");return;}
 if(W._Ba?._rJ?._O$?.ins?.isDead===true)throw Error("Hồi sinh nhân vật trước khi chạy bản vá");
 if(String(W.__KVPV_OWN_ACTOR_ID)!==String(W._Ba?._rJ?._O$?.ins?.actorId)||W.__KVPV_UNIVERSAL_HALTED)throw Error("Actor/session mismatch");
-W.KVPV_BEAST_ISLAND?.stop?.();W.KVPV_STRONGEST_TEAM?.stop?.();W.KVPV_HONOR_TARGET?.stop?.();/* Eight Floor stays armed until its installer safely replaces it. */W.KVPV_BASIC10?.stop?.();W.KVPV_STAND281?.stop?.();W.KVPV_MODE?.stop?.("Install live SCAN update");
+W.KVPV_TQ_SINGLE_STRONGEST_TH=false;W.KVPV_TH300?.setBasicOnly?.(false);W.KVPV_TH300?.setTianQuanTuyetHoc?.(false);W.KVPV_TH300?.setTianQuanFiveBasics?.(false);W.KVPV_TH300?.stop?.('user');W.KVPV_TQ_BASIC_FORCE?.stop?.('native combat restored');W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.stop?.('native combat restored');W.KVPV_MODE?.stop?.("Custom skill controllers removed");W.KVPV_COMBAT_ENGINE?.stop?.();W.KVPV_BASIC310_UNIVERSAL?.stop?.();W.KVPV_TQ_8001_CD?.stop?.('native combat restored');W.KVPV_BEAST_ISLAND?.stop?.();W.KVPV_COMPANION_COMBAT?.stop?.();W.KVPV_KIEM_KHIEU_BASIC?.stop?.();W.KVPV_TRUTIEN_PVP?.stop?.();W.KVPV_STRONGEST_PVP?.stop?.();W.KVPV_TIENMA_PVP?.stop?.();W.KVPV_TRANH_BA_TU_PHUONG?.stop?.();W.KVPV_LE_HOI_KHU_THU?.stop?.();W.KVPV_PVP_LUOFENG?.stop?.();W.KVPV_STRONGEST_TEAM?.stop?.();W.KVPV_HONOR_TARGET?.stop?.();/* Eight Floor stays armed until its installer safely replaces it. */W.KVPV_BASIC10?.stop?.();W.KVPV_STAND281?.stop?.();
 `;
 // [VI dòng gốc 87] Duyệt từng giá trị trong liveModules bằng const name. | Khai báo biến không gán lại bằng const: name (chưa gán giá trị) | Kiểm tra !sources.has(name): đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Missing live module: '+name)
 for(const name of liveModules)if(!sources.has(name))throw Error('Missing live module: '+name);
