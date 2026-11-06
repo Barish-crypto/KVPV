@@ -20377,7 +20377,10 @@ tick();
 // [VI dòng gốc 33] Kiểm tra desired.distance!==undefined: đúng thì chạy nhánh sau if. | gọi combat.setDistance(desired.distance)
    if(desired.distance!==undefined)combat.setDistance(desired.distance);
 // [VI dòng gốc 34] Kiểm tra desired.animationSpeed!==undefined: đúng thì chạy nhánh sau if. | gọi combat.setBasicAnimationSpeed(desired.animationSpeed) để đặt hệ số phát hoạt ảnh 8001 phía client; không phải hệ số sát thương server
-   if(desired.animationSpeed!==undefined)combat.setBasicAnimationSpeed(desired.animationSpeed);
+if(desired.animationSpeed!==undefined){
+  const validSpeed = [1, 9, 99].includes(desired.animationSpeed) ? desired.animationSpeed : 1;
+  combat.setBasicAnimationSpeed(validSpeed);
+}
 // [VI dòng gốc 35] gán combatApi bằng combat
    combatApi=combat;
 // [VI dòng gốc 36] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.

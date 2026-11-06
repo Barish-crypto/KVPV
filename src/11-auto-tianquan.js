@@ -33,6 +33,8 @@
     // Use the TQ-scoped visual hook at its maximum finite factor. The hook
     // changes client animation duration only; native cooldown/ready gates stay.
     th?.setTianQuanVisualSpeed?.(9999);
+    // Enable Ma Thần Nộ (enhanced Tuyet Học) for Tian Quan
+    th?.setTianQuanTuyetHoc?.(true);
     W.KVPV_MODE.armTianQuan();
     th?.setTianQuanMpackExtras?.(true);
     th?.setTianQuanTuyetHoc?.(true);

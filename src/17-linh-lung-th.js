@@ -6,7 +6,7 @@
 (() => {
 // [VI dòng gốc 5] Khai báo biến không gán lại bằng const: W = window | Khai báo biến có thể gán lại bằng let: enabled = tính biểu thức W.KVPV_LINHLUNG_TH?.enabled!==false
   const W=window;let enabled=W.KVPV_LINHLUNG_TH?.enabled!==false;
-// [VI dòng gốc 6] gán W.KVPV_LINHLUNG_TH bằng Object.freeze({ get enabled(){return enabled;}, start(options={}){const tower=W.KVPV_LINHLUNG922; if(!tower?.start)throw Error('Thiếu bộ vượt Linh Lung Tháp'); enabled=true;W.KVPV_…
+// [VI dòng gốc 6] gán W.KVPV_LINHLUNG_TH bằng Object.freeze({ get enabled(){return enabled;}, start(options={}){const tower=W.KVPV_LINHLUNG922; if(!tower?.start)throw Error('Thiếu bộ vượt Linh Lung Tháp'); enabled=true;W.KVPV_MODE.armTianQuan() để đăng ký bộ theo dõi map để tự bật bộ combat khi vào phó bản phù hợp | Kết thúc hàm hiện tại và trả về: gọi tower.start(options) để khởi động bộ điều khiển.
   W.KVPV_LINHLUNG_TH=Object.freeze({
 // [VI dòng gốc 7] Kết thúc hàm hiện tại và trả về: enabled.
     get enabled(){return enabled;},
@@ -24,6 +24,17 @@
       combat:W.KVPV_TH300?.status?.(false),recovery:{enabled:true,leavePct:35,returnPct:100,finishBossHpPct:2}};}
 // [VI dòng gốc 14] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
   });
-// [VI dòng gốc 15] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();
+// [VI dòng gốc 15] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: })();  
 })();
 // [VI dòng gốc 16] Dòng trống để tách các phần, không có lệnh thực thi.
+
+// [VI dòng gốc 17] Tăng tốc độ hoạt ảnh cho Linh Lung Tháp
+(() => {
+  const W = window;
+  if (W.KVPV_TH300) {
+    // Set animation speed to 9999 times for Linh Lung Tháp
+    W.KVPV_TH300.setBasicAnimationSpeed?.(9999);
+    // Enable Ma Thần Nộ (enhanced Tuyet Học) for Linh Lung Tháp
+    W.KVPV_TH300.setTianQuanTuyetHoc?.(true);
+  }
+})();

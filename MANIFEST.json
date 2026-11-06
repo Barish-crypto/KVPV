@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
-  "buildId": "ea96023553fa",
+  "buildId": "317ead793f77",
   "file": "KVPV_V1_FULL.js",
-  "sha256": "af21e02d008e26e79dc29ef74389e535f34ad5054becbdb6f43d37f1d3e522a6",
+  "sha256": "9af926ba65d6f30da0ab28c57d2328d8597d8b43ef395d441a6efd24e3037019",
   "modules": [
     "00-account-policy.js",
     "00-boss-recovery.js",
@@ -39,6 +39,7 @@
     "11-auto-tianquan.js",
     "14-eight-floor.js",
     "15-honor-targets.js",
+    "16-phu-van-th.js",
     "16-strongest-team.js",
     "17-linh-lung-th.js",
     "18-supervisors.js",
