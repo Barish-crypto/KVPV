@@ -7,10 +7,12 @@
   
   // Ensure Ma Thần Nộ (enhanced Tuyet Học) is enabled for Phù Văn when using TH300 system
   if (W.KVPV_TH300) {
-    // Set animation speed to 9999 times for Phù Văn Tháp
-    W.KVPV_TH300.setBasicAnimationSpeed?.(9999);
+    // Set animation speed to 99 times for Phù Văn Tháp
+    W.KVPV_TH300.setBasicAnimationSpeed?.(99);
     // Enable Ma Thần Nộ (enhanced Tuyet Học) for Phù Văn Tháp
     W.KVPV_TH300.setTianQuanTuyetHoc?.(true);
+    // Enable basic only mode to bypass native cooldowns
+    W.KVPV_TH300.setBasicOnly?.(true);
   }
   
   // Also configure specific Phù Văn settings if available

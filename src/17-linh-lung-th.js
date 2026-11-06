@@ -34,7 +34,9 @@
   if (W.KVPV_TH300) {
     // Set animation speed to 99 times for Linh Lung Tháp
         W.KVPV_TH300.setBasicAnimationSpeed?.(99);
-    // Enable Ma Thần Nộ (enhanced Tuyet Học) for Linh Lung Tháp
-    W.KVPV_TH300.setTianQuanTuyetHoc?.(true);
+        // Enable Ma Thần Nộ (enhanced Tuyet Học) for Linh Lung Tháp
+        W.KVPV_TH300.setTianQuanTuyetHoc?.(true);
+        // Enable basic only mode to bypass native cooldowns
+        W.KVPV_TH300.setBasicOnly?.(true);
   }
 })();
