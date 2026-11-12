@@ -1,0 +1,17 @@
+{
+  "09-combat-engine.js": "KVPV_COMBAT_ENGINE",
+  "24-summon-boss.js": "KVPV_SUMMON_BOSS",
+  "25-rune-boss.js": "KVPV_RUNE_BOSS",
+  "63-peak-completion.js": "KVPV_PEAK_COMPLETION",
+  "74-tien-ton-native-auto.js": "KVPV_TIEN_TON_AUTO",
+  "75-pvp-luofeng.js": "KVPV_PVP_LUOFENG",
+  "76-trutien-pvp.js": "KVPV_TRUTIEN_PVP",
+  "77-strongest-team-pvp.js": "KVPV_STRONGEST_PVP",
+  "78-tula-pvp.js": "KVPV_TULA_PVP",
+  "80-tienma-quyetchien-pvp.js": "KVPV_TIENMA_PVP",
+  "81-tranh-ba-tu-phuong-pvp.js": "KVPV_TRANH_BA_TU_PHUONG",
+  "11-auto-tianquan.js": "KVPV_TQ_AUTO_CONTROL",
+  "62-resume-stage.js": "KVPV_STAGE_RESUME_CONTROL",
+  "85-le-hoi-khu-thu-boss.js": "KVPV_LE_HOI_KHU_THU",
+  "86-dinh-cao-basic-combo.js": "KVPV_DINH_CAO_BASIC_COMBO"
+}

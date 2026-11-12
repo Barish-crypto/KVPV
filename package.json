@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "build": "node build.cjs",
-    "test": "node test.cjs",
-    "live": "node live/watch.cjs",
-    "test:browser": "node TEST_LIVE_BROWSER.cjs"
+    "dashboard": "node tools/kvpv-dashboard/server.cjs",
+    "source-manager": "node tools/source-manager/server.cjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
   }
 }

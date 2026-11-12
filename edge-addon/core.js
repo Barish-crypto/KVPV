@@ -1,139 +1,195 @@
 function gameURL(url){try{const u=new URL(url);return /^https?:$/.test(u.protocol)&&u.hostname==='play.choingay.vn'&&/^\/1046(?:\/|$)/.test(u.pathname);}catch(_){return false;}}
-// [VI dòng gốc 20] Định nghĩa hàm frameIds; tham số: tree, out=new Set() | Kiểm tra tree?.frame?.id: đúng thì chạy nhánh sau if. | gọi out.add(tree.frame.id) | Duyệt từng giá trị trong tree?.childFrames||[] bằng const child.
+
 function frameIds(tree,out=new Set()){if(tree?.frame?.id)out.add(tree.frame.id);for(const child of tree?.childFrames||[])frameIds(child,out);return out;}
-// [VI dòng gốc 21] Nội dung nguyên văn của chuỗi mẫu; đây là dữ liệu trong chuỗi, không phải lệnh đang chạy.
+const heartbeatLeaseMs=120000;
+
 const probe=`(() => {
  const W=window,p=W._Ba?._rJ?._O$?.ins,actor=String(p?.actorId||'');
- if(!p||!W._ft||!W._Sa||!(/^[1-9]\\d{4,24}$/).test(actor))return {ready:false};
- if(W.__KVPV_UNIVERSAL_HALTED||W.KVPV_V1&&String(W.__KVPV_OWN_ACTOR_ID)!==actor)return {ready:false,reason:'account_changed_open_new_tab'};
- if(p.isDead===true)return {ready:false,reason:'waiting_revive'};
- const types=W._d?._Yct,world=W._C?._Ba?.instance,role=world?.getRole?.(Number(actor))||world?.getRole?.(actor);
- if(!types?._Eet||!types?._Het||!types?._zet||!role?.getComponent?.(types._Eet)||!role.getComponent(types._Het)||!role.getComponent(types._zet))return {ready:false,reason:'waiting_components'};
+ if(!p||!(/^[1-9]\\d{4,24}$/).test(actor))return {ready:false};
  let diagnostics=null;try{diagnostics=W.KVPV_EXECUTOR_REPORT?.snapshot?.()??null;}catch(_){}
- return {ready:true,actor,loaded:W.__KVPV_LIVE_BUILD||null,diagnostics};
+ if(!W._ft||!W._Sa)return {ready:false,actor,diagnostics,reason:'waiting_runtime'};
+ if(W.__KVPV_UNIVERSAL_HALTED||W.KVPV_V1&&String(W.__KVPV_OWN_ACTOR_ID)!==actor)return {ready:false,actor,diagnostics,reason:'account_changed_open_new_tab'};
+ if(p.isDead===true)return {ready:false,actor,diagnostics,reason:'waiting_revive'};
+ const types=W._d?._Yct,world=W._C?._Ba?.instance,role=world?.getRole?.(Number(actor))||world?.getRole?.(actor);
+ if(!types?._Eet||!types?._Het||!types?._zet||!role?.getComponent?.(types._Eet)||!role.getComponent(types._Het)||!role.getComponent(types._zet))return {ready:false,actor,diagnostics,reason:'waiting_components'};
+ return {ready:true,actor,hasRuntime:!!W.KVPV_V1,loaded:W.__KVPV_LIVE_BUILD||null,runtimeModules:Array.isArray(W.__KVPV_RUNTIME_MODULE_SET)?W.__KVPV_RUNTIME_MODULE_SET:null,diagnostics};
 })()`;
-// [VI dòng gốc 31] Nội dung nguyên văn của chuỗi mẫu; đây là dữ liệu trong chuỗi, không phải lệnh đang chạy.
+
 function injection(full,build){return `(() => { const before=${probe};if(!before.ready)return before;\n${full}\nif(!window.KVPV_V1)throw Error('FULL did not install');window.__KVPV_LIVE_BUILD=${JSON.stringify(build)};return {ready:true,loaded:window.__KVPV_LIVE_BUILD};})()\n//# sourceURL=KVPV_LIVE_FULL.js`;}
-// [VI dòng gốc 32] Định nghĩa lớp GameBridge.
+function sameModuleSet(left,right){if(!Array.isArray(left)||!Array.isArray(right)||left.length!==right.length)return false;const a=[...left].sort(),b=[...right].sort();return a.every((name,index)=>name===b[index]);}
+
 class GameBridge{
-// [VI dòng gốc 33] gán this.cdp bằng cdp | gán this.log bằng log | gán this.targets bằng new Map() | gán this.contexts bằng new Map()
-  constructor(cdp,log=()=>{}){this.cdp=cdp;this.log=log;this.targets=new Map();this.contexts=new Map();this.attempts=new Map();this.errors=new Map();
-// [VI dòng gốc 34] gọi cdp.on('event', m=>{ const p=m.params||{},sid=m.sessionId; if(m.method==='Runtime.executionContextCreated'&&p.context?.auxData?…)
+
+  constructor(cdp,log=()=>{}){this.cdp=cdp;this.log=log;this.targets=new Map();this.contexts=new Map();this.attempts=new Map();this.errors=new Map();this.contextActors=new Map();this.inFlight=new Map();this.pendingDiagnostics=[];
+
     cdp.on('event',m=>{
-// [VI dòng gốc 35] Khai báo biến không gán lại bằng const: p = m.params hoặc dùng vế phải khi vế trái falsy: {}; sid = đọc m.sessionId
+
       const p=m.params||{},sid=m.sessionId;
-// [VI dòng gốc 36] Kiểm tra m.method==='Runtime.executionContextCreated'&&p.context?.auxData?.isDefault===true: đúng thì chạy nhánh sau if. | Khai báo biến không gán lại bằng const: c = đọc p.context | gọi this.contexts.set(sid+'/'+c.id, {...c,sessionId:sid})
+
       if(m.method==='Runtime.executionContextCreated'&&p.context?.auxData?.isDefault===true){const c=p.context;this.contexts.set(sid+'/'+c.id,{...c,sessionId:sid});}
-// [VI dòng gốc 37] Kiểm tra m.method==='Runtime.executionContextDestroyed': đúng thì chạy nhánh sau if. | gọi this.contexts.delete(sid+'/'+p.executionContextId)
-      if(m.method==='Runtime.executionContextDestroyed'){this.contexts.delete(sid+'/'+p.executionContextId);}
-// [VI dòng gốc 38] Kiểm tra m.method==='Runtime.executionContextsCleared': đúng thì chạy nhánh sau if. | Duyệt từng giá trị trong this.contexts bằng const [key,c]. | Khai báo biến không gán lại bằng const: [key,c] (chưa gán giá trị) | Kiểm tra c.sessionId===sid: đúng thì chạy nhánh sau if.
-      if(m.method==='Runtime.executionContextsCleared')for(const [key,c]of this.contexts)if(c.sessionId===sid)this.contexts.delete(key);
-// [VI dòng gốc 39] Kiểm tra m.method==='Target.detachedFromTarget': đúng thì chạy nhánh sau if. | gọi this.removeSession(p.sessionId)
+
+      if(m.method==='Runtime.executionContextDestroyed'){const key=sid+'/'+p.executionContextId;this.contexts.delete(key);this.contextActors.delete(key);this.attempts.delete(key);this.errors.delete(key);this.inFlight.delete(key);}
+
+      if(m.method==='Runtime.executionContextsCleared')for(const [key,c]of this.contexts)if(c.sessionId===sid){this.contexts.delete(key);this.contextActors.delete(key);this.attempts.delete(c.uniqueId||key);this.errors.delete(c.uniqueId||key);this.inFlight.delete(key);}
+
       if(m.method==='Target.detachedFromTarget')this.removeSession(p.sessionId);
-// [VI dòng gốc 40] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+
     });
-// [VI dòng gốc 41] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+
   }
-// [VI dòng gốc 42] Duyệt từng giá trị trong this.targets bằng const [id,s]. | Khai báo biến không gán lại bằng const: [id,s] (chưa gán giá trị) | Kiểm tra s===sid: đúng thì chạy nhánh sau if. | gọi this.targets.delete(id)
-  removeSession(sid){for(const [id,s]of this.targets)if(s===sid)this.targets.delete(id);for(const [key,c]of this.contexts)if(c.sessionId===sid)this.contexts.delete(key);}
-// [VI dòng gốc 43] Kiểm tra this.targets.has(info.targetId): đúng thì chạy nhánh sau if. | Kết thúc hàm hiện tại và trả về: gọi this.targets.get(info.targetId).
+
+  removeSession(sid){for(const [id,s]of this.targets)if(s===sid)this.targets.delete(id);for(const [key,c]of this.contexts)if(c.sessionId===sid){this.contexts.delete(key);this.contextActors.delete(key);this.attempts.delete(c.uniqueId||key);this.errors.delete(c.uniqueId||key);this.inFlight.delete(key);}}
+
   async attach(info){if(this.targets.has(info.targetId))return this.targets.get(info.targetId);
-// [VI dòng gốc 44] Khai báo biến không gán lại bằng const: {sessionId} = chờ tác vụ bất đồng bộ: gọi this.cdp.send('Target.attachToTarget', {targetId:info.targetId,flatten:true}) | gọi this.targets.set(info.targetId, sessionId)
+
     const {sessionId}=await this.cdp.send('Target.attachToTarget',{targetId:info.targetId,flatten:true});this.targets.set(info.targetId,sessionId);
-// [VI dòng gốc 45] chờ tác vụ bất đồng bộ: gọi this.cdp.send('Runtime.enable', {}, sessionId) | Kết thúc hàm hiện tại và trả về: sessionId.
+
     await this.cdp.send('Runtime.enable',{},sessionId);return sessionId;
-// [VI dòng gốc 46] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+
   }
-// [VI dòng gốc 47] Khai báo biến không gán lại bằng const: result = chờ tác vụ bất đồng bộ: gọi this.cdp.send('Runtime.evaluate', { expression,returnByValue:true,awaitPromise:false,...(context.uniqueId?{uniqueContextId:context.uni…)
+
   async evaluate(context,expression){const result=await this.cdp.send('Runtime.evaluate',{
-// [VI dòng gốc 48] Thuộc tính expression: dùng biến cùng tên | Thuộc tính returnByValue: true | Thuộc tính awaitPromise: false | Thuộc tính uniqueContextId: đọc context.uniqueId
+
     expression,returnByValue:true,awaitPromise:false,...(context.uniqueId?{uniqueContextId:context.uniqueId}:{contextId:context.id})
-// [VI dòng gốc 49] Kiểm tra result.exceptionDetails: đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error(result.exceptionDetails.exception?.description||result.exceptionDetails.text) | Kết thúc hàm hiện tại và trả về: đọc result.result?.value nếu đối tượng tồn tại (bỏ qua truy cập/gọi khi phần tùy chọn không tồn tại).
+
   },context.sessionId);if(result.exceptionDetails)throw Error(result.exceptionDetails.exception?.description||result.exceptionDetails.text);return result.result?.value;}
-// [VI dòng gốc 50] Định nghĩa phương thức sync của đối tượng.
-  async sync(payload,partyPeers=[],desktopControls=[]){
-// [VI dòng gốc 51] Khai báo biến không gán lại bằng const: {targetInfos} = chờ tác vụ bất đồng bộ: gọi this.cdp.send('Target.getTargets') | Khai báo biến không gán lại bằng const: live = tạo đối tượng bằng Set(targetInfos.map(t=>t.targetId))
-    const {targetInfos}=await this.cdp.send('Target.getTargets');const live=new Set(targetInfos.map(t=>t.targetId));
-// [VI dòng gốc 52] Duyệt từng giá trị trong this.targets bằng const [id,sid]. | Khai báo biến không gán lại bằng const: [id,sid] (chưa gán giá trị) | Kiểm tra !live.has(id): đúng thì chạy nhánh sau if. | gọi this.removeSession(sid)
-    for(const [id,sid]of this.targets)if(!live.has(id))this.removeSession(sid);
-// [VI dòng gốc 53] Khai báo biến không gán lại bằng const: allowed = tạo đối tượng bằng Set(); pages = gọi targetInfos.filter(t=>t.type==='page'&&gameURL(t.url)) để giữ phần tử thỏa điều kiện
-    const allowed=new Set(),pages=targetInfos.filter(t=>t.type==='page'&&gameURL(t.url));
-// [VI dòng gốc 54] Duyệt từng giá trị trong pages bằng const page. | Khai báo biến không gán lại bằng const: page (chưa gán giá trị) | Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | Khai báo biến không gán lại bằng const: sid = chờ tác vụ bất đồng bộ: gọi this.attach(page)
-    for(const page of pages){try{const sid=await this.attach(page);const tree=await this.cdp.send('Page.getFrameTree',{},sid);frameIds(tree.frameTree,allowed);}catch(_){}}
-// [VI dòng gốc 55] Chú thích gốc của tác giả; không được thực thi. Nội dung: FrameTree có thể bỏ qua OOPIF. Chrome mới trả parentId/parentFrameId
-    // FrameTree có thể bỏ qua OOPIF. Chrome mới trả parentId/parentFrameId
-// [VI dòng gốc 56] Chú thích gốc của tác giả; không được thực thi. Nội dung: trong TargetInfo: đi từ tab game xuống, không attach iframe của tab khác.
-    // trong TargetInfo: đi từ tab game xuống, không attach iframe của tab khác.
-// [VI dòng gốc 57] Khai báo biến không gán lại bằng const: authorizedTargets = tạo đối tượng bằng Set(pages.map(t=>t.targetId)) | Khai báo biến có thể gán lại bằng let: expanded = true
-    const authorizedTargets=new Set(pages.map(t=>t.targetId));let expanded=true;
-// [VI dòng gốc 58] Lặp khi điều kiện còn đúng: expanded | gán expanded bằng false
-    while(expanded){expanded=false;
-// [VI dòng gốc 59] Duyệt từng giá trị trong targetInfos bằng const target. | Khai báo biến không gán lại bằng const: target (chưa gán giá trị) | Kiểm tra target.type==='iframe'&&!authorizedTargets.has(target.targetId)&& (allowed.has(target.targetId)||allowed.has(target.parentFrameId)||authorizedTargets.has(target.parentId)): đúng thì chạy nhánh sau if.
-      for(const target of targetInfos)if(target.type==='iframe'&&!authorizedTargets.has(target.targetId)&&
-// [VI dòng gốc 60] gọi allowed.has(target.targetId) | gọi allowed.has(target.parentFrameId) | gọi authorizedTargets.has(target.parentId)
-        (allowed.has(target.targetId)||allowed.has(target.parentFrameId)||authorizedTargets.has(target.parentId))){
-// [VI dòng gốc 61] gọi authorizedTargets.add(target.targetId) | gọi allowed.add(target.targetId) | gán expanded bằng true
-        authorizedTargets.add(target.targetId);allowed.add(target.targetId);expanded=true;
-// [VI dòng gốc 62] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài. | Khai báo biến không gán lại bằng const: sid = chờ tác vụ bất đồng bộ: gọi this.attach(target) | Khai báo biến không gán lại bằng const: tree = chờ tác vụ bất đồng bộ: gọi this.cdp.send('Page.getFrameTree', {}, sid) | gọi frameIds(tree.frameTree, allowed)
-        try{const sid=await this.attach(target);const tree=await this.cdp.send('Page.getFrameTree',{},sid);frameIds(tree.frameTree,allowed);}catch(_){}
-// [VI dòng gốc 63] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
-      }
-// [VI dòng gốc 64] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
-    }
-// [VI dòng gốc 65] Khai báo biến không gán lại bằng const: diagnostics = tạo mảng gồm 0 vị trí: []
-    const diagnostics=[];
-// [VI dòng gốc 66] Duyệt từng giá trị trong [...this.contexts.values()] bằng const context. | Khai báo biến không gán lại bằng const: context (chưa gán giá trị)
-    for(const context of [...this.contexts.values()]){
-// [VI dòng gốc 67] Kiểm tra !allowed.has(context.auxData?.frameId): đúng thì chạy nhánh sau if. | Bỏ phần còn lại của vòng hiện tại và chuyển sang vòng tiếp theo.
-      if(!allowed.has(context.auxData?.frameId))continue;
-// [VI dòng gốc 68] Khai báo biến không gán lại bằng const: key = context.uniqueId hoặc dùng vế phải khi vế trái falsy: context.sessionId+'/'+context.id
-      const key=context.uniqueId||context.sessionId+'/'+context.id;
-// [VI dòng gốc 69] Bắt đầu khối try; lỗi phát sinh sẽ được xử lý ở catch hoặc chuyển ra ngoài.
-      try{
-// [VI dòng gốc 70] Khai báo biến không gán lại bằng const: state = chờ tác vụ bất đồng bộ: gọi this.evaluate(context, probe) | Kiểm tra !state?.ready: đúng thì chạy nhánh sau if. | Bỏ phần còn lại của vòng hiện tại và chuyển sang vòng tiếp theo.
-        const state=await this.evaluate(context,probe);if(!state?.ready)continue;
-// [VI dòng gốc 71] Kiểm tra state.diagnostics: đúng thì chạy nhánh sau if. | gọi diagnostics.push(state.diagnostics) để thêm phần tử vào cuối mảng
-        if(state.diagnostics)diagnostics.push(state.diagnostics);
-// [VI dòng gốc 72] Kiểm tra Array.isArray(partyPeers)&&partyPeers.length<=32: đúng thì chạy nhánh sau if. | chờ tác vụ bất đồng bộ: gọi this.evaluate(context, 'window.KVPV_TEAM_COORDINATOR?.receive?.('+JSON.stringify(partyPeers)+')')
-        if(Array.isArray(partyPeers)&&partyPeers.length<=32)await this.evaluate(context,
-// [VI dòng gốc 73] gọi JSON.stringify(partyPeers) để chuyển giá trị thành chuỗi JSON
-          'window.KVPV_TEAM_COORDINATOR?.receive?.('+JSON.stringify(partyPeers)+')');
-// [VI dòng gốc 74] Kiểm tra Array.isArray(desktopControls)&&desktopControls.length<=8&&desktopControls.length: đúng thì chạy nhánh sau if. | chờ tác vụ bất đồng bộ: gọi this.evaluate(context, 'window.KVPV_DESKTOP_CONTROL?.receive?.('+JSON.stringify(desktopControls)+')')
-        if(Array.isArray(desktopControls)&&desktopControls.length<=8&&desktopControls.length)await this.evaluate(context,
-// [VI dòng gốc 75] gọi JSON.stringify(desktopControls) để chuyển giá trị thành chuỗi JSON
-          'window.KVPV_DESKTOP_CONTROL?.receive?.('+JSON.stringify(desktopControls)+')');
-// [VI dòng gốc 76] Kiểm tra state.loaded===payload.build: đúng thì chạy nhánh sau if. | Kiểm tra this.attempts.get(key)!==payload.build: đúng thì chạy nhánh sau if. | gọi this.attempts.set(key, payload.build) | gọi this.log('READY '+payload.build+' actor '+state.actor)
-        if(state.loaded===payload.build){if(this.attempts.get(key)!==payload.build){this.attempts.set(key,payload.build);this.log('READY '+payload.build+' actor '+state.actor);}continue;}
-// [VI dòng gốc 77] Kiểm tra this.attempts.get(key)===payload.build: đúng thì chạy nhánh sau if. | Bỏ phần còn lại của vòng hiện tại và chuyển sang vòng tiếp theo.
-        if(this.attempts.get(key)===payload.build)continue;
-// [VI dòng gốc 78] Chú thích gốc của tác giả; không được thực thi. Nội dung: Một lần/build/context. Nếu cài lỗi không tự spam khởi động lại trận.
-        // Một lần/build/context. Nếu cài lỗi không tự spam khởi động lại trận.
-// [VI dòng gốc 79] gọi this.attempts.set(key, payload.build)
-        this.attempts.set(key,payload.build);
-// [VI dòng gốc 80] Khai báo biến không gán lại bằng const: result = chờ tác vụ bất đồng bộ: gọi this.evaluate(context, injection(payload.full,payload.build))
-        const result=await this.evaluate(context,injection(payload.full,payload.build));
-// [VI dòng gốc 81] Kiểm tra result?.loaded===payload.build: đúng thì chạy nhánh sau if. | gọi this.log('LOADED '+payload.build+' actor '+state.actor)
-        if(result?.loaded===payload.build)this.log('LOADED '+payload.build+' actor '+state.actor);
-// [VI dòng gốc 82] Nhận lỗi bằng e và chạy phần xử lý lỗi. | Khai báo biến không gán lại bằng const: message = gọi String(e.message||e).slice(0, 350) để lấy một đoạn dữ liệu
-      }catch(e){const message=String(e.message||e).slice(0,350);
-// [VI dòng gốc 83] Kiểm tra /uniqueContextId not found|Cannot find context|Execution context was destroyed|Target closed/i.test(message): đúng thì chạy nhánh sau if. | gọi this.attempts.delete(key) | Bỏ phần còn lại của vòng hiện tại và chuyển sang vòng tiếp theo.
-        if(/uniqueContextId not found|Cannot find context|Execution context was destroyed|Target closed/i.test(message)){this.attempts.delete(key);continue;}
-// [VI dòng gốc 84] Kiểm tra this.errors.get(key)!==message: đúng thì chạy nhánh sau if. | gọi this.errors.set(key, message) | gọi this.log('FRAME ERROR: '+message)
-        if(this.errors.get(key)!==message){this.errors.set(key,message);this.log('FRAME ERROR: '+message);}}
-// [VI dòng gốc 85] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
-    }
-// [VI dòng gốc 86] Chú thích gốc của tác giả; không được thực thi. Nội dung: Không giữ lịch sử của những context đã đóng vô hạn.
-    // Không giữ lịch sử của những context đã đóng vô hạn.
-// [VI dòng gốc 87] Khai báo biến không gán lại bằng const: keys = tạo đối tượng bằng Set([...this.contexts.values()].map(c=>c.uniqueId||c.sessionId+'/'+c.id))
-    const keys=new Set([...this.contexts.values()].map(c=>c.uniqueId||c.sessionId+'/'+c.id));
-// [VI dòng gốc 88] Duyệt từng giá trị trong this.attempts.keys() bằng const key. | Khai báo biến không gán lại bằng const: key (chưa gán giá trị) | Kiểm tra !keys.has(key): đúng thì chạy nhánh sau if. | gọi this.attempts.delete(key)
-    for(const key of this.attempts.keys())if(!keys.has(key)){this.attempts.delete(key);this.errors.delete(key);}
-// [VI dòng gốc 89] Kết thúc hàm hiện tại và trả về: tạo đối tượng gồm pages, contexts, diagnostics.
-    return {pages:pages.length,contexts:this.contexts.size,diagnostics};
-// [VI dòng gốc 90] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+
+  async scanContext(context,key,payload,partyPeers,desktopControls){
+
+    try{
+
+      const state=await this.evaluate(context,probe);
+      if(this.contexts.get(key)!==context)return;
+      if(state?.actor)this.contextActors.set(key,{actor:String(state.actor),at:Date.now()});
+      else this.contextActors.delete(key);
+      if(state?.diagnostics){this.pendingDiagnostics.push(state.diagnostics);if(this.pendingDiagnostics.length>32)this.pendingDiagnostics.shift();}
+      if(!state?.ready)return;
+      const runtime=payload?.byActor?.get(String(state.actor))||payload;
+
+      if(Array.isArray(partyPeers)&&partyPeers.length<=32)await this.evaluate(context,
+        'window.KVPV_TEAM_COORDINATOR?.receive?.('+JSON.stringify(partyPeers)+')');
+
+      if(Array.isArray(desktopControls)&&desktopControls.length<=8&&desktopControls.length)await this.evaluate(context,
+        'window.KVPV_DESKTOP_CONTROL?.receive?.('+JSON.stringify(desktopControls)+')');
+
+      if(state.hasRuntime&&!Array.isArray(state.runtimeModules))return;
+      if(Array.isArray(state.runtimeModules)&&!sameModuleSet(state.runtimeModules,runtime.modules||[]))return;
+      const attemptKey=context.uniqueId||key;
+      if(state.loaded===runtime.build){if(this.attempts.get(attemptKey)!==runtime.build){this.attempts.set(attemptKey,runtime.build);this.log('READY '+runtime.build+' actor '+state.actor);}return;}
+      if(this.attempts.get(attemptKey)===runtime.build)return;
+
+      this.attempts.set(attemptKey,runtime.build);
+      const result=await this.evaluate(context,injection(runtime.full,runtime.build));
+      if(result?.loaded===runtime.build)this.log('LOADED '+runtime.build+' actor '+state.actor);
+
+    }catch(e){const attemptKey=context.uniqueId||key,message=String(e.message||e).slice(0,350);
+
+      if(/uniqueContextId not found|Cannot find context|Execution context was destroyed|Target closed/i.test(message)){this.attempts.delete(attemptKey);return;}
+
+      if(this.errors.get(attemptKey)!==message){this.errors.set(attemptKey,message);this.log('FRAME ERROR: '+message);}}
+
   }
-// [VI dòng gốc 91] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+
+  async truTienAction(action){
+
+    if(!['status','start','stop'].includes(action))throw Error('Invalid Tru Tien action');
+    const now=Date.now(),candidates=[];
+    for(const [key,record]of this.contextActors){
+      const context=this.contexts.get(key);
+      if(!context||typeof record?.actor!=='string'||!/^[1-9]\d{4,24}$/.test(record.actor)||
+        !Number.isFinite(record.at)||record.at>now||now-record.at>heartbeatLeaseMs)continue;
+      candidates.push({context,actor:record.actor});
+    }
+    if(!candidates.length)throw Error('Chưa nhận diện nhân vật trong tab game; hãy đợi đồng bộ rồi thử lại.');
+    const actors=new Set(candidates.map(candidate=>candidate.actor));
+    if(actors.size!==1)throw Error('Tab có nhiều nhân vật đang hoạt động; không thể chọn PK Tru Tiên an toàn.');
+    const actor=candidates[0].actor,actionText=JSON.stringify(action),actorText=JSON.stringify(actor);
+    const expression=`(()=>{const action=${actionText},expected=${actorText};let api=window.KVPV_TRUTIEN_PVP;if(!api&&action==='start'){const install=window.__KVPV_CONTROL_INSTALLERS?.['76-trutien-pvp.js'];if(typeof install==='function')install();api=window.KVPV_TRUTIEN_PVP;}if(!api||typeof api.status!=='function')return action==='start'?{available:false,reason:'module_api_unavailable'}:{available:true,actor:expected,enabled:false,reason:'not_initialized',selectedPlayer:false,targetId:''};const summary=()=>{const s=api.status();return {available:true,actor:String(s?.actor??''),enabled:s?.enabled===true,reason:String(s?.reason??''),selectedPlayer:s?.selectedPlayer===true,targetId:String(s?.targetId??'')}};let state=summary();if(state.actor!==expected)return state;if(action==='start'&&state.enabled!==true){if(typeof api.start!=='function')throw Error('Tru Tien start API unavailable');api.start({autoDodge:false,companions:false});state=summary();}else if(action==='stop'&&state.enabled===true){if(typeof api.stop!=='function')throw Error('Tru Tien stop API unavailable');api.stop('dashboard_stop');state=summary();}return state;})()`;
+    let lastStatus=null,lastError=null;
+    for(const candidate of candidates){
+      try{
+        const state=await this.evaluate(candidate.context,expression);
+        if(!state?.available){lastError=Error('Tru Tiên API chưa được nạp trong context đã nhận diện.');continue;}
+        if(String(state.actor)!==actor){lastError=Error('Actor của module Tru Tiên không khớp nhân vật hiện tại.');continue;}
+        lastStatus=state;
+        if(action!=='stop'&&state.enabled===true)return state;
+      }catch(error){lastError=error;}
+    }
+    if(lastStatus)return lastStatus;
+    if(lastError)throw lastError;
+    throw Error('Module Tru Tiên chưa sẵn sàng trong tab game; hãy đồng bộ lại tab.');
+
+  }
+
+  async sync(payload,partyPeers=[],desktopControls=[]){
+
+    let targetInfos=[];
+    try{({targetInfos}=await this.cdp.send('Target.getTargets'));}
+    catch(error){
+      const message=String(error?.message||error||'unknown');
+      this.log('TARGETS ERROR: '+message.slice(0,300));
+      return {pages:0,contexts:this.contexts.size,diagnostics:[],heartbeats:[]};
+    }
+    targetInfos=Array.isArray(targetInfos)?targetInfos:[];
+    const live=new Set(targetInfos.map(t=>t.targetId));
+
+    for(const [id,sid]of this.targets)if(!live.has(id))this.removeSession(sid);
+
+    const allowed=new Set(),pages=targetInfos.filter(t=>t.type==='page'&&gameURL(t.url));
+
+    for(const page of pages){try{const sid=await this.attach(page);const tree=await this.cdp.send('Page.getFrameTree',{},sid);frameIds(tree.frameTree,allowed);}catch(_){}}
+
+    
+
+    
+
+    const authorizedTargets=new Set(pages.map(t=>t.targetId));let expanded=true;
+
+    while(expanded){expanded=false;
+
+      for(const target of targetInfos)if(target.type==='iframe'&&!authorizedTargets.has(target.targetId)&&
+
+        (allowed.has(target.targetId)||allowed.has(target.parentFrameId)||authorizedTargets.has(target.parentId))){
+
+        authorizedTargets.add(target.targetId);allowed.add(target.targetId);expanded=true;
+
+        try{const sid=await this.attach(target);const tree=await this.cdp.send('Page.getFrameTree',{},sid);frameIds(tree.frameTree,allowed);}catch(_){}
+
+      }
+
+    }
+
+    const activeContexts=new Set();
+
+    for(const context of [...this.contexts.values()]){
+
+      if(!allowed.has(context.auxData?.frameId))continue;
+
+      const key=context.sessionId+'/'+context.id;
+      activeContexts.add(key);
+      if(!this.inFlight.has(key)){
+        const task=this.scanContext(context,key,payload,partyPeers,desktopControls);
+        this.inFlight.set(key,task);
+        const clear=()=>{if(this.inFlight.get(key)===task)this.inFlight.delete(key);};
+        task.then(clear,clear);
+      }
+
+    }
+
+    const now=Date.now(),heartbeats=new Set();
+    for(const [key,record]of this.contextActors){
+      if(!activeContexts.has(key)||now-record.at>heartbeatLeaseMs){this.contextActors.delete(key);continue;}
+      heartbeats.add(record.actor);
+    }
+
+    for(const [key,context]of this.contexts)if(!activeContexts.has(key)){this.contextActors.delete(key);this.attempts.delete(context.uniqueId||key);this.errors.delete(context.uniqueId||key);}
+
+    const diagnostics=this.pendingDiagnostics.splice(0);
+    return {pages:pages.length,contexts:this.contexts.size,diagnostics,heartbeats:[...heartbeats]};
+
+  }
+
 }
-// [VI dòng gốc 92] gán module.exports bằng {CDP,GameBridge,gameURL,frameIds,probe,injection}
+
 
 self.KVPV_EDGE_CORE={GameBridge,gameURL};

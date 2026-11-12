@@ -1,4 +1,4 @@
-/* Tạo tài liệu tiếng Việt theo dòng; chỉ đọc nguồn, không sửa hay thực thi mã game. */
+ 
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),out=__dirname;
@@ -15,6 +15,7 @@ const jsExtensions=new Set(['.js','.cjs','.mjs']);
 const extensions=new Set([...jsExtensions,'.ps1','.bat','.cs','.css','.html','.json']);
 const generated=new Map([
   ['KVPV_V1_FULL.js','build.cjs + runtime-v1.js + src/'],
+  ['KVPV_FULL_THIEN_QUAN.js','build.cjs + runtime-v1.js + src/'],
   ['KVPV_SCAN_LIVE_PATCH.js','build.cjs + src/'],
   ['edge-addon/core.js','build-edge-addon.cjs + live/core.cjs'],
   ['android/KVPV_ANDROID.user.js','build-android.cjs + android/loader.js + FULL']
@@ -22,7 +23,7 @@ const generated=new Map([
 function walk(dir){return fs.readdirSync(path.join(root,dir),{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.posix.join(dir,e.name)):[path.posix.join(dir,e.name)]);}
 const files=[...fs.readdirSync(root,{withFileTypes:true}).filter(e=>e.isFile()).map(e=>e.name),...['src','live','scripts','edge-addon','extension','android'].flatMap(walk)]
   .filter(f=>extensions.has(path.extname(f))&&!generated.has(f)).sort();
-const category=f=>f.startsWith('src/')?'Mã game':f.startsWith('edge-addon/')?'Extension và native host':f.startsWith('live/')?'Đồng bộ và kiểm tra bản cập nhật':f.startsWith('android/')?'Bộ nạp Android':/TEST|test/i.test(f)?'Kiểm thử':f.startsWith('scripts/')?'Công cụ phụ':f==='runtime-v1.js'?'Khởi động và nạp module':'Build, cài đặt và cấu hình';
+const category=f=>f.startsWith('src/')?'Mã game':f.startsWith('edge-addon/')?'Extension và native host':f.startsWith('live/')?'Đồng bộ và kiểm tra bản cập nhật':f.startsWith('android/')?'Bộ nạp Android':f.startsWith('scripts/')?'Công cụ phụ':f==='runtime-v1.js'?'Khởi động và nạp module':'Build, cài đặt và cấu hình';
 const meanings={
   W:'đối tượng window của frame hiện tại',actor:'ID nhân vật sở hữu phiên này',owned:'kiểm tra đúng nhân vật và phiên còn được phép chạy',
   snapshot:'đọc ảnh chụp trạng thái hiện tại',status:'trả trạng thái để kiểm tra',tick:'xử lý một nhịp kiểm tra',
@@ -34,14 +35,13 @@ const meanings={
   setBossLevel:'đổi lựa chọn cấp boss cho nhân vật hiện tại',getItem:'đọc giá trị đã lưu',setItem:'ghi giá trị vào bộ lưu trữ',
   setBasicOnly:'bật/tắt chế độ nhân vật chỉ dùng đòn tay 8001 trong Thiên Quan, Linh Lung, Phù Văn và Tru Tiên',
   setBasicAnimationSpeed:'đặt hệ số phát hoạt ảnh 8001 phía client; không phải hệ số sát thương server',
-  startBasicSpeedTrial:'bắt đầu phép so sánh hoạt ảnh có thời hạn và tự khôi phục',
   setBasicPace:'đặt khoảng chờ thêm phía client cho đòn tay; 0 nghĩa là không thêm thời gian chờ',
   setClientPace:'đặt khoảng chờ thêm chung giữa các lần thử tung chiêu phía client',
   setInterleaved:'bật/tắt bộ chọn xen đòn thường và đặt khoảng cách mục tiêu',
   setPrimaryBasic:'bật/tắt ưu tiên kỹ năng đánh thường đã chọn',setBasicRotation:'chọn danh sách ID đòn thường được phép luân phiên',
   setBasicHitQuota:'đặt số đòn thường đã xác nhận trước khi cho Tuyệt Học; chế độ basicOnly vẫn chặn Tuyệt Học',
   setAfterTHWait:'đặt thời gian chờ thêm sau Tuyệt Học theo mili giây',setConfirmedTailCut:'bật/tắt cắt phần đuôi hoạt ảnh chỉ sau khi đã ghép được đòn trúng',
-  setBurst:'bật/tắt chế độ thử tung nhóm chiêu; false là tắt',setBasicProbe:'bật/tắt phép thử đòn thường có giới hạn',
+  setBurst:'bật/tắt chế độ tung nhóm chiêu; false là tắt',
   armTianQuan:'đăng ký bộ theo dõi map để tự bật bộ combat khi vào phó bản phù hợp',
   setInterval:'đăng ký tác vụ lặp theo khoảng thời gian',clearInterval:'hủy tác vụ lặp',setTimeout:'hẹn thực hiện một lần',clearTimeout:'hủy lịch thực hiện một lần',
   readFileSync:'đọc tệp đồng bộ',writeFileSync:'ghi tệp đồng bộ',mkdirSync:'tạo thư mục',readdirSync:'liệt kê mục trong thư mục',
@@ -56,8 +56,6 @@ const meanings={
   getMABosss:'đọc danh sách mục tiêu Thần Thú theo tầng',getMABossIsLive:'kiểm tra mục tiêu Thần Thú còn sống',
   setTempTargetOcc:'đặt mục tiêu dự kiến trước khi chuyển cảnh',setNpcMovePoint:'giao điểm đi đến NPC cho bộ di chuyển native',
   setTarget:'đặt mục tiêu qua đối tượng đang gọi',acquire:'xin quyền giữ tài nguyên theo bộ điều phối',renew:'gia hạn quyền đang giữ',
-  assert:'kiểm tra điều kiện của bài test',equal:'kiểm tra hai giá trị bằng nhau',deepEqual:'kiểm tra cấu trúc hai giá trị tương đương',
-  throws:'kiểm tra đoạn mã có ném lỗi như dự kiến',runInNewContext:'chạy mã trong ngữ cảnh máy ảo dùng cho kiểm thử',
   require:'nạp module Node.js',fetch:'gửi yêu cầu mạng theo URL và tùy chọn',sendMessage:'gửi thông điệp qua API đang gọi',
   addEventListener:'đăng ký bộ xử lý sự kiện',removeEventListener:'gỡ bộ xử lý sự kiện',addListener:'đăng ký bộ lắng nghe',
   Object:'công cụ xử lý đối tượng JavaScript',freeze:'khóa thay đổi trực tiếp các thuộc tính của đối tượng ở mức ngoài cùng',

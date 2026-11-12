@@ -1,5 +1,6 @@
-/* User policy: disable ALL automatic upgrading; So Tai feature is removed.
- * Manual upgrades and free claims remain available. Never restore old auto flags.
+/* Upgrade policy: the native progression queue owns the approved upgrade list.
+ * Legacy broad senders stay disabled so excluded appearance and feed-stone
+ * categories cannot be restarted through older controllers.
  */
 (() => {
  'use strict';
@@ -14,7 +15,8 @@
  }
  function apply(){
    if(!owned())return false;
-   // User requested all automatic upgrading to remain off.
+   // Keep legacy broad senders disabled; approved progression runs through
+   // KVPV_APPEARANCE_AUTO with an explicit per-category allow-list.
    W.KVPV_FABAO_FAST?.stop?.();
    W.KVPV_SOUL_STONE_FAST?.stop?.('user_upgrade_disabled');
    disable(W.KVPV_UPGRADES?.config);
@@ -25,7 +27,7 @@
    S.applications++;return true;
  }
  function stop(){if(S.timer!==null)(W.KVPV_V1?.timers?.clearInterval??W.clearInterval)(S.timer);S.timer=null;}
- function status(){return {active:true,actor,reason:'automatic_upgrades_disabled_by_user',timerActive:S.timer!==null,applications:S.applications};}
+ function status(){return {active:true,actor,reason:'legacy_upgrade_senders_disabled_allowlist_managed_by_native_queue',timerActive:S.timer!==null,applications:S.applications};}
  function start(){if(S.timer===null){const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;if(typeof schedule==='function')S.timer=schedule(apply,1000);}apply();return status();}
  W.KVPV_MATERIAL_RESERVE=Object.freeze({active:true,apply,start,stop,status,_handoff:()=>({actor,saved:{}})});
  if(owned())start();

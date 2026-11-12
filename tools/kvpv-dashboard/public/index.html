@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>KVPV · Bảng điều khiển</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="KVPV Dashboard">
+        <span class="brand-mark">K</span>
+        <span>KVPV<span class="brand-sub">QUẢN LÝ NHÂN VẬT</span></span>
+      </a>
+      <span id="app-health" class="app-health is-pending" role="status" aria-live="polite"><span class="pulse" aria-hidden="true"></span><span>Đang kiểm tra app</span></span>
+      <button id="refresh" class="refresh-button" type="button">Làm mới</button>
+    </header>
+
+    <section class="intro">
+      <div>
+        <p class="eyebrow">NHÂN VẬT ĐANG KẾT NỐI</p>
+        <h1>Quản lý <span>module</span></h1>
+      </div>
+      <span class="updated"><span class="pulse" aria-hidden="true"></span><span id="last-updated">Đang tải…</span></span>
+    </section>
+
+    <section class="control-panel" aria-label="Module nhân vật">
+      <div class="character-picker">
+        <label for="character-select">Nhân vật</label>
+        <select id="character-select" disabled>
+          <option value="">Đang tìm nhân vật…</option>
+        </select>
+      </div>
+      <div class="module-toolbar">
+        <span id="character-status" class="control-status">Chưa có nhân vật kết nối</span>
+        <button id="save-modules" class="save-modules" type="button" disabled>Áp dụng ngay</button>
+      </div>
+      <div class="filter-toolbar">
+        <input id="module-filter" type="search" placeholder="Tìm module…" aria-label="Tìm module">
+        <label class="filter-option"><input id="module-enabled-only" type="checkbox">Chỉ hiện mục bật</label>
+      </div>
+      <div class="module-bulk-actions">
+        <button id="enable-daily-modules" class="bulk-action-button" type="button" title="Bật module nhóm Hằng ngày, tắt các module thường khác; không đổi cấu hình red-dot." disabled>Chỉ bật bộ Hằng ngày</button>
+        <button id="enable-all-modules" class="bulk-action-button" type="button" title="Bật toàn bộ module thường; không tự bật red-dot." disabled>Bật tất cả module</button>
+      </div>
+      <div id="module-list" class="module-list">
+        <div class="empty-state">Đang tải…</div>
+      </div>
+      <details class="red-dot-controls">
+        <summary>Điều khiển red-dot theo nhóm và từng mục</summary>
+        <p class="red-dot-help">Thay đổi được gửi tự động khi bật/tắt checkbox. Red-dot tự động mặc định tắt; chỉ mục hoặc nhóm được bật mới chạy. Dashboard tự bật bộ điều phối red-dot khi có mục được chọn. Thay đổi nhóm sẽ đặt lại lựa chọn riêng bên trong nhóm đó.</p>
+        <div class="module-bulk-actions">
+          <button id="enable-all-red-dots" class="bulk-action-button" type="button" title="Bật toàn bộ mục red-dot trong danh sách." disabled>Bật tất cả red-dot</button>
+        </div>
+        <div class="filter-toolbar">
+          <input id="red-dot-filter" type="search" placeholder="Tìm red-dot theo tên, ID hoặc nhóm…" aria-label="Tìm red-dot">
+          <label class="filter-option"><input id="red-dot-enabled-only" type="checkbox">Chỉ hiện mục bật</label>
+        </div>
+        <div id="red-dot-list" class="red-dot-list">
+          <div class="empty-state">Đang tải danh sách red-dot…</div>
+        </div>
+      </details>
+    </section>
+
+    <footer>
+      <span>Chỉ hiện nhân vật đang kết nối</span>
+      <span id="footer-status">Đang kết nối…</span>
+    </footer>
+  </main>
+</body>
+</html>

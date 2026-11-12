@@ -9,8 +9,11 @@ Chính sách hiện tại: **không tự tiêu KNB**. Quyền càn quét/cổ v�
 **Dùng tab Edge đã đăng nhập:** chạy `CAI_DONG_BO_EDGE.bat`, tải thư mục `edge-addon` ở `edge://extensions`, rồi bấm tiện ích → **Bật đồng bộ tab này**.
 Xem [DONG_BO_TAB_EDGE.md](DONG_BO_TAB_EDGE.md). Cách này không cần chuyển cửa sổ hoặc đăng nhập lại.
 
+**Dùng tab Chrome đã đăng nhập:** chạy `CAI_DONG_BO_CHROME.bat`, mở `chrome://extensions`, bật **Developer mode**, rồi chọn **Load unpacked** và thư mục `edge-addon`. Sau đó bấm biểu tượng tiện ích → **Bật đồng bộ tab này**.
+Xem [DONG_BO_TAB_CHROME.md](DONG_BO_TAB_CHROME.md). Chrome 125 trở lên được hỗ trợ; Edge và Chrome dùng chung addon và bundle, nhưng mỗi trình duyệt phải được cài host riêng.
+
 Phương án khác: chạy `BAT_TU_CAP_NHAT.bat`, đăng nhập game ở cửa sổ Edge riêng được mở.
-Khi lưu nguồn `src/`, bộ theo dõi tự build + kiểm thử rồi nạp bản mới vào game-frame đang mở.
+Khi lưu module trong `esm/modules/`, bộ theo dõi tự build và xác thực hash artifact rồi nạp bản mới vào game-frame đang mở.
 Không cần cài tiện ích hoặc copy/paste. Xem [TU_CAP_NHAT.md](TU_CAP_NHAT.md) để bật, dừng và xem log.
 
 ## Hành vi hiện tại
@@ -29,7 +32,7 @@ Các bộ điều khiển combat và áp sát cũ không còn trong FULL. Nạp 
 
 Thí Luyện: bỏ chọn/xả skill 1 ms, giao chọn chiêu cho native, giữ hồi chiêu gốc; kiểm tra hỗ trợ mỗi 100 ms và giới hạn hai lần tung đòn cách nhau ít nhất 100 ms (cấu hình cũ thấp hơn cũng được nâng lên 100). Lệnh áp sát cách nhau ít nhất 1000 ms, không phát lại khi nhân vật đang chạy. Chưa xác nhận mức DPS hoặc nguyên nhân server đóng kết nối. Bộ đếm `rejected` là bộ lọc bằng chứng, không phải server từ chối chiêu.
 
-FULL vẫn chạy các tác vụ map/nhiệm vụ đã cấu hình, nhưng không còn thay bộ chọn skill, ép skill cụ thể, tự gửi đòn combat hay áp đặt combo lên người chơi và trợ chiến. Combat thuộc quyền xử lý của game client.
+FULL vẫn chạy các tác vụ map/nhiệm vụ đã cấu hình, nhưng không còn thay bộ chọn skill, ép skill cụ thể, tự gửi đòn combat hay áp đặt combo lên người chơi và trợ chiến. Combat thuộc quyền xử lý của game client. Client hiện tại cập nhật thời điểm sẵn sàng của skill ngay trong `selectSkill()`. Engine đọc trước ứng viên native, chỉ gọi `selectSkill()` một lần nếu skill được phép và qua kiểm tra hợp lệ cuối cùng, rồi chuyển đúng kết quả vào `combat()`; nếu skill khác danh sách cho phép hoặc sắp hết cooldown thì chờ, không gọi để thăm dò. Chẩn đoán tách `lastNativeSelectionPreview` (ứng viên chỉ đọc) khỏi `lastNativeSelectedSkill` (kết quả gọi selector thực tế).
 
 ## Nạp và cập nhật
 
@@ -45,19 +48,26 @@ Combat không có lệnh chọn combo riêng trong bản này. Dùng trạng th�
 
 ## Tổ chức nguồn
 
-Sửa src/ hoặc runtime-v1.js; chạy `node test.cjs` để build và kiểm thử.
-Build tạo FULL, bản vá và MANIFEST.json chứa SHA-256.
-Kiểm thử giả lập không thay thế kiểm tra chiến đấu thực tế.
+Sửa `esm/modules/*.mjs`, `esm/index.mjs`, `esm/api.mjs`, `esm/manifest.json`, `runtime-v1.js` hoặc `rust-core/`; chạy `npm run build` để tạo FULL, bản vá, Edge core và manifest. Build kiểm tra bundle JavaScript và hash artifact. `rust-toolchain.toml` tự chọn target `wasm32-unknown-unknown`.
+Build tạo FULL, bản vá, Edge core và MANIFEST.json chứa SHA-256. Android/Windows app không thuộc target hiện tại và không được build trong pipeline này.
+Tốc độ di chuyển client-side x99 được bật toàn bản đồ; đây chỉ là chỉnh thuộc tính tốc độ tại client, server có thể không chấp nhận. Có thể kiểm tra bằng `KVPV_EXPERIMENTAL_BOOST.status()` và dừng/khôi phục bằng `KVPV_EXPERIMENTAL_BOOST.stop()`.
+`embeddedModules` trong manifest liệt kê các module được khởi tạo tự động; `modules` là catalog ESM đầy đủ. Bundle có thể chứa mã module không tự khởi tạo để giữ API và khả năng điều khiển module.
+`esm/` là nguồn JavaScript chính: các module ESM được chỉnh sửa trực tiếp, còn `esm/index.mjs` và `esm/manifest.json` khai báo thứ tự khởi tạo và catalog. Danh sách `initializedModules` cũng là thứ tự ưu tiên khởi động theo nhóm: an toàn/chính sách, core/map, red-dot/nhiệm vụ, combat, daily/phần thưởng, tiện ích, rồi PvP. `esm/index.mjs` phải giữ chính xác cùng thứ tự gọi initializer. `build.cjs` bundle entry này thành `KVPV_V1_FULL.js`, `KVPV_V1_ESM.js` cho Edge addon và bản vá live; không tái tạo ESM từ `src/`. Thư mục `src/` được giữ làm bản lưu tương thích cũ, không thuộc pipeline build/watch. ESM cung cấp `moduleApis`, `moduleFunctions`, các hàm truy cập `getKVPV_*()` dạng live và `moduleInitializers` để điều khiển module qua Windows app.
+Phần Rust/WASM được nhúng vào FULL; JS bridge tiếp tục đọc API game và giữ nguyên giao diện tích hợp Edge. Rust core xử lý readiness, policy nhịp polling của account và phép tính hình học/điều kiện máu đầy cho hồi phục Boss; cấu hình ms, đọc trạng thái DOM và API game vẫn ở JavaScript.
 
-- 06-range.js: giữ RANGE281 làm API tương thích cho phép đo tầm client.
-- 08-range-evidence.js: giữ khoảng cách và đo cặp gọi chiêu/sát thương trực tiếp.
-- 09-modes.js: chuyển quyền điều khiển theo map.
-- 10/11/12: boost thử nghiệm, tự bật Thiên Quan, đánh tay ngoài map.
+- Các module skill, combat, sự kiện và PvP nằm riêng trong `esm/modules/`; thêm module cần cập nhật `esm/index.mjs` và `esm/manifest.json`.
+- `06-range.js` giữ RANGE281 làm API tương thích cho phép đo tầm client.
+- `86-xianfu-tasks.js` tự làm mới và nhận từng nhiệm vụ Tiên Phủ đã hoàn tất cùng mốc hoạt động đủ điểm, có giới hạn tần suất và chờ xác nhận từ trạng thái server; không tự nâng cấp, mua, xây tháp hoặc vào PvP.
+- `87-crossserver-achievements.js` tự nhận từng thành tựu Liên Server ở trạng thái sẵn sàng bằng API gốc; không tự vào trận, chiếm cứ điểm hay dựng tháp.
+- `88-lilian-team-rewards.js` tự nhận nhiệm vụ/thưởng ngày Lịch Luyện và nhiệm vụ/thành tựu Chiến Đội khi game xác nhận sẵn sàng; không tự vào hoạt động hoặc tạo đội.
+- `89-free-daily-sign.js` tự nhận điểm danh miễn phí khi trạng thái gốc của game xác nhận có thưởng; không gọi API điểm danh có phí.
+- `28-appearance-auto.js` tự nâng cấp/tiến cấp nhanh các nhóm đủ điều kiện bằng vật liệu đang sở hữu; loại trừ toàn bộ Thần Binh, Linh Dực, Thời Trang, Linh Tí, Phi Phong và đá bồi dưỡng Thú Cưỡi/Linh Thú. Không mua vật liệu hoặc dùng KNB.
 - STAND281 đã chuyển sang archive/stand281-unused.js, không còn tạo timer trong FULL.
 - BOSS_TH cũ còn giữ để tương thích; mặc định dùng BOSS_TH300_SCAN ở 302.
 
 Tên TH300/RANGE281 và một số nhãn phiên bản nội bộ là API lịch sử, không phải
-khoảng cách mặc định hiện tại. Engine 04 vẫn là khối lớn; chưa tách hết nội bộ.
+khoảng cách mặc định hiện tại. Engine 04 vẫn được giữ trong nguồn nhưng không
+được nhúng vào FULL vì không thuộc danh sách module đang chạy.
 
 ## Biến Thân 10 ms
 
@@ -66,7 +76,7 @@ Huyết Ma Đại Pháp, Huyết Ngục Quỷ Thủ, Huyết Khế Tổ Chú, Hu
 Chỉ khi đang Biến Thân mới áp dụng thời gian chờ chọn chiêu client 10 ms.
 Không tự Biến Thân, không phát chiêu không có trong danh sách native, không sửa hàng CD gốc.
 Ngoài Thiên Quan phối hợp BASIC10; trong Thiên Quan giữ gate vị trí 302 và hồi máu 35/100.
-Kiểm tra: KVPV_TRANSFORM10.status(); dừng thử nghiệm: KVPV_TRANSFORM10.stop().
+Trạng thái: KVPV_TRANSFORM10.status(); dừng chế độ: KVPV_TRANSFORM10.stop().
 Hồi chiêu/hoạt ảnh combat và việc server chấp nhận vẫn là giới hạn thực tế.
 
 ## Thiên Thê 8 Tầng
@@ -90,7 +100,6 @@ dùng getPlayerPos/setPlayerTarget hoặc reqSearchObj(1,id) và phản hồi na
 Giữ mục tiêu địch hợp lệ. Sau 1,5 giây chưa có người thì tìm quái; thử tìm người lại mỗi 8 giây.
 Chết thì chờ hồi sinh; ngoài cảnh 42 không chọn mục tiêu.
 Trạng thái: KVPV_HONOR_TARGET.status(); dừng: .stop(); bật lại: .start().
-Kiểm thử giả lập đã qua, chưa xác nhận một trận Vinh Dự live.
 
 ## Chiến Đội Mạnh Nhất
 
@@ -105,7 +114,6 @@ Nhận từng mốc thưởng state=1 đúng ID; đợi state=2 xác nhận, kh�
 Server đóng thì đợi 90 giây (150 giây nếu còn thưởng pending) trước khi yêu cầu thoát.
 Dự đoán/ủng hộ đội và hành lễ không được tự động hóa.
 Trạng thái: KVPV_STRONGEST_TEAM.status(); tắt: .stop(); bật lại: .start().
-Đã kiểm thử giả lập; chưa xác nhận một trận live đầy đủ.
 
 ## Nhịp Tuyệt Học tự chỉnh, bắt đầu 1 ms
 
@@ -182,7 +190,7 @@ Báo cáo tầng 479 đã lưu ở `references/linh-lung-floor479-performance.js
 
 # Thử burst 8 Tuyệt Học: Thiên Quan và Linh Lung
 
-Thử nghiệm burst vẫn có API cho cả hai map; FULL hiện tắt burst để dùng chế độ xen đánh thường ở 302. Khi đã đúng vị trí và combat native sẵn sàng lúc bắt đầu, một lượt JS thử tối đa các ID native 1001–1008 hiện có. Mỗi chiêu vẫn phải sẵn sàng theo hàng hồi chiêu native; không tạo chiêu chưa mở hay sửa thời gian chờ.
+Chế độ burst vẫn có API cho cả hai map; FULL hiện tắt burst để dùng chế độ xen đánh thường ở 302. Khi đã đúng vị trí và combat native sẵn sàng lúc bắt đầu, một lượt JS thử tối đa các ID native 1001–1008 hiện có. Mỗi chiêu vẫn phải sẵn sàng theo hàng hồi chiêu native; không tạo chiêu chưa mở hay sửa thời gian chờ.
 
 Trong chính lượt burst này, bộ điều khiển bỏ bước chờ animation giữa các chiêu để thử gọi dồn. Các lời gọi vẫn tuần tự trong JS, không phải bằng chứng máy chủ thi triển đồng thời. Có thể chỉ một phần chiêu được chấp nhận hoặc chiêu trước bị ngắt; kết luận dựa trên sát thương khớp, không dựa hiệu ứng.
 
@@ -198,33 +206,9 @@ copy(JSON.stringify(KVPV_TH300.report()))
 // Nếu kết quả hit kém hơn, trở lại gọi từng chiêu theo native:
 KVPV_TH300.setBurst(false)
 
-// Bật lại thử nghiệm cho cả hai map:
+// Bật lại chế độ burst cho cả hai map:
 KVPV_TH300.setBurst(true)
 ```
-
-
-## Kết quả thử burst Thiên Quan và sửa chờ theo nhóm
-
-Log `references/thien-quan-burst-observed.json` là Thiên Quan, không phải vòng tháp 30 giây: 49 lời gọi, 37 cặp sát thương khớp; các nhóm còn lưu có 1–2 chiêu, có nhóm hai chiêu cùng được xác nhận. Chưa có bằng chứng trong phần lịch sử này rằng cả tám chiêu cùng trúng. Chiêu 1008 chưa có hit trực tiếp, chưa đủ kết luận vô dụng hay đánh hụt.
-
-Sửa bộ burst chờ theo từng chiêu thay vì khóa cả nhóm: một chiêu chưa có kết quả không chặn chiêu khác đang sẵn sàng. Vẫn tránh gọi trùng cùng ID khi kết quả trước chưa đóng. Ghi riêng trạng thái `waiting_burst_gap` thay vì để thời gian chờ lẫn vào `fighting`; số thứ tự nhóm chỉ tăng khi thực sự có lời gọi, không tăng khi quét mà không có chiêu sẵn sàng. Giữ tối đa 30 nhóm thật trong báo cáo. Cần thử lại để đo tác động sát thương, không suy ra tăng DPS từ kiểm thử mô phỏng.
-# Thử đánh thường ở 302
-
-Phép thử đánh thường riêng vẫn có API cho Thiên Quan/Linh Lung; FULL hiện tắt phép thử riêng để dùng chế độ xen đánh thường ở 302. Khi đúng vị trí và combat native sẵn sàng, thử các ID đánh thường 8001–8009 thực sự có trong bộ chọn của nhân vật. Đo riêng tối đa **8 lần gọi hoặc 15 giây mỗi mục tiêu**, sau đó tiếp tục Tuyệt Học/burst hiện có. Không sửa thời gian hồi chiêu, không kéo nhân vật vào gần để tạo bằng chứng giả ở 302.
-
-```js
-copy(JSON.stringify(KVPV_TH300.report()))
-```
-
-Mục `basicProbe` ghi `attempts`, `confirmedHits`, `matchedDamage` và ví dụ có khoảng cách lúc gọi/lúc trúng, Boss và map. Chỉ ghép sát thương đúng nhân vật, đúng Boss, đúng ID đánh thường và thời gian hợp lệ; bỏ cờ sát thương trợ chiến/phản lại. Bằng chứng đánh thường không được cộng vào bằng chứng xác nhận Tuyệt Học. Không có hit chưa đủ chứng minh giới hạn máy chủ.
-
-Thiên Quan vẫn nhường hồi máu 35/100, Linh Lung vẫn đánh khi còn sống. Để bỏ phép thử ngay và trở về Tuyệt Học:
-
-```js
-KVPV_TH300.setBasicProbe(false)
-```
-
-Bật lại bằng `KVPV_TH300.setBasicProbe(true)`. Phép thử không bảo đảm sát thương đánh thường được máy chủ nhận ở 302; cần kết quả trong game thật.
 
 
 ## Mặc định hiện tại: Tuyệt Học từng chiêu xen đánh thường ở 302
@@ -233,7 +217,7 @@ FULL gọi `KVPV_TH300.setInterleaved(true,302)` trước khi bật theo dõi ma
 
 Khoảng cách 302 tính từ Boss đến nhân vật, sai số 5; dải quan sát phía client lớn hơn 300, tối đa 312. Rút lui 35/100 chỉ áp dụng Thiên Quan, không áp dụng Linh Lung. Cần xác nhận sát thương đánh thường ở 302 trong game thật.
 
-`report().interleaved` ghi số đòn thường đã gọi, hit khớp, sát thương và khoảng cách. Các hit đánh thường không cộng vào bằng chứng Tuyệt Học. Burst, phép thử basic riêng và chế độ xen đòn là ba lựa chọn loại trừ nhau; bật một lựa chọn sẽ tắt các lựa chọn xung đột.
+`report().interleaved` ghi số đòn thường đã gọi, hit khớp, sát thương và khoảng cách. Các hit đánh thường không cộng vào bằng chứng Tuyệt Học. Burst và chế độ xen đòn là hai lựa chọn loại trừ nhau; bật một lựa chọn sẽ tắt lựa chọn còn lại.
 
 ```js
 copy(JSON.stringify(KVPV_TH300.report()))
@@ -256,7 +240,7 @@ KVPV_TH300.setBasicPace(null)
 
 ## Linh Thú và Phúc Oa: thời gian chọn chiêu client 1 ms
 
-FULL tăng hai bộ chọn `petContext` và `fuwaContext` lên thời gian chờ thử nghiệm 1 ms trên bản sao dữ liệu. Giữ thời gian gốc của game để dừng/khôi phục; không gọi thêm vòng combat độc lập. Ngự Thú/Phi Phong giữ cấu hình chia 10. AI/animation native và máy chủ vẫn có thể giới hạn tốc độ thực tế.
+FULL tăng hai bộ chọn `petContext` và `fuwaContext` lên thời gian chờ 1 ms trên bản sao dữ liệu. Giữ thời gian gốc của game để dừng/khôi phục; không gọi thêm vòng combat độc lập. Ngự Thú/Phi Phong giữ cấu hình chia 10. AI/animation native và máy chủ vẫn có thể giới hạn tốc độ thực tế.
 
 ```js
 KVPV_EXPERIMENTAL_BOOST.status()
@@ -298,17 +282,19 @@ Hai báo cáo cho biết actor/khóa phiên có khớp không, nhân vật và c
 copy(JSON.stringify({account:KVPV_ACCOUNT_POLICY.status(),features:KVPV_ACCOUNT_FEATURES.status(),mode:KVPV_MODE.status(false),far:KVPV_TH300.report(),errors:KVPV_V1.diagnostics.status()}))
 ```
 
+Runtime diagnostics also include `combatStall.progress`: a read-only trend from repeated target-HP samples. An unchanged target for 60 seconds is only a low-confidence possible stall, not proof; compare the accompanying evidence before taking action. The monitor never triggers recovery or game commands.
+
+`nativeSkillRotation` records the actor's native cast signal by map and skill, with bounded recent history and skill inventory. It is passive across maps, including PvP, and does not choose, reorder, or send skills; a cast signal is not proof of server damage.
+
 # Sửa trường hợp FIGHT nhưng không có hit khi xen đánh thường
 
 Báo cáo thực tế cho thấy đủ máu, đúng map Thiên Quan, đứng cách Boss 304 và bộ điều khiển vẫn FIGHT; có 102 lần gọi nhưng không có cặp sát thương trực tiếp xác nhận, gồm 68 lần gọi đánh thường. Vì vậy không thể kết luận đang tắt mode hoặc sai account, cũng chưa thể khẳng định các lời gọi đã được máy chủ nhận.
 
-Native `isCooldown()` có thể trả sẵn sàng khi hoạt ảnh đã tới điểm cho phép ngắt, trong khi `_jh.isPlaying` vẫn còn true. Chế độ đánh tuần tự giờ đợi hoạt ảnh đó kết thúc trước khi chọn/cast chiêu tiếp theo; không cho đòn thường 1 ms ngắt Tuyệt Học đang chạy. Thử nghiệm burst vẫn có hành vi gọi dồn riêng khi người dùng bật rõ ràng.
+Native `isCooldown()` có thể trả sẵn sàng khi hoạt ảnh đã tới điểm cho phép ngắt, trong khi `_jh.isPlaying` vẫn còn true. Chế độ đánh tuần tự giờ đợi hoạt ảnh đó kết thúc trước khi chọn/cast chiêu tiếp theo; không cho đòn thường 1 ms ngắt Tuyệt Học đang chạy. Chế độ burst vẫn có hành vi gọi dồn riêng khi người dùng bật rõ ràng.
 
-Nếu ba kết quả đánh thường trong trận hết hạn mà chưa có hit trực tiếp và không bị gián đoạn bởi hồi máu/di chuyển, tạm ngừng xen đánh thường cho mục tiêu đó và tiếp tục Tuyệt Học. `interleaved.basicSuspended`/`basicUnconfirmed` công bố trạng thái này. Không gọi đó là ba đòn chắc chắn hụt; mục đích là ngừng dùng lượt vào phép thử chưa có bằng chứng. Đổi mục tiêu sẽ thử lại; hit hợp lệ còn đang chờ cũng có thể mở lại xen đòn.
+Nếu ba kết quả đánh thường trong trận hết hạn mà chưa có hit trực tiếp và không bị gián đoạn bởi hồi máu/di chuyển, tạm ngừng xen đánh thường cho mục tiêu đó và tiếp tục Tuyệt Học. `interleaved.basicSuspended`/`basicUnconfirmed` công bố trạng thái này. Không gọi đó là ba đòn chắc chắn hụt; mục đích là ngừng dùng lượt vào lượt chưa được xác nhận. Đổi mục tiêu sẽ thử lại; hit hợp lệ còn đang chờ cũng có thể mở lại xen đòn.
 
 `report().nativeCombat` cho biết cổng hồi chiêu và hoạt ảnh. `hitDiagnostics` ghi tổng sự kiện nhận, số được ghép, bộ đếm lý do loại và tối đa 16 mẫu loại thuộc nguồn nhân vật hiện tại. Lý do có thể là nguồn khác, cờ sát thương phụ, marker không hỗ trợ, sai receiver, ngoài dải khoảng cách hoặc không có lần tung chiêu khớp. Không suy diễn rằng mọi mẫu bị loại đều là lỗi game hoặc hit thật của nhân vật.
-
-Kiểm thử mô phỏng xác nhận bảo vệ hoạt ảnh, tạm ngừng basic chưa xác nhận, vẫn cho Tuyệt Học hoạt động và giữ bộ lọc bằng chứng. Cần kiểm tra lại trong game để xác định nguyên nhân chính xác của lần không có hit vừa báo.
 
 # Thiên Quan: bàn giao Boss mới không cần chạy lại Snippet
 
@@ -317,10 +303,6 @@ Coordinator theo dõi khóa `map / tầng / loại Boss / ID` của mục tiêu 
 Không gọi lặp start mỗi 75 ms cho cùng một Boss đã dừng vì lỗi; chuyển mục tiêu/tầng hoặc thao tác bật lại chủ động mới cấp lượt mới. Vẫn giữ khóa actor, dừng khi chết/rời map và cơ chế hồi máu Thiên Quan 35/100. Linh Lung giữ bộ đánh liên tục riêng.
 
 Bộ đánh xa cũng xóa đích di chuyển, lượt xoay chiêu, nhịp gọi và pha sở hữu cũ khi gắn Boss mới, giữ nguyên dữ liệu hồi chiêu native. `KVPV_MODE.status(false).tianQuanBossKey` và lịch sử `TQ-BOSS-HANDOFF` giúp kiểm tra đã chuyển sang Boss nào.
-
-Kiểm thử mô phỏng ba Boss cùng map, Boss không được bộ nhận dạng cũ nhận ra, object/ID được tái sử dụng, thứ tự gỡ hook và không tạo vòng retry cùng Boss đều qua. Cần xác nhận chuyển Boss thực tế trong game.
-
-
 
 Thí Luyện Ngày được ưu tiên đầu hàng đợi khi rảnh, trước Daily/Tự Vượt/hoạt động mới; không ngắt trận đang chạy: dùng lượt khiêu chiến; càn quét KNB đã tắt theo chính sách mới. Càn quét kiểm tra giá native và số dư KNB, chờ số lượt server giảm sau từng yêu cầu. Không tính lời gọi gửi đi là đã nhận thưởng; không gửi lại cùng trạng thái chưa có ACK khi nạp lại FULL.
 
@@ -347,7 +329,7 @@ KVPV_QUICK_USE.start()
 
 ## Thu nghiem Xa Menh Nhat Kich Lv2 (client only)
 
-Module `src/32-xa-menh-lv2-cd0.js` duoc dong goi vao FULL va ban cap nhat nong,
+Module `32-xa-menh-lv2-cd0.js` trong `esm/modules/32-xa-menh-lv2-cd0.mjs` duoc dong goi vao FULL va ban cap nhat nong,
 **mac dinh tat**. Chi khi goi `enable()` moi doi `skill[6]` cua record
 `30310002` tu `30000` thanh `0` trong bo nho client. Khong thay doi
 WebSocket/server va khong khang dinh bo duoc hoi chieu server.
@@ -363,12 +345,11 @@ KVPV_XA_MENH_LV2.restore(); // tra ve gia tri goc
 Module chi thao tac neu row dung `30310002` va cooldown goc dung
 `30000`. Neu config khac, module dung va khong ghi de. Khoi dong lai
 module se giu trang thai bat/tat do nguoi dung chon. Kiem thu:
-`node TEST_XA_MENH_LV2.cjs` (duoc goi tu `node test.cjs`).
 
 
 ## Tiên Ma Quyết Chiến PvP — 8005 / chạy xa ở HP 10%
 
-Module `src/80-tienma-quyetchien-pvp.js` tự đăng ký khi FULL được nạp, nhưng **chỉ điều khiển** trong bản đồ Tiên Ma 2191–2194 và khi mô hình Camp War xác nhận trạng thái giao tranh (`status=3`, `fightTime>0`). Không vào sự kiện, không chọn đối thủ hay gửi gói mạng tự chế.
+Module `80-tienma-quyetchien-pvp.js` trong `esm/modules/80-tienma-quyetchien-pvp.mjs` tự đăng ký khi FULL được nạp, nhưng **chỉ điều khiển** trong bản đồ Tiên Ma 2191–2194 và khi mô hình Camp War xác nhận trạng thái giao tranh (`status=3`, `fightTime>0`). Không vào sự kiện, không chọn đối thủ hay gửi gói mạng tự chế.
 
 - Chỉ gửi kỹ năng **8005** qua bộ `combat.combat()` native nếu kỹ năng đã học, hết hồi chiêu, mục tiêu và tầm đánh hợp lệ.
 - Chỉ đánh **người chơi phe đối địch**: dùng `campType` của cả hai bên đối chiếu với `myCampType`. Không đánh cùng phe/quái.
@@ -384,7 +365,6 @@ KVPV_TIENMA_PVP.start();  // bật thủ công nếu trước đó đã stop
 KVPV_TIENMA_PVP.stop();   // tắt cho tới khi bật lại (kể cả qua live reload)
 ```
 
-`node TEST_TIENMA_PVP.cjs` kiểm thử logic mô phỏng và được gọi trong `node test.cjs`.
 **Giới hạn:** Mốc 600 là khoảng cách mục tiêu, không bảo đảm đường đi hay mức sát thương server. Những module khác không thuộc bộ này có thể có hành vi riêng.
 
 
@@ -396,9 +376,8 @@ Phát hiện thiết lập `KVPV_TQ_POSITION_ONLY={enabled:true,distance:310,hea
 - Khi HP ≤35%: bộ HitRun native có quyền rút lui, không chặn đường rút; quay lại sau khi HP đạt 100%.
 - Không sửa PvP Tiên Ma, Tu La, Tru Tiên hoặc Đường Thí Luyện.
 - Không thay tầm đánh phía server. Khoảng cách 310 có thể không trúng nếu server giới hạn; ưu tiên sinh tồn, không ép tiếp cận.
-- Nếu còn áp sát, dừng an toàn bằng `KVPV_MODE.stop()` và xuất `KVPV_MODE.status(false)`, `KVPV_HITRUN1.status(false)`, `KVPV_TH300.status(false)` để kiểm tra. Chỉ test trên boss có đủ máu, không nhận định kết quả PvE từ mock.
+- Nếu còn áp sát, dừng an toàn bằng `KVPV_MODE.stop()` và xuất `KVPV_MODE.status(false)`, `KVPV_HITRUN1.status(false)`, `KVPV_TH300.status(false)` để kiểm tra.
 
-Kiểm thử `node TEST_TQ_SAFE_RANGE.cjs` được gọi trong `node test.cjs`.
 
 
 ## Thiên Thê 8 Tầng vs Tranh Bá Đỉnh Cao (2026-10-30)
@@ -413,21 +392,20 @@ KVPV.core.scene.reason('combat', 'thien-the-8-tang')
 KVPV_EIGHT_FLOOR.status()
 ```
 Nếu sau cập nhật hiện `waiting_scene_71` cùng `entryAttempts > 0`, yêu cầu vào 7101 đã được phát, còn phải đợi xác nhận cảnh từ server.
-Kiểm thử riêng `node TEST_EIGHT_SCENE_OVERLAP.cjs` và kiểm thử đầy đủ qua `node test.cjs`.
 
 
-## Thác Ấn — ĐÃ TẮT thử nghiệm hồi chiêu 0ms (2026-10-31)
+## Thác Ấn — ĐÃ TẮT cấu hình hồi chiêu 0ms (2026-10-31)
 
 **Cảnh báo:** Có phản hồi game thực tế rằng sau khi gọi `KVPV_THAC_AN_CD0.start()`, nhân vật đứng đơ và không xả skill. Chưa xác nhận được hàm client hay server nào gây hiện tượng này. **Không sử dụng 0ms** cho kỹ năng Thác Ấn cho tới khi có cơ chế kiểm chứng an toàn.
 
-Các module `src/32-thac-an-cd0.js` và `src/32-xa-menh-lv2-cd0.js` từ bản hotfix đã **vô hiệu hóa start/enable** và chỉ cho đọc dữ liệu. Khi hot-update từ module cũ, chúng cố gắng khôi phục các giá trị `skill[6]` mà chính phiên cũ đã sửa. Không có lệnh tự gửi RPC, auto cast, hay mở khóa SVIP.
+Các module `32-thac-an-cd0.js` và `32-xa-menh-lv2-cd0.js` trong `esm/modules/` từ bản hotfix đã **vô hiệu hóa start/enable** và chỉ cho đọc dữ liệu. Khi hot-update từ module cũ, chúng cố gắng khôi phục các giá trị `skill[6]` mà chính phiên cũ đã sửa. Không có lệnh tự gửi RPC, auto cast, hay mở khóa SVIP.
 
 **Khôi phục ngay với phiên FULL cũ còn chạy trong game-frame:**
 ```js
 KVPV_THAC_AN_CD0?.stop?.();
 KVPV_XA_MENH_LV2?.restore?.();
 ```
-Nếu game vẫn kẹt, F5 và để bộ tự đồng bộ nạp FULL mới. Không gọi `.start()` / `.enable()` của thử nghiệm 0ms. Khi đã cập nhật hotfix mới:
+Nếu game vẫn kẹt, F5 và để bộ tự đồng bộ nạp FULL mới. Không gọi `.start()` / `.enable()` của cấu hình 0ms. Khi đã cập nhật hotfix mới:
 ```js
 KVPV_THAC_AN_CD0.status(); // enabled=false, suspended=true, đọc các cooldown
 KVPV_XA_MENH_LV2.status(); // enabled=false, suspended=true
@@ -437,7 +415,7 @@ Giá trị MPACK gốc: Bát Hoang Phá Thế Lv1/Lv2 30000ms, Lv3 25000ms; Xá 
 
 ## Khôi phục Thác Ấn sau khi 0ms gây ngưng skill (2026-10-31)
 
-Trên một phiên game thật, người dùng báo nhân vật đứng yên và ngừng tung skill sau khi bật Thác Ấn client 0ms. Không có bằng chứng đã xác nhận liệu đó là đợi hoạt ảnh, hồi chiêu server, bộ tự đánh mất quyền hay lỗi khác. Thử nghiệm 0ms vẫn **bị khóa**.
+Trên một phiên game, người dùng báo nhân vật đứng yên và ngừng tung skill sau khi bật Thác Ấn client 0ms. Chưa xác định được đó là đợi hoạt ảnh, hồi chiêu server, bộ tự đánh mất quyền hay lỗi khác. Cấu hình 0ms vẫn **bị khóa**.
 
 **Bản sửa bổ sung:** Ngay cả khi closure của module 0ms cũ đã mất, module mới cố gắng khôi phục các hàng `skill[6]` còn 0ms về MPACK gốc (khi ID, level, record khớp hoàn toàn):
 - Bát Hoang Phá Thế Lv1/2: `30000`, Lv3: `25000` ms.
@@ -454,44 +432,6 @@ KVPV_COMBAT_STALL.recover();  // khôi phục đúng cooldown client nếu còn 
 KVPV_COMBAT_STALL.status();   // snapshot lý do tự đánh chờ, chỉ đọc
 ```
 Trường `thac.unresolved` phải là `[]`. Nếu đã là `[]` mà nhân vật vẫn không tung skill, 0ms cấu hình còn sót **không phải nguyên nhân hiện tại đã chứng minh được**. Đọc `outside.reason`, `long.reason`, `mode.reason`, `native.targetType` và `hints` để xác định bước kiểm tra tiếp theo. Bản sửa **không** tự khởi động lại combat mode mà người dùng đã dừng, và **không** can thiệp `isCooldown`/hoạt ảnh.
-
-## Kiểm thử nội tại 8%: Bát Hoang + Xá Mệnh (2026-10-31)
-
-**Không giả vờ ép 8% thành 100%.** 8% được thấy trong chuỗi mô tả kỹ năng; chưa có bằng chứng client sở hữu phép thử RNG của server. Sau sự cố 0ms làm combat đứng yên, không chỉnh `skill[6]`, mô tả, animation, socket hoặc RPC.
-
-Có module đọc sự kiện gốc `KVPV_GOLDEN_PROC` trong FULL, mặc định **không theo dõi** và không tạo timer/hook điều khiển. Chọn **Boss/quái đang sống** trong đúng game-frame, để combat chạy bình thường và gọi:
-```javascript
-KVPV_GOLDEN_PROC.start()   // bắt đầu quan sát mục tiêu hiện tại; không tự đánh
-KVPV_GOLDEN_PROC.status()  // xem kết quả sau khoảng 1–3 phút
-copy(KVPV_GOLDEN_PROC.export()) // copy JSON quan sát để phân tích
-KVPV_GOLDEN_PROC.stop()    // tháo listener gốc
-```
-
-Cơ chế: sự kiện `1039` nhân vật tung skill (đếm các skill native 8001–8009, 1001–1008), `1012` sát thương từ chính nhân vật lên mục tiêu với marker `30220000` (Bát Hoang Phá Thế — damage 3022) hoặc `30320000` (Xá Mệnh Nhất Kích — damage 3032), và sự kiện thay đổi `buffs` nếu có. Một nhóm tín hiệu sát thương cùng kỹ năng trong 350ms được gộp thành **một burst quan sát** để giảm tính nhầm hit liên tiếp thành proc riêng. Ghi tối đa 180 sự kiện, 3 phút, tự dừng khi đổi actor/map/target (kiểm tra khi có sự kiện hoặc gọi status). Nạp lại bản FULL sẽ gỡ listener cũ và yêu cầu bật thủ công.
-
-**Rất quan trọng:** `observedBursts` không phải số proc server được xác thực độc lập. `burstCountPer100ObservedBasicTH` **không phải tỷ lệ kích hoạt 8%** vì skill có cooldown, crit, đa hit, kỹ năng khác và sự kiện game có thể không được quan sát đủ. Nếu có `shortestBurstGapMs` thấp hơn cooldown gốc, đó chỉ là dữ liệu cần phân tích kỹ, không chứng minh bypass cooldown hoặc RNG 100%. Chưa biết Hữu Thần Trợ tác động vào xác suất hay sát thương của proc.
-
-Bằng chứng cần từ game thật: chọn một Boss lâu chết, dùng combat gốc, thu JSON và đối chiếu `commonAttackSignals`, `procs[].observedBursts`, `gapsMs`, `config` và `events`. Không có giá trị nào tự ý bị sửa.
-
-
-## Golden Proc v2 — xác minh log 2998 (2026-10-31)
-
-Hai lần đo thực tế ở map 2998: (1) Ma Oa Quái chạy 20,685 giây, 4 cast basic/TH, observer tự dừng khi đổi mục tiêu; (2) Thiên Tai Tà Thần chạy 35,499 giây, 134 tín hiệu cast (79 basic/TH), 28 thay đổi buff, nhưng 0 hit marker `3022` / `3032` trong listener của mục tiêu đã chọn. Điều này **không xác minh xác suất server 0% hay chứng minh có thể ép 100%**. Cả hai skill có cooldown config 30000ms, và hit AoE có thể ở đối tượng khác hoặc marker khác.
-
-Bản v2 giữ một phiên quan sát tối đa 3 phút trong **cùng map** kể cả khi quái chết/đổi target; có thể gắn listener vào tối đa 6 quái native từng được chọn, nhận cả hit đến trễ trên quái cũ. Không quét cả map, không tự chọn mục tiêu, không gửi RPC và không đo toàn bộ AoE.
-
-Có thêm phần đếm chẩn đoán: `nativeDamageSignals` (tổng sự kiện 1012 nhận được), `ownedDamageSignals` (sát thương có source là nhân vật và receiver khớp quái), `otherSourceSignals`, `receiverMismatchSignals`, `markerHistogram` (tối đa 24 loại mã nhận diện), `targetSwitches` và `trackedTargetIds`. Dữ liệu giúp phân biệt **không có sự kiện 1012** với **sự kiện có nhưng mang ID khác 3022/3032**.
-
-Sau khi đồng bộ FULL mới:
-```js
-KVPV_GOLDEN_PROC.start()
-KVPV_GOLDEN_PROC.status()
-copy(KVPV_GOLDEN_PROC.export())
-KVPV_GOLDEN_PROC.stop()
-```
-
-Nếu `ownedDamageSignals===0` sau khi đánh nhiều đòn, điểm cần khảo sát tiếp là đường event 1012 của client chứ không phải tự kết luận nội tại không kích hoạt. Nếu `ownedDamageSignals>0` nhưng `markerHistogram` không chứa `3022`/`3032`, cần đối chiếu ID sát thương theo client thực tế trước khi suy luận xác suất. Dù có tín hiệu, `observedBursts` chỉ là nhóm hit quan sát, **không phải số lần server thử RNG**, và `burstCountPer100ObservedBasicTH` không phải xác suất kích hoạt.
-
 
 ## Thiên Quan: bốn skill thường
 
@@ -511,11 +451,9 @@ KVPV_TH300.status(false).playerSkillIds
 ```
 Trường `learnedSource` là `native_vX` khi tìm được danh sách gốc, hoặc `player_model_fallback` khi chưa thấy. Kết quả `ids` chỉ là các skill **đủ điều kiện được chọn**, chưa chứng minh đã tung và gây sát thương trên server.
 
-**Khác với kích hoạt nội tại Thánh Trang**: Bát Hoang 3021, Xá Mệnh 3031, Cuồng Long 3061 do server/native gameplay kích hoạt theo điều kiện riêng; không nằm trong danh sách chiêu đánh tay. So sánh proc cần đo riêng với `KVPV_GOLDEN_PROC` ở bộ đánh native và bộ TQ trên cùng Boss/điều kiện. Không suy luận 0% từ vắng mã 3022/3032 trong listener của một mục tiêu.
+**Khác với kích hoạt nội tại Thánh Trang**: Bát Hoang 3021, Xá Mệnh 3031, Cuồng Long 3061 do server/native gameplay kích hoạt theo điều kiện riêng; không nằm trong danh sách chiêu đánh tay.
 
 ## Thiên Quan: hồi phục xong không cần 100% HP (2026-10-31)
-
-User's observed Tian Quan trace: distance 310.664, Boss range config 280, 0 cast attempts, 0 confirmed hits, lastReason `position_stalled_bounded`. This reflects a blocked positioning/combat state, **not evidence that Thánh Trang's 8% passive proc failed**. Another real test has 7/8 Tuyệt Học with matched damage around distance 307.766; skill 1008 had 5 attempts without a matched hit.
 
 The old HitRun core required **100% HP in all scenes** to return from `RETREAT`. For a confirmed `THIEN_QUAN` scene (`KVPV_FAR_SCOPE.status().inside===true`), it now allows early release of its native attack/movement guard when all are true: HP is **at least 45%**, HP has **actually risen at least 5 percentage points** since retreat minimum, the original `minRetreatMs=1200` has elapsed, actor is a finite distance at least `max(300, Boss native range+20)` away from the Boss, and the actor has not changed or died (preexisting safety guards). `TH300` then repositions to its goal **310** and dispatches skills through existing native cooldown/range gates. This **does not attack while HitRun is RETREAT** and does not force client/server hit chance.
 

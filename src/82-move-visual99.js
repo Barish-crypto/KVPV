@@ -2,15 +2,14 @@
 (()=>{'use strict';
 const W=window,old=W.KVPV_MOVE_VISUAL99;old?.stop?.('reload');
 const actor=String(W.__KVPV_OWN_ACTOR_ID??'');
+const VISUAL_FACTOR=9999;
 const S={enabled:true,timer:null,hook:null,applied:0,reason:'waiting_avatar',error:'',lastAction:null,observed:[],matched:0};
 const owned=()=>!!actor&&actor===String(W._Ba?._rJ?._O$?.ins?.actorId??'')&&!W.__KVPV_UNIVERSAL_HALTED;
 const excluded=()=>{
  const e=W.KVPV_TRANH_BA_TU_PHUONG?.status?.();
- if(e?.inside===true)return true;
- // Fail closed for uncertain event scene: do not accelerate when the event is
- // active but the map is not yet calibrated.
- if(e?.eventActive===true&&W._Ba?._$a?.SceneUtil?.isCommonScene===false&&
-    (e.verifiedMap==null||Number(e.map)===Number(e.verifiedMap)))return true;
+ // In the timed PK event, movement animation speed is allowed only after the
+ // dedicated combo has confirmed the current map. Fail closed before that.
+ if(e?.eventActive===true&&W._Ba?._$a?.SceneUtil?.isCommonScene===false&&e?.inside!==true)return true;
  return false;
 };
 function release(){const h=S.hook;if(!h)return;S.hook=null;
@@ -36,7 +35,7 @@ function tick(){
    }
    if(S.enabled&&owned()&&!excluded()&&movement(args[0])){
     const speed=Number(args[2]??1);
-    if(Number.isFinite(speed)&&speed>0){args[2]=Math.min(9999,speed*99);S.applied++;S.matched++;S.lastAction=args[0];}
+    if(Number.isFinite(speed)&&speed>0){args[2]=Math.min(9999,speed*VISUAL_FACTOR);S.applied++;S.matched++;S.lastAction=args[0];}
    }
    return original.apply(this,args);
   };
@@ -45,7 +44,7 @@ function tick(){
  }catch(e){S.error=String(e?.message??e);S.reason='error';}
 }
 function stop(reason='stopped'){S.enabled=false;release();const clear=W.KVPV_V1?.timers?.clearInterval??W.clearInterval;if(S.timer!=null&&typeof clear==='function')clear(S.timer);S.timer=null;S.reason=reason;}
-function status(){return {enabled:S.enabled,actorMatch:!!owned(),excluded:excluded(),pollMs:1,visualFactor:99,hookActive:!!S.hook,applied:S.applied,observedActions:S.observed.slice(),matched:S.matched,lastAction:S.lastAction,reason:S.reason,error:S.error,visualOnly:true,nativeMovementPreserved:true};}
+function status(){return {enabled:S.enabled,actorMatch:!!owned(),excluded:excluded(),pollMs:1,visualFactor:VISUAL_FACTOR,hookActive:!!S.hook,applied:S.applied,observedActions:S.observed.slice(),matched:S.matched,lastAction:S.lastAction,reason:S.reason,error:S.error,visualOnly:true,nativeMovementPreserved:true};}
 W.KVPV_MOVE_VISUAL99=Object.freeze({tick,stop,status});
 const schedule=W.KVPV_V1?.timers?.setInterval??W.setInterval;
 if(typeof W.setInterval==='function'&&typeof schedule==='function')S.timer=schedule(tick,1);

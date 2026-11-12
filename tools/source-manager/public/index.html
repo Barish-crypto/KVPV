@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>KVPV · Source Manager</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="KVPV Source Manager">
+        <span class="brand-mark">K</span>
+        <span>KVPV <small>SOURCE MANAGER</small></span>
+      </a>
+      <div class="top-actions">
+        <span class="local-badge"><span></span> LOCALHOST</span>
+        <button id="refresh" class="button button-quiet" type="button">Làm mới</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="welcome">
+        <div>
+          <p class="eyebrow">QUẢN LÝ SOURCE CODE</p>
+          <h1>Không gian làm việc <span>cục bộ</span></h1>
+          <p class="muted">Duyệt, tìm kiếm, chỉnh sửa file và theo dõi Git trong repository hiện tại.</p>
+        </div>
+        <div class="project-chip"><span class="pulse"></span><span id="project-name">Đang tải project…</span></div>
+      </section>
+
+      <section class="metrics" aria-label="Thống kê project">
+        <article class="metric"><span>TỆP SOURCE</span><strong id="file-count">—</strong></article>
+        <article class="metric"><span>THƯ MỤC</span><strong id="directory-count">—</strong></article>
+        <article class="metric"><span>NHÁNH GIT</span><strong id="branch-name">—</strong></article>
+        <article class="metric"><span>FILE THAY ĐỔI</span><strong id="change-count">—</strong></article>
+      </section>
+
+      <section class="workspace">
+        <aside class="panel browser-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">PROJECT EXPLORER</p><h2>Source files</h2></div>
+            <span id="visible-count" class="count">—</span>
+          </div>
+          <form id="search-form" class="search-form">
+            <input id="search-input" type="search" placeholder="Tìm trong source…" minlength="2" maxlength="120" autocomplete="off">
+            <button type="submit" class="button button-small">Tìm</button>
+          </form>
+          <div id="search-summary" class="search-summary" hidden></div>
+          <div id="file-tree" class="file-tree" role="tree" aria-label="Cây thư mục source"></div>
+        </aside>
+
+        <section class="panel editor-panel">
+          <div class="editor-toolbar">
+            <div class="file-title">
+              <span class="file-dot"></span>
+              <strong id="active-file">Chọn file để bắt đầu</strong>
+            </div>
+            <div class="editor-actions">
+              <span id="editor-status" class="editor-status">Chưa chọn file</span>
+              <button id="save-file" class="button button-primary" type="button" disabled>Lưu file</button>
+            </div>
+          </div>
+          <div id="editor-empty" class="editor-empty">
+            <div class="empty-icon">⌘</div>
+            <h3>Chọn một file source</h3>
+            <p>Mở file từ cây thư mục bên trái hoặc tìm nội dung toàn project.</p>
+          </div>
+          <textarea id="editor" class="editor" spellcheck="false" aria-label="Nội dung file source" hidden></textarea>
+        </section>
+      </section>
+
+      <section class="lower-grid">
+        <article class="panel git-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">VERSION CONTROL</p><h2>Git changes</h2></div>
+            <button id="show-diff" class="button button-quiet button-small" type="button">Xem diff</button>
+          </div>
+          <p class="panel-hint">Chọn đúng các file cần commit. Commit sẽ không đưa những file khác vào commit.</p>
+          <div id="git-files" class="git-files"></div>
+          <div class="commit-row">
+            <input id="commit-message" type="text" maxlength="200" placeholder="Nội dung commit">
+            <button id="commit" class="button button-primary" type="button" disabled>Commit đã chọn</button>
+          </div>
+          <div class="git-actions">
+            <button id="pull" class="button button-quiet" type="button">Pull (fast-forward)</button>
+            <button id="push" class="button button-quiet" type="button">Push</button>
+          </div>
+        </article>
+
+        <article class="panel project-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">PROJECT HEALTH</p><h2>Scripts</h2></div>
+          </div>
+          <div id="extension-stats" class="extension-stats"></div>
+          <div id="scripts" class="scripts"></div>
+          <p class="panel-hint">Build có thể cập nhật các file bundle được sinh tự động. Kiểm tra Git diff sau khi chạy.</p>
+        </article>
+      </section>
+
+      <section id="output-panel" class="panel output-panel" hidden>
+        <div class="panel-heading">
+          <div><p class="eyebrow">OUTPUT</p><h2 id="output-title">Kết quả</h2></div>
+          <button id="close-output" class="button button-quiet button-small" type="button">Đóng</button>
+        </div>
+        <div id="error-locations" class="error-locations" hidden></div>
+        <pre id="output-content"></pre>
+      </section>
+    </main>
+
+    <footer><span>Chỉ truy cập qua 127.0.0.1 · Dữ liệu không gửi ra Internet</span><span id="footer-status">Đang kết nối…</span></footer>
+  </div>
+</body>
+</html>

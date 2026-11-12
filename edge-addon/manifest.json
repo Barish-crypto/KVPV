@@ -3,11 +3,13 @@
   "name": "KVPV — Đồng bộ tab game",
   "version": "1.0.0",
   "minimum_chrome_version": "125",
-  "description": "Đồng bộ FULL từ dự án trên máy vào tab Kiếm Vũ Phong Vân đang mở.",
+  "description": "Đồng bộ bundle ESM từ dự án trên máy vào tab Kiếm Vũ Phong Vân đang mở.",
   "permissions": [
     "activeTab",
+    "alarms",
     "debugger",
-    "nativeMessaging"
+    "nativeMessaging",
+    "storage"
   ],
   "background": {
     "service_worker": "background.js"

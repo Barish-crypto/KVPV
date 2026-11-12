@@ -12,7 +12,6 @@
   call(W.KVPV_MODE,'stop','Native skills, Boss config trial');
   call(W.KVPV_HITRUN_AUTO,'stop',true);
   call(W.KVPV_HITRUN1,'stop','Native skills');
-  call(W.KVPV_TH300,'stop1008Trial');
   call(W.KVPV_TH300,'setBasicAnimationSpeed',1);
   call(W.KVPV_TH300,'setConfirmedTailCut',false);
   call(W.KVPV_TH300,'setBurst',false);

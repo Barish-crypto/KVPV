@@ -11,9 +11,9 @@
 
 1. Chọn tab game đã vào nhân vật. Đóng DevTools/Console nếu đang mở để tránh tranh kết nối debugger.
 2. Bấm biểu tượng tiện ích → **Bật đồng bộ tab này**.
-3. Chờ thông báo `Đã kiểm thử · FULL …` cùng `LOADED …` hoặc `READY …`. Không F5, không dán Snippet, không đăng nhập lại.
+3. Chờ mã build ESM cùng trạng thái `LOADED …` hoặc `READY …`. Không F5, không dán Snippet, không đăng nhập lại.
 
-Với acc chính/clone, bật một lần trên từng tab muốn đồng bộ. Từ đó, khi file nguồn `src/` được lưu, bộ nối tự build + chạy kiểm thử, rồi nạp bản mới vào đúng những tab đã bật. Lỗi kiểm thử giữ bản game đang chạy. Chờ hồi sinh nếu nhân vật đã chết khi tới lượt cập nhật.
+Với acc chính/clone, bật một lần trên từng tab muốn đồng bộ. Từ đó, khi module ESM trong `esm/modules/` được lưu, bộ nối tự build, xác thực artifact rồi nạp bản mới vào đúng những tab đã bật. Nếu build lỗi, bản game đang chạy được giữ lại. Chờ hồi sinh nếu nhân vật đã chết khi tới lượt cập nhật.
 
 Edge có thể hiện thanh thông báo tiện ích đang gỡ lỗi tab. Nếu bấm hủy thanh đó hoặc ngắt trong tiện ích, đồng bộ dừng; code đã nạp vẫn chạy. Mở lại Edge hoặc đóng/mở lại tab thì bật lại cho tab cần dùng.
 
@@ -34,6 +34,6 @@ Ngắt/loại bỏ tiện ích tại `edge://extensions`. Có thể chạy `edge
 
 Khi thay đổi mã tiện ích hoặc native host: mở `edge://extensions`, bấm **Tải lại** trên KVPV, rồi bật đồng bộ lại ở từng tab game. Không F5 trang game. Mã tiện ích đang chạy chỉ đổi sau lần tải lại này.
 
-Bản tối ưu dùng chung kết quả kiểm thử theo hash toàn bộ đầu vào giữa Edge/Chrome; nguồn đổi hoặc FULL sai hash sẽ phải kiểm tra lại. Lưu liên tiếp được gom trong 150 ms. Các tab đồng bộ song song và bản mới đến lúc đang xử lý sẽ chạy tiếp ngay. File sinh tự động không kích hoạt vòng build. Bộ theo dõi cũ dùng BAT cần dừng rồi bật lại để nhận mã theo dõi mới.
+Bản tối ưu dùng chung kết quả xác thực theo hash toàn bộ đầu vào giữa Edge/Chrome; nguồn đổi hoặc FULL sai hash sẽ phải xác thực lại. Lưu liên tiếp được gom trong 150 ms. Các tab đồng bộ song song và bản mới đến lúc đang xử lý sẽ chạy tiếp ngay. Mỗi frame gộp kiểm tra trạng thái và đồng bộ dữ liệu nhóm/desktop trong một lệnh debugger để giảm độ trễ. File sinh tự động không kích hoạt vòng build. Bộ theo dõi cũ dùng BAT cần dừng rồi bật lại để nhận mã theo dõi mới.
 
 Báo cáo nhiệm vụ tự động: `.kvpv-live/diagnostics/<actor>.json`, cập nhật tối đa mỗi 5 giây khi tab game đã gắn và mã nền tiện ích mới đã nạp. Sau bản cập nhật chức năng báo cáo, tải lại tiện ích một lần và bật lại đồng bộ từng tab; không F5 game. Báo cáo chỉ là dữ liệu đọc, không tự chạy mã hoặc tự gọi Codex.

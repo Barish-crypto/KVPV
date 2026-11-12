@@ -1,6 +1,6 @@
-/* Cửu Tiêu Lệnh: safe native-UI task acceptance adapter.
- * Default observe-only until a verified native adapter is registered.
- * No RPC fabrication, premium purchase, or repeated unconfirmed claims. */
+
+
+
 (() => {
  'use strict';
  const W=window, old=W.KVPV_CUU_TIEU_LENH;

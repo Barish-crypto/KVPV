@@ -62,7 +62,7 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     `;
 
-    // Tạo modal content
+    
     modalBackdrop.innerHTML = `
       <div style="width: 100%; max-width: 400px; min-width: 300px; margin: 0 32px;">
         <div style="
@@ -167,7 +167,7 @@
 
     function handleConfirm() {
       closeModal();
-      // Recheck adblock sau 1 giây
+      
       setTimeout(() => {
         if (window.recheckAdblock) {
           window.recheckAdblock();

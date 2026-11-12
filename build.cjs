@@ -1,260 +1,236 @@
-// [VI dòng gốc 1] Chú thích gốc của tác giả; không được thực thi. Nội dung: Đóng gói nguồn theo thứ tự tên module, kiểm tra cú pháp và sinh FULL/bản vá/manifest. Nạp lại FULL đi qua nhánh cập nhật trực tiếp, giữ lõi Daily đã chạy. Mã build được tính từ nội dung nguồn, kể cả chú thích. [đóng chú thích]
-/* Đóng gói nguồn theo thứ tự tên module, kiểm tra cú pháp và sinh FULL/bản vá/manifest. Nạp lại FULL đi qua nhánh cập nhật trực tiếp, giữ lõi Daily đã chạy. Mã build được tính từ nội dung nguồn, kể cả chú thích. */
-// [VI dòng gốc 2] "use strict"
 'use strict';
-// [VI dòng gốc 3] Khai báo biến không gán lại bằng const: fs = gọi require('node:fs') để nạp module Node.js
-const fs = require('node:fs');
-// [VI dòng gốc 4] Khai báo biến không gán lại bằng const: path = gọi require('node:path') để nạp module Node.js
-const path = require('node:path');
-// [VI dòng gốc 5] Khai báo biến không gán lại bằng const: vm = gọi require('node:vm') để nạp module Node.js
-const vm = require('node:vm');
-// [VI dòng gốc 6] Khai báo biến không gán lại bằng const: crypto = gọi require('node:crypto') để nạp module Node.js
-const crypto = require('node:crypto');
-// [VI dòng gốc 7] Khai báo biến không gán lại bằng const: root = __dirname
-const root = __dirname;
-// [VI dòng gốc 8] Kiểm tra fs.existsSync(path.join(root,'.kvpv-live','maintenance.lock')) && process.env.KVPV_VERIFY_MAINTENANCE!=='1': đúng thì chạy nhánh sau if.
-if (fs.existsSync(path.join(root,'.kvpv-live','maintenance.lock')) && process.env.KVPV_VERIFY_MAINTENANCE!=='1') {
-// [VI dòng gốc 9] Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('MAINTENANCE: giữ bản đang chạy trong lúc dọn nguồn.')
+
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const crypto=require('node:crypto');
+const {spawnSync}=require('node:child_process');
+const {compileModuleRuntime,moduleCatalog,moduleRuntimeStart,moduleRuntimeEnd}=require('./live/runtime-bundles.cjs');
+
+const root=__dirname;
+const esmDir=path.join(root,'esm');
+const moduleDir=path.join(esmDir,'modules');
+const liveDir=path.join(root,'.kvpv-live');
+const buildLock=path.join(liveDir,'build.lock');
+
+if(fs.existsSync(path.join(root,'.kvpv-live','maintenance.lock'))&&process.env.KVPV_VERIFY_MAINTENANCE!=='1')
   throw Error('MAINTENANCE: giữ bản đang chạy trong lúc dọn nguồn.');
-// [VI dòng gốc 10] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+
+fs.mkdirSync(liveDir,{recursive:true});
+function acquireBuildLock(){
+  for(let attempt=0;attempt<2;attempt++){
+    let fd;
+    try{
+      fd=fs.openSync(buildLock,'wx');
+      fs.writeFileSync(fd,String(process.pid));
+      fs.closeSync(fd);
+      return;
+    }catch(error){
+      if(fd!==undefined)try{fs.closeSync(fd);}catch{}
+      if(error.code!=='EEXIST')throw error;
+      const owner=Number(fs.readFileSync(buildLock,'utf8'));
+      if(!Number.isSafeInteger(owner)||owner<=0)throw Error('Build lock exists with an invalid owner; inspect '+buildLock);
+      try{process.kill(owner,0);}
+      catch(ownerError){
+        if(ownerError.code==='ESRCH'){
+          fs.unlinkSync(buildLock);
+          continue;
+        }
+        if(ownerError.code!=='EPERM')throw ownerError;
+      }
+      throw Error('Another build is already running (pid '+owner+'); retry after it finishes.');
+    }
+  }
+  throw Error('Could not acquire build lock: '+buildLock);
 }
-// Custom combat skill packs are removed from generated installers; the game-native selector owns combat.
-const removedCombatSkillModules=new Set([
-  '09-combat-engine.js','09-range-keeper310.js',
-  '09-test-legacy-combat.js','09-th300-scan-default.js','10-tq-basic-force.js',
-  '12-basic-outside.js','13-transform-skills.js','23-beast-island.js',
-  '50-companion-combat.js','71-kiem-khieu-basic.js','76-trutien-pvp.js',
-  '77-strongest-team-pvp.js','80-tienma-quyetchien-pvp.js','81-tranh-ba-tu-phuong-pvp.js',
-  '84-basic310-universal.js','85-le-hoi-khu-thu-boss.js'
-]);
-const modules = fs.readdirSync(path.join(root,'src'))
-  .filter(x=>/^\d\d-.*\.js$/.test(x)&&!removedCombatSkillModules.has(x)).sort();
-// [VI dòng gốc 12] Khai báo biến không gán lại bằng const: prelude = gọi fs.readFileSync(path.join(root,'runtime-v1.js'), 'utf8') để đọc tệp đồng bộ
-const prelude = fs.readFileSync(path.join(root,'runtime-v1.js'),'utf8');
-// [VI dòng gốc 13] Khai báo biến không gán lại bằng const: sources = tạo đối tượng bằng Map()
-const sources = new Map();
-// [VI dòng gốc 14] Khai báo biến không gán lại bằng const: body = gọi modules.map(name => { const text=fs.readFileSync(path.join(root,'src',name),'utf8'); new vm.Script(text,{filename:name}); sources.set(name,text); return '// Source: src/'+name+'\n'…('\n')
-const body = modules.map(name => {
-// [VI dòng gốc 15] Khai báo biến không gán lại bằng const: text = gọi fs.readFileSync(path.join(root,'src',name), 'utf8') để đọc tệp đồng bộ
-  // TEST_V1 requires the exact original source bytes in every installer.
-  const text=fs.readFileSync(path.join(root,'src',name),'utf8');
-// [VI dòng gốc 16] tạo đối tượng bằng vm.Script(text, {filename:name})
-  new vm.Script(text,{filename:name});
-// [VI dòng gốc 17] gọi sources.set(name, text)
-  sources.set(name,text);
-// [VI dòng gốc 18] Kết thúc hàm hiện tại và trả về: tính biểu thức '// Source: src/'+name+'\n'+text.
-  return '// Source: src/'+name+'\n'+text;
-// [VI dòng gốc 19] Tiếp tục hàm hàm không đặt tên; thành phần cú pháp bắt đầu bằng }. Đọc cùng dòng mở phía trên: }).join('\n');
-}).join('\n');
-// [VI dòng gốc 20] Khai báo biến không gán lại bằng const: controlsSchemaText = gọi fs.readFileSync(path.join(root,'windows-app/control-schema.json'), 'utf8') để đọc tệp đồng bộ
-const controlsSchemaText=fs.readFileSync(path.join(root,'windows-app/control-schema.json'),'utf8');
-// Build ID covers installer templates as well as every embedded source and control schema.
-const buildId=crypto.createHash('sha256').update('shared-installers-v3\n'+prelude+'\n'+body+'\n'+controlsSchemaText+'\n'+fs.readFileSync(__filename,'utf8')).digest('hex').slice(0,12);
-// [VI dòng gốc 22] Khai báo biến không gán lại bằng const: moduleCatalog = gọi modules.map(file=>({file,apis:[...new Set([...sources.get(file).replace(/^\/\/ \[VI dòng gốc \d+\].*$/gm,'').matchAll(/(?:window|W)\…) để biến đổi từng phần tử
-const moduleCatalog=modules.map(file=>({file,apis:[...new Set([...sources.get(file).replace(/^\/\/ \[VI dòng gốc \d+\].*$/gm,'').matchAll(/(?:window|W)\.(KVPV_[A-Z0-9_]+)\s*=/g)].map(m=>m[1]))]}));
-// [VI dòng gốc 23] Khai báo biến không gán lại bằng const: metadata = gọi JSON.stringify({id:buildId,release:'1.0.0',recovery:'35-100-observed-ring',modules:moduleCatalog}) để chuyển giá trị thành chuỗi JSON
-const metadata=JSON.stringify({id:buildId,release:'1.0.0',recovery:'35-100-observed-ring',modules:moduleCatalog});
-// [VI dòng gốc 24] Khai báo biến không gán lại bằng const: liveModules = tạo mảng gồm 76 vị trí: [ "00-daily-clock.js", "00-manual-entry-policy.js", "00-spending-policy.js", "00-account-policy.js", "00-far-scope.js", "00-thienquan-scope.js", "00-combat-metrics.js", "00-skill-p…
-const liveModules = [
-// [VI dòng gốc 25] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-daily-clock.js",
-  "00-boss-session.js",
-  "00-preflight.js",
-  "00-daily-clock.js",
-// [VI dòng gốc 26] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-manual-entry-policy.js",
-  "00-manual-entry-policy.js",
-  "00-material-reserve.js",
-// [VI dòng gốc 27] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-spending-policy.js",
-  "00-spending-policy.js",
-// [VI dòng gốc 28] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-account-policy.js",
-  "00-account-policy.js",
-// [VI dòng gốc 29] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-far-scope.js",
-  "00-far-scope.js",
-// [VI dòng gốc 30] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-thienquan-scope.js",
-  "00-thienquan-scope.js",
-// [VI dòng gốc 31] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-combat-metrics.js",
-  "00-combat-metrics.js",
-  "00-skill-pacing.js",
-  "00-tq-basic-profile.js",
-  // retired skill sender: 00-skill1008-trial.js
-// [VI dòng gốc 32] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "00-skill-pacing.js",
-  "00-skill-async-observer.js",
-  // retired skill sender: 00-skill-pacing.js
-  "00-territory-loot.js",
-  // Five-basic profile is integrated into 08-range-evidence.js (no retired module in liveModules).
-// [VI dòng gốc 33] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "01-parallel-actions.js",
-  "01-parallel-actions.js",
-// [VI dòng gốc 34] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "01-quest-priority.js",
-  "01-quest-priority.js",
-// [VI dòng gốc 35] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "02-scene.js",
-  "02-scene.js",
-// [VI dòng gốc 36] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "06-range.js",
-  "03-daily-core.js",
-  "06-range.js",
-  "07-tuyet-hoc.js",
-  "07-th300-hitrun-compat.js",
-  "08-range-evidence.js",
-  "09-modes.js",
-  "09-tq-ma-than.js",
-  "11-auto-tianquan.js",
-// [VI dòng gốc 37] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "08-range-evidence.js",
-// [VI dòng gốc 38] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "09-modes.js",
-// [VI dòng gốc 39] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "10-experimental-boost.js",
-  // retired skill sender: 10-tq-basic-force.js
-  // retired skill sender: 10-experimental-boost.js
-// [VI dòng gốc 40] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "11-auto-tianquan.js",
-// [VI dòng gốc 41] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "12-basic-outside.js",
-  // retired skill sender: 12-basic-outside.js
-// [VI dòng gốc 42] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "13-transform-skills.js",
-  // retired skill sender: 13-transform-skills.js
-// [VI dòng gốc 43] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "14-eight-floor.js",
-  "14-eight-floor.js",
-// [VI dòng gốc 44] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "15-honor-targets.js",
-  "15-honor-targets.js",
-// [VI dòng gốc 45] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "16-strongest-team.js",
-  "16-strongest-team.js",
-// [VI dòng gốc 46] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "17-linh-lung-th.js",
-  "17-linh-lung-th.js",
-// [VI dòng gốc 47] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "18-supervisors.js",
-  "18-supervisors.js",
-// [VI dòng gốc 48] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "19-account-features.js",
-  "19-account-features.js",
-// [VI dòng gốc 49] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "20-daily-trial.js",
-  "20-daily-trial.js",
-// [VI dòng gốc 50] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "21-quick-use.js",
-  "21-quick-use.js",
-// [VI dòng gốc 51] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "22-confirm-popups.js",
-  "22-confirm-popups.js",
-// [VI dòng gốc 52] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "23-beast-island.js",
-// [VI dòng gốc 53] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "24-summon-boss.js",
-  "24-summon-boss.js",
-// [VI dòng gốc 54] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "25-rune-boss.js",
-  "25-rune-boss.js",
-// [VI dòng gốc 55] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "26-fabao-fast.js",
-  "26-fabao-fast.js",
-// [VI dòng gốc 56] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "27-craft-low.js",
-  "27-craft-low.js",
-// [VI dòng gốc 57] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "28-appearance-auto.js",
-  "28-appearance-auto.js",
-// [VI dòng gốc 58] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "29-quest-goals.js",
-  "29-quest-goals.js",
-// [VI dòng gốc 59] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "30-tienvi-goals.js",
-  "30-tienvi-goals.js",
-// [VI dòng gốc 60] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "31-skill-rewards.js",
-  "31-four-async-scans.js",
-  "31-map-task-radar.js",
-  "31-cuu-tieu-lenh.js",
-  "31-skill-rewards.js",
-  // retired skill sender: 32-xa-menh-lv2-cd0.js
-  // retired skill sender: 32-thac-an-cd0.js
-  "32-combat-stall.js",
-  "32-golden-proc-observer.js",
-// [VI dòng gốc 61] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "33-progress-planner.js",
-  "33-progress-planner.js",
-// [VI dòng gốc 62] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "34-fabao-treasure.js",
-  "34-co-bao-native.js",
-  "34-fabao-treasure.js",
-// [VI dòng gốc 63] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "35-equipment-treasure.js",
-  "35-equipment-treasure.js",
-// [VI dòng gốc 64] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "36-fast-actions.js",
-  "36-fast-actions.js",
-// [VI dòng gốc 65] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "37-reborn-goals.js",
-  "37-reborn-goals.js",
-// [VI dòng gốc 66] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "38-reborn-executors.js",
-  "38-reborn-executors.js",
-// [VI dòng gốc 67] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "39-executor-report.js",
-  "39-executor-report.js",
-// [VI dòng gốc 68] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "40-soul-stone-fast.js",
-  "40-soul-stone-fast.js",
-// [VI dòng gốc 69] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "41-season-rewards.js",
-  "41-season-rewards.js",
-// [VI dòng gốc 70] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "42-world-eye.js",
-  "42-world-eye.js",
-// [VI dòng gốc 71] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "43-context-brain.js",
-  "43-context-brain.js",
-// [VI dòng gốc 72] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "44-red-navigator.js",
-  "44-red-navigator.js",
-// [VI dòng gốc 73] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "72-bag-open-session.js",
-  "72-bag-open-session.js",
-// [VI dòng gốc 74] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "45-monster-plate.js",
-  "45-monster-plate.js",
-// [VI dòng gốc 75] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "46-team-coordinator.js",
-  "46-team-coordinator.js",
-// [VI dòng gốc 76] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "47-boss-team.js",
-  "47-boss-team.js",
-// [VI dòng gốc 77] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng string. Đọc cùng dòng mở phía trên: "48-guild-boss.js", "49-adventure.js", "50-companion-combat.js", "51-demon-king-recovery.js", "52-item-trace.js", "55-crystal-capture.js", "56-free-treasure.js", "57-free-daily-bag…
-  "48-guild-boss.js", "49-adventure.js", "51-demon-king-recovery.js", "52-item-trace.js", "55-crystal-capture.js", "56-free-treasure.js", "57-free-daily-bag.js", "58-idle-daily.js", "59-road-cadence.js", "60-quiz-auto.js", "61-peak-chest.js", "62-event-priority.js", "62-resume-stage.js", "63-peak-completion.js", "64-eight-chest.js", "65-marry-arena.js", "66-pet-travel.js", "67-login-streak.js", "68-festival-free.js", "69-marry-rewards.js", "70-four-worship.js", "71-kiem-khieu.js", "72-desktop-control.js", "73-frame-click.js", "74-tien-ton-native-auto.js", "75-pvp-luofeng.js", "78-tula-pvp.js", "82-move-visual99.js", "83-movement-observer.js", "99-manual-entry.js", "99-z-pb-boss-daily.js"
-// [VI dòng gốc 78] Đóng khối/hàm/mảng/lời gọi đã mở; dấu phẩy hoặc chấm phẩy kết thúc phần tương ứng.
+acquireBuildLock();
+process.once('exit',()=>{
+  try{if(fs.readFileSync(buildLock,'utf8')===String(process.pid))fs.unlinkSync(buildLock);}catch{}
+});
+
+function writeArtifactsAtomically(artifacts){
+  const staged=[];
+  let rollbackFailed=false;
+  try{
+    for(const [name,content] of artifacts){
+      const target=path.join(root,name),temp=target+'.'+process.pid+'.tmp',backup=target+'.'+process.pid+'.bak';
+      const entry={target,temp,backup,hadOriginal:fs.existsSync(target),installed:false};
+      staged.push(entry);
+      if(entry.hadOriginal)fs.copyFileSync(target,backup,fs.constants.COPYFILE_EXCL);
+      fs.writeFileSync(temp,content,{flag:'wx'});
+    }
+    for(const entry of staged){
+      fs.renameSync(entry.temp,entry.target);
+      entry.installed=true;
+    }
+  }catch(error){
+    const rollbackErrors=[];
+    for(const entry of staged.slice().reverse()){
+      if(!entry.installed)continue;
+      try{
+        if(entry.hadOriginal)fs.renameSync(entry.backup,entry.target);
+        else fs.unlinkSync(entry.target);
+        entry.installed=false;
+      }catch(rollbackError){rollbackFailed=true;rollbackErrors.push(rollbackError.message);}
+    }
+    if(rollbackErrors.length)throw Error('Build artifact commit failed ('+error.message+'); rollback failed ('+rollbackErrors.join('; ')+'). Preserve backup files for recovery.');
+    throw Error('Build artifact commit failed; previous outputs were restored: '+error.message);
+  }finally{
+    for(const entry of staged){
+      try{if(fs.existsSync(entry.temp))fs.unlinkSync(entry.temp);}catch{}
+      if(!rollbackFailed)try{if(fs.existsSync(entry.backup))fs.unlinkSync(entry.backup);}catch{}
+    }
+  }
+}
+
+const esmManifest=JSON.parse(fs.readFileSync(path.join(esmDir,'manifest.json'),'utf8'));
+if(esmManifest.format!=='esm'||esmManifest.entry!=='index.mjs'||!Array.isArray(esmManifest.modules)||!Array.isArray(esmManifest.initializedModules))
+  throw Error('Invalid ESM source manifest');
+
+const moduleNames=esmManifest.modules.map(item=>item.name);
+if(moduleNames.some(name=>typeof name!=='string'||!/^\d\d-.*\.js$/.test(name))||new Set(moduleNames).size!==moduleNames.length)
+  throw Error('Invalid or duplicate ESM module names');
+
+const liveModules=esmManifest.initializedModules;
+if(new Set(liveModules).size!==liveModules.length||liveModules.some(name=>!moduleNames.includes(name)))
+  throw Error('Invalid ESM initialization order');
+
+const expectedFiles=new Set(moduleNames.map(name=>name.replace(/\.js$/,'.mjs')));
+const actualFiles=fs.readdirSync(moduleDir).filter(name=>name.endsWith('.mjs'));
+if(actualFiles.length!==expectedFiles.size||actualFiles.some(name=>!expectedFiles.has(name)))
+  throw Error('ESM module files do not match esm/manifest.json');
+
+const prelude=fs.readFileSync(path.join(root,'runtime-v1.js'),'utf8');
+const indexSource=fs.readFileSync(path.join(esmDir,'index.mjs'),'utf8');
+if(!indexSource.includes('moduleInitializers')||!indexSource.includes('initializeAll();'))
+  throw Error('ESM entry must export initializers and initialize the runtime');
+const indexImports=[...indexSource.matchAll(/import\s+\{initialize as __initialize(\d+),api as __api\d+\}\s+from\s+["']\.\/modules\/([^"']+)\.mjs["'];/g)];
+if(indexImports.length!==moduleNames.length||indexImports.some((match,index)=>match[2]+'.js'!==moduleNames[index]))
+  throw Error('ESM entry module imports do not match esm/manifest.json');
+const initializerIndexes=new Map(indexImports.map(match=>[match[2]+'.js',match[1]]));
+const expectedInitializers=liveModules.map(name=>'__initialize'+initializerIndexes.get(name)+'();');
+const actualInitializers=[...indexSource.matchAll(/__initialize\d+\(\);/g)].map(match=>match[0]);
+if(expectedInitializers.length!==actualInitializers.length||expectedInitializers.some((call,index)=>call!==actualInitializers[index]))
+  throw Error('ESM entry initialization order does not match esm/manifest.json');
+
+const controlSchema=require('./windows-app/control-schema.json');
+const dashboardModuleSchema=require('./live/dashboard-module-schema.json');
+for(const file of Object.keys(dashboardModuleSchema))if(Object.hasOwn(controlSchema,file))
+  throw Error('Dashboard control module duplicates the existing allowlist: '+file);
+const fullControlSchema=require('./live/desktop-controls.cjs').moduleSchema;
+for(const file of Object.keys(fullControlSchema))if(!moduleNames.includes(file))
+  throw Error('Control module is not present in the ESM source: '+file);
+
+const rustDir=path.join(root,'rust-core');
+const cargoPath=process.platform==='win32'?path.join(process.env.USERPROFILE||'','.cargo','bin','cargo.exe'):'cargo';
+const cargoCommand=cargoPath!=='cargo'&&fs.existsSync(cargoPath)?cargoPath:'cargo';
+const rustBuild=spawnSync(cargoCommand,['build','--manifest-path',path.join(rustDir,'Cargo.toml'),'--target','wasm32-unknown-unknown','--release'],{cwd:root,encoding:'utf8'});
+if(rustBuild.error)throw Error('Rust/WASM build failed: '+rustBuild.error.message);
+if(rustBuild.status!==0)throw Error('Rust/WASM build failed:\n'+(rustBuild.stderr||rustBuild.stdout||'cargo exited '+rustBuild.status));
+
+const rustWasm=fs.readFileSync(path.join(rustDir,'target','wasm32-unknown-unknown','release','kvpv_rust_core.wasm'));
+const rustCoreHash=crypto.createHash('sha256').update(rustWasm).digest('hex');
+const rustWasmBase64=rustWasm.toString('base64');
+const rustBootstrap=`if(window.__KVPV_RUST_CORE_BUILD!==${JSON.stringify(rustCoreHash)}){const encoded=atob(${JSON.stringify(rustWasmBase64)});const bytes=Uint8Array.from(encoded,c=>c.charCodeAt(0));const exports=new WebAssembly.Instance(new WebAssembly.Module(bytes)).exports;if(typeof exports.kvpv_preflight_ready!=='function'||typeof exports.kvpv_account_polling_mode!=='function'||typeof exports.kvpv_boss_recovery_range!=='function'||typeof exports.kvpv_boss_recovery_range_known!=='function'||typeof exports.kvpv_boss_recovery_ring!=='function'||typeof exports.kvpv_boss_recovery_full_hp!=='function')throw Error('Rust/WASM export missing');window.__KVPV_RUST_CORE=Object.freeze({preflightReady:exports.kvpv_preflight_ready,accountPollingMode:exports.kvpv_account_polling_mode,bossRecoveryRange:exports.kvpv_boss_recovery_range,bossRecoveryRangeKnown:exports.kvpv_boss_recovery_range_known,bossRecoveryRing:exports.kvpv_boss_recovery_ring,bossRecoveryFullHP:exports.kvpv_boss_recovery_full_hp});window.__KVPV_RUST_CORE_BUILD=${JSON.stringify(rustCoreHash)};}\n`;
+
+const moduleInputs=[
+  path.join(esmDir,'api.mjs'),
+  path.join(esmDir,'index.mjs'),
+  ...actualFiles.map(name=>path.join(moduleDir,name))
 ];
-// [VI dòng gốc 79] Chú thích gốc của tác giả; không được thực thi. Nội dung: Cùng một trình tự dừng được dùng cho FULL và bản vá độc lập.
-// Cùng một trình tự dừng được dùng cho FULL và bản vá độc lập.
-// [VI dòng gốc 80] Nội dung nguyên văn của chuỗi mẫu; đây là dữ liệu trong chuỗi, không phải lệnh đang chạy.
-const prepareUpdate = `
+const hash=crypto.createHash('sha256');
+for(const file of [
+  ...moduleInputs,
+  path.join(esmDir,'manifest.json'),
+  path.join(root,'runtime-v1.js'),
+  path.join(root,'windows-app','control-schema.json'),
+  path.join(root,'live','dashboard-module-schema.json'),
+  path.join(root,'live','runtime-bundles.cjs'),
+  path.join(rustDir,'Cargo.toml'),
+  path.join(rustDir,'Cargo.lock'),
+  path.join(root,'rust-toolchain.toml'),
+  path.join(rustDir,'src','lib.rs'),
+  path.join(root,'package-lock.json'),
+  __filename
+].sort()){
+  hash.update(path.relative(root,file).replace(/\\/g,'/')+'\0');
+  hash.update(fs.readFileSync(file));
+  hash.update('\0');
+}
+hash.update(rustWasm);
+const buildId=hash.digest('hex').slice(0,12);
+const modules=esmManifest.modules.map(({name,apis=[]})=>({file:name,apis}));
+const consolidatedSources=[];
+const embeddedModules=moduleCatalog(root).baseline;
+const metadata=JSON.stringify({id:buildId,sourceBuild:buildId,release:'1.0.0',recovery:'35-100-observed-ring',rustCore:{abi:1,sha256:rustCoreHash},modules,consolidatedSources,embeddedModules});
+const controlSchemaText=JSON.stringify(fullControlSchema);
+const runtimeCode=compileModuleRuntime(root,[]).code;
+
+const prepareUpdate=`
 const W=window;
 if(!W.KVPV_V1){console.warn("[KVPV] Live update skipped: V1 session unavailable");return;}
 if(W._Ba?._rJ?._O$?.ins?.isDead===true)throw Error("Hồi sinh nhân vật trước khi chạy bản vá");
 if(String(W.__KVPV_OWN_ACTOR_ID)!==String(W._Ba?._rJ?._O$?.ins?.actorId)||W.__KVPV_UNIVERSAL_HALTED)throw Error("Actor/session mismatch");
-W.KVPV_TQ_SINGLE_STRONGEST_TH=false;W.KVPV_TH300?.setBasicOnly?.(false);W.KVPV_TH300?.setTianQuanTuyetHoc?.(false);W.KVPV_TH300?.setTianQuanFiveBasics?.(false);W.KVPV_TH300?.stop?.('user');W.KVPV_TQ_BASIC_FORCE?.stop?.('native combat restored');W.KVPV_TQ4100_COOLDOWN_EXPERIMENT?.stop?.('native combat restored');W.KVPV_MODE?.stop?.("Custom skill controllers removed");W.KVPV_COMBAT_ENGINE?.stop?.();W.KVPV_BASIC310_UNIVERSAL?.stop?.();W.KVPV_TQ_8001_CD?.stop?.('native combat restored');W.KVPV_BEAST_ISLAND?.stop?.();W.KVPV_COMPANION_COMBAT?.stop?.();W.KVPV_KIEM_KHIEU_BASIC?.stop?.();W.KVPV_TRUTIEN_PVP?.stop?.();W.KVPV_STRONGEST_PVP?.stop?.();W.KVPV_TIENMA_PVP?.stop?.();W.KVPV_TRANH_BA_TU_PHUONG?.stop?.();W.KVPV_LE_HOI_KHU_THU?.stop?.();W.KVPV_PVP_LUOFENG?.stop?.();W.KVPV_STRONGEST_TEAM?.stop?.();W.KVPV_HONOR_TARGET?.stop?.();/* Eight Floor stays armed until its installer safely replaces it. */W.KVPV_BASIC10?.stop?.();W.KVPV_STAND281?.stop?.();
+W.KVPV_TQ_SINGLE_STRONGEST_TH=false;W.KVPV_TH300?.setBasicOnly?.(false);W.KVPV_TH300?.setTianQuanTuyetHoc?.(false);W.KVPV_TH300?.setTianQuanFiveBasics?.(false);W.KVPV_TH300?.stop?.('user');W.KVPV_TQ_BASIC_FORCE?.stop?.('native combat restored');
+try{W.KVPV_MODE?.stop?.("Custom skill controllers removed");}catch(e){console.warn("[KVPV] Previous combat mode stop failed during reload:",e);}
+W.KVPV_COMBAT_ENGINE?.stop?.();W.KVPV_BASIC310_UNIVERSAL?.stop?.();W.KVPV_TQ_8001_CD?.stop?.('native combat restored');W.KVPV_BEAST_ISLAND?.stop?.();W.KVPV_COMPANION_COMBAT?.stop?.();W.KVPV_KIEM_KHIEU_BASIC?.stop?.();W.KVPV_TRUTIEN_PVP?.stop?.();W.KVPV_STRONGEST_PVP?.stop?.();W.KVPV_TIENMA_PVP?.stop?.();W.KVPV_TRANH_BA_TU_PHUONG?.stop?.();W.KVPV_LE_HOI_KHU_THU?.stop?.();W.KVPV_PVP_LUOFENG?.stop?.();W.KVPV_STRONGEST_TEAM?.stop?.();W.KVPV_HONOR_TARGET?.stop?.();W.KVPV_BASIC10?.stop?.();W.KVPV_STAND281?.stop?.();
 `;
-// [VI dòng gốc 87] Duyệt từng giá trị trong liveModules bằng const name. | Khai báo biến không gán lại bằng const: name (chưa gán giá trị) | Kiểm tra !sources.has(name): đúng thì chạy nhánh sau if. | Ném lỗi và chuyển luồng tới catch gần nhất: gọi Error('Missing live module: '+name)
-for(const name of liveModules)if(!sources.has(name))throw Error('Missing live module: '+name);
-// [VI dòng gốc 88] Khai báo biến không gán lại bằng const: patch = tính biểu thức '[mở chú thích] Paste into the existing game Console; no refresh required. [đóng chú thích]\n(() => {\n'+ prepareUpdate+'const __KVPV_V1_BUILD=Object.freeze('+metadata+');\n'+ liveModules.map(name=>sources.…
-const patch='/* Paste into the existing game Console; no refresh required. */\n(() => {\n'+
-// [VI dòng gốc 89] Tiếp tục biểu thức hoặc khai báo đang mở; thành phần cú pháp bắt đầu bằng name. Đọc cùng dòng mở phía trên: prepareUpdate+'const __KVPV_V1_BUILD=Object.freeze('+metadata+');\n'+
-  prepareUpdate+'const __KVPV_V1_BUILD=Object.freeze('+metadata+');\n'+
-// [VI dòng gốc 90] Định nghĩa hàm hàm không đặt tên; tham số: name
-  liveModules.map(name=>sources.get(name)).join('\n')+'\n})();\n';
-// [VI dòng gốc 91] Chú thích gốc của tác giả; không được thực thi. Nội dung: Mỗi module có đúng một thân hàm trong FULL. Khởi tạo và cập nhật gọi lại cùng hàm.
-// Mỗi module có đúng một thân hàm trong FULL. Khởi tạo và cập nhật gọi lại cùng hàm.
-// [VI dòng gốc 92] Khai báo biến không gán lại bằng const: installerName = tạo hàm với tham số name; mỗi lần gọi trả về tính biểu thức '__KVPV_INSTALL_'+name.replace(/\W/g,'_')
-const installerName = name => '__KVPV_INSTALL_'+name.replace(/\W/g,'_');
-// [VI dòng gốc 93] Khai báo biến không gán lại bằng const: installers = gọi modules.map(name => 'function '+installerName(name)+'(){\n// Source: src/'+name+'\n'+sources.get(name)+'\n}').join('\n')
-const installers = modules.map(name =>
-// [VI dòng gốc 94] gọi installerName(name) | gọi sources.get(name)
-  'function '+installerName(name)+'(){\n// Source: src/'+name+'\n'+sources.get(name)+'\n}').join('\n');
-// [VI dòng gốc 95] Khai báo biến không gán lại bằng const: controlSchema = gọi require("./windows-app/control-schema.json") để nạp module Node.js
-const controlSchema=require("./windows-app/control-schema.json");
-// [VI dòng gốc 96] Khai báo biến không gán lại bằng const: controlInstallers = tính biểu thức "window.__KVPV_CONTROL_SCHEMA=Object.freeze("+JSON.stringify(controlSchema)+");window.__KVPV_CONTROL_INSTALLERS=Object.freeze({"+Object.keys(controlSchema).map(file=>JSON.stringify…
-const controlInstallers="window.__KVPV_CONTROL_SCHEMA=Object.freeze("+JSON.stringify(controlSchema)+");window.__KVPV_CONTROL_INSTALLERS=Object.freeze({"+Object.keys(controlSchema).map(file=>JSON.stringify(file)+":"+installerName(file)).join(",")+"});\n";
-// [VI dòng gốc 97] Khai báo biến không gán lại bằng const: initialCalls = tính biểu thức controlInstallers+modules.map(name=>installerName(name)+'();').join('\n')
-if(new Set(liveModules).size!==liveModules.length)throw Error('Duplicate live module in FULL');
-for(const name of liveModules)if(!sources.has(name))throw Error('Missing live module: '+name);
-const initialCalls = controlInstallers+liveModules.map(name=>installerName(name)+'();').join('\n');
-// [VI dòng gốc 98] Khai báo biến không gán lại bằng const: updateCalls = tính biểu thức controlInstallers+liveModules.map(name=>installerName(name)+'();').join('\n')
-const updateCalls = controlInstallers+liveModules.map(name=>installerName(name)+'();').join('\n');
-// [VI dòng gốc 99] Chú thích gốc của tác giả; không được thực thi. Nội dung: FULL chạy lần nữa sẽ gọi bản vá; khóa nhân vật phải còn khớp phiên đã cài.
-// FULL chạy lần nữa sẽ gọi bản vá; khóa nhân vật phải còn khớp phiên đã cài.
-// [VI dòng gốc 100] Nội dung nguyên văn của chuỗi mẫu; đây là dữ liệu trong chuỗi, không phải lệnh đang chạy.
-const reloadGuard = `
-if (window.KVPV_V1) {
-  const actor=String(window._Ba?._rJ?._O$?.ins?.actorId??'');
-  if (/^[1-9]\\d{4,24}$/.test(actor) && !window.__KVPV_OWN_ACTOR_ID && typeof window._ft!=='undefined' && typeof window._Sa!=='undefined') Object.defineProperty(window,'__KVPV_OWN_ACTOR_ID',{value:actor,enumerable:false,writable:false,configurable:false});
-  if (!actor || actor!==String(window.__KVPV_OWN_ACTOR_ID??'') || window.__KVPV_UNIVERSAL_HALTED) {
-    console.error('[KVPV V1] Reload blocked: actor changed or session halted.');return;
-  }
-  __KVPV_LIVE_UPDATE();return;
-}
-`;
-// [VI dòng gốc 109] Khai báo biến không gán lại bằng const: bundle = tính biểu thức '[mở chú thích] KVPV V1 / 1.0.0 — generated by node build.cjs; edit src/, not this file. [đóng chú thích]\n(() => {\nconst __KVPV_V1_BUILD=Object.freeze('+metadata+');\n'+reloadGuard+prelude+'\nif (!__KVPV_…
-const bundle = '/* KVPV V1 / 1.0.0 — generated by node build.cjs; edit src/, not this file. */\n(() => {\nconst __KVPV_V1_BUILD=Object.freeze('+metadata+');\n'+reloadGuard+prelude+'\nif (!__KVPV_V1_READY) return;\n'+initialCalls+'\n'+installers+'\nfunction __KVPV_LIVE_UPDATE(){\n'+prepareUpdate+updateCalls+'\n}\n})();\n';
-// [VI dòng gốc 110] tạo đối tượng bằng vm.Script(bundle, {filename:'KVPV_V1_FULL.js'})
-new vm.Script(bundle,{filename:'KVPV_V1_FULL.js'});
-// [VI dòng gốc 111] gọi fs.writeFileSync(path.join(root,'KVPV_V1_FULL.js'), bundle) để ghi tệp đồng bộ
-fs.writeFileSync(path.join(root,'KVPV_V1_FULL.js'),bundle);
-fs.writeFileSync(path.join(root,'KVPV_PB_BOSS_DAILY.js'),bundle);
-// [VI dòng gốc 112] tạo đối tượng bằng vm.Script(patch, {filename:'KVPV_SCAN_LIVE_PATCH.js'})
-new vm.Script(patch,{filename:'KVPV_SCAN_LIVE_PATCH.js'});
-// [VI dòng gốc 113] gọi fs.writeFileSync(path.join(root,'KVPV_SCAN_LIVE_PATCH.js'), patch) để ghi tệp đồng bộ
-fs.writeFileSync(path.join(root,'KVPV_SCAN_LIVE_PATCH.js'),patch);
-// [VI dòng gốc 114] Chú thích gốc của tác giả; không được thực thi. Nội dung: Manifest ghi danh sách module và hàm băm của đúng FULL vừa sinh để kiểm tra bản sao.
-// Manifest ghi danh sách module và hàm băm của đúng FULL vừa sinh để kiểm tra bản sao.
-// [VI dòng gốc 115] gọi fs.writeFileSync(path.join(root,'MANIFEST.json'), JSON.stringify({version:'1.0.0',buildId,file:'KVPV_V1_FULL.js',sha256:crypto.createHash…) để ghi tệp đồng bộ
-fs.writeFileSync(path.join(root,'MANIFEST.json'),JSON.stringify({version:'1.0.0',buildId,file:'KVPV_V1_FULL.js',sha256:crypto.createHash('sha256').update(bundle).digest('hex'),modules,liveModules},null,2)+'\n');
-// [VI dòng gốc 116] gọi console.log('Built V1 '+buildId+': '+modules.length+' modules; syntax OK.')
-console.log('Built V1 '+buildId+': '+modules.length+' modules; syntax OK.');
-// [VI dòng gốc 117] gọi require('./build-edge-addon.cjs') để nạp module Node.js
-require('./build-edge-addon.cjs');
-// [VI dòng gốc 118] Dòng trống để tách các phần, không có lệnh thực thi.
 
-// [VI dòng gốc 119] gọi require('./build-android.cjs') để nạp module Node.js
-require('./build-android.cjs');
-// [VI dòng gốc 120] Dòng trống để tách các phần, không có lệnh thực thi.
+function makeBundle(id,esmFormat){
+  const buildMetadata=JSON.stringify({...JSON.parse(metadata),id,...(esmFormat?{format:'esm'}:{})});
+  return '/* KVPV V1 / generated from esm/; edit esm/modules/, not this file. */\n(()=>{\n'+
+    'const __KVPV_V1_BUILD=Object.freeze('+buildMetadata+');\n'+
+    'if(window.KVPV_V1){\n'+rustBootstrap+
+    'const actor=String(window._Ba?._rJ?._O$?.ins?.actorId??\'\');\n'+
+    'if(/^[1-9]\\d{4,24}$/.test(actor)&&!window.__KVPV_OWN_ACTOR_ID&&typeof window._ft!==\'undefined\'&&typeof window._Sa!==\'undefined\')Object.defineProperty(window,\'__KVPV_OWN_ACTOR_ID\',{value:actor,enumerable:false,writable:false,configurable:false});\n'+
+    'if(!actor||actor!==String(window.__KVPV_OWN_ACTOR_ID??\'\')||window.__KVPV_UNIVERSAL_HALTED){console.error(\'[KVPV V1] Reload blocked: actor changed or session halted.\');return;}\n'+
+    prepareUpdate+
+    '}else{\n'+prelude+'\nif(!__KVPV_V1_READY)return;\n'+rustBootstrap+'}\n'+
+    'window.__KVPV_CONTROL_SCHEMA=Object.freeze('+controlSchemaText+');\n'+
+    'window.__KVPV_CONTROL_PROFILE_VERSION=6;\n'+
+    moduleRuntimeStart+'\n'+runtimeCode+'\n'+moduleRuntimeEnd+'\n'+
+    'if(!__KVPV_RUNTIME_ENTRY?.moduleInitializers)throw Error(\'Runtime module initializers missing\');\n'+
+    '})();\n';
+}
+
+const fullBundle=makeBundle(buildId,false);
+const extensionBuildId=crypto.createHash('sha256').update(buildId+'\n'+runtimeCode).digest('hex').slice(0,12);
+const extensionBundle=makeBundle(extensionBuildId,true);
+const patch='/* Paste into the existing game Console; no refresh required. */\n(()=>{\n'+
+  'if(!window.KVPV_V1){console.warn("[KVPV] Live update skipped: V1 session unavailable");return;}\n'+
+  rustBootstrap+prepareUpdate+
+  'const __KVPV_V1_BUILD=Object.freeze('+metadata+');\n'+
+  'window.__KVPV_CONTROL_SCHEMA=Object.freeze('+controlSchemaText+');\n'+
+  'window.__KVPV_CONTROL_PROFILE_VERSION=6;\n'+
+  moduleRuntimeStart+'\n'+runtimeCode+'\n'+moduleRuntimeEnd+'\n'+
+  'if(!__KVPV_RUNTIME_ENTRY?.moduleInitializers)throw Error(\'Runtime module initializers missing\');\n'+
+  '})();\n';
+
+new vm.Script(fullBundle,{filename:'KVPV_V1_FULL.js'});
+new vm.Script(extensionBundle,{filename:'KVPV_V1_ESM.js'});
+new vm.Script(patch,{filename:'KVPV_SCAN_LIVE_PATCH.js'});
+
+const outputManifest=JSON.stringify({
+  version:'1.0.0',
+  buildId,
+  file:'KVPV_V1_FULL.js',
+  sha256:crypto.createHash('sha256').update(fullBundle).digest('hex'),
+  extension:{file:'KVPV_V1_ESM.js',buildId:extensionBuildId,sha256:crypto.createHash('sha256').update(extensionBundle).digest('hex')},
+  rustCore:{abi:1,sha256:rustCoreHash},
+  modules:modules.map(item=>item.file),
+  consolidatedSources,
+  embeddedModules,
+  liveModules
+},null,2)+'\n';
+writeArtifactsAtomically([
+  ['KVPV_V1_FULL.js',fullBundle],
+  ['KVPV_FULL_THIEN_QUAN.js',fullBundle],
+  ['KVPV_PB_BOSS_DAILY.js',fullBundle],
+  ['KVPV_V1_ESM.js',extensionBundle],
+  ['KVPV_SCAN_LIVE_PATCH.js',patch],
+  ['MANIFEST.json',outputManifest]
+]);
+
+console.log('Built V1 '+buildId+': '+modules.length+' ESM source modules; syntax OK.');
+console.log('Built extension ESM bundle: '+extensionBuildId+' ('+extensionBundle.length+' bytes).');
+require('./build-edge-addon.cjs');

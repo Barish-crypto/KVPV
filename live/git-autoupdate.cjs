@@ -1,8 +1,9 @@
-/* Optional GitHub -> local source updater. Never reset local edits or install untested code. */
+/* Optional GitHub -> local source updater. Never reset local edits or install an invalid build. */
 'use strict';
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {execFile}=require('node:child_process');
 const root=path.resolve(__dirname,'..');
+const {readArtifact}=require('./project.cjs');
 const gitCandidates=[
  process.env.KVPV_GIT_PATH,
  'git',
@@ -41,10 +42,10 @@ async function update(){
   scratch=fs.mkdtempSync(path.join(os.tmpdir(),'kvpv-update-'));
   await run('git',['worktree','add','--detach',scratch,remoteHead]);
   added=true;
-  // Testing a disposable worktree keeps the current game and source untouched.
+  // Build and validate the disposable worktree before merging its source.
   await run(process.execPath,['build.cjs'],scratch);
-  await run(process.execPath,['test.cjs'],scratch,240000);
-  if(await run('git',['status','--porcelain'])!=='')return {status:'changed_during_test'};
+  readArtifact(scratch);
+  if(await run('git',['status','--porcelain'])!=='')return {status:'changed_during_build'};
   if(await run('git',['rev-parse','HEAD'])!==local)return {status:'head_changed'};
   await run('git',['merge','--ff-only',remoteHead]);
   return {status:'updated',head:remoteHead.slice(0,12)};

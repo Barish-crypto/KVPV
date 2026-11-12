@@ -16,9 +16,8 @@ Console: KVPV_COMPANION_COMBAT.status()
 - contexts: moi tro chien va cac ID/row native _rtt va _wet; target duoc chon.
 - nativeAnimationGate, nativeRangeGate = true; clientSkillCooldownMs = null.
 
-## Kiem thu
-- TEST_COMPANION_NATIVE_DEFAULT.cjs: 3 tro chien tu danh basic + special native; row cooldown 150/300ms; combat cooldown, animation, native range, target, PvP exclusion, actor/death/stop.
-- TEST_COMPANION_COMBAT.cjs: player follow, mansion, Road, reload, recursion, cooldown gates.
-- TEST_BOOST.cjs: pet/fuwa/ride selectors vanilla; only cloak experiment keeps its previous selector behavior.
-- TEST_COMBO_DEFAULT.cjs: native cooldown safety unchanged.
-- Chua xac nhan server game truc tiep hoac chay full node test.cjs tren Windows; giu runtime hien tai cho den khi dong bo/build/kiem thu.
+De xem snapshot chi-doc cua inventory/cast observer, matched-damage metrics va cac controller skill/combat/PvP:
+`KVPV_SKILL_ASYNC_OBSERVER.suiteStatus()`. `available:false` nghia la module do chua tao API;
+loi status duoc ghi rieng tren tung controller va khong ngan cac controller khac duoc doc.
+Truong `summary` dem so controller co san, chua san sang va gap loi. Observer doc skill rows qua
+`role.getComponent(_d._Yct._Eet)` theo native component getter; no khong goi selector hay combat.

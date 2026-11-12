@@ -2,9 +2,9 @@
 
 1. Chạy `BAT_TU_CAP_NHAT.bat` trong thư mục dự án.
 2. Đăng nhập game trong cửa sổ Chrome riêng vừa mở. Acc chính và clone dùng tab/cửa sổ game riêng.
-3. Giữ bộ theo dõi chạy nền. Mỗi lần sửa và lưu nguồn trong `src/`, nó tự build, chạy bộ kiểm thử và nạp FULL mới vào các game-frame đang đăng nhập. Không copy/paste, Snippet, F5 hay reload extension.
+3. Giữ bộ theo dõi chạy nền. Mỗi lần sửa và lưu module ESM trong `esm/modules/`, nó tự build, xác thực artifact và nạp bản mới vào các game-frame đang đăng nhập. Không copy/paste, Snippet, F5 hay reload extension.
 
-Việc cập nhật diễn ra sau vài giây khi kiểm thử qua và game sẵn sàng. Lỗi cú pháp/build/kiểm thử không thay bản đang chạy; sửa lỗi và lưu nguồn sẽ tự thử lại. Nhân vật chết sẽ chờ hồi sinh trước khi cập nhật. Đừng sửa trực tiếp file FULL được sinh tự động.
+Việc cập nhật diễn ra sau vài giây khi build và xác thực artifact thành công, đồng thời game sẵn sàng. Lỗi cú pháp/build/xác thực không thay bản đang chạy; sửa lỗi và lưu nguồn sẽ tự xử lý lại. Nhân vật chết sẽ chờ hồi sinh trước khi cập nhật. Đừng sửa trực tiếp file FULL được sinh tự động.
 
 Cửa sổ riêng dùng profile `.kvpv-live/browser-profile` và cổng debugging chỉ trên máy (127.0.0.1). Không sao chép cookie từ Chrome thường. Chrome yêu cầu profile riêng cho remote debugging. Đăng nhập được giữ trong profile này cho những lần mở sau. Không cần mở DevTools.
 

@@ -35,11 +35,7 @@ KVPV_TH300.setTianQuanTHGapBasics(false);
 ```
 Ba lệnh này có tác dụng rộng hơn chỉ ải 4100, và cần khôi phục Tuyệt Học thủ công nếu muốn bật lại.
 
-## Kiểm chứng
-- Bài `TEST_TQ4100_BASIC_SOLO.cjs`: native basic rotation, TH không qua selector hay combat dispatch, cooldown native còn nguyên, tầm 310, map/tầng khác không bị tác động, auto startup chỉ bật khi phù hợp.
-- Các bài La Phong V3, Cosmic, TH Gap, TQ Five Basics, 4100 A/B cũng cần PASS.
-- Trên Windows: tạo `.kvpv-live/maintenance.lock` rồi chạy `node TEST_TQ4100_BASIC_SOLO.cjs` và `$env:KVPV_VERIFY_MAINTENANCE='1'; node test.cjs`. Không merge `main` hay thay runtime khi chưa đủ kiểm thử.
-- Tỉ lệ trúng ở khoảng cách 310 phải xác minh bằng các cặp cast–damage đúng Boss. Tầm Boss 280 từ quan sát/config **chưa bảo đảm server không thể đánh trúng ở 310**.
+Tầm Boss 280 từ quan sát/config **chưa bảo đảm server không thể đánh trúng ở 310**.
 
 ## Về Tuyệt Học
 Không mặc định Tuyệt Học là vô dụng: nếu TH cấp buff tăng công kéo dài làm đòn thường về sau mạnh hơn, có thể nghiên cứu chế độ **TH buff đúng lúc + basics liên tục**, nhưng chỉ sau khi phân biệt được sát thương buff theo thời gian và chứng minh có lợi hơn basics thuần. Không bật thử tự động trong bản này.
@@ -47,8 +43,14 @@ Không mặc định Tuyệt Học là vô dụng: nếu TH cấp buff tăng cô
 ## Phát hiện từ trận thật ngày 28/10/2026
 - Trạng thái combat native ở 600/600 lần lấy mẫu 10ms đều hiện `animation=true` và `isCooldown=true`, nhưng trong một phép chẩn đoán tiếp theo, `castAttempts` vẫn tăng từ 3359 lên 3372 trong 3 giây. Tween animation cũng thay đối tượng và timer TH300 tick 3–6ms. Vì vậy không thể kết luận bị kẹt hoặc cứ cắt animation là tăng DPS; các khoảng đủ điều kiện đánh có thể ngắn hơn chu kỳ quan sát.
 - Bộ đánh hiện tại có thể tung khoảng 13 lần/3 giây ở điều kiện đã đo; đây là *lần thử phía client*, không phải 13 đòn được server xác nhận.
-- **Fix mới:** `cosmicActive()` không còn phụ thuộc `tqFive.allowsTuyetHoc()`. Khi tắt Tuyệt Học, Cosmic và La Phong vẫn học các đòn thường 8001–8005 bằng sát thương `cast → hit` đã xác nhận. Giữ nguyên native readiness, cooldown và movement. Bổ sung kiểm thử mẫu 8005 ~3,62 tỷ/đòn ưu tiên hơn 8001–8004 ~0,85–0,94 tỷ/đòn.
+- **Fix mới:** `cosmicActive()` không còn phụ thuộc `tqFive.allowsTuyetHoc()`. Khi tắt Tuyệt Học, Cosmic và La Phong vẫn học các đòn thường 8001–8005 bằng sát thương `cast → hit` đã xác nhận. Giữ nguyên native readiness, cooldown và movement.
 - `basicSolo4100` trả về `undefined` trong bản người dùng đang chạy là dấu hiệu phiên bản PR chưa được build/triển khai; bản nháp trên GitHub không tự thay đổi runtime hiện tại.
+
+## Combo xếp hạng theo sát thương đã xác nhận
+- Trong chế độ Thiên Quan khoảng cách xa (TH300/TQ Five Basics đang chạy), Cosmic được bật mặc định để xếp trước các kỹ năng có sát thương matched đã được quan sát; chỉ dùng dữ liệu hit trực tiếp của Boss hiện tại. Cùng cơ chế này cũng phục vụ các scope tháp PvE khác mà TQ Five Basics hỗ trợ, với dữ liệu reset riêng theo mục tiêu.
+- Cứ mỗi 7 cast sẽ ưu tiên một kỹ năng ít mẫu hơn để tiếp tục đo; chỉ chọn từ hàng skill native đang ready và qua điều kiện phạm vi sẵn có.
+- Không có bằng chứng hit thì không tự coi là miss; khi chưa đủ mẫu, thứ tự gốc được giữ. Đây là sắp thứ tự chọn, không sửa cooldown/timestamp, animation hay gửi RPC.
+- Kiểm tra/tắt tại Console: `KVPV_TH300.status(false).cosmic` và `KVPV_TH300.setTianQuanCosmic(false)`. Có thể bật lại bằng `KVPV_TH300.setTianQuanCosmic(true)`.
 
 ## Dữ liệu Boss 4100 — cửa sổ 15 giây, 28/10/2026
 

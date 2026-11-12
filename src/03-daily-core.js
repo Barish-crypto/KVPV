@@ -10,10 +10,10 @@
   cancel(id){if(id!=null)timers.clearInterval(id);},
   tag(){return true;}
  };
-/* KVPV AUTO DAILY V8.0 SUPER CORE - RED-FIRST + BACKGROUND + MODULE REGISTRY - FULL JavaScript (TXT) / F12 game-frame
-   CHỈ MỘT AUTO - LUÔN CÒN CHẠY KỂ CẢ KHI ĐANG DUNG LUYỆN.
-   Chú ý: dung luyện làm mất trang bị thuộc bộ lọc của game.
-*/
+
+
+
+
 (() => {
   // SOLO ACCOUNT HARD LOCK: check BEFORE stopping/reconfiguring any other script.
   const MAIN_CHARACTER_ID = window.__KVPV_OWN_ACTOR_ID;
@@ -39,43 +39,44 @@
   }
 
   const C = {
-    tickMs: 600, // nhanh nhat theo timer client; KHONG tang tan suat RPC
+    tickMs: 600, 
     // V8.6.28: only shorten cooldown after confirmed completion in common scene.
     postJobSuccessCooldownMs: 0,
     smeltMs: 8000, // V3.4: check every 8 seconds when idle
     expMs: 20000,
     enableExp: false, // SOLO: no 4-account expedition
-    tienDuyenMs: 600,  // xét ngay khi rảnh; không gửi RPC nếu chưa đủ điều kiện
+    tienDuyenMs: 600,  
     enableTienDuyen: true,
-    tienDuyenNoMerge: true, // giữ 2 lượt riêng; KHÔNG tự gộp
+    tienDuyenNoMerge: true, 
     tienDuyenBattleTimeoutMs: 20 * 60000,
-    thanThuMs: 190 * 60000,  // 3 giờ 10 phút
-    bossNhomMs: 5 * 60000,   // 5 phút
+    thanThuMs: 190 * 60000,  
+    bossNhomMs: 5 * 60000,   
     manHoangMs: 30000,
     yeuVuongMs: 60000,
-    tinhThanMs: 600, // bỏ vòng chờ 5 phút giữa các lần quét
+    tinhThanMs: 600, 
     tinhThanTang: 6,
-    enableTinhThan: true, // Boss Tinh Than: team co chu dich, CHI acc chinh
-    autoTeam: true, // tao doi rieng; khong tu xin vao doi nguoi la
-    autoApproveTeam: true, // tu duyet nguoi xin vao doi cua minh
+    enableTinhThan: true, 
+    autoTeam: true, 
+    autoApproveTeam: true, 
     tinhThanCloneId: '10228867268941', // duy nhat clone1
-    tinhThanInviteCloneMs: 30 * 1000, // gửi clone lần đầu ngay, nhắc lại có khoảng cách
-    tinhThanFirstPublicDelayMs: 0, // không đợi 35 giây trước khi phát lời mời
-    tinhThanPublicInviteMs: 30 * 1000, // tôn trọng cooldown 30s gốc của game
+    tinhThanMainId: '10228867268946', // verified main actor for private Ma Than invitations
+    tinhThanInviteCloneMs: 30 * 1000, 
+    tinhThanFirstPublicDelayMs: 0, 
+    tinhThanPublicInviteMs: 30 * 1000, 
     tinhThanPublicMaxPerVisit: 3,
-    tinhThanWaitTeamMs: 0, // đánh boss ngay, clone có thể tham gia sau
-    // V7.5.4: gửi trực tiếp từng batch bằng hàm client (không mở UI)
+    tinhThanWaitTeamMs: 0, 
+    
     smeltAckTimeoutMs: 18000,
     smeltHardLimitMs: 120000, // yield to other tasks every 2 minutes; resume draining
     smeltMaxBatchesPerTab: 100,
     smeltMaxTotalBatches: 100,
     smeltBackoffMs: 180000,
     smeltEnabled: {equip:false, holy:false, pet:false}, // V3.4 explicit: equip only; respect native game eligible filter
-    // GHÉP ĐÁ HỒN + ĐẠO CỤ bằng công thức gốc item_compose.
-    // Không mua nguyên liệu, không dùng chức năng Ghép nhanh.
+    
+    
     enableCompose: false, // preserve scarce materials while unattended
-    composeStone: true,              // tab type 1 (đá / ngọc)
-    composeProps: true,              // tab type 2 (đạo cụ)
+    composeStone: true,              
+    composeProps: true,              
     composeCheckMs: 3 * 60000,
     composeMaxBatchesPerRun: 6,
     composeMaxPerRecipe: 10,
@@ -83,11 +84,11 @@
     composeAckTimeoutMs: 15000,
     composeNoAckBackoffMs: 15 * 60000,
     composeFailedRecipeBackoffMs: 30 * 60000,
-    composeExcludedRecipes: [],     // danh sách ID công thức không ghép
-    composeProtectedItems: [],      // danh sách ID nguyên liệu phải giữ lại
-    composeKeepByItemId: {},        // {itemId: số lượng muốn giữ}
-    // TUYỆT HỌC: nút Tăng nhanh, red point 19.
-    redFirst: true, // ưu tiên thưởng đã đủ điều kiện trước việc thường
+    composeExcludedRecipes: [],     
+    composeProtectedItems: [],      
+    composeKeepByItemId: {},        
+    
+    redFirst: true, 
     enableTuyetHoc: false,
     tuyetHocCheckMs: 30000,
     tuyetHocAckTimeoutMs: 18000,
@@ -100,51 +101,51 @@
     enterTimeoutMs: 45000,
     deadConfirmMs: 5000,
     enableYeuVuong: true,
-    // HỒNG HOANG đứng đầu hàng đợi. KHÔNG chọn Rương Tiên Linh.
+    
     enableHongHoang: true,
     hongHoangMs: 20000,
-    hongHoangMap: 0, // Chỉ tự suy ra nếu đúng 1 map thuộc scene 17
+    hongHoangMap: 0, 
     hongHoangEnterTimeoutMs: 45000,
     hongHoangNoProgressMs: 120000,
-    hongHoangRetargetMs: 12000,
+    hongHoangRetargetMs: 4000,
     hongHoangRetryMs: 120000,
-    // THỦ HỘ THỦY TINH (scene 53; team type 6)
+    
     enableCrystal: false, // SOLO: requires a real 4-player team
     crystalCheckMs: 60000,
-    crystalDifficulty: 0, // 0 = theo tầng trong giao diện, 1-5 cố định
-    crystalMinPlayers: 4, // Can du ca 4 dung ID moi duoc Bat dau ngay
+    crystalDifficulty: 0, 
+    crystalMinPlayers: 4, 
     crystalLeaderId: window.__KVPV_OWN_ACTOR_ID,
     crystalCloneIds: [], // SOLO: no clone accounts
     crystalRequireExactTeam: true,
     crystalTeamWaitMs: 180000,
     crystalStartTimeoutMs: 65000,
     crystalCooldownMs: 300000,
-    crystalAutoTower: true, // sử dụng tự đặt tháp của game
+    crystalAutoTower: true, 
     crystalNoMerge: true,
     crystalBattleWarnMs: 30 * 60000,
-    // LỊCH HOẠT ĐỘNG LẤY TỪ 5 ẢNH NGƯỜI CHƠI CUNG CẤP.
+    
     enableEventSchedule: true,
     eventNoticeMinutes: 5,
     reserveHongHoangBeforeMs: 10 * 60000,
     reserveHongHoang: true,
     eventConsoleNotices: true,
-    // TIÊN TÔN ĐẤU KỸ - 19:30-19:45. Mới quan sát thao tác,
-    // CHƯA tự Khiêu chiến do chưa xác định đúng lệnh client.
+    
+    
     enableTienTonTrace: true,
     tienTonTraceConsole: true,
     tienTonTraceMaxCalls: 150,
     tienTonTraceStacks: false,
-    // CHIẾN TRƯỜNG VINH DỰ - scene 42, map 2162, panel 820, chức năng 360
+    
     enableVinhDu: true,
-    vinhDuPrepareMinutes: 20, // không khởi động nhiệm vụ dài từ 19:25
+    vinhDuPrepareMinutes: 20, 
     vinhDuCheckMs: 2000,
     vinhDuRefreshMs: 20000,
     vinhDuRetryMs: 15000,
     vinhDuEnterTimeoutMs: 20000,
     vinhDuMaxEnterAttempts: 35,
-    vinhDuExitGraceMs: 90000, // chờ server/game kết thúc và phát thưởng
-    // TRANH BA DINH CAO: 21:00-21:30 (theo lich nguoi choi).
-    // Doi chieu Peak Arena client: ID hoat dong 120, map 2161, scene 14.
+    vinhDuExitGraceMs: 90000, 
+    
+    
     enableDinhCao: true,
     dinhCaoPrepareMinutes: 5,
     dinhCaoRetryMs: 20000,
@@ -152,54 +153,54 @@
     dinhCaoMaxAttempts: 15,
     dinhCaoTargetRefreshMs: 12000,
     dinhCaoExitGraceMs: 35000,
-    // TANG 9: tu thu thap Ruong Cao Nhat theo dung ID NPC game cap.
+    
     dinhCaoClaimTop: true,
     dinhCaoClaimRetryMs: 18000,
     dinhCaoClaimMaxAttempts: 8,
-    dinhCaoClaimWaitAfterEndMs: 150000, // chua co ACK thi cho toi da 2.5 phut
-    dinhCaoRequireConfigMatch: true,  // THIEU CONFIG HOAC KHONG KHOP => KHONG VAO NHAM
+    dinhCaoClaimWaitAfterEndMs: 150000, 
+    dinhCaoRequireConfigMatch: true,  
     // TU LA LOI DAI: 20:30-20:45 (CN, T2, T3, T4, T5)
     enableTuLa: true,
-    tuLaPrepareMinutes: 15,   // giu cho tu 20:15 neu nhan vat ranh
+    tuLaPrepareMinutes: 15,   
     tuLaRetryMs: 45000, // wait before another scene-entry request
     tuLaEnterTimeoutMs: 28000, // give server time to acknowledge scene change
     tuLaMaxEntries: 3, // no repeated scene-entry loop during a 15-minute event
     tuLaRewardAckWarnMs: 90000, // no blind reward retry even after this timeout
-    tuLaAutoTarget: false,      // V8.6.26: KHONG ep updAttack() moi 12s; native game tu chon muc tieu
+    tuLaAutoTarget: false,      
     tuLaTargetRefreshMs: 12000,
-    tuLaClaimReward: true,    // chi nhan moc server xac nhan co the nhan
+    tuLaClaimReward: true,    
     tuLaRewardRetryMs: 30000,
-    // ĐÀO NGUYÊN DAO TRÌ - scene 22 / map 2141
+    
     enableDaoTri: true,
     daoTriMap: 2141,
     daoTriCheckMs: 15000,
-    daoTriFishScanMs: 60, // 2 giây là quá chậm để bắt cá đang bơi
-    daoTriFishMarginPx: 15, // chỉ nhấn khi cá ở sâu trong vùng hợp lệ
+    daoTriFishScanMs: 60, 
+    daoTriFishMarginPx: 15, 
     daoTriCatchCooldownMs: 900,
     daoTriAckTimeoutMs: 18000,
     daoTriEnterTimeoutMs: 45000,
     daoTriAutoClaimAfterEvent: true,
     enableTuVuot: true,
-    // V9.2.8: give native Tu Vuot a fair early opportunity, without
+    
     // interrupting reserved events, Tien Duyen, Tinh Than or an owned scene.
     asyncStagePriority: true,
-    asyncStagePrioritySpacingMs: 30000, // uu tien thu ngay khi ranh; KHONG chen ngang su kien
+    asyncStagePrioritySpacingMs: 30000, 
     asyncStageNativeGraceMs: 30000,
-    tuVuotMaxConsecutiveFailures: Infinity, // vo han lan thua, chi dung bang lenh
-    tuVuotMaxRejectedEntries: Infinity, // vo han loi vao ai, van gian cach retry
-    tuVuotExitConfirmMs: 5000, // doi level server dong bo sau khi thoat
+    tuVuotMaxConsecutiveFailures: Infinity, 
+    tuVuotMaxRejectedEntries: Infinity, 
+    tuVuotExitConfirmMs: 5000, 
     tuVuotRetryPauseMs: 8000, // khoang nghi sau khi thua
-    tuVuotEnterRetryMs: 30000 // bo nho lan vao bi tu choi, khong dem la thua
+    tuVuotEnterRetryMs: 30000 
   };
 
   const due = {honghoang:0, daotri:0, vinhdu:0, tula:0, dinhcao:0, smelt:0, compose:0, tuyethoc:0, exp:0, tienduyen:0, crystal:0, thanthu:0, bossnhom:0, manhoang:0, yeuvuong:0, tinhthan:0};
-  const blocks = {};                    // Lỗi module chỉ hoãn module, KHÔNG dừng Auto Daily
+  const blocks = {};                    
   const attempts = {tientuyen:'', lanhdia:''};
   const completed = {};
   let timer = null, daoFishTimer = null, fishTimerInterval = 0,
       job = null, idleUntil = 0, lastMsg = '';
   const redGate = {holdFrom:0, retryAfter:0, cachedUntil:0, active:false};
-  let asyncStagePriorityAt = 0; // early native Tu Vuot burst without starving other jobs
+  let asyncStagePriorityAt = 0; 
   const now = () => Date.now();
   const num = x => x !== undefined && x !== null && x !== '' && Number.isFinite(Number(x));
   const alive = x => x === 0 || x === false;
@@ -230,17 +231,17 @@
   }
 
   // =============================================================
-  // TU VUOT KHONG GIOI HAN THUA/LOI, CHI DUNG BANG LENH.
-  // Game goc: _Ba._Co._Mo.ins.auto (thuoc tinh native).
+  
+  
   // _ft._h$.ins.getCfgByLv(m.curLv)[0] la map ai, [2] la so quai can diet.
-  // Xac nhan THUA: da vao dung map ai, sau do ra map do, curLv KHONG tang.
-  // Xac nhan THANG: server tang curLv. Thang -> reset chuoi thua.
-  // Tu choi vao ai KHONG tinh la tran thua, nhung co han muc loi rieng.
+  
+  
+  
   // =============================================================
   const tuVuot = {
     failures:0, rejected:0, stopped:false, reason:'',
     run:null, lastLevel:null, nextTryAt:0, totalWins:0,
-    stoppedAt:0, noticed:false
+    stoppedAt:0, noticed:false,lastObservedAt:0
   };
   function tvData() {
     const m=_Ba?._Co?._Mo?.ins;
@@ -297,15 +298,18 @@
     }
   }
   function tuVuotObserve() {
-    const d=tvData(),t=now(),r=tuVuot.run;
+    const t=now();
+    if(t-tuVuot.lastObservedAt<500)return;
+    tuVuot.lastObservedAt=t;
+    const d=tvData(),r=tuVuot.run;
     if(!d.m) return;
     if(Number.isFinite(d.level))tuVuot.lastLevel=d.level;
     if(d.m.auto===true)window.KVPV?.core?.scene?.renew?.('stage');
     if(!C.enableTuVuot||tuVuot.stopped || window.KVPV_GEAR36?.blocking?.()) {tvDisable();return;}
 
-    // Neu AUTO DAILY da nhan mot cong viec khac, khong de Tu Vuot tranh canh.
+    
     // CRITICAL: any assigned job owns navigation, including non-common PvP scenes.
-    // The old `job && common()` guard let native Tu Vuot auto remain enabled in Tu La.
+    
     if(job) {
       if(r && !r.entered)tuVuot.run=null;
       tvDisable();
@@ -320,10 +324,10 @@
     }
     if(!d.valid) {if(!common())tvDisable();return;}
 
-    // Level server tang la thanh cong CHAC CHAN, khong dem la thua.
+    
     if(r && d.level>r.level) {tvWin(d.level);return;}
 
-    // Nhan dien thuc su vao dung map cua ai dang thu.
+    
     const inStage=!common()&&mapNow()===d.targetMap;
     if(inStage && !tuVuot.run) {
       tuVuot.run={level:d.level,map:d.targetMap,requestedAt:t,
@@ -337,8 +341,8 @@
         a.entered=true;a.enteredAt=t;a.leftAt=0;
         return;
       }
-      // 30 giay truoc do da yeu cau, van khong vao va native tu tat:
-      // chi dem LOI VAO AI, tuyet doi khong goi la thua tran.
+      
+      
       if(common()&&!job&&!d.m.auto&&t-a.requestedAt>=
         Math.max(8000,Number(C.tuVuotEnterRetryMs)||30000)) {
         tvFail('Game tu tat Tu Vuot truoc khi vao map '+a.map,true);
@@ -347,14 +351,14 @@
     }
     if(!common()&&mapNow()===a.map) {a.leftAt=0;return;}
 
-    // Da ra khoi map: xet sau 5s de doi phan hoi curLv server.
+    
     if(!a.leftAt) {a.leftAt=t;return;}
     if(t-a.leftAt<Math.max(2500,Number(C.tuVuotExitConfirmMs)||5000))return;
     if(d.level>a.level) {tvWin(d.level);return;}
     if(d.level===a.level) {
       tvFail('Rời ải '+a.level+' mà server chưa tăng cấp ải');
     } else {
-      // Gia tri stage khong dong bo, khong ket luan thua.
+      
       tuVuot.run=null;
     }
   }
@@ -366,8 +370,8 @@
     const d=tvData();
     if(!d.valid||!common()||job||inTeam()||inMission())return false;
     if(d.m.auto)return false;
-    // Tu dong native cua game co the dung train de du so luot quai;
-    // chi danh dau cho theo doi khi da du quai va co the vao ai.
+    
+    
     if(d.needed>=0 && Number(d.m.curWare)>=d.needed) {
       tuVuot.run={level:d.level,map:d.targetMap,requestedAt:now(),
         entered:false,enteredAt:0,leftAt:0};
@@ -379,7 +383,7 @@
     return true;
   }
   function tuVuotStop() {
-    // Chi dung Tu Vuot: giu Auto Daily, cac event va tien trinh khac.
+    
     C.enableTuVuot=false;
     tuVuot.stopped=true;
     tuVuot.reason='Dung thu cong';
@@ -391,7 +395,7 @@
     return tuVuotStatus();
   }
   function tuVuotStart() {
-    // Khong reset dem thua; khong gui RPC, de scheduler bat khi ranh.
+    
     C.tuVuotMaxConsecutiveFailures=Infinity;
     C.tuVuotMaxRejectedEntries=Infinity;
     C.enableTuVuot=true;
@@ -405,7 +409,7 @@
     return tuVuotStatus();
   }
   function tuVuotReset() {
-    // Tuong thich lenh cu: reset bo dem va bat lai Tu Vuot.
+    
     tvDisable();
     tuVuot.failures=0;
     tuVuot.rejected=0;
@@ -424,10 +428,11 @@
       unlimitedFailures:!Number.isFinite(Number(C.tuVuotMaxConsecutiveFailures)),
       unlimitedRejected:!Number.isFinite(Number(C.tuVuotMaxRejectedEntries)),
       dailyRunning:!!timer,
+      progressOwner:window.KVPV_RED_DOT_MODULE?.ownsProgression?.()?'red-dot':timer?'daily':'stopped',
       currentJob:job?.type||'ranh',
       blockedReason:!C.enableTuVuot?'Da tat thu cong':
         tuVuot.stopped?(tuVuot.reason||'Da khoa'):
-        !timer?'Auto Daily dang dung':job?('Dang lam '+job.type):
+        !timer&&!window.KVPV_RED_DOT_MODULE?.ownsProgression?.()?'Auto Daily dang dung':job?('Dang lam '+job.type):
         inMission()?'Dang lam nhiem vu':inTeam()?'Dang trong doi':
         !common()?'Dang o canh khac':
         now()<tuVuot.nextTryAt?'Cho retry':
@@ -436,12 +441,12 @@
   }
 
   // =============================================================
-  // CHIẾN TRƯỜNG VINH DỰ - TỰ THAM GIA KHÔNG CẦN GHI LỆNH
-  // Xác minh từ handler thật của panel 820 (functionId 360):
+  
+  
   //   _Ba._Zpt._Jpt.inst.enterTime, _Ba._a1._h1.inst.hasFightTeam(),
   //   _Ba._sst._Cht.inst.rqEtScene(2162), scene type 42.
-  // RPC cập nhật giới hạn vào lại: _Ba._Zpt._nZt.ins.GetFightTeamCopyEnterTime().
-  // Không mua lượt, không giả mạo phản hồi server và không rời giữa trận.
+  
+  
   // =============================================================
   let vinhDate='', vinhEnterAttempts=0, vinhLastRefresh=0, vinhLastTry=0;
   let vinhLastNotice='', vinhConfirmed=0;
@@ -549,7 +554,7 @@
     }
     if(j.step==='fighting'){
       if(d.inside){
-        // Ở lại chiến trường, không đánh dấu xong và không cắt trận.
+        
         const sinceEnd=vinhMinute()-1200;
         if(sinceEnd>0 && !d.open && sinceEnd*60000>C.vinhDuExitGraceMs){
           j.step='exiting';j.at=t;
@@ -589,8 +594,8 @@
   // Not Peak Duel tournament (panels 421/425, type32).
   // =============================================================
   let dcDate='',dcTries=0,dcEntries=0,dcLastTry=0,dcLastAttack=0,dcLastNotice='';
-  // Tranh Ba Dinh Cao: ACK nhan ruong la notify 5038 (gather success).
-  // KHONG coi "da goi gather" la "da claim".
+  
+  
   const dcTop={claimed:false,tries:0,npcId:0,lastSelect:0,lastRequest:0,
     pending:false,ackTime:0,reason:'',endAt:0};
   const dcClaimListener={};
@@ -615,8 +620,8 @@
     dcClaimListening=false;
   }
   function dcTopNpcId(){
-    // Y NGUYEN THUAT TOAN _Ba._K_t._q_t.ins._MHt() CUA GAME:
-    // scenePromote[2] = thu hang len dinh; cfg level9[8] = moc hang / NPC ruong.
+    
+    
     let steps=null;
     try{steps=_ft?._wHt?.ins?.getCfgByLevel?.(9)?.[8];}catch(_){}
     const rank=Number(_Ba?._CP?._n2t?.ins?.scenePromote?.[2]);
@@ -636,18 +641,18 @@
     const id=dcTopNpcId();
     if(!id){dcTop.reason='Chua co hang scenePromote[2] hoac ID ruong tu cfg level9[8]';return;}
     if(dcTop.npcId!==id){dcTop.npcId=id;dcTop.pending=false;dcTop.lastSelect=0;}
-    // NPC phai duoc server tao tren ban do; tranh gui ID ruong khong ton tai.
-    // Mot so client khong export alias _C ra Console. Neu co API kiem tra
-    // NPC thi doi role xuat hien; neu khong, thu theo ID da duoc config xac nhan.
+    
+    
+    
     const world=typeof _C!=='undefined'? _C?._Ba?.instance:null;
     if(typeof world?.getRole==='function'&&!world.getRole(id)){
       dcTop.reason='Dang cho NPC ruong #'+id+' xuat hien';return;
     }
     if(t-dcTop.lastSelect>=7000){
       dcTop.lastSelect=t;
-      _Ba?._rJ?._O$?.ins?.selectTar?.(3,id); // game tu chon dung NPC ruong
+      _Ba?._rJ?._O$?.ins?.selectTar?.(3,id); 
     }
-    // Cho native UI/duong di kip cap nhat sau khi chon NPC.
+    
     if(t-dcTop.lastSelect<3000)return;
     if(_Ba?._K_t?._Z7t?.ins?.gathering===true){
       dcTop.reason='Dang thu thap, cho server xac nhan';return;
@@ -748,13 +753,13 @@
     }
     if(j.step==='fighting'){
       if(d.inside){
-        // TANG 9 LA PHAN CLAIM RUONG, KHONG PHAI TANG DANG PVP.
-        // Duong chon NPC / gather / ACK 5038 duoc doi chieu client.
+        
+        
         if(dcOnTop()) dcClaimTopReward(t);
         if(dcMinute()>=1290){
           if(!j.target.afterEnd)j.target.afterEnd=t;
-          // Neu da den tang 9 ma chua duoc ACK, UU TIEN NHAN RUONG,
-          // KHONG THOAT O 21:30 + 35s nhu ban cu.
+          
+          
           if(dcOnTop()&&!dcTop.claimed){
             const maxWait=Math.max(35000,Number(C.dinhCaoClaimWaitAfterEndMs)||150000);
             if(t-j.target.afterEnd<maxWait)return;
@@ -798,13 +803,13 @@
   }
 
   // =============================================================
-  // TU LA LOI DAI — auto nhap tran native, khong can theo doi tay.
-  // Da doi chieu client: event actionId=818; model=_Ba._hE._olt.inst;
+  
+  
   // UI._EQi(): if(model.funIsOpen) rqEtScene(model.mapId);
   // funIsOpen = getFcIsOpen(818) + state(type 58 OR 61)==2.
   // model.mapId = server getCpSceneStateByType(58/61)[8].
-  // Trong tran: scene 58/61; model.updAttack() duoc client dung
-  // de chon muc tieu theo giai doan. Chi nhan phan thuong trang thai 1.
+  
+  
   // =============================================================
   let tuLaDate='',tuLaTries=0,tuLaLastEnter=0,tuLaLastNotice='',tuLaLastTarget=0;
   let tuLaJoined=0,tuLaLastClaimQuery=0;
@@ -908,7 +913,7 @@
       t-tuLaLastTarget<Math.max(5000,Number(C.tuLaTargetRefreshMs)||12000))return;
     if(_Ba?._rJ?._O$?.ins?.isDead === true)return;
     tuLaLastTarget=t;
-    d.m.updAttack(); // ham native cua game: tu chon muc tieu
+    d.m.updAttack(); 
   }
   function startTuLa(adopt=false){
     if(!C.enableTuLa||blocked('tula'))return false;
@@ -952,7 +957,7 @@
     }
     if(j.step==='fighting'){
       if(d.inside){
-        // HET GIO: thoat som de nhuong HONG HOANG 20:45.
+        
         const minute=tuLaClock().m;
         if(!tuLaWindow()&&minute>=1245){
           j.step='exiting';j.at=t;j.target.exitTry=1;
@@ -967,7 +972,7 @@
         due.tula=t+Math.max(10000,Number(C.tuLaRetryMs)||18000);
         return finish(true,'Rời Tu La; xét tiếp lịch hoạt động');
       }
-      // Không điều khiển nếu bị server chuyển vào cảnh khác.
+      
       if(t-j.at>15000)return finish(false,'Đã chuyển khỏi scene Tu La, không can thiệp cảnh lạ',30000);
       return;
     }
@@ -1004,10 +1009,10 @@
   }
 
   // ==========================================================
-  // ĐÀO NGUYÊN DAO TRÌ - BẮT CÁ BẰNG NÚT THẬT CỦA GAME
-  // Client: _sjn() dùng curfish.x nằm trong effectiveRangeImg,
-  // kiểm tra _qui, _Kui và gửi GrabSoap(bool). Không giả mạo kết quả.
-  // UI 219 = bắt cá; 220 = thông tin thưởng; scene 22, map 2141.
+  
+  
+  
+  
   // ==========================================================
   function daoWindow() {
     const c=vnClock();
@@ -1081,7 +1086,7 @@
     job.target.catches=(job.target.catches||0)+1;
     job.target.awaiting=true;
     job.target.uiRecovered=false;
-    p._sjn.call(p); // game xác nhận vị trí, không gửi GrabSoap(true) trực tiếp
+    p._sjn.call(p); 
     log(`🐟 Tự Bắt: cá x=${x.toFixed(1)}, vùng=${left.toFixed(1)}-${(left+width).toFixed(1)}, còn ${d.remaining} lượt`);
   }
   function followDaoTri(j,t) {
@@ -1106,7 +1111,7 @@
         return finish(true,'Đảo Nguyên Dao Trì đã kết thúc');}
       return;
     }
-    // Đồng bộ lượt sau khi server đã xác nhận để không gửi trùng.
+    
     const cnt=Number(d.m?.count);
     if(Number.isFinite(cnt) && cnt!==j.target.firstCount) {
       j.target.firstCount=cnt;
@@ -1114,8 +1119,8 @@
       j.target.lastResponse=t;
       log(`🐟 Dao Trì còn ${d.remaining}/${d.m.maxCount} lượt bắt`);
     }
-    // Nếu client còn chờ phản hồi quá lâu, làm mới riêng giao diện,
-    // không ngắt toàn bộ Auto Daily hoặc spam bắt cá.
+    
+    
     if(j.target.awaiting && t-j.target.lastCatch>C.daoTriAckTimeoutMs &&
        !j.target.uiRecovered) {
       j.target.uiRecovered=true;
@@ -1125,8 +1130,8 @@
       catch(e) {console.warn('[ĐÀO TRÌ] Làm mới màn hình bắt cá:',e);}
       log('⏳ Chờ cá/server quá lâu, làm mới giao diện 219 một lần');
     }
-    // Khi game đóng sự kiện, chỉ nhận thưởng lúc dữ liệu thời gian
-    // cho thấy đã đến hạn. Không nhận thưởng sớm để tránh lỗi server.
+    
+    
     const ended=!daoWindow() || (d.st && !d.open);
     if(ended) {
       const awardAt=Number(d.m?.time);
@@ -1152,14 +1157,14 @@
   }
 
   // ==========================================================
-  // LỊCH SỰ KIỆN SERVER (GIỜ VIỆT NAM GMT+7) - V7.5.14
-  // days: 0=Chủ nhật, 1=Thứ hai ... 6=Thứ bảy.
-  // days:null = mỗi ngày. Các mốc dạng instant là giờ công bố
-  // theo giao diện game, KHÔNG suy đoán sự kiện kéo dài bao lâu.
-  // action: 'auto' cho các module có cơ chế vào đã đối chiếu:
-  // honghoang, daotri, tientuyen, lanhdia. Các sự kiện khác CHỈ NHẮC LỊCH.
-  // Liên server 30/45 ngày: ghi chú điều kiện, không tự suy ra
-  // ngày mở server để tránh chạy nhầm sự kiện.
+  
+  
+  
+  
+  
+  
+  
+  
   // ==========================================================
   const EVENT_SCHEDULE = [
     {key:'dao_nguyen', name:'Đảo Nguyên Dao Trì', slots:['19:00-19:30'], action:'auto'},
@@ -1177,15 +1182,38 @@
     {key:'tam_tien', name:'Tầm Tiên Vấn Đạo', slots:['19:00-19:30'], days:[2,6], unlock:'Liên server đủ 30 ngày'},
     {key:'thien_the', name:'Thiên Thể 8 Tầng', slots:['21:00-21:30'], days:[0,1,3,5], unlock:'Liên server đủ 30 ngày'},
     {key:'honghoang', name:'Hồng Hoang Bí Bảo', slots:['11:30-12:00','20:45-21:00'], action:'auto', priority:1},
-    {key:'tientuyen', name:'BOSS Tiền Tuyến Lv.900', slots:['12:00-12:30','21:30-22:00'], action:'auto'},
+    {key:'tientuyen', name:'BOSS Chiến Tuyến Lv.1300', slots:['12:00-12:30','21:30-22:00'], action:'auto'},
     {key:'lanhdia', name:'Lãnh Địa BOSS', slots:['12:30-12:45'], action:'auto'},
     {key:'dua_thuyen', name:'Đua Thuyền Rồng', slots:['15:00-15:30']},
     {key:'ho_tong', name:'Hộ Tống x2', slots:['15:15-17:00','21:45-22:45']},
     {key:'trieu_hoi', name:'Triệu Hồi Hỗ Trợ', slots:['12:40-13:45']}
   ];
   const SCHEDULE_BY_KEY = Object.fromEntries(EVENT_SCHEDULE.map(x => [x.key,x]));
+  let configuredTimeline=null;
+  const timelineReadiness=key=>{
+    switch(key){
+      case 'honghoang': {
+        const h=hongData();return !!(C.enableHongHoang&&h.m&&!h.full&&h.map&&h.xianFa>0);
+      }
+      case 'vinh_du':return !!(C.enableVinhDu&&vinhData().hasTeam);
+      case 'tranh_ba_dinh_cao': {
+        const d=dcData();return !!(C.enableDinhCao&&d.configMatch&&d.eventTimeMatch&&d.unlocked);
+      }
+      case 'tu_la':return !!(C.enableTuLa && tuLaDay());
+      case 'dao_nguyen':return !!C.enableDaoTri;
+      default:return true;
+    }
+  };
+  function configureTimeline(){
+    const timeline=window.KVPV?.timeline;
+    if(!timeline||timeline===configuredTimeline)return false;
+    timeline.setSchedule?.(EVENT_SCHEDULE);
+    timeline.setReadiness?.(timelineReadiness);
+    configuredTimeline=timeline;
+    return true;
+  }
   // V10.2: use the same verified schedule in the pure reservation planner.
-  window.KVPV?.timeline?.setSchedule?.(EVENT_SCHEDULE);
+  configureTimeline();
   const eventAnnouncements = new Set();
 
   function vnClock() {
@@ -1226,7 +1254,7 @@
         }
         for(const tm of ev.instants||[]) {
           const start=today+offset*1440+atMinute(tm);
-          // Mốc thời gian, không giả định sự kiện hoạt động trong 1 phút.
+          
           entries.push({key:ev.key,name:ev.name,start,end:start+1,dateKey,
             time:tm+' (mốc)',instant:true,action:'nhắc lịch',unlock:ev.unlock||'',priority:ev.priority||10});
         }
@@ -1261,7 +1289,7 @@
       const prefix=delta>0?`⏳ Còn ${Math.ceil(delta)} phút`:'🕒 ĐANG TRONG GIỜ';
       console.log(`[LỊCH KVPV] ${prefix}: ${ev.name} ${ev.time} (${hint})${ev.unlock?' | '+ev.unlock:''}`);
     }
-    // Giới hạn bộ nhớ qua nhiều ngày, không dừng Auto Daily.
+    
     if(eventAnnouncements.size>500)eventAnnouncements.clear();
   }
   function preparingHongHoang() {
@@ -1272,16 +1300,16 @@
       (x.start-nowMinute)*60000<=Math.max(0,Number(C.reserveHongHoangBeforeMs)||0));
     if(!hh)return null;
     const h=hongData();
-    // Không giữ chỗ nếu Hồng Hoang đã đủ lượt/không rõ map.
+    
     if(!h?.m || h.full || !h.map || !(h.xianFa>0))return null;
     return hh;
   }
 
   // ==========================================================
-  // TIÊN TÔN ĐẤU KỸ: BỘ GHI LẠI LỆNH THỰC TẾ CỦA GIAO DIỆN.
-  // Mở tự động trong 19:30–19:45 (VN) hoặc bật thử bằng
-  // KVPV_DAILY.tienTonTrace.start(). Chỉ QUAN SÁT, không
-  // gửi yêu cầu chiến đấu, không mua lượt hoặc ghép trận.
+  
+  
+  
+  
   // ==========================================================
   const tienTonState = {
     active:false, manual:false, paused:false,
@@ -1428,12 +1456,12 @@
     }
   };
 
-    // DUNG LUYỆN V7.5.4: KHÔNG MỞ PANEL 108/528/1688.
-  // Client đã có RPC và event đáp ứng tương ứng:
-  // Trang Bị: c2sOneKeyFusion(ids) -> notify(5081)
-  // Thánh Trang: oneKeySmelt(ids) -> notify(5765)
-  // Thần Thú: oneKeyResolve([ids]) -> notify(6297)
-  // Chỉ chọn đúng danh sách game cho phép dung luyện; một món cũng chạy.
+    
+  
+  
+  
+  
+  
   const SMELTS = [
     {key:'equip', name:'Trang Bị', event:5081, batchSize:25},
     {key:'holy', name:'Thánh Trang', event:5765, batchSize:15},
@@ -1543,8 +1571,8 @@
   }
 
   // ==========================================================
-  // HỒNG HOANG BÍ BẢO - ƯU TIÊN SỐ 1
-  // Chỉ gọi _Igi() (Rương Tiên Pháp); không gọi _Agi().
+  
+  
   // ==========================================================
   function hongMaps() {
     const table = _ft?._po?.ins?._gh;
@@ -1577,7 +1605,7 @@
         !(Number.isFinite(h.xianFa) && h.xianFa > 0)) return false;
     if (h.isInside) {
       begin('honghoang','collecting', {
-        baseline:h.count, lastProgress:now(), lastRetarget:0, exitAttempts:0
+        baseline:h.count, lastProgress:now(), lastRetargetCount:h.count, exitAttempts:0
       });
       log('🎁 Hồng Hoang ưu tiên số 1: chỉ Rương Tiên Pháp');
       return true;
@@ -1590,7 +1618,7 @@
       return false;
     }
     begin('honghoang','entering', {
-      map:h.map, baseline:h.count, lastProgress:now(), lastRetarget:0, exitAttempts:0
+      map:h.map, baseline:h.count, lastProgress:now(), lastRetargetCount:h.count, exitAttempts:0
     });
     enterApi.rqEtScene(h.map); // existing native call; return is NOT server ACK
     try{window.KVPV?.actions?.recordCall?.({kind:'hong-enter',targetMap:h.map,baseline:h.count});}catch(_){}
@@ -1631,7 +1659,7 @@
       if (common()) return finish(false,'Rời Hồng Hoang trước khi hoàn tất',C.hongHoangRetryMs);
       return;
     }
-    // Đạt giới hạn hoặc sự kiện đã đóng thì rời cảnh.
+    
     if (h.full || (h.state && !h.eventOpen)) {
       j.step='exiting'; j.at=t;
       exitDungeon();
@@ -1651,20 +1679,16 @@
       log('⚠️ Hồng Hoang không tiến triển 2 phút; Thoát để tránh kẹt');
       return;
     }
+    const gathering=_Ba?._K_t?._Z7t?.ins?.gathering===true;
     const p=h.ui?.isOpened?.(215)?h.ui.getPanelById?.(215):null;
-    if (!p || p.destroyed || !p.parent || typeof p._Igi!=='function') {
-      if (h.ui && !h.ui.isOpened?.(215) && t-j.at>10000) {
-        h.ui.open?.(215); j.at=t;
-      }
-      return;
-    }
-    const gathering=_Ba?._K_t?._Z7t?.ins?.gathering === true;
-    if (!gathering && (p.__et!==h.xianFa ||
-        t-j.target.lastRetarget > C.hongHoangRetargetMs)) {
-      p._Igi.call(p);  // native target-selection UI, NOT proof of gather RPC
+    if (!gathering && Number.isFinite(h.count) &&
+        h.count!==j.target.lastRetargetCount &&
+        t-j.target.lastProgress>=C.hongHoangRetargetMs &&
+        p && !p.destroyed && p.parent && typeof p._Igi==='function') {
+      p._Igi.call(p);
+      j.target.lastRetargetCount=h.count;
       try{window.KVPV?.actions?.recordCall?.({kind:'hong-target',baseline:h.count});}catch(_){}
-      j.target.lastRetarget=t;
-      log(`🎯 Rương Tiên Pháp ${h.count}/${h.max}`);
+      log(`🎯 Hồng Hoang: thử tìm rương tiếp theo (${h.count}/${h.max})`);
     }
   }
 
@@ -1673,9 +1697,9 @@
     return m && num(m.remainTimes) && typeof matcher?.creSerAreRoom === 'function'
       ? {n:Number(m.remainTimes), yes:red(53), matcher} : null;
   }
-  // PHÓ BẢN TIÊN DUYÊN: panel 628, bản đồ 2381, dấu đỏ 377.
-  // Nếu chưa Kết Duyên, handler Khiêu chiến có thể YÊU CẦU NGUYÊN BẢO.
-  // Vì vậy không gọi handler trong trường hợp chưa kết duyên.
+  
+  
+  
   function tienDuyenData() {
     const m=_Ba?._Yo?.marryCopy?._gOt?.ins;
     const rpc=_Ba?._Yo?.marryCopy?._mOt?.ins;
@@ -1697,12 +1721,12 @@
     };
   }
   let tienDuyenRefreshAt=0;
-  // V9.2.5: Phó Bản Tiên Duyên: xác minh lượt SERVER rồi mới nhận và nâng cấp.
-  // Quà đánh Boss là quà trận đấu server cấp trực tiếp; không tồn tại nút claim trong marryCopy.
+  
+  
   const td925 = {runs:0, confirmedRuns:0, unverified:0, taskClaims:0, cardClaims:0,
     ringRequests:0, ringConfirmed:0, last:'Chưa chạy', history:[], taskSeen:new Set()};
   const td925Cfg = {
-    enableRewards:true, enableRingUpgrade:false, enableCardDaily:true,
+    enableRewards:false, enableRingUpgrade:false, enableCardDaily:false,
     maxRingRequestsPerRun:25, maxTaskClaimsPerRun:8,
     verificationTimeoutMs:23000, ackTimeoutMs:10000
   };
@@ -1765,7 +1789,7 @@
     if (!s.readied) {
       if (now()>=tienDuyenRefreshAt) {
         s.rpc?.GetMarryCopyTimes?.();
-        tienDuyenRefreshAt=now()+8000; // tải số lượt khi chưa có dữ liệu, max 1/8s
+        tienDuyenRefreshAt=now()+8000; 
       }
       return false;
     }
@@ -1802,8 +1826,8 @@
     const nav=_Ba?._xf?._Kf?.instance;
     const dialog=()=>s.ui.isOpened?.(628) ? s.ui.getDialogById?.(628) : null;
 
-    // Nếu đang trong route mà cửa sổ Khiêu chiến đã có sẵn,
-    // chuyển đến đúng bước cuối, không mở đè panel.
+    
+    
     if (['routeMenu','routeRing','routeDungeon','routeChallenge'].includes(j.step) &&
         dialog()?.parent && typeof dialog()?._tYi==='function') {
       j.step='routeChallenge'; j.at=t;
@@ -1823,7 +1847,7 @@
       if (t-j.at>15000) return finish(false,'Không tải được Nhẫn Cưới (616)',8000);
       const ring=s.ui.getPanelById?.(616);
       if (!ring || ring.destroyed || !ring.parent || typeof ring._jWi!=='function') {
-        // Mở panel trực tiếp có thể chưa tải assets; sau 2 giây thử đường menu gốc 1 lần.
+        
         if (!j.target.routeFallback && t-j.at>1000) {
           j.target.routeFallback=true;
           if(typeof nav?.openPanelByEnterId==='function')nav.openPanelByEnterId(316);
@@ -1833,7 +1857,7 @@
         }
         return;
       }
-      // NHẪN CƯỚI → PHÓ BẢN; handler này tự mở Dialog 628
+      
       ring._jWi.call(ring);
       j.step='routeDungeon';j.at=t;
       log('💞 Nhẫn Cưới → Phó Bản Tiên Duyên (628)');
@@ -1856,8 +1880,8 @@
       if (!s.married) return finish(false,'Chưa Kết Duyên - tránh phí Nguyên Bảo',600000);
       if (C.tienDuyenNoMerge && (s.merge || p.ckBox?.selected===true))
         return finish(false,'Đang bật gộp lượt, không tự khiêu chiến',300000);
-      // KHÔNG chặn cờ _ITt: mã game dùng isMarry() || _ITt để vào thẳng.
-      // Gọi đúng một lần, chờ server chuyển cảnh trước khi thực hiện tiếp.
+      
+      
       j.step='entering';j.at=t;
       p._tYi.call(p);
       log(`💞 Đã bấm Khiêu chiến Tiên Duyên, còn ${s.remaining} lượt trước khi vào`);
@@ -1891,7 +1915,7 @@
     if(j.step==='verifyServer'){
       if(!common())return;
       const before=j.target.before==null ? NaN : Number(j.target.before);
-      // copyFightNum được cập nhật bằng phản hồi server T0dK/TdKz.
+      
       if(Number.isFinite(before)&&s.readied&&s.spent>before){
         td925.confirmedRuns++;
         td925Log('Server đã trừ '+(s.spent-before)+' lượt. Quà trận đấu do game phân phối.');
@@ -1912,7 +1936,7 @@
       }
       return;
     }
-    // Chỉ xử lý hậu kỳ ngoài dungeon để không chen RPC vào lúc chiến đấu.
+    
     if(['rewardRefresh','rewardTasks','rewardTaskWait','rewardCard','rewardCardWait',
         'ringReady','ringWait'].includes(j.step) && !common())return;
     if(j.step==='rewardRefresh'){
@@ -1994,7 +2018,7 @@
         due.tienduyen=t;
         return finish(true,'Tiên Duyên có xác nhận lượt; hậu kỳ Nhẫn Cưới hoàn tất',0);
       }
-      // Đợi ring info đồng bộ lần đầu, kiểm tra chỉ dùng vật liệu, không mua thêm.
+      
       if(!p.ringFetch){
         p.ringFetch=true;
         r.rpc.GetMarryRingInfo?.();j.at=t;return;
@@ -2026,10 +2050,10 @@
       }
     }
   }
-  // ==================== THỦ HỘ THỦY TINH ====================
-  // Đã kiểm tra client: panel 1291, tổ đội 6, map 2702,
-  // scene 53, bảng chiến đấu 1292, dialog kết quả 1293,
-  // dấu đỏ 627. Không mua lượt, không gộp lượt.
+  
+  
+  
+  
   function crystalData() {
     const m=_Ba?._n4t?._t4t?.ins;
     const rpc=_Ba?._n4t?._oun?.ins;
@@ -2085,8 +2109,8 @@
     if (!common() || r.otherTeam || r.team6 ||
         !Number.isFinite(r.remaining) || r.remaining<=0 ||
         !r.mark || (C.crystalNoMerge && r.merge)) return false;
-    // Trong game, autoStart tu dong bat dau khi ANY 4 nguoi, khong loc clone.
-    // Phai tat truoc khi tao phong, de V8.6.7 kiem tra dung 4 ID.
+    
+    
     if (_Ba?._cm?._vJ?.ins) _Ba._cm._vJ.ins.autoStart=false;
     begin('crystal','opening',{ownTeam:false, startSent:false, lastWave:0, result:null});
     if (!r.ui.isOpened?.(1291)) r.ui.open(1291);
@@ -2095,7 +2119,7 @@
   }
 
   function crystalLeaveOwnTeam(j,r) {
-    // Chỉ rời đội do AUTO tự tạo, không rời đội người dùng tạo sẵn.
+    
     if (!j.target.ownTeam || !r.team6) return;
     if (typeof r.rooms.exitSerAreRoom==='function') {
       r.rooms.exitSerAreRoom([6]);
@@ -2119,7 +2143,7 @@
       if (typeof r.rooms.creSerAreRoom!=='function') return finish(false,'Thiếu lệnh tạo phòng',C.crystalCooldownMs);
       k.difficulty=r.difficulty;
       j.step='creating';j.at=t;
-      // Đúng tham số lệnh tạo phòng của nút tạo phòng (team type=6, map=2702).
+      
       r.rooms.creSerAreRoom([6,'Tên Phòng',2702,k.difficulty,0,0,0,1,false,false]);
       log('👥 Tạo phòng Thủ Hộ Thủy Tinh tầng '+k.difficulty);
       return;
@@ -2144,7 +2168,7 @@
         currentIds.length===4 && new Set(currentIds).size===4 &&
         requiredIds.every(id=>currentIds.includes(id)) &&
         currentIds.every(id=>requiredIds.includes(id));
-      // Bao ve ca khi client/game gui 4 nguoi ngoai danh sach.
+      
       if (r.members>=Math.max(1,Math.min(4,Number(C.crystalMinPlayers)||4)) &&
           r.leader && (!C.crystalRequireExactTeam || exactTeam)) {
         if (!k.startSent && typeof r.rooms.startTeamBossCopy==='function') {
@@ -2212,7 +2236,7 @@
       const p=r.ui.isOpened?.(1293) ? r.ui.getDialogById?.(1293) : null;
       if (p && t-j.at>=3500 && typeof p.close==='function') {
         j.step='exiting';j.at=t;
-        p.close(); // Game tự xử lý nút Đồng ý và rời cảnh.
+        p.close(); 
         log('🚪 Đã đóng bảng kết quả, chờ về cảnh thường');
       } else if (!p && t-j.at>=12000) {
         j.step='exiting';j.at=t;
@@ -2234,8 +2258,8 @@
         typeof cf?.getSingleInfo !== 'function') return null;
     const tab = m.getTabData?.()?.find(x => Number(x.type) === 48);
     const rows = m.getSingleBossInfoArr?.() || [];
-    // Mỗi [area, bossId, reviveTime, followed] là một Boss riêng.
-    // Phải có đủ 3 con, tránh đếm nhầm khi dữ liệu chưa đồng bộ.
+    
+    
     const all = Array.isArray(rows) ? rows.map(x => ({
       area:x?.[0], id:x?.[1], rawState:x?.[2]
     })).filter(x => x.area != null && x.id != null) : [];
@@ -2292,7 +2316,7 @@
   }
 
 
-  // ==================== BOSS TINH THẦN + TỔ ĐỘI ====================
+  
   const team={mode:'idle',pending:null,nextList:0,readyAt:0,created:false,approved:false,handled:null,
     cloneAt:0,shareAt:0,firstAt:0,publicCount:0,cloneSeen:false,leaderConfirmed:false,
     cloneInvites:0,lastTeamId:null,notice:''};
@@ -2351,7 +2375,7 @@
     const txt=p.contentTxt?.innerHTML||p.contentTxt?.text||p.content||'';
     if (!isTeamPrompt(txt) || C.autoTeam) return;
     const count=Number(r.model.teamLength)||0;
-    if (count>0) return; // đã có đội, không tự bỏ đội cũ
+    if (count>0) return; 
     if (typeof p._aBn==='function') {
       team.handled=p;
       p._aBn();
@@ -2366,7 +2390,7 @@
     return ids;
   }
   function teamLeader(r) {
-    // Nhat dinh phai la chu doi, khong gui loi moi khi vao doi nguoi khac.
+    
     const mine=String(_ot?.ins?.actorId||'');
     const a=r?.model?.teamPlayerData;
     if(!Array.isArray(a))return false;
@@ -2374,6 +2398,7 @@
   }
   function teamTick(r,t) {
     if(!C.autoTeam || !C.enableTinhThan || scene()!==34)return;
+    if(window.KVPV_BOSS_TEAM?.ownsBossTeams?.()===true){team.mode='private_team_module';return;}
     const party=r.party;
     const n=Number(r.model.teamLength)||0;
     const ids=teamMembers(r);
@@ -2385,8 +2410,8 @@
     if(n>0) {
       team.mode=leader?'leader_team':'member_team';
       team.pending=null;
-      if(!leader)return; // khong moi nguoi thay doi truong nguoi khac
-      // Chi bat tu duyet khi minh thuc su la doi truong.
+      if(!leader)return; 
+      
       if(C.autoApproveTeam && !team.approved &&
           Number(r.model.autoAgreeApplyStarsSecretTeam)!==1 &&
           typeof party.setAutoAgreeApplyStarsSecretTeam==='function') {
@@ -2396,7 +2421,7 @@
         return;
       }
       if(n>=4)return;
-      // Moi 1 clone duoc chi dinh. Bao toan cooldown va khong gui lai moi 2s.
+      
       if(clone && !team.cloneSeen && t-team.cloneAt>=C.tinhThanInviteCloneMs &&
           typeof party.InvitePlayerStarsSecretTeam==='function') {
         party.InvitePlayerStarsSecretTeam([clone]);
@@ -2405,13 +2430,13 @@
         log('👥 Tinh Than: moi clone '+clone+' (#'+team.cloneInvites+')');
         return;
       }
-      // Native nut "Goi" cua scene 34: loi moi vao kenh Tam Gioi.
-      // Uu tien cho clone vao truoc; sau 35s van co the gui loi moi cong khai.
+      
+      
       const publicReady=team.cloneSeen || t-team.firstAt>=C.tinhThanFirstPublicDelayMs;
       if(publicReady && C.tinhThanPublicMaxPerVisit>team.publicCount &&
           t-team.shareAt>=C.tinhThanPublicInviteMs &&
           typeof party.sendInviteChatInfo==='function') {
-        // Nut game goc can coolTime==30; khong can thiep gioi han game.
+        
         if(Number(r.model.coolTime)===30) {
           party.sendInviteChatInfo();
           r.model.clearLoop?.();
@@ -2425,13 +2450,13 @@
     if(team.pending) {
       const since=t-team.pending.at;
       if(since<120000)return;
-      // Neu server khong xac nhan tao doi, KHONG spam gui lai ngay.
+      
       team.notice='Tao doi chua co ACK sau 120s';
       team.pending=null;team.mode='cooldown';team.nextList=t+120000;
       return;
     }
     if(t<team.nextList)return;
-    // Luon tao doi cua minh, khong tham gia ngau nhien doi Tam Gioi.
+    
     if(typeof party.CreateStarsSecretTeam==='function') {
       party.CreateStarsSecretTeam();
       team.created=true;
@@ -2481,8 +2506,8 @@
       const targetTier=starHighestUnlocked(p);
       j.target.tier=targetTier;
       if (type!==targetTier) {
-        // Game mặc định chọn curBestType, có thể KHÁC loại Boss 5. Tự chọn bằng UI native.
-        // Không giả cập nhật dữ liệu hay vượt khóa mở: _CJ kiểm tra cấp/điều kiện thật.
+        
+        
         const idx=targetTier-1, list=p._wWn;
         if (!j.target.tierChangeAttempted && list && Array.isArray(list.arrs) &&
             idx>=0 && idx<list.arrs.length && typeof p._CJ==='function' &&
@@ -2496,7 +2521,7 @@
             try{
               list.selIdx=idx;p._gRn.call(p);
               log('🌟 Tinh Thần: chọn tầng cao nhất đã mở ('+targetTier+') bằng nút native');
-              return; // đợi model cấu hình boss/kênh nạp, không gọi Enter ngay
+              return; 
             }catch(e){
               r.ui.close?.(605);
               return finish(false,'Lỗi chuyển loại Tinh Thần: '+String(e),15000);
@@ -2520,7 +2545,7 @@
       const rows=starRows(r,type,layer,line);
       if (!rows.length || !rows.some(x=>alive(x.flag)) ||
           rows.some(x=>!alive(x.flag)&&!dead(x.flag))) {
-        // Model có thể cập nhật chậm khi vừa chuyển loại/kênh; chờ dữ liệu (không gửi RPC).
+        
         if(t-j.started<8000)return;
         r.ui.close?.(605);return finish(false,'Tinh Thần không có boss sống/đã đồng bộ',15000);
       }
@@ -2550,8 +2575,8 @@
     if (!bs.length || bs.some(x=>!alive(x.flag)&&!dead(x.flag))) return;
     const live=bs.find(x=>alive(x.flag));
     if (live) {
-      // Không chờ clone để đánh boss; invite/claim hoạt động nền song song.
-      // Chỉ nhắm mục tiêu nếu boss thật sự còn sống theo dữ liệu server.
+      
+      
       j.deadAt=0;
       const m=_Ba?._Fvt?._Evt?.inst;
       if ((j.target.selected!==live.id || t-j.target.lastSelect>=15000) &&
@@ -2568,11 +2593,11 @@
 
 
   // =============================================================
-  // GHÉP ĐÁ HỒN + ĐẠO CỤ — sử dụng đúng công thức và RPC của client.
+  
   // Client: _ft._NZ.ins (item_compose), bag _Ba._Ic._aQ.ins.
-  // Panel Ghép dùng: _v.ins.send("TdKp",[recipeId,itemUIDs,qty,0]);
-  // Sự kiện nhận phản hồi: 5225, kết quả _Ba._Zgt._n6t.ins.ComposeReply[0].
-  // KHÔNG dùng Ghép nhanh (oneKeyCompose), KHÔNG mua vật liệu.
+  
+  
+  
   const composeState = {
     watcher: false, ack:0, lastResult:null,
     success:{stone:0, props:0}, fail:0,
@@ -2646,7 +2671,7 @@
         Math.max(1,Math.floor(Number(C.composeMaxPerRecipe)||1))),
         uidList,matIds});
     }
-    // Đá trước, đạo cụ sau. Không gửi nhiều công thức trong cùng một tick.
+    
     return out.sort((a,b)=>a.kind-b.kind || a.id-b.id);
   }
   function composeAckHandler() {
@@ -2674,7 +2699,7 @@
     if(!composeState.watcher || !composeBag())return false;
     if(!_Ba?._$a?.SceneUtil?.isCommonScene || inTeam() || inMission())return false;
     const ui=_ft?._Y4n?.ins;
-    // Không ghép khi đang xem ghép/dung luyện, tránh hai lệnh chen nhau.
+    
     if([76,108,528,1688].some(id=>ui?.isOpened?.(id)))return false;
     if(!composeCandidates().length)return false;
     begin('compose','select',{count:0, sent:null, tried:new Set()});
@@ -2688,7 +2713,7 @@
       return finish(true,'Kết thúc đợt ghép, tiếp tục công việc khác');
     }
     if(j.step==='select') {
-      // Không tự mua nguyên liệu; không ghép trong cảnh chiến đấu.
+      
       if(!common()||inTeam()||inMission())return finish(false,'Không còn ở cảnh rảnh');
       const r=composeCandidates().find(x=>!j.target.tried.has(x.id));
       if(!r) {
@@ -2703,7 +2728,7 @@
       j.target.tried.add(r.id);
       j.step='waiting';j.at=t;
       composeState.lastRecipe=r.id;
-      // ĐÚNG thông số như nút Ghép (không mua, không Ghép nhanh).
+      
       _v.ins.send('TdKp',[r.id,r.uidList,r.qty,0]);
       log('💎 Ghép '+(r.kind===1?'Đá Hồn':'Đạo Cụ')+' recipe '+r.id+' x'+r.qty);
       return;
@@ -2714,7 +2739,7 @@
         if(composeState.lastResult===0) {
           composeState.success[s.kind===1?'stone':'props']+=s.qty;
           j.target.count++;
-          // Tránh chọn công thức tiếp khi túi chưa đồng bộ.
+          
           j.step='select'; j.at=t;
           due.compose=t+C.composeCheckMs;
           log('✅ Ghép '+(s.kind===1?'Đá Hồn':'Đạo Cụ')+' thành công x'+s.qty);
@@ -2770,7 +2795,7 @@
     const max=Number(m?.maxlv);
     if(!Array.isArray(list)||!list.length||!Number.isFinite(max)||max<1 ||
        typeof m?.checkLvUp!=='function')return null;
-    // Refresh redpoint goc khi du lieu nhan vat da khoi tao.
+    
     if(refresh && typeof m.checkRP==='function')try{m.checkRP();}catch(e){}
     let can=false;
     for(let i=0;i<list.length;i++){
@@ -2802,7 +2827,7 @@
   function startTuyetHoc() {
     if(!C.enableTuyetHoc || !common() || inTeam() || inMission())return false;
     const d=tuyetHocData(true);
-    // Chỉ chạy khi DẤU ĐỎ số 19 + native model xác nhận đủ nguyên liệu.
+    
     if(!d||!d.red||!d.can||typeof tuyetHocRpc()?.addSkillLevelOfAll!=='function')return false;
     begin('tuyethoc','send',{sent:0,pending:null});
     log('📘 Có dấu đỏ Tuyệt Học: Tăng nhanh bằng tài nguyên có sẵn');
@@ -2835,8 +2860,8 @@
       j.step='waiting';j.at=t;
       tuyetHocState.requests++;
       tuyetHocState.lastAt=t;
-      // Game kiểm tra tiền ở UI; Auto đã xác nhận red19 + checkLvUp.
-      // Không gọi hàm showLackAlert / không mua nguyên liệu.
+      
+      
       rpc.addSkillLevelOfAll();
       log('📘 Tuyệt Học Tăng nhanh '+j.target.sent+'/'+C.tuyetHocMaxRequestsPerRun+'; chờ server cập nhật cấp');
       return;
@@ -2885,13 +2910,13 @@
     // Failure or uncertain scene transitions retain the previous 4s barrier.
     idleUntil = now() + (safelyBackInTown ?
       Math.max(0,Number(C.postJobSuccessCooldownMs)||0) : 600);
-    // Nếu lệnh chưa có ACK, blocks[k] vẫn khóa module riêng; không phát lại RPC tùy tiện.
+    
   }
   function blocked(k) { return now() < (blocks[k] || 0); }
   function startSmelt(s) {
     if (!s || !smeltListenersInstalled) return false;
-    // Nếu game đang hiện popup kết quả cũ hoặc đang dung luyện thủ công,
-    // tuyệt đối không chen thao tác; người dùng đóng popup ID76 thủ công.
+    
+    
     if ([76,108,528,1688].some(id=>s.ui.isOpened?.(id))) return false;
     // Do not start for 1..24 items. Once started, finish even the last partial batch.
     const eligibleCount=smeltEligible(s,'equip').length;
@@ -2913,23 +2938,94 @@
     log(`⚔️ Gửi yêu cầu vào ${type}`);
   }
 
+  
+  // starting the general daily scheduler.
+  const redDotNextAt={36:0,37:0,44:0,53:0,377:0};
+  function redDotDispatch(id) {
+    id=Number(id);
+    if(![36,37,44,377].includes(id)||!red(id))return {handled:false,reason:'red_dot_inactive'};
+    if(now()<redDotNextAt[id])return {handled:false,reason:'red_dot_dispatch_cooldown'};
+    if(job)return {handled:job.redDotId===id,reason:job.redDotId===id?'job_running':'another_job_running'};
+    if(!common()||inTeam()||inMission()||_Ba?._rJ?._O$?.ins?.isDead===true)
+      return {handled:false,reason:'unsafe_scene_context'};
+    const stage=_Ba?._Co?._Mo?.ins;
+    if(stage?.auto===true)return {handled:false,reason:'waiting_stage_stop'};
+    if(id!==53&&id!==377&&typeof api()?.rqEtScene!=='function')return {handled:false,reason:'native_scene_rpc_unavailable'};
+    if(id===36){
+      const s=nhomData();
+      if(!s?.yes||s.n<=0||!s.t)return {handled:false,reason:'group_boss_not_eligible'};
+      enter('bossnhom',{map:Number(s.t[0]),id:s.t[2]},()=>api()?.rqEtScene?.(s.t[0],s.t[1],[],0,s.t[2]));
+      job.redDotId=36;redDotNextAt[36]=now()+10000;
+      return {handled:true,reason:'group_boss_entry_requested'};
+    }
+    if(id===37){
+      const s=yeuData();
+      if(!s?.n||!s.t)return {handled:false,reason:'demon_boss_not_eligible'};
+      enter('yeuvuong',{map:Number(s.t[0]),id:s.t[2]},()=>api()?.rqEtScene?.(s.t[0],s.t[1],[],0,s.t[2]));
+      job.redDotId=37;redDotNextAt[37]=now()+10000;
+      return {handled:true,reason:'demon_boss_entry_requested'};
+    }
+    if(id===377){
+      const s=tienDuyenData();
+      if(!s?.yes)return {handled:false,reason:'marriage_copy_red_dot_clear'};
+      if(!s.readied){startTienDuyen(s);return {handled:false,reason:'waiting_marriage_copy_times'};}
+      if(!s.married)return {handled:false,reason:'not_married_no_entry'};
+      if(!(s.remaining>0))return {handled:false,reason:'no_free_marriage_copy_attempts'};
+      if(C.tienDuyenNoMerge&&s.merge)return {handled:false,reason:'merged_attempts_disabled'};
+      if(!startTienDuyen(s))return {handled:false,reason:'marriage_copy_not_started'};
+      job.redDotId=377;redDotNextAt[377]=now()+10000;
+      return {handled:true,reason:'marriage_copy_entry_requested',remaining:s.remaining};
+    }
+    const s=manData();
+    if(!s?.yes||!(s.strength>0)||s.autoItem||![31,54].includes(s.type)||!num(s.map)||!num(s.layer)||
+       !s.ids.length||!s.ids.every(x=>alive(bossFlag(x))||dead(bossFlag(x)))||!s.ids.some(x=>alive(bossFlag(x))))
+      return {handled:false,reason:'manhuang_not_eligible'};
+    const free=Number(_Ba?._Ic?._aQ?.ins?.getBagLeftNumById?.(1));
+    const threshold=Number(_ft?._gY?.ins?.getCfgById?.(10007)?.[2]?.[0]);
+    if(!Number.isFinite(free)||!Number.isFinite(threshold)||free<=threshold)
+      return {handled:false,reason:'manhuang_bag_space_guard'};
+    enter('manhoang',{map:s.map,layer:s.layer,grade:s.grade,ids:s.ids},()=>api()?.rqEtScene?.(s.map,s.layer));
+    log(`👹 Mãn Hoang: vào tầng cao nhất đã mở (grade ${s.grade}, layer ${s.layer}); chỉ dùng thể lực sẵn có`);
+    job.redDotId=44;redDotNextAt[44]=now()+10000;
+    return {handled:true,reason:'manhuang_highest_unlocked_floor_entry_requested',grade:s.grade,layer:s.layer};
+  }
+  const priorityEventJobs=new Set(['honghoang','vinhdu','daotri','tula','dinhcao','tientuyen','lanhdia']);
+  let redDotEventCheckAt=0;
+  let deferredRedDotJob=null;
+  function resumeDeferredRedDotJob(){
+    if(job||!deferredRedDotJob)return false;
+    if(window.KVPV_EVENT_PRIORITY?.hold?.())return false;
+    job=deferredRedDotJob;deferredRedDotJob=null;
+    window.KVPV?.core?.scene?.acquire?.('daily',job.type);
+    return true;
+  }
+  function redDotTick(){
+    configureTimeline();
+    const t=now();
+    if(t>=redDotEventCheckAt){
+      redDotEventCheckAt=t+250;
+      try{
+        eventScheduleTick();
+        if(job&&!priorityEventJobs.has(job.type)){
+          const suspended=job;job=null;
+          try{dispatchFixedWindowV102(t,vnTime());}
+          catch(e){job=suspended;throw e;}
+          if(job&&priorityEventJobs.has(job.type))deferredRedDotJob=suspended;
+          else job=suspended;
+        }else dispatchFixedWindowV102(t,vnTime());
+      }catch(e){console.warn('[LỊCH KVPV] Lỗi ưu tiên event:',e);}
+    }
+    if(job){const id=job.redDotId;follow();if(id&&!job)redDotNextAt[id]=now()+10000;
+      if(!job&&deferredRedDotJob)resumeDeferredRedDotJob();
+      if(deferredRedDotJob&&!job&&window.KVPV_EVENT_PRIORITY?.hold?.())
+        return {active:true,eventPriority:true,job:'event_hold',step:'waiting_event_window_end'};
+      return {active:!!job,eventPriority:!!job&&priorityEventJobs.has(job.type),job:job?.type||'idle',step:job?.step||'-'};}
+    resumeDeferredRedDotJob();
+    return {active:!!job,eventPriority:!!job&&priorityEventJobs.has(job.type),job:job?.type||'idle',step:job?.step||'-'};
+  }
+
   // V10.2: eligibility callbacks contain only read-only model checks.
   // The timeline remains standalone and can be unit-tested without the game.
-  window.KVPV?.timeline?.setReadiness?.(key=>{
-    switch(key){
-      case 'honghoang': {
-        const h=hongData();return !!(C.enableHongHoang&&h.m&&!h.full&&h.map&&h.xianFa>0);
-      }
-      case 'vinh_du':return !!(C.enableVinhDu&&vinhData().hasTeam);
-      case 'tranh_ba_dinh_cao': {
-        const d=dcData();return !!(C.enableDinhCao&&d.configMatch&&d.eventTimeMatch&&d.unlocked);
-      }
-      case 'tu_la':return !!(C.enableTuLa && tuLaDay());
-      case 'dao_nguyen':return !!C.enableDaoTri;
-      default:return true;
-    }
-  });
-
   function dispatchFixedWindowV102(t,c){
     const planner=window.KVPV?.timeline;
     if(!planner?.config?.enabled)return false;
@@ -2965,7 +3061,7 @@
           }
           break;
         case 'honghoang': {
-          // Always adopt an already-running Hồng Hoang scene; never orphan its exit/ACK.
+          
           const hold=scene()===17?null:planner.reservation({atMs:t,flags:C,forTask:'honghoang',
             excludeKeys:['honghoang']});
           if(!hold&&C.enableHongHoang&&!blocked('honghoang')&&
@@ -3001,7 +3097,7 @@
     return false;
   }
 
-  // Đặc biệt: hoạt động giờ cố định được ưu tiên nếu không có job khác.
+  
   function dispatch() {
     const t = now(), c = vnTime();
     if (window.KVPV?.core?.scene?.can?.('daily')===false) return;
@@ -3009,8 +3105,8 @@
     if (t < idleUntil) return;
     // V10.2: time-critical existing native entry points run before untimed HH.
     if(dispatchFixedWindowV102(t,c))return;
-    // ƯU TIÊN #1: Hồng Hoang Bí Bảo khi Auto đang rảnh.
-    // Không ngắt giữa một trận hoặc giữa một đợt dung luyện.
+    
+    
     const hhHold=scene()===17?null:window.KVPV?.timeline?.reservation?.({
       atMs:t,flags:C,forTask:'honghoang',excludeKeys:['honghoang']
     });
@@ -3020,22 +3116,22 @@
       due.honghoang=t+C.hongHoangMs;
     }
 
-    // TRANH BA DINH CAO: 21:00-21:30, chi vao khi server/config hop le.
+    
     if(C.enableDinhCao && !blocked('dinhcao') &&
       (dcInside() || (common() && t>=due.dinhcao && dcWindow()))){
       if(startDinhCao(dcInside()))return;
       due.dinhcao=t+6000;
     }
 
-    // Đào Nguyên Dao Trì lúc 19:00-19:30, ưu tiên sau Hồng Hoang.
-    // Không giành cảnh khi một module khác đang chạy.
+    
+    
     if(C.enableDaoTri && !blocked('daotri') &&
       (scene()===22 || (common() && t>=due.daotri))) {
       if(startDaoTri(scene()===22))return;
       due.daotri=t+C.daoTriCheckMs;
     }
 
-    // Chiến Trường Vinh Dự 19:45-20:00. Khi ở sẵn scene42 thì tiếp quản.
+    
     if(C.enableVinhDu && !blocked('vinhdu') &&
       (scene()===42 || (common() && t>=due.vinhdu && vinhWindow()))) {
       if(startVinhDu(scene()===42))return;
@@ -3049,14 +3145,14 @@
       due.tula=t+6000;
     }
 
-    // Tiếp quản nếu bật Auto khi đã đứng trong Tiên Duyên.
+    
     if (C.enableTienDuyen && !common() && (scene()===36 || mapNow()===2381)) {
       begin('tienduyen','fighting',{before:null,adopted:true});
       log('💞 Tiếp quản Phó Bản Tiên Duyên đang đánh');
       return;
     }
     if (scene()===34 && adoptStar()) return;
-    // Tiếp quản phòng hoặc trận Thủ Hộ Thủy Tinh từ trước khi nạp Auto.
+    
     if (C.enableCrystal && !blocked('crystal') &&
         (scene()===53 || _Ba?._cm?._q3t?.ins?.getHasTeamByType?.(6))) {
       if (startCrystal(true)) return;
@@ -3067,16 +3163,16 @@
     // leave a special scene, or leave another team. Other normal jobs still wait.
     if (!common() || inTeam()) return;
 
-    // Giữ chỗ trước Chiến Trường Vinh Dự, không khởi động trận dài.
-    // Phải là thành viên Chiến Đội; không giữ chỗ vô ích khi không đủ điều kiện.
+    
+    
     if(vinhPrep() && vinhData().hasTeam) {
       vinhSyncDay();vinhRefresh(t);
       if(!vinhWindow()) log('🏅 Đang giữ chỗ để 19:45 vào Chiến Trường Vinh Dự');
       return;
     }
 
-    // 20:15-20:30: neu Tu La se mo, khong khoi dong nhiem vu dai.
-    // 20:30-20:45: vao Tu La neu server mo; khong lam nhiem vu khac.
+    
+    
     if(tuLaPrepare()){
       const d=tuLaData();
       // V9: a loaded model does not mean the event will open.
@@ -3086,15 +3182,15 @@
       }
     }
 
-    // 20:55 - 21:30: khong khoi dong pho ban dai sat gio Dinh Cao.
-    // Hong Hoang van luon duoc xet truoc va khong bi ngat ngang.
+    
+    
     if(dcPrepare() && dcData().configMatch && dcData().eventTimeMatch && dcData().unlocked){
       log(dcWindow()?'🏔️ Chờ server xác nhận mở Tranh Bá Đỉnh Cao':'🏔️ Giữ chỗ Tranh Bá Đỉnh Cao 21:00');
       return;
     }
 
-    // Khi sắp mở Hồng Hoang, đừng bắt đầu EXP/Thần Thú/Thủy Tinh
-    // hay các nhiệm vụ dài. Không cưỡng bức thoát một trận đang đánh.
+    
+    
     const hhSoon=preparingHongHoang();
     if (hhSoon) {
       log('🎁 Giữ chỗ ưu tiên Hồng Hoang '+hhSoon.time+'; không bắt đầu phó bản mới');
@@ -3128,8 +3224,8 @@
       return;
     }
 
-    // V9.2.6 FAST PRIORITY: ưu tiên Tiên Duyên rồi Tinh Thần ngay khi rảnh.
-    // Không can thiệp nếu đang chiến đấu / sự kiện cố định / chuẩn bị Hồng Hoang.
+    
+    
     if (C.enableTienDuyen && t>=due.tienduyen && !blocked('tienduyen')) {
       due.tienduyen=t+C.tienDuyenMs;
       if (startTienDuyen(tienDuyenData())) return;
@@ -3140,8 +3236,8 @@
     }
     // Never let the remaining daily executors interrupt an active ordinary quest.
     if(inMission())return;
-    // Quet cac phan thuong du dieu kien truoc khi bat dau phu ban thuong.
-    // Khong hoan su kien dung gio, khong chan qua 90s neu server khong phan hoi.
+    
+    
     if (C.redFirst && t >= redGate.retryAfter) {
       if (t>=redGate.cachedUntil) {
         redGate.active=window.KVPV_UPGRADES?.hasReadyClaims?.() === true;
@@ -3158,7 +3254,7 @@
       } else redGate.holdFrom = 0;
     }
 
-    // V9.2.8 — Early native Thiên Quan/Tự Vượt slot AFTER red-claims,
+    
     // event reservations, Tien Duyen, Tinh Than, BEFORE slow routine jobs.
     // Uses EXISTING tuVuotIdle(): no raw RPC, no extra attempts and retains
     // unlimited by default, both still use native ACK/retry pacing.
@@ -3178,13 +3274,13 @@
       }
     }
 
-    // TUYỆT HỌC: ưu tiên rảnh trước việc thường, sau các sự kiện giờ cố định.
+    
     if(C.enableTuyetHoc && t>=due.tuyethoc && !blocked('tuyethoc')) {
       due.tuyethoc=t+C.tuyetHocCheckMs;
       if(startTuyetHoc())return;
     }
 
-    // 1. DUNG LUYỆN: vào chu trình, tuyệt đối không tắt timer Auto Daily.
+    
     const b = smeltData();
     if (t >= due.smelt && !blocked('smelt')) {
       due.smelt = t + C.smeltMs;
@@ -3194,31 +3290,31 @@
     if (C.enableExp && t >= due.exp && !blocked('exp')) {
       due.exp = t + C.expMs;
       const s = expData();
-      // V7.5.16: KHONG tu ghep EXP neu khong phai leader EXP 4 acc.
-      // Neu danh sach ID khong hop le, EXP khoa rieng; cac viec khac van chay.
+      
+      
       if (s?.yes && s.n > 0 && window.KVPV_EXP_4ACC?.role === 'leader') {
         begin('exp','matching',{before:s.n, seen:false, readyAt:0});
-        // Native auto-start tat truoc khi tao phong de tranh vao voi nguoi la.
+        
         if (_Ba?._cm?._vJ?.ins) _Ba._cm._vJ.ins.autoStart=false;
-        // Dung tham so client da duoc xac minh cho EXP type2/map2091,
-        // chi tat che do auto ghep. KHONG doan co rieng tu cua server.
+        
+        
         s.matcher.creSerAreRoom([2,'EXP 4 ACC',2091,1,0,0,0,1,false,false]);
         log(`⚡ EXP 4 ACC tao phong; con ${s.n} luot, cho 3 clone`); return;
       }
     }
-    // Tiên Duyên đã được xét ở khối FAST PRIORITY phía trên.
-    // THỦ HỘ THỦY TINH: mở tối đa 1 phòng/lần, không dùng thêm lượt.
+    
+    
     if (C.enableCrystal && t>=due.crystal && !blocked('crystal')) {
       due.crystal=t+C.crystalCheckMs;
       if (startCrystal()) return;
     }
-    // 4. THẦN THÚ: 3h10
-    if (t >= due.thanthu && !blocked('thanthu')) {
+    
+    if (t >= due.thanthu && !blocked('thanthu') && !W.KVPV_BEAST_ISLAND?.handlesInfinite?.()) {
       due.thanthu = t + C.thanThuMs;
       const s = thanThuData();
       if (s?.yes && s.tab && s.t && s.valid3) {
         const map = Number(s.cf.getSingleInfo(s.t.id)[0]);
-        // Ghi lại 3 boss trước khi vào, tránh bỏ sót con chết rất nhanh.
+        
         const witnessed = Object.fromEntries(s.all.map(x => [
           String(x.area), x.rawState != null && Number(x.rawState) === 0
         ]));
@@ -3239,7 +3335,7 @@
         log('⏳ Thần Thú chưa đồng bộ đủ 3 boss; thử lại sau 30 giây');
       }
     }
-    // 4. BOSS NHÓM: 5 phút
+    
     if (t >= due.bossnhom && !blocked('bossnhom')) {
       due.bossnhom = t + C.bossNhomMs;
       const s = nhomData();
@@ -3248,8 +3344,8 @@
           api()?.rqEtScene?.(s.t[0],s.t[1],[],0,s.t[2])); return;
       }
     }
-    // Tinh Thần đã được xét ở khối FAST PRIORITY phía trên.
-    // 5. MÃN HOANG - túi đầy phải ưu tiên dung luyện; lỗi không chặn Auto Daily.
+    
+    
     if (t >= due.manhoang && !blocked('manhoang')) {
       due.manhoang = t + C.manHoangMs;
       const s = manData();
@@ -3265,7 +3361,7 @@
         }
       }
     }
-    // 6. YÊU VƯƠNG (đã lưu trước đó) - không có thì bỏ qua.
+    
     if (C.enableYeuVuong && t >= due.yeuvuong && !blocked('yeuvuong')) {
       due.yeuvuong = t + C.yeuVuongMs;
       const s = yeuData();
@@ -3274,18 +3370,20 @@
           api()?.rqEtScene?.(s.t[0],s.t[1],[],0,s.t[2])); return;
       }
     }
-    // 7. GHÉP: sau Boss / phó bản; giới hạn số batch, không chặn event.
+    
     if (C.enableCompose && t >= due.compose && !blocked('compose')) {
       due.compose=t+C.composeCheckMs;
       if(startCompose())return;
     }
-    // 8. TỰ VƯỢT: khong gioi han thua, van cho den khi ranh / het retry.
+    
     if (tuVuotIdle()) return;
     log('💤 Rảnh, Auto Daily vẫn chạy và chờ lịch tiếp theo');
   }
 
   function follow() {
     const j = job, t = now(); if (!j) return;
+    if (j.type==='thanthu' && W.KVPV_BEAST_ISLAND?.handlesInfinite?.())
+      return finish(true,'Thần Thú chuyển cho bộ điều khiển Vô Hạn → tầng 2');
     if (j.type==='crystal') return followCrystal(j,t);
     if (j.type==='vinhdu') return followVinhDu(j,t);
     if (j.type==='tula') return followTuLa(j,t);
@@ -3296,13 +3394,13 @@
       const s=smeltData();
       if (!s || !smeltListenersInstalled) return finish(false,'Thiếu dữ liệu / phản hồi dung luyện',C.smeltBackoffMs);
       const k=j.target;
-      // Mỗi đợt có THỜI HẠN TUYỆT ĐỐI, dù túi liên tục có thêm đồ.
+      
       if (t-j.started>C.smeltHardLimitMs || k.batches>=C.smeltMaxTotalBatches) {
         due.smelt=t+C.smeltMs;
         return finish(true,'Dừng đợt dung luyện theo giới hạn an toàn; hoạt động khác tiếp tục');
       }
       if (j.step==='choosePart') {
-        // Không gửi RPC nếu có cửa sổ kết quả của lần trước.
+        
         if ([76,108,528,1688].some(id=>s.ui.isOpened?.(id))) {
           due.smelt=t+C.smeltMs;
           return finish(false,'Có giao diện dung luyện hoặc kết quả đang mở; chờ đóng thủ công');
@@ -3398,12 +3496,12 @@
           exitDungeon(); j.step='exiting';j.at=t;log('🚪 Hết ca '+j.type+', đang Thoát');return;
         }
         if (j.type==='tientuyen') {
-          // KHÔNG CHỌN LV700/800: chỉ boss 900.
+          
           const r=_Ba?._XLt?._YLt?.inst, state=boss()?.getCpSceneStateByType?.(s);
           const ids=_ft?._q6i?.ins?.getOccAll?.(state?.[8]) || [];
-          const id=ids.find(x=>Number(r?.getCfgByid?.(x)?.[6])===900 && alive(bossFlag(x)));
+          const id=ids.find(x=>Number(r?.getCfgByid?.(x)?.[6])===1300 && alive(bossFlag(x)));
           if (id!=null && j.target.selected!==id && typeof r?.setSelTarget==='function') {
-            r.setSelTarget(id);j.target.selected=id;log('🎯 Tiền Tuyến chỉ chọn Boss Lv900');
+            r.setSelTarget(id);j.target.selected=id;log('🎯 Chiến Tuyến chỉ chọn Boss Lv1300');
           }
         } else {
           const m=_Ba?._zLt?._VLt?.ins, ids=m?.getBsList?.() || [];
@@ -3424,7 +3522,7 @@
         if (!Array.isArray(rows) || rows.length !== 3 ||
             !Array.isArray(j.target.all) || j.target.all.length !== 3) return;
         const byArea = new Map(rows.map(r => [String(r?.[0]), r]));
-        // Chỉ đếm boss đã TỪNG SỐNG trong lượt này rồi CHẾT liên tục >= 5s.
+        
         for (const b of j.target.all) {
           const key = String(b.area), row = byArea.get(key);
           if (!row || String(row[1]) !== String(b.id)) return;
@@ -3445,8 +3543,8 @@
         }
         const killed = Object.keys(j.target.defeated).length;
         if (killed !== 3) {
-          // Game cũng tự chọn boss kế tiếp khi boss hiện tại chết.
-          // Chọn bổ sung để tránh đứng im nếu chuyển mục tiêu bị lỡ.
+          
+          
           const next = j.target.all.find(b =>
             !j.target.defeated[String(b.area)] &&
             Number(byArea.get(String(b.area))?.[2]) === 0
@@ -3459,7 +3557,7 @@
             j.target.lastSelectAt = t;
             log('🎯 Thần Thú '+killed+'/3 → đánh boss '+next.id);
           }
-          return; // QUAN TRỌNG: chưa đủ 3 thì KHÔNG THOÁT.
+          return; 
         }
         isDead = true;
       } else if (j.type==='bossnhom' || j.type==='yeuvuong') {
@@ -3506,7 +3604,11 @@
   }
   function tick() {
     if (!timer) return;
-    // Theo dõi thời gian độc lập, KHÔNG ghi đè job hiện tại.
+    if(window.KVPV_RED_DOT_MODULE?.ownsProgression?.()){
+      // The red-dot main loop owns progression and calls redDotTick for any handoff job.
+      return;
+    }
+    
     try { tienTonTraceSync(); }
     catch(e) { console.warn('[TIÊN TÔN] Lỗi ghi thao tác, Auto Daily vẫn chạy:',e); }
     try {
@@ -3521,24 +3623,11 @@
     try { if (job) follow(); else dispatch(); }
     catch (e) {
       console.error('[KVPV V7.5.16] Lỗi module:', job?.type, e);
-      // Lỗi của một module KHÔNG được dừng cả auto.
+      
       if (job) finish(false,'gặp lỗi; bỏ qua tạm 2 phút',120000);
       else idleUntil=now()+10000;
     }
     try{updateFishTimer();}catch(e){console.warn('[DAO TRI] Timer update failed',e);}
-  }
-  function start() {
-    if (timer) return;
-    hookTeamAlerts();
-    watchSmeltAcks();
-    watchComposeAcks();
-    watchTuyetHocAcks();
-    timer=__KVPV29.every(tick,C.tickMs);
-    __KVPV29.tag(timer,'auto-daily-main',0);
-    updateFishTimer(); // no idle interval; fast fish scan only during collection
-    dcWatchClaim();
-    log('🚀 Auto Daily V7.5.16 CHẠY LIÊN TỤC (kể cả lúc dung luyện)');
-    tick();
   }
   function stop() {
     __KVPV29.cancel(timer);timer=null;
@@ -3556,7 +3645,7 @@
     if (timer) stop();
     job=null;idleUntil=0;lastMsg='';
     Object.keys(due).forEach(k=>due[k]=0);
-    console.log('↻ Đã reset; gõ KVPV_DAILY.start()');
+    console.log('↻ Đã reset trạng thái tác vụ; chỉ red-dot điều phối tiếp.');
   }
   function status() {
     const out={running:!!timer,job:job?.type||'rảnh',step:job?.step||'-',
@@ -3638,17 +3727,25 @@
     // Read-only: uncertain reward locks can only clear on server state change/new day.
     rewards:()=>Array.from(tuLaClaims.entries()).map(([id,row])=>({id,...row}))});
   window.KVPV_DAILY={quickState:()=>({running:!!timer,job:job?.type||'rảnh',step:job?.step||'-',scene:scene(),common:common(),jobStartedAt:job?.started??null,jobUpdatedAt:job?.at??null}),
+    delegateThanThu:()=>{if(job?.type!=='thanthu')return false;finish(true,'Thần Thú chuyển cho bộ điều khiển Vô Hạn → tầng 2');return true;},
+    configureTimeline,
+    redDotDispatch,redDotTick,
     smelt25Status:()=>{const d=smeltData(),ids=smeltEligible(d,'equip').map(x=>Number(x[2]));const r={enabled:C.smeltEnabled.equip,eligible:ids.length,threshold:25,draining:smeltDrainEquip,currentJob:job?.type||'rảnh',lastAck:smeltAck.equip,backoffUntil:smeltBackoff.equip||0,firstIds:ids.slice(0,25)};console.log('[SMELT25]',r);return r;},
     smelt25Stop:()=>{C.smeltEnabled.equip=false;smeltDrainEquip=false;return C.smeltEnabled.equip;},
     smelt25Start:()=>{C.smeltEnabled.equip=true;due.smelt=0;return C.smeltEnabled.equip;},
-    start,stop,reset,check,status,config:C,teamStatus:()=>({...team,cloneId:C.tinhThanCloneId,enabled:C.enableTinhThan,members:Number(starRefs()?.model?.teamLength)||0}),lich,lichDay,lichData:()=>eventScheduleStatus(),lichEvents:()=>EVENT_SCHEDULE.map(x=>({...x})),tienTonTrace,tuVuotStatus,tuVuotReset,tuVuotStart,tuVuotStop,composeStatus,composePreview,tuyetHocStatus,tuLaStatus,dinhCaoStatus,vinhDu:()=>{const d=vinhData();const x={gioVN:new Date().toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'}),trongGio:vinhWindow(),coChienDoi:d.hasTeam,serverMo:d.open,hetCho:d.ready,dangTrongTran:d.inside,soLanThu:vinhEnterAttempts,soLanDaVao:vinhConfirmed};console.table([x]);return x;}};
+    tuVuotCanRun:()=>C.enableTuVuot&&!tuVuot.stopped,
+    tuVuotIdle,
+    tuVuotProgressTick:tuVuotObserve,
+    stop,reset,check,status,config:C,teamStatus:()=>({...team,cloneId:C.tinhThanCloneId,enabled:C.enableTinhThan,members:Number(starRefs()?.model?.teamLength)||0}),lich,lichDay,lichData:()=>eventScheduleStatus(),lichEvents:()=>EVENT_SCHEDULE.map(x=>({...x})),tienTonTrace,tuVuotStatus,tuVuotReset,tuVuotStart,tuVuotStop,composeStatus,composePreview,tuyetHocStatus,tuLaStatus,dinhCaoStatus,vinhDu:()=>{const d=vinhData();const x={gioVN:new Date().toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'}),trongGio:vinhWindow(),coChienDoi:d.hasTeam,serverMo:d.open,hetCho:d.ready,dangTrongTran:d.inside,soLanThu:vinhEnterAttempts,soLanDaVao:vinhConfirmed};console.table([x]);return x;}};
+  window.KVPV_RED_DOT_TASKS=Object.freeze({dispatch:redDotDispatch,tick:redDotTick});
+  for(const id of [36,37,44])window.KVPV_RED_DOT_MODULE?.register?.(id,{name:({36:'Boss Nhóm',37:'Yêu Vương',44:'Boss Mãn Hoang'})[id],module:'src/03-daily-core.js',route:'red-dot targeted dispatcher using verified existing handler',automatic:true,handler:()=>redDotDispatch(id)});
   window.KVPV_TD925=Object.freeze({installed:true,version:'9.2.5',config:td925Cfg,
     status:td925Status,history:()=>td925.history.slice(),
     diag:()=>({run:td925Status(),pending:job?.type==='tienduyen'?job.target:null}),
-    // Không gửi RPC tức thì từ Console; chỉ cho phép điều khiển bộ lịch đã xác minh.
+    
     enable:()=>{C.enableTienDuyen=true;return true;},
     disable:()=>{C.enableTienDuyen=false;return true;}});
-  console.log('✅ KVPV Auto Daily V7.5.19 RED FIRST đã nạp. Gõ KVPV_DAILY.check(); rồi KVPV_DAILY.start()');
+  console.log('✅ Red-dot task handlers đã nạp; bộ điều phối daily đã tắt.');
 })();
 
  if(W.KVPV_DAILY?.config){

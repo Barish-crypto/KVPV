@@ -10,7 +10,7 @@ old?.stop?.('reload');
 const actor=String(W.__KVPV_OWN_ACTOR_ID||''),same=carry?.actor===actor;
 // Only manually attended large events verified in the existing Daily schedule.
 // This is a scene reservation, NOT an event-entry executor or a reward request.
-const C={enabled:true,pollMs:500,cacheMs:400,exitRetryMs:15000,exitStageForEvent:true,
+const C={enabled:true,pollMs:250,cacheMs:100,exitRetryMs:15000,exitStageForEvent:true,
  manualLeadMinutes:same?(carry?.manualLeadMinutes??5):5,
  manualPriorityKeys:{
    tien_ma:true,tien_duyen_tac_chien:true,chien_doi:true,tranh_ba_tu_phuong:true,

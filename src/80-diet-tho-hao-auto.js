@@ -1,4 +1,4 @@
-/* Diệt Thổ Hào: server-verified native entrance, once per event window. */
+ 
 (()=>{'use strict';
 const W=window, actor=String(W.__KVPV_OWN_ACTOR_ID||''),old=W.KVPV_DIET_THO_HAO_AUTO,carry=old?._handoff?.();
 old?.stop?.();const S={enabled:carry?.actor===actor?carry.enabled!==false:true,timer:null,key:carry?.actor===actor?carry.key:'',attempts:carry?.actor===actor?carry.attempts:0,reason:'waiting',error:''};

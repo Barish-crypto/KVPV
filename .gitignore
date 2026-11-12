@@ -1,6 +1,7 @@
 # Local browser / account state - NEVER publish
 .kvpv-live/
 node_modules/
+/rust-core/target/
 .env
 .env.*
 *.log

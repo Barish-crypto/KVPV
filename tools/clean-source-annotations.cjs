@@ -1,6 +1,6 @@
 'use strict';
 
-// Removes only generated [VI dòng gốc] whole-line annotations.
+
 // Does not remove documentation, change JavaScript expressions, or delete files.
 // Default is read-only; --write edits src after a maintenance-lock check.
 const fs = require('node:fs');

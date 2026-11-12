@@ -207,7 +207,7 @@ function panel(){
 }
 function autoJoin(){
   const daily=W.KVPV_DAILY,q=daily?.quickState?.();
-  if(daily?.config?.enableQuizAuto===false||q?.running===false||W.KVPV?.events?.config?.enabled===false){S.reason='auto_join_disabled';return;}
+  if(daily?.config?.enableQuizAuto===false||W.KVPV?.events?.config?.enabled===false){S.reason='auto_join_disabled';return;}
   const st=W._Ba?._sst?._ist?.inst?.getCpSceneStateByType?.(69);
   if(Number(st?.[2])!==2){S.reason='waiting_event_open';return;}
   const cfg=W._ft?._po?.ins?.getCfgById?.(6901),api=W._Ba?._sst?._Cht?.inst;

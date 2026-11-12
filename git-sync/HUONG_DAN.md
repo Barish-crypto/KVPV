@@ -1,6 +1,6 @@
 # KVPV: ChatGPT → GitHub → Windows → Extension
 
-Mục đích: sau khi người dùng **thiết lập một lần**, mỗi bản sửa mã nguồn được **commit/push lên repository GitHub** sẽ tự được tải về Windows sau khoảng 60 giây; Native Host hiện có kiểm thử/build rồi nạp vào game. Không cần tải ZIP hoặc copy FULL mỗi lần.
+Mục đích: sau khi người dùng **thiết lập một lần**, mỗi bản sửa mã nguồn được **commit/push lên repository GitHub** sẽ tự được tải về Windows sau khoảng 60 giây; Native Host build và xác thực FULL/manifest rồi nạp vào game. Không cần tải ZIP hoặc copy FULL mỗi lần.
 
 ## Giới hạn quan trọng
 
@@ -22,7 +22,7 @@ ChatGPT trong cuộc trò chuyện thông thường **không có quyền sửa �
 
    Nếu thư mục đã có `.git` thì bỏ `git init`; nếu có `origin` rồi thì bỏ `remote add`. Không dùng `--force` với repo đã có dữ liệu. Phải xác nhận bạn đang đẩy lên đúng repo riêng và đã xem danh sách file bằng `git status`.
 4. Chạy `CAI_GITHUB_AUTO_SYNC.bat` một lần. Nó tạo lối khởi động cùng Windows (Startup folder) và chạy bộ đồng bộ nền ngay lập tức.
-5. Trong ChatGPT Work/GitHub connector, cho phép cập nhật đúng repo/nhánh này. Sau này chỉ cần yêu cầu sửa `src/...` và **push commit**; máy tự pull, Native Host tự kiểm thử rồi cập nhật bản FULL trong game nếu hợp lệ.
+5. Trong ChatGPT Work/GitHub connector, cho phép cập nhật đúng repo/nhánh này. Sau này chỉ cần yêu cầu sửa `src/...` và **push commit**; máy tự pull, Native Host tự build và xác thực artifact trước khi cập nhật bản FULL trong game.
 
 ## Xem trạng thái
 
@@ -36,7 +36,7 @@ ChatGPT trong cuộc trò chuyện thông thường **không có quyền sửa �
 - Chỉ `git fetch` rồi `merge --ff-only` nhánh đang track `origin/*`; không push, không `git reset --hard`, không ghi đè file local đang sửa.
 - Nếu Git chưa được cấu hình hoặc không có mạng, ghi lỗi rồi thử lại sau.
 - Nếu `maintenance.lock` tồn tại, tạm hoãn. Nếu phát hiện source local đã sửa, không tự kéo bản mới.
-- Nếu kiểm thử thất bại, Native Host giữ bản đã nạp trong game; mã lỗi ghi vào trạng thái. Không đảm bảo code mới được áp dụng nóng nếu game yêu cầu reload hoặc engine không hỗ trợ hot reload.
+- Nếu build, cú pháp hoặc hash artifact không hợp lệ, Native Host giữ bản đã nạp trong game; mã lỗi ghi vào trạng thái. Pipeline không chạy suite kiểm thử. Không đảm bảo code mới được áp dụng nóng nếu game yêu cầu reload hoặc engine không hỗ trợ hot reload.
 - Nhánh GitHub cần được giới hạn quyền ghi; tuyệt đối không để repo public chứa mã/dữ liệu tài khoản.
 - Để tắt tự đồng bộ chạy `TAT_GITHUB_AUTO_SYNC.bat`; extension hiện có vẫn nguyên vẹn.
 

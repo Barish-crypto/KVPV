@@ -1,5 +1,5 @@
-/* Quest first. Level requirements use the actual native character level;
- * Tian Quan uses the existing Tu Vuot controller, never a second entry RPC. */
+
+
 (() => {
   'use strict';
   const W=window,old=W.KVPV_QUEST_PRIORITY,carry=old?._handoff?.();old?.stop?.('reload');
@@ -55,7 +55,8 @@
   }
   function sync(){if(W.KVPV_ENTRY_POLICY?.manual===true)return;try{
     if(!S.enabled)return;if(W.KVPV_BOSS_TEAM?.priority?.()){S.reason='private_boss_invitation_priority';return;}if(!owned()){stop();return;}
-    // Timed large events outrank the quest EXP/Tu Vuot controller.
+    if(W.KVPV_RED_DOT_MODULE?.ownsProgression?.()){restore();S.reason='red_dot_first';return;}
+    
     // Never re-enable stage while the authoritative planner reserves an event.
     const eventHold=W.KVPV_EVENT_PRIORITY?.hold?.();
     if(eventHold){

@@ -1,23 +1,27 @@
-// [VI dòng gốc 1] Chú thích gốc của tác giả; không được thực thi. Nội dung: Cấu hình mặc định cho Phù Văn Tháp để bật Ma Thần Nộ.
-/* Cấu hình mặc định cho Phù Văn Tháp để bật Ma Thần Nộ.
- * Sử dụng cùng hệ thống combat với Linh Lung Tháp và Thiên Quan.
- * Kích hoạt chế độ Tuyệt Học nâng cao khi vào phó bản. */
+
+
+
+
 (() => {
   const W = window;
   
-  // Ensure Ma Thần Nộ (enhanced Tuyet Học) is enabled for Phù Văn when using TH300 system
+  
   if (W.KVPV_TH300) {
-    // Set animation speed to 99 times for Phù Văn Tháp
-    W.KVPV_TH300.setBasicAnimationSpeed?.(99);
-    // Enable Ma Thần Nộ (enhanced Tuyet Học) for Phù Văn Tháp
+    
+    W.KVPV_TH300.setBasicOnly?.(false);
+    W.KVPV_TH300.setTianQuanMpackExtras?.(true);
     W.KVPV_TH300.setTianQuanTuyetHoc?.(true);
-    // Enable basic only mode to bypass native cooldowns
-    W.KVPV_TH300.setBasicOnly?.(true);
+    
+    W.KVPV_TH300.setBasicAnimationSpeed?.(99);
+    W.KVPV_TH300.setScanInterval?.(1);
+    
+    W.KVPV_TH300.setInterleaved?.(true, 310);
+    W.KVPV_TH300.setSkillPriority?.('interleaved');
   }
   
-  // Also configure specific Phù Văn settings if available
+  
   if (W.KVPV_PHUVAN_TH) {
-    // Enable Phù Văn Tháp
+    
     W.KVPV_PHUVAN_TH.enabled = true;
   }
   

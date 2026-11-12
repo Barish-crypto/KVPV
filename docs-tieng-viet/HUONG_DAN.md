@@ -19,7 +19,7 @@ Không chèn comment vào giữa chuỗi nhiều dòng, template hoặc block co
 | Daily khi rảnh | `src/58-idle-daily.js` |
 | Nhận diện acc và nhịp khi tab ở nền | `src/00-account-policy.js` |
 | Bộ đóng gói FULL | `build.cjs` |
-| Đồng bộ bản mới | `live/watch.cjs`, `live/core.cjs` |
+| Đồng bộ bản mới | `live/core.cjs`, `edge-addon/native/host.cjs` |
 | Extension | `edge-addon/background.js`, `edge-addon/popup.js` |
 
 `setBasicAnimationSpeed(...)` đặt hệ số hoạt ảnh client cho đòn 8001, không đồng nghĩa số đòn trúng hoặc sát thương tăng cùng hệ số. API hiện nhận `1`, `9`, `99` và mức `99999` bạn vừa thêm. Cấu hình được đặt lại khi nạp module và không tự hết hạn sau 5 giây. Áp dụng trong Thiên Quan, Linh Lung Tháp, Phù Văn và Tru Tiên Đại Chiến khi nhân vật đang được phép đánh. Đặt `1` để tắt hệ số hoạt ảnh. Những cổng nhận diện nhân vật, hồi phục và chọn mục tiêu vẫn hoạt động.
@@ -28,7 +28,7 @@ Tru Tiên được nhận diện qua cấu hình map native có loại cảnh `5
 
 Theo lựa chọn mới nhất của bạn, dòng gọi trên acc chính đang giữ nguyên `99999`, cùng thay đổi cho phép giá trị đó trong API. Chú thích ngay trên dòng gọi đã ghi rõ đây là thay đổi tốc độ phát hoạt ảnh. Bộ chú thích không tự đổi lại các giá trị bạn đã sửa.
 
-## Sửa và kiểm tra
+## Sửa và đóng gói
 
 Mở PowerShell tại thư mục gốc. Tạo khóa để bộ đồng bộ không nạp code đang sửa dở:
 
@@ -36,18 +36,16 @@ Mở PowerShell tại thư mục gốc. Tạo khóa để bộ đồng bộ khô
 Set-Content -LiteralPath '.kvpv-live/maintenance.lock' -Value 'Dang sua code'
 ```
 
-Sửa file nguồn, sau đó chạy:
+Sửa file nguồn, sau đó tạo lại bundle:
 
 ```powershell
-$env:KVPV_VERIFY_MAINTENANCE='1'
-node test.cjs
+npm run build
 ```
 
-Chỉ khi tiến trình trả mã 0 và toàn bộ kiểm tra qua, bỏ khóa:
+Sau khi build hoàn tất, bỏ khóa:
 
 ```powershell
 Remove-Item -LiteralPath '.kvpv-live/maintenance.lock'
-(Get-Item -LiteralPath 'test.cjs').LastWriteTime=Get-Date
 ```
 
 Các bundle FULL, bản vá, Android userscript và `edge-addon/core.js` được sinh lại từ nguồn. Đừng sửa trực tiếp bundle vì build sẽ ghi đè. Các file HTML cần cho giao diện extension vẫn phải giữ; chỉ bản tài liệu HTML đã được bỏ.
@@ -58,9 +56,6 @@ Sau khi chỉnh code, muốn tạo lại chú thích trực tiếp:
 
 ```powershell
 node docs-tieng-viet/generate.cjs --inline
-node docs-tieng-viet/verify.cjs
 ```
 
-Lệnh `--inline` yêu cầu khóa bảo trì, sao lưu từng file trước khi ghi, kiểm tra AST/token và chỉ thay phần chú thích tự sinh. Thông tin sao lưu được ghi trong `inline-source-manifest.json`. Chạy lại `node test.cjs` sau bước này, rồi mới bỏ khóa.
-
-Bộ kiểm tra có một số bài trích đoạn theo chuỗi; khi đọc nguồn để trích đoạn, chúng bỏ riêng các dòng chú thích tự sinh. Các bài kiểm tra bundle nguyên văn và hàm băm vẫn đọc đầy đủ nội dung, kể cả chú thích.
+Lệnh `--inline` yêu cầu khóa bảo trì, sao lưu từng file trước khi ghi, xác thực cấu trúc/token và chỉ thay phần chú thích tự sinh. Thông tin sao lưu được ghi trong `inline-source-manifest.json`.
